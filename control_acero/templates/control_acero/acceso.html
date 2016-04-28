@@ -1,0 +1,86 @@
+{% extends 'control_acero/layout.html' %}
+
+{% block content %}
+	{% if messages %}	    
+		{% for message in messages %}
+	    	<div class="alert alert-warning">{{message}}</div>
+	    {% endfor %}
+	{% endif %}
+	<nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/">
+					<figure class="nav-company pull-left">
+						<img src="http://equipamiento.grupohi.mx/img/company-icon.png" alt="Grupo Hermes Infraestructura"/>
+					</figure>
+					Control Acero
+				</a>
+			</div>
+
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="/auth/login"><i class="fa fa-sign-in fa-fw"></i> Iniciar Sesión</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container theme-showcase" role="main">
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<h1>Bienvenido</h1>
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>Elige tu bd<th>
+						</th>
+					</thead>
+					<tbody>
+	                {% if permisos_a_bd %}
+	                    {% for row in permisos_a_bd %}
+	                    <tr>
+	                    	<td><a href="#" class="accede">{{row.Nombre}}</a></td>
+	                    </tr>
+	                    {% endfor %}
+	                {% else %}
+	                    <tr>
+	                    	<td>No tienes ningun acceso</td>
+	                    </tr>
+	                {% endif %}
+		            </tbody>
+	            </table>
+			</div>
+		</div>
+	</div>
+	<div style="display:none;">
+	<form action="/admin/login/?next=/admin/" method="post" id="login-form">{% csrf_token %}
+	  <div class="form-row">
+	    
+	    <label class="required" for="id_username">Nombre de usuario:</label> <input id="id_username" maxlength="254" name="username" type="text" value="{{ request.session.usuario }}">
+	  </div>
+	  <div class="form-row">
+	    
+	    <label class="required" for="id_password">Contraseña:</label> <input id="id_password" name="password" type="password" value="{{ request.session.clave }}">
+	    <input type="hidden" name="next" value="/admin/">
+	  </div>
+	  
+	  {{ request.session.usuario }}
+	  <div class="submit-row">
+	    <label>&nbsp;</label><input id="btnAdmin" type="submit" value="Iniciar sesión">
+	  </div>
+	</form>
+	</div>
+
+	<script type="text/javascript">
+		$( ".accede" ).click(function() {
+  			$("#btnAdmin").trigger("click");
+		});
+	</script>
+
+{% endblock %}

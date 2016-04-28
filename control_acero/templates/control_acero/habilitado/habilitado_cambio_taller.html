@@ -1,0 +1,76 @@
+{% extends 'control_acero/layout.html' %}
+
+{% block content %}
+	{% if messages %}	    
+		{% for message in messages %}
+	    	<div class="alert alert-warning">{{message}}</div>
+	    {% endfor %}
+	{% endif %}
+	<div class="col-xs-12">
+		<h1>HABILITADO CAMBIO DE TALLER</h1>
+		<table id="tablaTrabajo" class="table table-hover">
+			<thead>
+				<tr>
+					<th>Detalle de Asignación</th>
+				</tr>
+				<tr>
+					<th>Cantidad</th>
+					<th>Cantidad Asignada</th>
+					<th>Funcion</th>
+					<th>Taller Asignado</th>
+					<th>Cambio de taller</th>
+					<th>Pase de Salida</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>1</td>
+					<td>2000 kg</td>
+					<td>Habilitador</td>
+					<td>Taller Mex</td>
+					<td>Buscar Taller</td>
+					<td><span class="glyphicon glyphicon-eye-open"></span></td>
+				</tr>
+			</tbody>
+		</table>
+
+			<button type="button" class="btn btn-success">Asignar</button>
+	</div>
+
+	<!-- Modal Busqueda-->
+	<div class="modal fade" id="modalBuscar" tabindex="-1" role="dialog" aria-labelledby="modalBuscarLabel">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="modalBuscarLabel">Busqueda Frentes de Trabajo</h4>
+				</div>
+				<div class="modal-body">
+						<div class="col-md-6">
+							<label>Folio</label>
+						</div>
+						<div class="col-md-6">
+							<input class="form-control" type="text"/>
+						</div>
+						<div class="col-md-6">
+							<label>Ubicación</label>
+						</div>
+						<div class="col-md-6">
+							<input class="form-control" type="text"/>
+						</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+					<button type="button" class="btn btn-primary">Buscar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$( ".elimina" ).click(function() {
+			var remove = $(this).attr("idremove");
+            $("#tablaTrabajo tbody tr:eq(" + remove + ")").hide();
+		});
+	</script>
+{% endblock %}

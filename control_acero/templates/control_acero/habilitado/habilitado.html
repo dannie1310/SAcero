@@ -1,0 +1,106 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	HABILITADO
+{% endblock %}
+{% block content %}
+	{% if messages %}	    
+		{% for message in messages %}
+	    	<div class="alert alert-warning">{{message}}</div>
+	    {% endfor %}
+	{% endif %}
+	<div class="col-xs-12">
+		<div class="col-md-12 text-center input-group">
+			<label>Orden de Trabajo</label>
+			<select class="form-control">
+				<option>Orden1</option>
+				<option>Orden2</option>
+			</select>
+		</div>
+		<div class="col-md-12">
+			<table id="tablaTrabajo" class="table table-hover">
+				<thead>
+					<tr>
+						<th>Cantidad</th>
+						<th>Peso Solicitado</th>
+						<th>Peso Recibido</th>
+						<th>Certificado</th>
+						<th>Remision</th>
+						<th>Transporte</th>
+						<th>Detalle</th>
+						<th>Seleccionar</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td>2000 kg</td>
+						<td>2000 kg</td>
+						<td><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></td>
+						<td><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></td>
+						<td>placasX</td>
+						<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>
+						<td><input type="checkbox" /></td>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td>3000 kg</td>
+						<td>3000 kg</td>
+						<td><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></td>
+						<td><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></td>
+						<td>placasX</td>
+						<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>
+						<td><input type="checkbox" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-12 text-center">
+			<label>Tiempo Estimado de Habilitado</label><input type="text"></input>
+		</div>
+		<div class="col-xs-12 text-center">
+			<button type="button" class="btn btn-primary">Generar Documento</button>
+			Capitel<input type="checkbox" />
+		</div>
+			<form action="/control_acero/habilitado/cambioTaller/">
+				<button type="button" class="btn btn-success">Guardar</button>
+				<button type="submit" class="btn btn-info">Cambio de Taller</button>
+			</form>
+	</div>
+
+	<!-- Modal Busqueda-->
+	<div class="modal fade" id="modalBuscar" tabindex="-1" role="dialog" aria-labelledby="modalBuscarLabel">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="modalBuscarLabel">Busqueda Frentes de Trabajo</h4>
+				</div>
+				<div class="modal-body">
+						<div class="col-md-6">
+							<label>Folio</label>
+						</div>
+						<div class="col-md-6">
+							<input class="form-control" type="text"/>
+						</div>
+						<div class="col-md-6">
+							<label>Ubicación</label>
+						</div>
+						<div class="col-md-6">
+							<input class="form-control" type="text"/>
+						</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+					<button type="button" class="btn btn-primary">Buscar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$( ".elimina" ).click(function() {
+			var remove = $(this).attr("idremove");
+            $("#tablaTrabajo tbody tr:eq(" + remove + ")").hide();
+		});
+	</script>
+{% endblock %}

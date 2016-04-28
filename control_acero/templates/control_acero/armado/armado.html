@@ -1,0 +1,99 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	ARMADO
+{% endblock %}
+{% block content %}
+	{% if messages %}	    
+		{% for message in messages %}
+	    	<div class="alert alert-warning">{{message}}</div>
+	    {% endfor %}
+	{% endif %}
+	<div class="col-xs-12">
+		<div class="col-md-12 text-center input-group">
+			<label>Orden de Armado</label>
+			<select class="form-control">
+				<option>Orden1</option>
+				<option>Orden2</option>
+			</select>
+		</div>
+		<div class="col-md-12">
+			<table id="tablaTrabajo" class="table table-hover">
+				<thead>
+					<tr>
+						<th>Cantidad Despiece</th>
+						<th>Elementos Recibidos</th>
+						<th>Tipo Pieza</th>
+						<th>Etiqueta</th>
+						<th>Detalle</th>
+						<th>Seleccionar</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>22</td>
+						<td>Estribo1</td>
+						<td>3A</td>
+						<td><input type="text" /></td>
+						<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>
+						<td><input type="checkbox" /></td>
+					</tr>
+					<tr>
+						<td>41</td>
+						<td>Estribo2</td>
+						<td>5A</td>
+						<td><input type="text" /></td>
+						<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>
+						<td><input type="checkbox" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-12 text-center">
+			<label>Tiempo Estimado de Habilitado: 2 días</label>
+		</div>
+		<div class="col-xs-12 text-center">
+			<button type="button" class="btn btn-primary">Generar Documento</button>
+		</div>
+			<!--<form action="/control_acero/habilitado/cambioTaller/">-->
+				<button type="button" class="btn btn-success">Guardar</button>
+				<button type="submit" class="btn btn-info">Generar Incidencia</button>
+			<!--</form>-->
+	</div>
+
+	<!-- Modal Busqueda-->
+	<div class="modal fade" id="modalBuscar" tabindex="-1" role="dialog" aria-labelledby="modalBuscarLabel">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="modalBuscarLabel">Busqueda Frentes de Trabajo</h4>
+				</div>
+				<div class="modal-body">
+						<div class="col-md-6">
+							<label>Folio</label>
+						</div>
+						<div class="col-md-6">
+							<input class="form-control" type="text"/>
+						</div>
+						<div class="col-md-6">
+							<label>Ubicación</label>
+						</div>
+						<div class="col-md-6">
+							<input class="form-control" type="text"/>
+						</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+					<button type="button" class="btn btn-primary">Buscar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$( ".elimina" ).click(function() {
+			var remove = $(this).attr("idremove");
+            $("#tablaTrabajo tbody tr:eq(" + remove + ")").hide();
+		});
+	</script>
+{% endblock %}

@@ -1,0 +1,322 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CONTROL DE ASIGNACIONES
+{% endblock %}
+{% block content %}
+	{% if messages %}	    
+		{% for message in messages %}
+	    	<div class="alert alert-warning">{{message}}</div>
+	    {% endfor %}
+	{% endif %}
+	<div class="col-xs-12">
+		<div class="col-md-3">
+			<label for="cmbFrente">Selecciona un Frente de Trabajo:</label>
+		</div>
+		<div class="col-md-3">
+			<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+			</select>
+		</div>
+
+		<div class="col-md-3">
+			<label for="cmbOrden">Selecciona un proveedor</label>
+		</div>
+		<div class="col-md-3">
+			<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+			</select>
+		</div>
+
+
+		<div class="col-md-3">
+			<label for="cmbOrden">Orden de Compra</label>
+		</div>
+		<div class="col-md-3">
+			<select name="cmbOrden" id="cmbOrden" class="cmbOrden form-control">
+				<option>Selecciona un Orden de Trabajo</option>
+				<option>Orden1</option>
+				<option>Orden2</option>
+			</select>
+		</div>
+
+		<div class="col-md-3">
+			<label for="cmbSum">Folio Programa Suministro</label>
+		</div>
+		<div class="col-md-3">
+			<select name="cmbSum" id="cmbSum" class="cmbSum form-control">
+				<option>Selecciona</option>
+				<option>Suministro1</option>
+				<option>Suministro2</option>
+			</select>
+		</div>
+
+		<div class="col-md-12 text-center">
+			<button class="btn btn-success" name="btnAgregaAsignacion" id="btnAgregaAsignacion">Agregar</button>
+		</div>
+
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center" colspan="6">Detalle de la Asignación</th>
+				</tr>
+				<tr>
+					<th>Orden de Compra</th>
+					<th>Frente de Trabajo</th>
+					<th>Proveedor Asignado</th>
+					<th>Peso Esperado</th>
+					<th>Plan de Entrega</th>
+					<th>Tiempo Estimado</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Orden 1</td>
+					<td>Frente1</td>
+					<td>Suministro Aceros Mex</td>
+					<td>5000</td>
+					<td>Cargar</td>
+					<td>2 dias</td>
+				</tr>
+			</tbody>
+			
+		</table>
+
+		<div class="col-md-12">
+			<button type="button" class="btn btn-primary">Guardar</button>
+		</div>
+	</div>
+
+
+	<script type="text/javascript">
+		comboFrente = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/frente/combofiltrado/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbFrente').empty();
+		                $('.cmbFrente').append('<option value="0">Selecciona un Frente de Trabajo</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbFrente').append('<option value="' + object.idFrente + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Frente:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboFunciones = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/funcion/combofiltrado/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbFuncion').empty();
+		                $('.cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		/*$( "#btnAgregaAsignacion" ).click(function() {
+			var frente = $("#cmbFrente").val();
+			var funcion = $("#cmbFuncion").val();
+			if(frente == 0){
+				mensajeWarning("<b>Debes elegir un Frente de Trabajo</b>");
+				return false;
+			}
+			if(funcion == 0){
+				mensajeWarning("<b>Debes elegir un Proveedor a Asignar</b>");
+				return false;
+			}
+			alert("test");
+		});
+		$( "#cmbEstructura" ).change(function() {
+			$("#tablaFrente tbody").empty();
+			$("#tablaEstructura tbody").empty();
+			$("#tablaElementos tbody").empty();
+			$("#tablaDespieces tbody").empty();
+			var orden = $("#cmbOrden").val();
+			var frente = $("#cmbFrente").val();
+			var estructura = $(this).val();
+			var tabla = '';
+			var tablaEstructura = '';
+			var tablaElementos = '';
+			var tablaDespieces = '';
+			var tablaMateriales = '';
+			if(orden == 0){
+				$("#cmbEstructura").val(0);
+				mensajeWarning("<strong>Debes elegir una Orden de Compra.</strong>");
+				return false;
+			}
+			if(frente == 0){
+				$("#cmbEstructura").val(0);
+				mensajeWarning("<strong>Debes elegir un Frente de Trabajo.</strong>");
+				return false;
+			}
+			if(estructura == 0){
+				$("#cmbEstructura").val(0);
+				mensajeWarning("<strong>Debes elegir una Estructura.</strong>");
+				return false;
+			}
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/frente/show/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		frente: frente,
+		        		estructura: estructura
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+                    $.each(datos.frente, function (count, objectFrente) {
+	                    tabla += '<tr>';
+	                        tabla += '<td>'+objectFrente.nombreFrente+'</td>';
+	                        tabla += '<td>'+objectFrente.ubicacion+'</td>';
+	                        tabla += '<td>'+objectFrente.identificacion+'</td>';
+	                        tabla += '<td>'+objectFrente.kilometros+'</td>';
+	                    tabla += '</tr>';
+                    	console.log(datos);
+                    });
+                    $.each(datos.estructura, function (count, objectEstructura) {
+	                    tablaEstructura += '<tr>';
+	                        tablaEstructura += '<td class="text-center">'+objectEstructura.nombreEstructura+'</td>';
+	                    tablaEstructura += '</tr>';
+                    });
+                    $.each(datos.elementos, function (count, objectElementos) {
+	                    tablaElementos += '<tr>';
+	                        tablaElementos += '<td class="text-center">'+objectElementos.nombreElemento+'</td>';
+	                        tablaElementos += '<td class="text-center">'+objectElementos.numeroElemento+'</td>';
+	                        tablaElementos += '<td class="text-center">'+objectElementos.diametroElemento+'</td>';
+	                        tablaElementos += '<td class="text-center">'+objectElementos.longitudtotalElemento+'</td>';
+	                    tablaElementos += '</tr>';
+                    });
+                    $.each(datos.despieces, function (count, objectDespieces) {
+	                    tablaDespieces += '<tr>';
+	                        tablaDespieces += '<td class="text-center">'+objectDespieces.nombreElemento+'</td>';
+	                        tablaDespieces += '<td class="text-center">'+objectDespieces.nombreDespiece+'</td>';
+	                        tablaDespieces += '<td class="text-center">'+objectDespieces.piezaDespiece+'</td>';
+	                        tablaDespieces += '<td class="text-center">'+objectDespieces.calibreDespiece+'</td>';
+	                        tablaDespieces += '<td class="text-center">'+objectDespieces.pijaDespiece+'</td>';
+	                        tablaDespieces += '<td class="text-center">'+objectDespieces.longitudDespiece+'</td>';
+	                    tablaDespieces += '</tr>';
+                    });
+                    $.each(datos.materiales, function (count, objectMateriales) {
+	                    tablaMateriales += '<tr>';
+	                        tablaMateriales += '<td class="text-center">'+objectMateriales.nombreDespiece+'</td>';
+	                        tablaMateriales += '<td class="text-center">'+objectMateriales.nombreMaterial+'</td>';
+	                        tablaMateriales += '<td class="text-center">'+objectMateriales.tipoMaterial+'</td>';
+	                        tablaMateriales += '<td class="text-center">'+objectMateriales.proveedorMaterial+'</td>';
+	                        tablaMateriales += '<td class="text-center">'+objectMateriales.diametroMaterial+'</td>';
+	                        tablaMateriales += '<td class="text-center">'+objectMateriales.pesoMaterial+'</td>';
+	                        tablaMateriales += '<td class="text-center">'+objectMateriales.longitudMaterial+'</td>';
+	                    tablaMateriales += '</tr>';
+                    });
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Estructuras:\n\n" + otroobj);
+		        }
+		    });
+		    $("#tablaFrente tbody").append(tabla);
+		    $("#tablaEstructura tbody").append(tablaEstructura);
+		    $("#tablaElementos tbody").append(tablaElementos);
+		    $("#tablaDespieces tbody").append(tablaDespieces);
+		    $("#tablaMateriales tbody").append(tablaMateriales);
+		});
+
+        actualizaPosicion = function (dataParte) {
+            var i = 0;
+            $(".trPosicion").each(function () {
+                var pos = $(this).attr("pos", i);
+                i++;
+            });
+        },
+        limpiaCampos = function (dataParte) {
+        	$("#cmbOrden").val(0);
+        	$("#cmbFrente").val(0);
+        	$("#cmbEstructura").val(0);
+        	$("#cmbOrdenElemento").val(0);
+        	$("#cmbFrenteElemento").val(0);
+        	$("#cmbElemento").val(0);
+        },
+        limpiaTablas = function (dataParte) {
+        	$("#tablaFrente tbody").empty();
+        	$("#tablaEstructura tbody").empty();
+        	$("#tablaElementos tbody").empty();
+        	$("#tablaDespieces tbody").empty();
+        	$("#tablaMateriales tbody").empty();
+        	$("#tablaElementosElemento tbody").empty();
+        	$("#tablaDespiecesElemento tbody").empty();
+        	$("#tablaMaterialesElemento tbody").empty();
+        	$("#tablaFrenteElemento tbody").empty();
+        	$("#tablaAgregados tbody").empty();
+        },
+        $("#tablaAgregados").on("click", ".trPosicion", function () {
+            var posicion = $(this).attr("pos");
+            $("#tablaAgregados tbody tr:eq(" + posicion + ")").remove();
+            actualizaPosicion();
+        });
+        $( "#guardarFrente" ).click(function() {
+        	var rowCount = $('#tablaAgregados tbody tr').length;
+        	if(rowCount == 0){
+        		mensajeWarning("<strong>Debes agregar al menos un registro.</strong>");
+        		return false;
+        	}
+        	var datos = [];
+        	var resultado = [];
+			$(":input[class=data]").each(function(index, element) {
+				datos.push({"data": this.value});
+			});
+			var json = JSON.stringify(datos);
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/frente/guardaFrente/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		json:json
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		        	if(datos.estatus == "ok"){
+		        		mensajeSuccess(datos.mensaje);
+		        	}else{
+		        		mensajeWarning(datos.mensaje);
+		        	}
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Autorizar Frente:\n\n" + otroobj);
+		        }
+		    });
+		    limpiaCampos();
+		    limpiaTablas();
+        });*/
+	    $(function () {
+	    	comboFrente();
+	    	comboFunciones();
+	    });
+	</script>
+{% endblock %}
