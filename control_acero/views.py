@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from control_acero.report.models_auth import Empresa, Usuario
-from .models import Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, AsignacionEtapa, FrenteAsigna
+from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, AsignacionEtapa, FrenteAsigna, ProgramaSuministro, ProgramaSuministroDetalle
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
@@ -20,6 +20,8 @@ import md5
 from django.contrib import messages
 from django.db import connections
 from .forms import ApoyoForm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import render_to_response
 
 
 class IndexView(generic.ListView):
@@ -42,6 +44,45 @@ def frenteTrabajoView(request):
 def frenteTrabajoNuevoView(request):
 	template = 'control_acero/frente_trabajo/frente_trabajo_nuevo.html'
 	return render(request, template)
+
+def frenteTrabajoShow(request):
+	array = {}
+	data = []
+	mensaje = {"estatus":"ok", "mensaje":"Correcto"}
+	idFrente = request.POST.get('idFrente', 0)
+	frente = Frente.objects.filter(id=idFrente)
+	for f in frente:
+		resultado = {"idFrente":f.id,"nombreFrente":f.nombre,"identificacion":f.identificacion,"ubicacion":f.ubicacion,"kilometros":f.kilometros}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def apoyoCombofiltrado(request):
+	array = {}
+	mensaje = {}
+	data = []
+	apoyo = Apoyo.objects.filter(estatus=1)
+	for a in apoyo:
+			resultado = {"idApoyo":a.id,"numero":a.numero}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def programaCombofiltrado(request):
+	array = {}
+	mensaje = {}
+	data = []
+	programa = ProgramaSuministro.objects.filter(estatus=1)
+	for p in programa:
+			resultado = {"idPrograma":p.id}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
 
 def frenteGuardaFrenteView(request):
 	respuesta = request.POST.get('json')
@@ -356,7 +397,7 @@ def frenteCombofiltrado(request):
 	mensaje = {}
 	data = []
 	#v = Venta(usuario_id=usuario_id)
-	frente = Frente.objects.all()
+	frente = Frente.objects.filter(estatus=1)
 	for f in frente:
 			resultado = {"idFrente":f.id,"nombre":f.nombre}
 			data.append(resultado)
@@ -383,13 +424,85 @@ def elementoCombo(request):
 	array = {}
 	mensaje = {}
 	data = []
-	#v = Venta(usuario_id=usuario_id)
 	elemento = Elemento.objects.all()
 	for e in elemento:
 			resultado = {"idElemento":e.id,"nombre":e.nombre}
 			data.append(resultado)
 
 	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def elementoComboApoyoElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idApoyo = request.POST.get('idApoyo', 0)
+	elemento = Elemento.objects.filter(apoyo=1)
+	for e in elemento:
+		resultado = {"idElemento":e.id,"nombre":e.nombre}
+		data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def programaSave(request):
+	array = {}
+	mensaje = {}
+	idOrden = request.POST.get('idOrden', 0)
+	idFrente = request.POST.get('idFrente', 0)
+	fechaInicial = request.POST.get('fechaInicial', 0)
+	fechaFinal = request.POST.get('fechaFinal', 0)
+	respuesta = request.POST.get('json')
+	json_object = json.loads(respuesta)
+	p = ProgramaSuministro(idOrden=idOrden, fechaInicial=timezone.now(), fechaFinal=timezone.now(), frente_id=idFrente, estatus=1)
+	p.save()
+	for data in json_object:
+		datos = data["data"]
+		splitData = datos.split("|")
+		apoyo = splitData[0]
+		elemento = splitData[1]
+		numeroCuatro = splitData[2]
+		numeroCinco= splitData[3]
+		numeroSeis = splitData[4]
+		numeroSiete = splitData[5]
+		numeroOcho = splitData[6]
+		numeroNueve = splitData[7]
+		numeroDiez = splitData[8]
+		numeroOnce = splitData[9]
+		numeroDoce = splitData[10]
+		total = splitData[11]
+		pd = ProgramaSuministroDetalle(idProgramaSuministro=p.pk, apoyo_id=apoyo, elemento_id=elemento, numeroCuatro=numeroCuatro, numeroCinco=numeroCinco, numeroSeis=numeroSeis, numeroSiete=numeroSiete, numeroOcho=numeroOcho, numeroNueve=numeroNueve, numeroDiez=numeroDiez, numeroOnce=numeroOnce, numeroDoce=numeroDoce)
+		pd.save();
+	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente"}
+	array = mensaje
+	return JsonResponse(array)
+
+def asignacionSave(request):
+	array = {}
+	mensaje = {}
+	idOrden = request.POST.get('orden', 0)
+	idFrente = request.POST.get('frente', 0)
+	idPrograma = request.POST.get('programa', 0)
+	idFuncion = request.POST.get('funcion', 0)
+	estimado = request.POST.get('estimado', 0)
+	peso = request.POST.get('peso', 0)
+	c = ControlAsignacion(idOrden=idOrden, idProgramaSuministro=idPrograma, frente_id=idFrente, funcion_id=idFuncion, tiempoEntrega=estimado, estatus=1, cantidad=peso)
+	c.save()
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion exitosamente"}
+	array = mensaje
+	return JsonResponse(array)
+
+def elementoMaterial(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idElemento = request.POST.get('idElemento', 0)
+	elemento = Elemento.objects.values('id','nombre', 'material__id', 'material__nombre', 'material__numero', 'material__peso', 'material__proveedor').filter(id=idElemento)
+	for e in elemento:
+		resultado = {"idElemento":e["id"],"nombreElemento":e['nombre'],"idMaterial":e['material__id'],"nombreMaterial":e['material__nombre'],"materialNumero":e['material__numero'],"materialPeso":e['material__peso'],"materialProveedor":e['material__proveedor']}
+		data.append(resultado)
 	array["data"]=data
 	return JsonResponse(array)
 
@@ -419,6 +532,18 @@ def controlNuevo(request):
 	array = mensaje
 	return JsonResponse(array)
 
+def apoyosView(request):
+	apoyo_list = Apoyo.objects.filter(estatus=1)
+	paginator = Paginator(apoyo_list, 5)
+	page = request.GET.get('page')
+	try:
+		apoyos = paginator.page(page)
+	except PageNotAnInteger:
+		apoyos = paginator.page(1)
+	except EmptyPage:
+		apoyos = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/apoyos/apoyo.html', {"apoyos": apoyos})
+
 def apoyosNewView(request):
 	if request.method == "POST":
 		form = ApoyoForm(request.POST)
@@ -431,17 +556,23 @@ def apoyosNewView(request):
 		
 	return render(request, 'control_acero/catalogos/apoyos/apoyo_new.html', {'form': form})
 
-def apoyosEditView(request):
+def apoyosEditView(request, pk):
+	apoyo = get_object_or_404(Apoyo, pk=pk)
 	if request.method == "POST":
-		form = ApoyoForm(request.POST)
+		form = ApoyoForm(request.POST, instance=apoyo)
 		if(form.is_valid()):
 			apoyo = form.save(commit=False)
 			apoyo.save()
 			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
 	else:
-		form = ApoyoForm()
+		form = ApoyoForm(instance=apoyo)
 		
-	return render(request, 'control_acero/catalogos/apoyos/apoyo_new.html', {'form': form})
+	return render(request, 'control_acero/catalogos/apoyos/apoyo_edit.html', {'form': form})
+
+def apoyosLogicalDelete(request):
+	print request
+	#c = Apoyo(id=idApoyo, estatus=0)
+	#c.save()
 
 def recepcionRegistros(request):
 	print "aqui"

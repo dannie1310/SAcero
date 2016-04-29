@@ -120,7 +120,9 @@
 </head>
 
 <body>
-
+    <div style="display:none;" class="notification mensajeInfo alert alert-info col-xs-12"></div>
+    <div style="display:none;" class="notification mensajeSuccess alert alert-success col-xs-12"></div>
+    <div style="display:none;" class="notification mensajeWarning alert alert-warning col-xs-12"></div>
     <!-- *** TOPBAR ***
  _________________________________________________________ -->
     <div id="top">
@@ -213,7 +215,7 @@
                                     <div class="row">
                                         <div class="col-sm-3">
                                             <ul>
-                                                <li><a href="{% url 'apoyosNewView' %}">Apoyos</a>
+                                                <li><a href="{% url 'apoyosView' %}">Apoyos</a>
                                                 </li>
                                             </ul>
                                             <ul>
@@ -290,8 +292,6 @@
 
     <!-- *** NAVBAR END *** -->
 
-
-
     <div id="all">
 
         <div id="content">
@@ -316,10 +316,7 @@
 
             <div class="box text-center" data-animate="fadeInUp">
                 <div class="container" data-animate="fadeInUp">
-                    <div class="col-md-12">
-                        <div style="display:none;" class="notification mensajeInfo alert alert-info col-xs-12"></div>
-                        <div style="display:none;" class="notification mensajeSuccess alert alert-success col-xs-12"></div>
-                        <div style="display:none;" class="notification mensajeWarning alert alert-warning col-xs-12"></div>
+                    <div class="col-xs-12">
                         {% block content %}{% endblock %}
                     </div>
                 </div>

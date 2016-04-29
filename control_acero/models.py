@@ -7,6 +7,7 @@ import datetime
 # Create your models here.
 class Material(models.Model):
 	nombre = models.CharField(blank=True, max_length=100)
+	numero = models.IntegerField(default=0)
 	proveedor = models.CharField(default=0, max_length=20)
 	ESTATUSTIPO = (
 	    (1, 'Recto'),
@@ -124,7 +125,7 @@ class Funcion(models.Model):
 
 class Frente(models.Model):
 	nombre = models.CharField(max_length=100)
-	identificacion = models.IntegerField()
+	identificacion = models.CharField(max_length=100)
 	ubicacion = models.CharField(max_length=100)
 	kilometros = models.FloatField(default=0)
 	ESTATUSTABLE = (
@@ -139,8 +140,10 @@ class Frente(models.Model):
 class ControlAsignacion(models.Model):
 	cantidad = models.IntegerField()
 	tiempoEntrega = models.IntegerField()
+	idOrden = models.IntegerField(null=True, blank=True)
 	funcion = models.ForeignKey(Funcion)
 	frente = models.ForeignKey(Frente)
+	idProgramaSuministro = models.IntegerField(default=0)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -148,7 +151,7 @@ class ControlAsignacion(models.Model):
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.nombre
+		return self.idOrden
 
 class AsignacionEtapa(models.Model):
 	funcion = models.ForeignKey(Funcion)
@@ -177,3 +180,42 @@ class Apoyo(models.Model):
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.numero
+
+class ProgramaSuministro(models.Model):
+	idOrden = models.IntegerField()
+	frente = models.ForeignKey(Frente)
+	fechaInicial = models.DateTimeField()
+	fechaFinal = models.DateTimeField()
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.idOrden
+
+class ProgramaSuministroDetalle(models.Model):
+	idProgramaSuministro = models.IntegerField()
+	apoyo = models.ForeignKey(Apoyo)
+	elemento = models.ForeignKey(Elemento)
+	numeroCuatro = models.CharField(max_length=20)
+	numeroCinco = models.CharField(max_length=20)
+	numeroSeis = models.CharField(max_length=20)
+	numeroSiete = models.CharField(max_length=20)
+	numeroOcho = models.CharField(max_length=20)
+	numeroNueve = models.CharField(max_length=20)
+	numeroDiez = models.CharField(max_length=20)
+	numeroOnce = models.CharField(max_length=20)
+	numeroDoce = models.CharField(max_length=20)
+	total = models.CharField(max_length=20)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.programaSuministro
