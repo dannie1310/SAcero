@@ -8,20 +8,21 @@
 			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbOrden">Elegir Orden de Compra:</label>
 				<select name="cmbOrden" id="cmbOrden" class="cmbOrden form-control">
-					<option value="0">Selecciona una Orden de Compra</option>
-					<option value="1">Orden 1</option>
-					<option value="2">Orden 2</option>
-					<option value="3">Orden 3</option>
 				</select>
 			</div>
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFrente">Elegir frente de Trabajo:</label>
+				<label  class="control-label" for="cmbFrente">Elegir Frente de Trabajo:</label>
 				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 				</select>
 			</div>
 			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbPrograma">Elegir Programa de Suministro:</label>
 				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbPrograma">Elige un Elemento:</label>
+				<select name="cmbElemento" id="cmbElemento" multiple="multiple" class="cmbElemento form-control">
 				</select>
 			</div>
 			<div class="form-group col-md-12">
@@ -39,15 +40,16 @@
 			<table id="tablaAsignacion" class="table table-hover">
 				<thead>
 					<tr>
-						<th class="text-center" colspan="7">Detalle de la Asignación</th>
+						<th class="text-center" colspan="8">Detalle de la Asignación</th>
 					</tr>
 					<tr>
 						<th class="text-center">Orden de Compra</th>
 						<th class="text-center">Frente de Trabajo</th>
 						<th class="text-center">Folio Programa Suministro</th>
+						<th class="text-center">Estructura</th>
 						<th class="text-center">Proveedor Asignado</th>
 						<th class="text-center">Plan de Entrega</th>
-						<th class="text-center">Peso Esperado en Kilogramos</th>
+						<th class="text-center">Peso Total</th>
 						<th class="text-center">Tiempo Estimado en Días</th>
 					</tr>
 				</thead>
@@ -63,13 +65,40 @@
 
 
 	<script type="text/javascript">
-		comboFrente = function () {
+		comboOrden = function () {
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/frente/combofiltrado/",
+		        url: "/control_acero/asignacion/comboOrden/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbOrden').empty();
+		                $('.cmbOrden').append('<option value="0">Selecciona un Orden de Compra</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbOrden').append('<option value="' + object.idOrden + '">Orden' + object.idOrden + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboFrente = function (idOrden) {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/asignacion/comboFrente/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		orden: idOrden
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -115,13 +144,15 @@
 		        }
 		    });
 		};
-		comboPrograma = function () {
+		comboPrograma = function (idOrden, idFrente) {
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/programa/combofiltrado/",
+		        url: "/control_acero/asignacion/comboPrograma/",
 		        async: false,
 		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		orden: idOrden,
+		        		frente: idFrente
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -141,8 +172,37 @@
 		        }
 		    });
 		};
+		comboEstructura = function (programa) {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/asignacion/comboElementos/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbElemento').empty();
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbElemento').append('<option value="' + object.id + '">' + object.elementoNombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+                complete: function (datos) {
+                    $(".cmbElemento").addClass("elementoMultiple");
+                    $(".elementoMultiple").select2();
+                },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
 		$( "#btnAgregaAsignacion" ).click(function() {
-			$("#tablaAsignacion tbody").empty();
 			var orden = $("#cmbOrden").val();
 			var ordenText = $("#cmbOrden option[value='"+orden+"']").text();
 			var frente = $("#cmbFrente").val();
@@ -150,37 +210,67 @@
 			var programa = $("#cmbPrograma").val();
 			var funcion = $("#cmbFuncion").val();
 			var funcionText = $("#cmbFuncion option[value='"+funcion+"']").text();
+			var elementos = $(".elementoMultiple").select2('data');
 			var tabla = '';
+			$.each(elementos, function (count, object) {
 				tabla += '<tr>'
 							+'<td class="text-center">'+ordenText+'</td>'
 							+'<td class="text-center">'+frenteText+'</td>'
 							+'<td class="text-center">'+programa+'</td>'
+							+'<td class="text-center">'+object.text+'</td>'
 							+'<td class="text-center">'+funcionText+'</td>'
 							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-file"></span></td>'
-							+'<td class="text-center"><input type="text" class="form-control" name="txtPeso" id="txtPeso"/></td>'
-							+'<td class="text-center"><input type="text" class="form-control" name="txtDias" id="txtDias"/></td>'
+							+'<td class="text-center"><input type="text" class="form-control dataAsignacion" name="txtPeso" id="txtPeso"/></td>'
+							+'<td class="text-center"><input type="text" class="form-control dataAsignacion" name="txtDias" id="txtDias"/></td>'
+							+'<td style="display:none;" class="text-center">'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtOrden" id="txtOrden" value="'+orden+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtFrente" id="txtFrente" value="'+frente+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPrograma" id="txtPrograma" value="'+programa+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtEstructura" id="txtEstructura" value="'+object.id+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtFuncion" id="txtFuncion" value="'+funcion+'" />'
+							+'</td>'
 						+'<tr>';
+			});
 			$("#tablaAsignacion").append(tabla);
 		});
 		$( "#btnGuardar" ).click(function() {
-			var orden = $("#cmbOrden").val();
-			var frente = $("#cmbFrente").val();
-			var programa = $("#cmbPrograma").val();
-			var funcion = $("#cmbFuncion").val();
-			var estimado = $("#txtDias").val();
-			var peso = $("#txtPeso").val();
+			var datos = [];
+			var datosString = '';
+			$("input.dataAsignacion[type=text]").each(function(index, element) {
+				if(this.name == "txtOrden"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "txtFrente"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "txtPrograma"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "txtEstructura"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "txtPeso"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "txtDias"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "txtFuncion"){
+					datosString += this.value;
+					datos.push({"data": datosString});
+					datosString = '';
+				}
+			});
+
+			var json = JSON.stringify(datos);
+
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/asignacion/save/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
-		        		orden: orden,
-		        		frente: frente,
-		        		programa: programa,
-		        		funcion: funcion,
-		        		estimado: estimado,
-		        		peso:peso
+		        		json: json
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -196,10 +286,22 @@
 		        }
 		    });
 		});
+		$( "#cmbOrden" ).change(function() {
+			var value = this.value;
+			comboFrente(value);
+		});
+		$( "#cmbFrente" ).change(function() {
+			var orden = $("#cmbOrden").val();
+			var frente = this.value;
+			comboPrograma(orden,frente);
+		});
+		$( "#cmbPrograma" ).change(function() {
+			var programa = this.value;
+			comboEstructura(programa);
+		});
 	    $(function () {
-	    	comboFrente();
+	    	comboOrden();
 	    	comboFunciones();
-	    	comboPrograma();
 	    });
 	</script>
 {% endblock %}

@@ -16,19 +16,9 @@ urlpatterns = [
     #url(r'^suministro/$', views.SuministroView.as_view(), name='suministro'),
     url(r'^frente/$', views.FrenteView.as_view(), name='frente'),
     url(r'^control/$', views.ControlView.as_view(), name='control'),
-    url(r'^control/nuevo/$', views.controlNuevo, name='controlNuevo'),
     #url(r'^habilitado/$', views.HabilitadoView.as_view(), name='habilitado'),
     #url(r'^armado/$', views.ArmadoView.as_view(), name='armado'),
     #url(r'^colocado/$', views.ColocadoView.as_view(), name='colocado'),
-    #"""------------------------------------------"""
-    #""" RUTAS RELACIONADAS CON SUMINISTRO """
-    #"""------------------------------------------"""
-    url(r'^suministro/$', views.suministroView, name='suministroView'),
-    #"""------------------------------------------"""
-    #""" RUTAS RELACIONADAS CON HABILITADO """
-    #"""------------------------------------------"""
-    url(r'^habilitado/$', views.habilitadoView, name='habilitadoView'),
-    url(r'^habilitado/cambioTaller/$', views.habilitadoCambioTallerView, name='habilitadoCambioTallerView'),
     #"""------------------------------------------"""
     #""" RUTAS RELACIONADAS CON ARMADO """
     #"""------------------------------------------"""
@@ -67,7 +57,6 @@ urlpatterns = [
     url(r'^catologos/apoyos/delete/(?P<pk>[0-9]+)/$', views.apoyosLogicalDelete, name='apoyosLogicalDelete'),
     url(r'^funcion/show/$', views.funcionShow, name='funcionShow'),
     url(r'^recepcion/$', views.RecepcionView.as_view(), name='recepcion'),
-    url(r'^recepcion/registros/$', views.recepcionRegistros, name='recepcionRegistros'),
     url(r'^estructura/combo/$', views.estructuraCombo, name='estructuraCombo'),
     url(r'^elemento/combo/$', views.elementoCombo, name='elementoCombo'),
     url(r'^elemento/comboapoyoelmento/$', views.elementoComboApoyoElemento, name='elementoComboApoyoElemento'),
@@ -77,4 +66,36 @@ urlpatterns = [
     url(r'^programa/combofiltrado/$', views.programaCombofiltrado, name='programaCombofiltrado'),
 
     url(r'^asignacion/save/$', views.asignacionSave, name='asignacionSave'),
+
+    url(r'^asignacion/comboOrden/$', views.asignacionComboOrden, name='asignacionComboOrden'),
+    url(r'^asignacion/comboFrente/$', views.asignacionComboFrente, name='asignacionComboFrente'),
+    url(r'^asignacion/comboPrograma/$', views.asignacionComboPrograma, name='asignacionComboPrograma'),
+    url(r'^asignacion/comboElementos/$', views.asignacionComboElementos, name='asignacionComboElementos'),
+
+    #"""------------------------------------------"""
+    #""" RUTAS RELACIONADAS CON SUMINISTRO """
+    #"""------------------------------------------"""
+    url(r'^suministro/recepcion/$', views.suministroRecepcionView, name='suministroRecepcionView'),
+    url(r'^suministro/asignacion/$', views.suministroAsignacionView, name='suministroAsignacionView'),
+    url(r'^suministro/asigna/comboPrograma/$', views.suministroAsignaComboPrograma, name='suministroAsignaComboPrograma'),
+    url(r'^suministro/asigna/comboFuncion/$', views.suministroAsignaComboFuncion, name='suministroAsignaComboFuncion'),
+    url(r'^suministro/asigna/elementos/$', views.suministroAsignaElementos, name='suministroAsignaElementos'),
+    url(r'^suministro/asigna/save/$', views.suministroAsignaSave, name='suministroAsignaSave'),
+    url(r'^suministro/asignar/comboPrograma/$', views.suministroAsignarComboPrograma, name='suministroAsignarComboPrograma'),
+    url(r'^suministro/asignar/comboFuncion/$', views.suministroAsignarComboFuncion, name='suministroAsignarComboFuncion'),
+    url(r'^suministro/asignar/comboTaller/$', views.suministroAsignarComboTaller, name='suministroAsignarComboTaller'),
+    url(r'^suministro/asignar/comboTransporte/$', views.suministroAsignarComboTransporte, name='suministroAsignarComboTransporte'),
+    url(r'^suministro/asignar/comboFuncionElegido/$', views.suministroAsignarcomboFuncionElegido, name='suministroAsignarcomboFuncionElegido'),
+    url(r'^suministro/asignar/cantidades/$', views.suministroAsignarCantidades, name='suministroAsignarCantidades'),
+    url(r'^suministro/asignar/save/$', views.suministroAsignarSave, name='suministroAsignarSave'),
+    #"""------------------------------------------"""
+    #""" RUTAS RELACIONADAS CON HABILITADO """
+    #"""------------------------------------------"""
+    url(r'^habilitado/recepcion/$', views.habilitadoRecepcionView, name='habilitadoRecepcionView'),
+    url(r'^habilitado/asignacion/$', views.habilitadoAsignacionView, name='habilitadoAsignacionView'),
+    url(r'^habilitado/cambioTaller/$', views.habilitadoCambioTallerView, name='habilitadoCambioTallerView'),
+    url(r'^habilitado/asigna/comboPrograma/$', views.habilitadoAsignaComboPrograma, name='habilitadoAsignaComboPrograma'),
+    url(r'^habilitado/asigna/comboFuncion/$', views.habilitadoAsignaComboFuncion, name='habilitadoAsignaComboFuncion'),
+    url(r'^habilitado/recepcion/habilitado/$', views.habilitadoRecepcionHabilitado, name='habilitadoRecepcionHabilitado'),
+    url(r'^habilitado/recepcion/save/$', views.habilitadoRecepcionSave, name='habilitadoRecepcionSave'),
 ]

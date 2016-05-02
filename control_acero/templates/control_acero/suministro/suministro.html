@@ -6,112 +6,237 @@
 	<div class="col-xs-12">
 		<div class="col-md-12">
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbOrden">Elegir Orden de Compra:</label>
-				<select name="cmbOrden" id="cmbOrden" class="cmbOrden form-control">
-					<option value="0">Selecciona una Orden de Compra</option>
-					<option value="1">Orden 1</option>
-					<option value="2">Orden 2</option>
-					<option value="3">Orden 3</option>
+				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
+				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
 			<div class="col-md-12 table-responsive">
 				<table id="tablaSuministro" class="table table-hover">
 					<thead>
 						<tr>
-							<th>Cantidad</th>
-							<th>Peso Solicitado</th>
-							<th>Peso Recibido</th>
-							<th>Asignar Proveedor</th>
-							<th>Asignar Taller</th>
-							<th>Certificado</th>
-							<th>Remision</th>
-							<th>Transporte</th>
-							<th>Detalle</th>
-							<th>Asignar Cantidad</th>
-							<th>Seleccionar</th>
+							<th class="text-center">Programa de Suministro</th>
+							<th class="text-center">Peso Solicitado</th>
+							<th class="text-center">Proveedor</th>
+							<th class="text-center">Peso Recibido</th>
+							<th class="text-center">Certificado</th>
+							<th class="text-center">Remision</th>
+							<th class="text-center">Seleccionar</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<td>1</td>
-							<td>2000 kg</td>
-							<td><input type="text" name="recibido_0" id="recibido_0" /></td>
-							<td><input type="text" name="proveedor_0" id="proveedor_0" /></td>
-							<td><input type="text" name="taller_0" id="taller_0" /></td>
-							<td><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></td>
-							<td><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></td>
-							<td><input type="text" name="transporte_0" id="transporte_0" /></td>
-							<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>
-							<td><input type="text" name="cantidad_0" id="cantidad_0"/></td>
-							<td><input type="checkbox" name="test" value="0" /></td>
-						</tr>
+						<!--<td><input type="checkbox" name="test" value="0" /></td>-->
 					</tbody>
 				</table>
 			</div>
-			<div class="text-right col-md-12">
-				<button type="button" name="btnAgregaAsignacion" id="btnAgregaAsignacion" class="btn btn-primary">Agregar</button>
+			<div class="col-md-12">
+				<button type="button" name="btnAceptarRecepcion" id="btnAceptarRecepcion" class="btn btn-primary">Aceptar Recepción</button>
 			</div>
-			<div class="text-left col-md-12">
-				<button type="button" class="btn btn-success">Guardar</button>
+			<div class="col-md-12 table-responsive">
+				<table id="tablaSuministroAsignado" class="table table-hover">
+					<thead>
+						<tr>
+							<th class="text-center">Programa de Suministro</th>
+							<th class="text-center">Peso Solicitado</th>
+							<th class="text-center">Proveedor</th>
+							<th class="text-center">Peso Recibido</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
 			</div>
-		</div>
-	</div>
-
-	<!-- Modal Busqueda-->
-	<div class="modal fade" id="modalBuscar" tabindex="-1" role="dialog" aria-labelledby="modalBuscarLabel">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="modalBuscarLabel">Busqueda Frentes de Trabajo</h4>
-				</div>
-				<div class="modal-body">
-						<div class="col-md-6">
-							<label>Folio</label>
-						</div>
-						<div class="col-md-6">
-							<input class="form-control" type="text"/>
-						</div>
-						<div class="col-md-6">
-							<label>Ubicación</label>
-						</div>
-						<div class="col-md-6">
-							<input class="form-control" type="text"/>
-						</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-					<button type="button" class="btn btn-primary">Buscar</button>
-				</div>
+			<div class="col-md-12">
+				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Recepción</button>
 			</div>
 		</div>
 	</div>
 
 	<script type="text/javascript">
-		$( "#btnAgregaAsignacion" ).click(function() {
+		$( "#btnAceptarRecepcion" ).click(function() {
+			$("#tablaSuministroAsignado tbody").empty();
 			var tabla = '';
-			$("input[name='test']").each( function () {
+			$("input[name='seleccionados']").each( function () {
 				if($(this).is(":checked")){
 					var value = this.value;
-					var recibido = $("#recibido_"+value).val();
-					var proveedor = $("#proveedor_"+value).val();
-					var taller = $("#taller_"+value).val();
-					var transporte = $("#transporte_"+value).val();
-					var cantidad = $("#cantidad_"+value).val();
+					var suministro = $("#txtIdSuministro"+value).val();
+					var funcion = $("#txtIdFuncion"+value).val();
+					var funcionText = $("#txtIdFuncionText"+value).val();
+					var recibido = $("#cantidadRecibido"+value).val();
+					var idAsignacion = $("#txtIdAsignacion"+value).val();
+					var cantidadSolicitada = $("#txtCantidad"+value).val();
 					tabla += '<tr>'
-								+'<td class="text-center">'+cantidad+'</td>'
-								+'<td class="text-center">'+proveedor+'</td>'
-								+'<td class="text-center">'+taller+'</td>'
-								+'<td class="text-center">'+transporte+'</td>'
-								//+'<td class="text-center">'+cantidad+'</td>'
-								+'<td class="text-center">---</td>'
-							+'<tr>';
+								+'<td class="text-center">'+suministro+'</td>'
+								+'<td class="text-center">'+cantidadSolicitada+'</td>'
+								+'<td class="text-center">'+funcionText+'</td>'
+								+'<td class="text-center">'+recibido+'</td>'
+								+'<td style="display:none;" class="text-center">'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataIdAsignacion" id="dataIdAsignacion" value="'+idAsignacion+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPesoSolicitado" id="dataPesoSolicitado" value="'+cantidadSolicitada+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPesoRecibido" id="dataPesoRecibido" value="'+recibido+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataFuncion" id="dataFuncion" value="'+funcion+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataRecepcion" id="dataRecepcion" value="1" />'
+								+'</td>'
+							+'</tr>';
 				}
-				//alert($(this).pop());
 			});
-			$("#tablaAsignacion").append(tabla);
-			//var remove = $(this).attr("idremove");
-            //$("#tablaTrabajo tbody tr:eq(" + remove + ")").hide();
+			$("#tablaSuministroAsignado tbody").append(tabla);
 		});
+		$( "#btnGuardar" ).click(function() {
+			var datos = [];
+			var datosString = '';
+			$("input.dataAsignacion[type=text]").each(function(index, element) {
+				console.log(this.name);
+				if(this.name == "dataIdAsignacion"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "dataPesoSolicitado"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "dataPesoRecibido"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "dataFuncion"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "dataRecepcion"){
+					datosString += this.value;
+					datos.push({"data": datosString});
+					datosString = '';
+				}
+			});
+
+			var json = JSON.stringify(datos);
+
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asigna/save/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		json: json
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion del Frente:\n\n" + otroobj);
+		        }
+		    });
+		});
+		comboPrograma = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asigna/comboPrograma/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbPrograma').empty();
+		                $('.cmbPrograma').append('<option value="0">Selecciona un Programa de Suministro</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbPrograma').append('<option value="' + object.idPrograma + '">Folio --->>> ' + object.idPrograma + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboFuncion = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asigna/comboFuncion/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbFuncion').empty();
+		                $('.cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		$( "#cmbFuncion" ).change(function() {
+			$("#tablaSuministro tbody").empty();
+			var tabla = '';
+			var programa = $("#cmbPrograma").val();
+			var funcion = this.value;
+			var count = 0;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asigna/elementos/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+	                    $.each(datos.data, function (count, object) {
+	                        tabla += '<tr>'
+	                        			+'<td>'+object.suministroId+'</td>'
+	                        			+'<td>'+object.cantidad+'</td>'
+	                        			+'<td>'+object.funcionProveedor+'</td>'
+	                        			+'<td><input type="text" name="cantidadRecibido'+count+'" id="cantidadRecibido'+count+'" /></td>'
+	                        			+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
+	                        			+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
+	                        			+'<td><input type="checkbox" name="seleccionados" value="'+count+'" /></span></td>'
+										+'<td style="display:none;" class="text-center">'
+											+'<input type="text" disabled readonly name="txtIdSuministro'+count+'" id="txtIdSuministro'+count+'" value="'+object.suministroId+'" />'
+											+'<input type="text" disabled readonly name="txtIdFuncion'+count+'" id="txtIdFuncion'+count+'" value="'+object.funcionId+'" />'
+											+'<input type="text" disabled readonly name="txtIdFuncionText'+count+'" id="txtIdFuncionText'+count+'" value="'+object.funcionProveedor+'" />'
+											+'<input type="text" disabled readonly name="txtIdAsignacion'+count+'" id="txtIdAsignacion'+count+'" value="'+object.id+'" />'
+											+'<input type="text" disabled readonly name="txtCantidad'+count+'" id="txtCantidad'+count+'" value="'+object.cantidad+'" />'
+										+'</td>'
+	                        		+'</tr>';
+	                    	count++;
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		    $("#tablaSuministro tbody").append(tabla);
+		});
+	    $(function () {
+	    	comboPrograma();
+	    	comboFuncion();
+	    });
 	</script>
 {% endblock %}

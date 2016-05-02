@@ -223,11 +223,7 @@
                                                 </li>
                                             </ul>
                                             <ul>
-                                                <li><a href="{% url 'suministroView' %}">Suministro</a>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li><a href="{% url 'habilitadoView' %}">Habilitado</a>
+                                                <li><a href="{% url 'habilitadoRecepcionView' %}">Habilitado</a>
                                                 </li>
                                             </ul> 
                                             <ul>
@@ -260,14 +256,24 @@
                                                 <li><a href="{% url 'controlAsignacionView' %}">Control Asignaciones</a>
                                                 </li>
                                             </ul>
+                                            <h5>SUMINISTRO</h5>
                                             <ul>
-                                                <li><a href="{% url 'suministroView' %}">Suministro</a>
+                                                <li><a href="{% url 'suministroRecepcionView' %}">Recepción</a>
                                                 </li>
                                             </ul>
                                             <ul>
-                                                <li><a href="{% url 'habilitadoView' %}">Habilitado</a>
+                                                <li><a href="{% url 'suministroAsignacionView' %}">Asignación</a>
                                                 </li>
-                                            </ul> 
+                                            </ul>
+                                            <h5>HABILITADO</h5>
+                                            <ul>
+                                                <li><a href="{% url 'habilitadoRecepcionView' %}">Recepción</a>
+                                                </li>
+                                            </ul>
+                                            <ul>
+                                                <li><a href="{% url 'habilitadoAsignacionView' %}">Asignación</a>
+                                                </li>
+                                            </ul>
                                             <ul>
                                                 <li><a href="{% url 'armadoView' %}">Armado</a>
                                                 </li>

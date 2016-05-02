@@ -76,7 +76,7 @@ class Ingenieria(models.Model):
 class Transporte(models.Model):
 	TIPOTRANSPORTE = (
 	    (1, 'Local'),
-	    (2, 'Foraneo'),
+	    (2, 'Tercero'),
 	)
 	tipo = models.IntegerField(choices=TIPOTRANSPORTE, default=1)
 	capacidad = models.IntegerField()
@@ -88,7 +88,7 @@ class Transporte(models.Model):
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.tipo
+		return self.placas
 
 class Taller(models.Model):
 	nombre = models.CharField(max_length=100)
@@ -109,7 +109,7 @@ class Funcion(models.Model):
 	    (1, 'Suministrador'),
 	    (2, 'Habilitador'),
 	    (3, 'Armador'),
-	    (3, 'Colocador'),
+	    (4, 'Colocador'),
 	)
 	tipo = models.IntegerField(choices=TIPOFUNCION, default=1)
 	proveedor = models.CharField(default=0, max_length=20)
@@ -136,28 +136,6 @@ class Frente(models.Model):
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.nombre
-
-class ControlAsignacion(models.Model):
-	cantidad = models.IntegerField()
-	tiempoEntrega = models.IntegerField()
-	idOrden = models.IntegerField(null=True, blank=True)
-	funcion = models.ForeignKey(Funcion)
-	frente = models.ForeignKey(Frente)
-	idProgramaSuministro = models.IntegerField(default=0)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.idOrden
-
-class AsignacionEtapa(models.Model):
-	funcion = models.ForeignKey(Funcion)
-	ControlAsignacion = models.ForeignKey(ControlAsignacion)
-	estatusEtapa = models.IntegerField()
-	etapa = models.IntegerField()
 
 class FrenteAsigna(models.Model):
 	idOrden = models.IntegerField(null=True, blank=True)
@@ -219,3 +197,42 @@ class ProgramaSuministroDetalle(models.Model):
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.programaSuministro
+
+class ControlAsignacion(models.Model):
+	cantidad = models.IntegerField()
+	tiempoEntrega = models.IntegerField()
+	idOrden = models.IntegerField(null=True, blank=True)
+	funcion = models.ForeignKey(Funcion)
+	frente = models.ForeignKey(Frente)
+	programaSuministro = models.ForeignKey(ProgramaSuministro, null=True)
+	programaSuministroDetalle = models.ForeignKey(ProgramaSuministroDetalle, null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.idOrden
+
+class EtapaAsignacion(models.Model):
+	pesoSolicitado = models.IntegerField()
+	pesoRecibido = models.IntegerField()
+	tiempoEntrega = models.IntegerField(null=True)
+	programaSuministro = models.ForeignKey(ProgramaSuministro, null=True)
+	controlAsignacion = models.ForeignKey(ControlAsignacion)
+	funcion = models.ForeignKey(Funcion)
+	taller = models.ForeignKey(Taller, null=True)
+	transporte = models.ForeignKey(Transporte, null=True)
+	cantidadAsignada = models.IntegerField(null=True)
+	idEtapaPertenece = models.IntegerField(null=True)
+	estatusEtapa = models.IntegerField()
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.cantidadAsignada
