@@ -22,6 +22,7 @@ from django.db import connections
 from .forms import ApoyoForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render_to_response
+from django.db import connection
 
 
 class IndexView(generic.ListView):
@@ -282,6 +283,309 @@ def habilitadoRecepcionHabilitado(request):
 	array["data"]=data
 	return JsonResponse(array)
 
+def habilitadoAsignarComboPrograma(request):
+	array = {}
+	mensaje = {}
+	data = []
+	estapaAsignacion = EtapaAsignacion.objects.filter(estatusEtapa=3).values_list('programaSuministro_id', flat=True).distinct()
+	for p in estapaAsignacion:
+		resultado = {"idPrograma":p}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def habilitadoAsignarComboFuncion(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapaFuncion = EtapaAsignacion.objects.filter(estatusEtapa=3).values_list('funcion_id', flat=True).distinct()
+	for e in etapaFuncion:
+		funcion = Funcion.objects.filter(id=e)
+		for f in funcion:
+			resultado = {"idFuncion":f.id, "proveedor":f.proveedor}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def habilitadoAsignarCantidades(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idPrograma = request.POST.get('programa', 0)
+	idFuncion = request.POST.get('funcion', 0)
+	suministro = EtapaAsignacion.objects.values('id', 'pesoSolicitado', 'pesoRecibido', 'controlAsignacion_id', 'funcion_id', 'programaSuministro_id').filter(programaSuministro_id=idPrograma, funcion_id=idFuncion, estatusEtapa=3)
+	for s in suministro:
+		resultado = {"id":s["id"],"pesoSolicitado":s["pesoSolicitado"],"pesoRecibido":s["pesoRecibido"],"idAsignacion":s["controlAsignacion_id"],"idFuncion":s["funcion_id"],"idPrograma":s["programaSuministro_id"]}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def habilitadoAsignarComboElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapa = EtapaAsignacion.objects.filter(estatusEtapa=3, funcion_id=6, programaSuministro_id=1).values_list('controlAsignacion__programaSuministroDetalle__elemento__id', flat=True).distinct()
+	for e in etapa:
+		elemento = Elemento.objects.filter(id=e)
+		for e in elemento:
+			resultado = {"idElemento":e.id, "nombre":e.nombre}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def habilitadoAsignarElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	programa = request.POST.get('programa', 0)
+	funcion = request.POST.get('funcion', 0)
+	elemento = request.POST.get('elemento', 0)
+	etapa = EtapaAsignacion.objects.values("id", 
+											"pesoSolicitado", 
+											"pesoRecibido", 
+											"cantidadAsignada", 
+											"controlAsignacion_id", 
+											"controlAsignacion__programaSuministroDetalle__numeroCuatro", 
+											"controlAsignacion__programaSuministroDetalle__numeroCinco", 
+											"controlAsignacion__programaSuministroDetalle__numeroSeis", 
+											"controlAsignacion__programaSuministroDetalle__numeroSiete", 
+											"controlAsignacion__programaSuministroDetalle__numeroOcho", 
+											"controlAsignacion__programaSuministroDetalle__numeroNueve", 
+											"controlAsignacion__programaSuministroDetalle__numeroDiez", 
+											"controlAsignacion__programaSuministroDetalle__numeroOnce", 
+											"controlAsignacion__programaSuministroDetalle__numeroDoce", 
+											"controlAsignacion__programaSuministroDetalle__total",
+											"controlAsignacion__programaSuministroDetalle__elemento__material__numero",
+											"controlAsignacion__programaSuministroDetalle__elemento__material__peso",
+											"controlAsignacion__programaSuministroDetalle__elemento__material__diametro",
+											"controlAsignacion__programaSuministroDetalle__apoyo__numero", 
+											"controlAsignacion__programaSuministroDetalle__elemento__nombre"
+											).filter(estatusEtapa=3, funcion_id=funcion, programaSuministro_id=programa, controlAsignacion__programaSuministroDetalle__elemento__id=elemento)
+	for e in etapa:
+		resultado = {"id":e["id"], 
+						"pesoSolicitado":e["pesoSolicitado"], 
+						"pesoRecibido":e["pesoRecibido"],
+						"cantidadAsignada":e["cantidadAsignada"],
+						"asignacionId":e["controlAsignacion_id"],
+						"suministroNumeroCuatro":e["controlAsignacion__programaSuministroDetalle__numeroCuatro"],
+						"suministroNumeroCinco":e["controlAsignacion__programaSuministroDetalle__numeroCinco"],
+						"suministroNumeroSeis":e["controlAsignacion__programaSuministroDetalle__numeroSeis"],
+						"suministroNumeroSiete":e["controlAsignacion__programaSuministroDetalle__numeroSiete"],
+						"suministroNumeroOcho":e["controlAsignacion__programaSuministroDetalle__numeroOcho"],
+						"suministroNumeroNueve":e["controlAsignacion__programaSuministroDetalle__numeroNueve"],
+						"suministroNumeroDiez":e["controlAsignacion__programaSuministroDetalle__numeroDiez"],
+						"suministroNumeroOnce":e["controlAsignacion__programaSuministroDetalle__numeroOnce"],
+						"suministroNumeroDoce":e["controlAsignacion__programaSuministroDetalle__numeroDoce"],
+						"asignacionTotal":e["controlAsignacion__programaSuministroDetalle__total"],
+						"materialNumero":e["controlAsignacion__programaSuministroDetalle__elemento__material__numero"],
+						"materialPeso":e["controlAsignacion__programaSuministroDetalle__elemento__material__peso"],
+						"materialDiametro":e["controlAsignacion__programaSuministroDetalle__elemento__material__diametro"],
+						"apoyo":e["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
+						"elemento":e["controlAsignacion__programaSuministroDetalle__elemento__nombre"]}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignarComboPrograma(request):
+	array = {}
+	mensaje = {}
+	data = []
+	estapaAsignacion = EtapaAsignacion.objects.filter(estatusEtapa=4).values_list('programaSuministro_id', flat=True).distinct()
+	for p in estapaAsignacion:
+		resultado = {"idPrograma":p}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignarComboFuncion(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapaFuncion = EtapaAsignacion.objects.filter(estatusEtapa=4).values_list('funcion_id', flat=True).distinct()
+	for e in etapaFuncion:
+		funcion = Funcion.objects.filter(id=e)
+		for f in funcion:
+			resultado = {"idFuncion":f.id, "proveedor":f.proveedor}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignarComboElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapa = EtapaAsignacion.objects.filter(estatusEtapa=4, funcion_id=17, programaSuministro_id=1).values_list('controlAsignacion__programaSuministroDetalle__elemento__id', flat=True).distinct()
+	for e in etapa:
+		elemento = Elemento.objects.filter(id=e)
+		for e in elemento:
+			resultado = {"idElemento":e.id, "nombre":e.nombre}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignarElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	programa = request.POST.get('programa', 0)
+	funcion = request.POST.get('funcion', 0)
+	elemento = request.POST.get('elemento', 0)
+	etapa = EtapaAsignacion.objects.values("id",
+											"controlAsignacion__programaSuministroDetalle__apoyo__numero", 
+											"controlAsignacion__programaSuministroDetalle__elemento__nombre",
+											"controlAsignacion__programaSuministroDetalle__elemento__despiece__id",
+											"controlAsignacion__programaSuministroDetalle__elemento__despiece__nomenclatura",
+											"controlAsignacion__programaSuministroDetalle__elemento__despiece__cantidad",
+											"controlAsignacion__programaSuministroDetalle__elemento__despiece__longitud",
+											"controlAsignacion__programaSuministroDetalle__elemento__despiece__peso",
+											"controlAsignacion__programaSuministroDetalle__elemento__despiece__figura",
+											"controlAsignacion__programaSuministroDetalle__elemento__despiece__material__nombre"
+											).filter(estatusEtapa=4, funcion_id=17, programaSuministro_id=1, controlAsignacion__programaSuministroDetalle__elemento__id=1)
+	for e in etapa:
+		resultado = {"id":e["id"], 
+						"apoyo":e["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
+						"elemento":e["controlAsignacion__programaSuministroDetalle__elemento__nombre"],
+						"despieceId":e["controlAsignacion__programaSuministroDetalle__elemento__despiece__id"],
+						"despieceNomenclatura":e["controlAsignacion__programaSuministroDetalle__elemento__despiece__nomenclatura"],
+						"despieceCantidad":e["controlAsignacion__programaSuministroDetalle__elemento__despiece__cantidad"],
+						"despieceLongitud":e["controlAsignacion__programaSuministroDetalle__elemento__despiece__longitud"],
+						"despiecePeso":e["controlAsignacion__programaSuministroDetalle__elemento__despiece__peso"],
+						"despieceFigura":e["controlAsignacion__programaSuministroDetalle__elemento__despiece__figura"],
+						"despieceMaterial":e["controlAsignacion__programaSuministroDetalle__elemento__despiece__material__nombre"]
+						}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignacionComboPrograma(request):
+	array = {}
+	mensaje = {}
+	data = []
+	estapaAsignacion = EtapaAsignacion.objects.filter(estatusEtapa=5).values_list('programaSuministro_id', flat=True).distinct()
+	for p in estapaAsignacion:
+		resultado = {"idPrograma":p}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignacionComboFuncion(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapaFuncion = EtapaAsignacion.objects.filter(estatusEtapa=5).values_list('funcion_id', flat=True).distinct()
+	for e in etapaFuncion:
+		funcion = Funcion.objects.filter(id=e)
+		for f in funcion:
+			resultado = {"idFuncion":f.id, "proveedor":f.proveedor}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignacionComboElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapa = EtapaAsignacion.objects.filter(estatusEtapa=5, funcion_id=17, programaSuministro_id=1).values_list('controlAsignacion__programaSuministroDetalle__elemento__id', flat=True).distinct()
+	for e in etapa:
+		elemento = Elemento.objects.filter(id=e)
+		for e in elemento:
+			resultado = {"idElemento":e.id, "nombre":e.nombre}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def armadoAsignacionElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	programa = request.POST.get('programa', 0)
+	funcion = request.POST.get('funcion', 0)
+	elemento = request.POST.get('elemento', 0)
+	etapa = EtapaAsignacion.objects.values("id",
+											"pesoRecibido",
+											"piezasRecibidas",
+											"controlAsignacion__programaSuministroDetalle__apoyo__numero", 
+											"controlAsignacion__programaSuministroDetalle__elemento__nombre",
+											"despiece__nomenclatura",
+											"despiece__cantidad",
+											"despiece__longitud",
+											"despiece__peso",
+											"despiece__figura",
+											"despiece__material__nombre"
+											).filter(estatusEtapa=5, funcion_id=17, programaSuministro_id=1, controlAsignacion__programaSuministroDetalle__elemento__id=1)
+	for e in etapa:
+		resultado = {"id":e["id"],
+						"pesoRecibido":e["pesoRecibido"],
+						"piezasRecibidas":e["piezasRecibidas"],
+						"apoyo":e["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
+						"elemento":e["controlAsignacion__programaSuministroDetalle__elemento__nombre"],
+						"despieceNomenclatura":e["despiece__nomenclatura"],
+						"despieceCantidad":e["despiece__cantidad"],
+						"despieceLongitud":e["despiece__longitud"],
+						"despiecePeso":e["despiece__peso"],
+						"despieceFigura":e["despiece__figura"],
+						"despieceMaterial":e["despiece__material__nombre"]
+						}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def colocadoRecepcionComboPrograma(request):
+	array = {}
+	mensaje = {}
+	data = []
+	estapaAsignacion = EtapaAsignacion.objects.filter(estatusEtapa=6).values_list('programaSuministro_id', flat=True).distinct()
+	for p in estapaAsignacion:
+		resultado = {"idPrograma":p}
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def colocadoRecepcionComboFuncion(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapaFuncion = EtapaAsignacion.objects.filter(estatusEtapa=6).values_list('funcion_id', flat=True).distinct()
+	for e in etapaFuncion:
+		funcion = Funcion.objects.filter(id=e)
+		for f in funcion:
+			resultado = {"idFuncion":f.id, "proveedor":f.proveedor}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def colocadoRecepcionComboApoyo(request):
+	array = {}
+	mensaje = {}
+	data = []
+	etapa = EtapaAsignacion.objects.values("controlAsignacion__programaSuministroDetalle__apoyo__id",
+											"controlAsignacion__programaSuministroDetalle__apoyo__numero"
+											).filter(estatusEtapa=6, funcion_id=20, programaSuministro_id=1).values_list('controlAsignacion__programaSuministroDetalle__apoyo__id', flat=True).distinct()
+	print etapa
+	for e in etapa:
+		apoyo = Apoyo.objects.filter(id=e)
+		for a in apoyo:
+			resultado = {"idApoyo":a.id, "numero":a.numero}
+			data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
 def programaCombofiltrado(request):
 	array = {}
 	mensaje = {}
@@ -344,12 +648,16 @@ def habilitadoCambioTallerView(request):
 	template = 'control_acero/habilitado/habilitado_cambio_taller.html'
 	return render(request, template)
 
-def armadoView(request):
-	template = 'control_acero/armado/armado.html'
+def armadoRecepcionView(request):
+	template = 'control_acero/armado/armado_recepcion.html'
 	return render(request, template)
 
-def colocadoView(request):
-	template = 'control_acero/colocado/colocado.html'
+def armadoAsignacionView(request):
+	template = 'control_acero/armado/armado_asignacion.html'
+	return render(request, template)
+
+def colocadoRecepcionView(request):
+	template = 'control_acero/colocado/colocado_recepcion.html'
 	return render(request, template)
 
 class AccesoView(generic.ListView):
@@ -486,7 +794,7 @@ def loginUsuario(request):
 			request.session['clave'] = clave
 			#cursor.execute("SELECT [IDBaseDatos],[Nombre],[Mascara],[Servidor],[IDTipoSistemaOrigen],[IDTipoBaseDatos],[EstaActiva],[FechaHoraRegistro] FROM [BasesDatos].[BasesDatos] WHERE EstaActiva = 1")
 			#row = cursor.fetchall()
-			url = '/control_acero/acceso'
+			url = '/control_acero/principal/'
 			#url = reverse('/otro', kwargs={'dbs': row})
 			return HttpResponseRedirect(url)
 
@@ -692,7 +1000,7 @@ def programaSave(request):
 		numeroOnce = splitData[9]
 		numeroDoce = splitData[10]
 		total = splitData[11]
-		pd = ProgramaSuministroDetalle(idProgramaSuministro=p.pk, apoyo_id=apoyo, elemento_id=elemento, numeroCuatro=numeroCuatro, numeroCinco=numeroCinco, numeroSeis=numeroSeis, numeroSiete=numeroSiete, numeroOcho=numeroOcho, numeroNueve=numeroNueve, numeroDiez=numeroDiez, numeroOnce=numeroOnce, numeroDoce=numeroDoce)
+		pd = ProgramaSuministroDetalle(idProgramaSuministro=p.pk, apoyo_id=apoyo, elemento_id=elemento, numeroCuatro=numeroCuatro, numeroCinco=numeroCinco, numeroSeis=numeroSeis, numeroSiete=numeroSiete, numeroOcho=numeroOcho, numeroNueve=numeroNueve, numeroDiez=numeroDiez, numeroOnce=numeroOnce, numeroDoce=numeroDoce, total=total)
 		pd.save();
 	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente"}
 	array = mensaje
@@ -835,9 +1143,144 @@ def habilitadoRecepcionSave(request):
 		idEtapa = data["data"]
 		etapaConsulta = EtapaAsignacion.objects.filter(id=idEtapa)
 		for ec in etapaConsulta:
-			print ec.id
-	# 	e = EtapaAsignacion(pesoSolicitado=pesoSolicitado, pesoRecibido=pesoRecibido, estatusEtapa=1, estatus=1, controlAsignacion_id=idAsignacion, funcion_id=idFuncion, programaSuministro_id=idSuministro)
-	# 	e.save();
-	# mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de suministro correctamente."}
-	# array = mensaje
-	# return JsonResponse(array)
+			e = EtapaAsignacion(pesoSolicitado=ec.pesoSolicitado, pesoRecibido=ec.pesoRecibido, cantidadAsignada=ec.cantidadAsignada, estatusEtapa=3, estatus=1, controlAsignacion_id=ec.controlAsignacion_id, funcion_id=ec.funcion_id, taller_id=ec.taller_id, transporte_id=ec.transporte_id, programaSuministro_id=ec.programaSuministro_id, idEtapaPertenece=ec.idEtapaPertenece)
+			e.save();
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de suministro correctamente."}
+	array = mensaje
+	return JsonResponse(array)
+
+def habilitadoAsignarSave(request):
+	array = {}
+	mensaje = {}
+	programa = request.POST.get('programa')
+	funcion = request.POST.get('funcion')
+	elemento = request.POST.get('elemento')
+	funcionSelect = request.POST.get('funcionSelect')
+	taller = request.POST.get('taller')
+	transporte = request.POST.get('transporte')
+	etapa = EtapaAsignacion.objects.values('id', 'pesoSolicitado', 'pesoRecibido', 'cantidadAsignada', 'controlAsignacion_id', 'funcion_id', 'taller_id', 'transporte_id', 'programaSuministro_id').filter(programaSuministro_id=programa,funcion_id=funcion, controlAsignacion__programaSuministroDetalle__elemento__id=elemento).order_by('-id')[:1]
+	print "-----"
+	for e in etapa:
+		e = EtapaAsignacion(pesoSolicitado=e["pesoSolicitado"], pesoRecibido=e["pesoRecibido"], cantidadAsignada=e["cantidadAsignada"], estatusEtapa=4, estatus=1, controlAsignacion_id=e["controlAsignacion_id"], funcion_id=funcionSelect, taller_id=taller, transporte_id=transporte, programaSuministro_id=e["programaSuministro_id"])
+		e.save();
+		#resultado = {"idElemento":e["id"],"nombreElemento":e['nombre'],"idMaterial":e['material__id'],"nombreMaterial":e['material__nombre'],"materialNumero":e['material__numero'],"materialPeso":e['material__peso'],"materialProveedor":e['material__proveedor']}
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Habilitado."}
+	array = mensaje
+	return JsonResponse(array)
+
+def armadoAsignaSave(request):
+	array = {}
+	mensaje = {}
+	respuesta = request.POST.get('json')
+	json_object = json.loads(respuesta)
+	print json_object
+	for data in json_object:
+		datos = data["data"]
+		splitData = datos.split("|")
+		idEtapa = splitData[0]
+		pesoRecibido = splitData[1]
+		piezasRecibidas = splitData[2]
+		despieceId = splitData[3]
+		etapa = EtapaAsignacion.objects.filter(id=idEtapa);
+		for e in etapa:
+			e = EtapaAsignacion(pesoSolicitado=e.pesoSolicitado, pesoRecibido=pesoRecibido, cantidadAsignada=e.cantidadAsignada, estatusEtapa=5, estatus=1, controlAsignacion_id=e.controlAsignacion_id, funcion_id=e.funcion_id, programaSuministro_id=e.programaSuministro_id, piezasRecibidas=piezasRecibidas, idEtapaPertenece=idEtapa, despiece_id=despieceId)
+			e.save()
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de suministro correctamente."}
+	array = mensaje
+	return JsonResponse(array)
+
+def armadoAsignacionSave(request):
+	array = {}
+	mensaje = {}
+	suministroEtapa = request.POST.get('suministro')
+	funcionEtapa = request.POST.get('funcion')
+	elementoEtapa = request.POST.get('elemento')
+	respuesta = request.POST.get('json')
+	json_object = json.loads(respuesta)
+	for data in json_object:
+		datos = data["data"]
+		splitData = datos.split("|")
+		funcion = splitData[0]
+		transporte = splitData[1]
+		etapa = EtapaAsignacion.objects.values("id",
+												"pesoSolicitado",
+												"pesoRecibido",
+												"tiempoEntrega", 
+												"cantidadAsignada",
+												"controlAsignacion_id",
+												"funcion_id",
+												"taller_id",
+												"transporte_id",
+												"programaSuministro_id",
+												"idEtapaPertenece",
+												"piezasRecibidas",
+												"despiece_id"
+											).filter(estatusEtapa = 5, 
+														funcion_id = funcionEtapa, 
+														programaSuministro_id = suministroEtapa,
+														controlAsignacion__programaSuministroDetalle__elemento__id = elementoEtapa)
+		for e in etapa:
+			e = EtapaAsignacion(pesoSolicitado = e["pesoSolicitado"],
+									pesoRecibido = e["pesoRecibido"],
+									tiempoEntrega = e["tiempoEntrega"],
+									cantidadAsignada = e["cantidadAsignada"],
+									estatusEtapa = 6,
+									controlAsignacion_id = e["controlAsignacion_id"],
+									funcion_id =funcion,
+									transporte_id = e["transporte_id"],
+									programaSuministro_id = e["programaSuministro_id"],
+									idEtapaPertenece = e["idEtapaPertenece"],
+									piezasRecibidas = e["piezasRecibidas"],
+									despiece_id = e["despiece_id"])
+			e.save()
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Colocado correctamente."}
+	array = mensaje
+	return JsonResponse(array)
+
+def colocadoRecepcionDetalle(request):
+	array = {}
+	mensaje = {}
+	data = []
+	dataFrente = []
+	dataApoyo = []
+	programa = request.POST.get('programa', 1)
+	funcion = request.POST.get('funcion', 20)
+	apoyo = request.POST.get('apoyo', 1)
+	etapa = EtapaAsignacion.objects.values("id",
+											"controlAsignacion__frente__id",
+											"controlAsignacion__frente__nombre",
+											"controlAsignacion__frente__identificacion",
+											"controlAsignacion__frente__ubicacion",
+											"controlAsignacion__frente__kilometros"
+											).filter(estatusEtapa = 6,
+														funcion_id = funcion,
+														programaSuministro_id = programa,
+														controlAsignacion__programaSuministroDetalle__apoyo__id = apoyo)[:1]
+	for e in etapa:
+		resultado = {"idFrente":e["controlAsignacion__frente__id"],
+						"frenteNombre":e["controlAsignacion__frente__nombre"],
+						"frenteIdentificacion":e["controlAsignacion__frente__identificacion"],
+						"frenteUbicacion":e["controlAsignacion__frente__ubicacion"],
+						"frenteKilometro":e["controlAsignacion__frente__kilometros"]
+						}
+		dataFrente.append(resultado)
+
+	etapa = EtapaAsignacion.objects.values("controlAsignacion__programaSuministroDetalle__apoyo__id",
+									"controlAsignacion__programaSuministroDetalle__apoyo__numero",
+									"controlAsignacion__programaSuministroDetalle__elemento__id",
+									"controlAsignacion__programaSuministroDetalle__elemento__nombre"
+									).filter(estatusEtapa = 6,
+												funcion_id = funcion,
+												programaSuministro_id = programa,
+												controlAsignacion__programaSuministroDetalle__apoyo__id = apoyo)
+	for e in etapa:
+		resultado = {"apoyoId":e["controlAsignacion__programaSuministroDetalle__apoyo__id"],
+						"apoyoNumero":e["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
+						"elementoId":e["controlAsignacion__programaSuministroDetalle__elemento__id"],
+						"elementoNombre":e["controlAsignacion__programaSuministroDetalle__elemento__nombre"]
+						}
+		dataApoyo.append(resultado)
+	array = mensaje
+	array["frente"]=dataFrente
+	array["apoyo"]=dataApoyo
+	return JsonResponse(array)

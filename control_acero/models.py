@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.utils import timezone
+from decimal import Decimal
 import datetime
 
 # Create your models here.
@@ -15,7 +16,7 @@ class Material(models.Model):
 	)
 	tipo = models.IntegerField(choices=ESTATUSTIPO, default=1)
 	diametro = models.FloatField(default=0)
-	peso = models.FloatField(default=0)
+	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -26,11 +27,11 @@ class Material(models.Model):
 		return self.nombre
 
 class Despiece(models.Model):
-	nombre = models.CharField(max_length=100)
-	pieza = models.CharField(default=0, max_length=20)
-	calibre = models.CharField(default=0, max_length=20)
-	pija = models.FloatField(default=0)
+	nomenclatura = models.CharField(max_length=100)
+	cantidad = models.IntegerField(default=1, max_length=20)
 	longitud = models.FloatField(default=0)
+	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	figura = models.CharField(default=1, max_length=20)
 	material = models.ManyToManyField(
 		'material',
 		blank=True,
@@ -40,9 +41,10 @@ class Despiece(models.Model):
 	    (1, 'Activo'),
 	)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True, null=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.nombre
+		return self.nomenclatura
 
 class Elemento(models.Model):
 	nombre = models.CharField(max_length=100)
@@ -50,6 +52,10 @@ class Elemento(models.Model):
 	peso = models.FloatField(default=0)
 	material = models.ManyToManyField(
 		'material',
+		blank=True,
+	)
+	despiece = models.ManyToManyField(
+		'despiece',
 		blank=True,
 	)
 	ESTATUSTABLE = (
@@ -178,16 +184,16 @@ class ProgramaSuministroDetalle(models.Model):
 	idProgramaSuministro = models.IntegerField()
 	apoyo = models.ForeignKey(Apoyo)
 	elemento = models.ForeignKey(Elemento)
-	numeroCuatro = models.CharField(max_length=20)
-	numeroCinco = models.CharField(max_length=20)
-	numeroSeis = models.CharField(max_length=20)
-	numeroSiete = models.CharField(max_length=20)
-	numeroOcho = models.CharField(max_length=20)
-	numeroNueve = models.CharField(max_length=20)
-	numeroDiez = models.CharField(max_length=20)
-	numeroOnce = models.CharField(max_length=20)
-	numeroDoce = models.CharField(max_length=20)
-	total = models.CharField(max_length=20)
+	numeroCuatro = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroCinco = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroSeis = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroSiete = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroOcho = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroNueve = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroDiez = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroOnce = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	numeroDoce = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	total = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -199,7 +205,7 @@ class ProgramaSuministroDetalle(models.Model):
 		return self.programaSuministro
 
 class ControlAsignacion(models.Model):
-	cantidad = models.IntegerField()
+	cantidad = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	tiempoEntrega = models.IntegerField()
 	idOrden = models.IntegerField(null=True, blank=True)
 	funcion = models.ForeignKey(Funcion)
@@ -216,17 +222,19 @@ class ControlAsignacion(models.Model):
 		return self.idOrden
 
 class EtapaAsignacion(models.Model):
-	pesoSolicitado = models.IntegerField()
-	pesoRecibido = models.IntegerField()
+	pesoSolicitado = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	pesoRecibido = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	tiempoEntrega = models.IntegerField(null=True)
 	programaSuministro = models.ForeignKey(ProgramaSuministro, null=True)
 	controlAsignacion = models.ForeignKey(ControlAsignacion)
 	funcion = models.ForeignKey(Funcion)
 	taller = models.ForeignKey(Taller, null=True)
 	transporte = models.ForeignKey(Transporte, null=True)
-	cantidadAsignada = models.IntegerField(null=True)
+	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	idEtapaPertenece = models.IntegerField(null=True)
+	despiece = models.ForeignKey(Despiece, null=True)
 	estatusEtapa = models.IntegerField()
+	piezasRecibidas = models.IntegerField(null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -235,4 +243,4 @@ class EtapaAsignacion(models.Model):
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.cantidadAsignada
+		return unicode(self.estatus)

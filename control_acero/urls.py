@@ -20,14 +20,6 @@ urlpatterns = [
     #url(r'^armado/$', views.ArmadoView.as_view(), name='armado'),
     #url(r'^colocado/$', views.ColocadoView.as_view(), name='colocado'),
     #"""------------------------------------------"""
-    #""" RUTAS RELACIONADAS CON ARMADO """
-    #"""------------------------------------------"""
-    url(r'^armado/$', views.armadoView, name='armadoView'),
-    #"""------------------------------------------"""
-    #""" RUTAS RELACIONADAS CON COLOCADO """
-    #"""------------------------------------------"""
-    url(r'^colocado/$', views.colocadoView, name='colocadoView'),
-    #"""------------------------------------------"""
     #""" RUTAS RELACIONADAS CON FRENTE DE TRABAJO """
     #"""------------------------------------------"""
     url(r'^frenteTrabajo/$', views.frenteTrabajoView, name='frenteTrabajoView'),
@@ -98,4 +90,33 @@ urlpatterns = [
     url(r'^habilitado/asigna/comboFuncion/$', views.habilitadoAsignaComboFuncion, name='habilitadoAsignaComboFuncion'),
     url(r'^habilitado/recepcion/habilitado/$', views.habilitadoRecepcionHabilitado, name='habilitadoRecepcionHabilitado'),
     url(r'^habilitado/recepcion/save/$', views.habilitadoRecepcionSave, name='habilitadoRecepcionSave'),
+    url(r'^habilitado/asignar/comboPrograma/$', views.habilitadoAsignarComboPrograma, name='habilitadoAsignarComboPrograma'),
+    url(r'^habilitado/asignar/comboFuncion/$', views.habilitadoAsignarComboFuncion, name='habilitadoAsignarComboFuncion'),
+    url(r'^habilitado/asignar/comboElemento/$', views.habilitadoAsignarComboElemento, name='habilitadoAsignarComboElemento'),
+    url(r'^habilitado/asignar/cantidades/$', views.habilitadoAsignarCantidades, name='habilitadoAsignarCantidades'),
+    url(r'^habilitado/asignar/elemento/$', views.habilitadoAsignarElemento, name='habilitadoAsignarElemento'),
+    url(r'^habilitado/asignar/save/$', views.habilitadoAsignarSave, name='habilitadoAsignarSave'),
+    #"""------------------------------------------"""
+    #""" RUTAS RELACIONADAS CON HABILITADO """
+    #"""------------------------------------------"""
+    url(r'^armado/recepcion/$', views.armadoRecepcionView, name='armadoRecepcionView'),
+    url(r'^armado/asignacion/$', views.armadoAsignacionView, name='armadoAsignacionView'),
+    url(r'^armado/asignar/comboPrograma/$', views.armadoAsignarComboPrograma, name='armadoAsignarComboPrograma'),
+    url(r'^armado/asignar/comboFuncion/$', views.armadoAsignarComboFuncion, name='armadoAsignarComboFuncion'),
+    url(r'^armado/asignar/comboElemento/$', views.armadoAsignarComboElemento, name='armadoAsignarComboElemento'),
+    url(r'^armado/asignar/elemento/$', views.armadoAsignarElemento, name='armadoAsignarElemento'),
+    url(r'^armado/asigna/save/$', views.armadoAsignaSave, name='armadoAsignaSave'),
+    url(r'^armado/asignacion/comboPrograma/$', views.armadoAsignacionComboPrograma, name='armadoAsignacionComboPrograma'),
+    url(r'^armado/asignacion/comboFuncion/$', views.armadoAsignacionComboFuncion, name='armadoAsignacionComboFuncion'),
+    url(r'^armado/asignacion/comboElemento/$', views.armadoAsignacionComboElemento, name='armadoAsignacionComboElemento'),
+    url(r'^armado/asignacion/elemento/$', views.armadoAsignacionElemento, name='armadoAsignacionElemento'),
+    url(r'^armado/asignacion/save/$', views.armadoAsignacionSave, name='armadoAsignacionSave'),
+    #"""------------------------------------------"""
+    #""" RUTAS RELACIONADAS CON COLOCADO """
+    #"""------------------------------------------"""
+    url(r'^colocado/recepcion/$', views.colocadoRecepcionView, name='colocadoRecepcionView'),
+    url(r'^colocado/recepcion/comboPrograma/$', views.colocadoRecepcionComboPrograma, name='colocadoRecepcionComboPrograma'),
+    url(r'^colocado/recepcion/comboFuncion/$', views.colocadoRecepcionComboFuncion, name='colocadoRecepcionComboFuncion'),
+    url(r'^colocado/recepcion/comboApoyo/$', views.colocadoRecepcionComboApoyo, name='colocadoRecepcionComboApoyo'),
+    url(r'^colocado/recepcion/detalle/$', views.colocadoRecepcionDetalle, name='colocadoRecepcionDetalle'),
 ]

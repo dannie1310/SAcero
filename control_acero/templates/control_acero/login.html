@@ -1,4 +1,4 @@
-{% extends 'control_acero/layout.html' %}
+{% extends 'control_acero/layout_login.html' %}
 
 {% block content %}
 	{% if messages %}	    
@@ -6,30 +6,6 @@
 	    	<div class="alert alert-warning">{{message}}</div>
 	    {% endfor %}
 	{% endif %}
-	<nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="/">
-					<figure class="nav-company pull-left">
-						<img src="http://equipamiento.grupohi.mx/img/company-icon.png" alt="Grupo Hermes Infraestructura"/>
-					</figure>
-					Control Acero
-				</a>
-			</div>
-
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="/auth/login"><i class="fa fa-sign-in fa-fw"></i> Iniciar Sesión</a></li>
-				</ul>
-			</div>
-		</div>
-	</nav>
 
 	<div class="container theme-showcase" role="main">
 		<div class="row">

@@ -367,28 +367,28 @@
 		    $("#tablaInformacionVarillas tbody").append(tabla);
 		});
 		limpiaCantidadVarilla = function () {
-			$("#txtCuatro").val('');
-			$("#txtCinco").val('');
-			$("#txtSeis").val('');
-			$("#txtSiete").val('');
-			$("#txtOcho").val('');
-			$("#txtNueve").val('');
-			$("#txtDiez").val('');
-			$("#txtNueve").val('');
-			$("#txtDiez").val('');
-			$("#txtOnce").val('');
-			$("#txtDoce").val('');
-			$("#txtCuatroOriginal").val('');
-			$("#txtCincoOriginal").val('');
-			$("#txtSeisOriginal").val('');
-			$("#txtSieteOriginal").val('');
-			$("#txtOchoOriginal").val('');
-			$("#txtNueveOriginal").val('');
-			$("#txtDiezOriginal").val('');
-			$("#txtNueveOriginal").val('');
-			$("#txtDiezOriginal").val('');
-			$("#txtOnceOriginal").val('');
-			$("#txtDoceOriginal").val('');
+			$("#txtCuatro").val(0);
+			$("#txtCinco").val(0);
+			$("#txtSeis").val(0);
+			$("#txtSiete").val(0);
+			$("#txtOcho").val(0);
+			$("#txtNueve").val(0);
+			$("#txtDiez").val(0);
+			$("#txtNueve").val(0);
+			$("#txtDiez").val(0);
+			$("#txtOnce").val(0);
+			$("#txtDoce").val(0);
+			$("#txtCuatroOriginal").val(0);
+			$("#txtCincoOriginal").val(0);
+			$("#txtSeisOriginal").val(0);
+			$("#txtSieteOriginal").val(0);
+			$("#txtOchoOriginal").val(0);
+			$("#txtNueveOriginal").val(0);
+			$("#txtDiezOriginal").val(0);
+			$("#txtNueveOriginal").val(0);
+			$("#txtDiezOriginal").val(0);
+			$("#txtOnceOriginal").val(0);
+			$("#txtDoceOriginal").val(0);
 			$("#countCuatro").val(1);
 			$("#countCinco").val(1);
 			$("#countSeis").val(1);
@@ -415,8 +415,7 @@
 			var numeroDiez = $("#txtDiez").val();
 			var numeroOnce = $("#txtOnce").val();
 			var numeroDoce = $("#txtDoce").val();
-			var totalx = parseFloat(numeroCuatro)+parseFloat(numeroCinco)+parseFloat(numeroSeis); 
-			alert(totalx);
+			var total = parseFloat(numeroCuatro) + parseFloat(numeroCinco) + parseFloat(numeroSeis) + parseFloat(numeroSiete) + parseFloat(numeroOcho);
 			var tabla = '';
 				tabla += '<tr>'
 							+'<td class="text-center">'+apoyoText+'</td>'
@@ -430,11 +429,11 @@
 							+'<td class="text-center">'+numeroDiez+'</td>'
 							+'<td class="text-center">'+numeroOnce+'</td>'
 							+'<td class="text-center">'+numeroDoce+'</td>'
-							+'<td style="display:none" class="text-center">'
-								+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+numeroCuatro+'|'+numeroCinco+'|'+numeroSeis+'|'+numeroSiete+'|'+numeroOcho+'|'+numeroNueve+'|'+numeroDiez+'|'+numeroOnce+'|'+numeroDoce+'|1000" />'
-							+'</td>'
-							+'<td class="text-center">1000</td>'
+							+'<td class="text-center">'+parseFloat(total).toFixed(4)+'</td>'
 							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span</td>'
+							+'<td style="display:none" class="text-center">'
+								+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+numeroCuatro+'|'+numeroCinco+'|'+numeroSeis+'|'+numeroSiete+'|'+numeroOcho+'|'+numeroNueve+'|'+numeroDiez+'|'+numeroOnce+'|'+numeroDoce+'|'+parseFloat(total).toFixed(4)+'" />'
+							+'</td>'
 						+'<tr>';
 			$("#tablaApoyoElemento").append(tabla);
 			limpiaCantidadVarilla();
@@ -476,58 +475,58 @@
 		    });
 		});
 		$( "#countCuatro" ).change(function() {
-			var value = this.value;
-			var cuatro = $("#txtCuatroOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var cuatro = parseFloat($("#txtCuatroOriginal").val()).toFixed(4);
 			var total = (value)*(cuatro);
-			$("#txtCuatro").val(total);
+			$("#txtCuatro").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countCinco" ).change(function() {
-			var value = this.value;
-			var cinco = $("#txtCincoOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var cinco = parseFloat($("#txtCincoOriginal").val()).toFixed(4);
 			var total = (value)*(cinco);
-			$("#txtCinco").val(total);
+			$("#txtCinco").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countSeis" ).change(function() {
-			var value = this.value;
-			var seis = $("#txtSeisOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var seis = parseFloat($("#txtSeisOriginal").val()).toFixed(4);
 			var total = (value)*(seis);
-			$("#txtSeis").val(total);
+			$("#txtSeis").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countSiete" ).change(function() {
-			var value = this.value;
-			var siete = $("#txtSieteOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var siete = parseFloat($("#txtSieteOriginal").val()).toFixed(4);
 			var total = (value)*(siete);
-			$("#txtSiete").val(total);
+			$("#txtSiete").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countOcho" ).change(function() {
-			var value = this.value;
-			var ocho = $("#txtOchoOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var ocho = parseFloat($("#txtOchoOriginal").val()).toFixed(4);
 			var total = (value)*(ocho);
-			$("#txtOcho").val(total);
+			$("#txtOcho").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countNueve" ).change(function() {
-			var value = this.value;
-			var nueve = $("#txtNueveOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var nueve = parseFloat($("#txtNueveOriginal").val()).toFixed(4);
 			var total = (value)*(nueve);
-			$("#txtNueve").val(total);
+			$("#txtNueve").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countDiez" ).change(function() {
-			var value = this.value;
-			var diez = $("#txtDiezOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var diez = parseFloat($("#txtDiezOriginal").val()).toFixed(4);
 			var total = (value)*(diez);
-			$("#txtDiez").val(total);
+			$("#txtDiez").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countOnce" ).change(function() {
-			var value = this.value;
-			var once = $("#txtOnceOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var once = parseFloat($("#txtOnceOriginal").val()).toFixed(4);
 			var total = (value)*(once);
-			$("#txtOnce").val(total);
+			$("#txtOnce").val(parseFloat(total).toFixed(4));
 		});
 		$( "#countDoce" ).change(function() {
-			var value = this.value;
-			var doce = $("#txtDoceOriginal").val();
+			var value = parseFloat(this.value).toFixed(4);
+			var doce = parseFloat($("#txtDoceOriginal").val()).toFixed(4);
 			var total = (value)*(doce);
-			$("#txtDoce").val(total);
+			$("#txtDoce").val(parseFloat(total).toFixed(4));
 		});
 	    $(function () {
 	    	comboFrente();

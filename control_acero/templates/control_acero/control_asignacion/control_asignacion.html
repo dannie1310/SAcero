@@ -187,7 +187,7 @@
 		            try {
 		                $('.cmbElemento').empty();
 	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbElemento').append('<option value="' + object.id + '">' + object.elementoNombre + '</option>');
+	                        $('.cmbElemento').append('<option value="' + object.id + '|' + object.total + '">' + object.elementoNombre + '</option>');
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar Combo Funcion:" + e);
@@ -213,6 +213,9 @@
 			var elementos = $(".elementoMultiple").select2('data');
 			var tabla = '';
 			$.each(elementos, function (count, object) {
+				var explodeElemento = object.id.split("|");
+				var idElemento = explodeElemento[0];
+				var totalElemento = explodeElemento[1];
 				tabla += '<tr>'
 							+'<td class="text-center">'+ordenText+'</td>'
 							+'<td class="text-center">'+frenteText+'</td>'
@@ -220,13 +223,14 @@
 							+'<td class="text-center">'+object.text+'</td>'
 							+'<td class="text-center">'+funcionText+'</td>'
 							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-file"></span></td>'
-							+'<td class="text-center"><input type="text" class="form-control dataAsignacion" name="txtPeso" id="txtPeso"/></td>'
-							+'<td class="text-center"><input type="text" class="form-control dataAsignacion" name="txtDias" id="txtDias"/></td>'
+							+'<td class="text-center">'+totalElemento+'</td>'
+							+'<td style="display:none;" class="text-center"><input type="text" disabled readonly class="form-control dataAsignacion" name="txtPeso" id="txtPeso" value="'+totalElemento+'" /></td>'
+							+'<td class="text-center"><input type="text" class="form-control dataAsignacion" name="txtDias" id="txtDias" /></td>'
 							+'<td style="display:none;" class="text-center">'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtOrden" id="txtOrden" value="'+orden+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtFrente" id="txtFrente" value="'+frente+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPrograma" id="txtPrograma" value="'+programa+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtEstructura" id="txtEstructura" value="'+object.id+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtEstructura" id="txtEstructura" value="'+idElemento+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtFuncion" id="txtFuncion" value="'+funcion+'" />'
 							+'</td>'
 						+'<tr>';
