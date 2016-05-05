@@ -21,13 +21,16 @@
 				</select>
 			</div>
 			<div class="col-md-12 table-responsive">
-				<table id="tablaSuministro" class="table table-hover">
+				<table id="tablaFrente" class="table table-hover">
 					<thead>
 						<tr>
-							<th class="text-center"># Varilla</th>
-							<th class="text-center">Diametro</th>
-							<th class="text-center">Piezas</th>
-							<th class="text-center">Cantidad Entregada</th>
+							<th colspan="4" class="text-center"> Información Frente de Trabajo</th>
+						</tr>
+						<tr>
+							<th class="text-center">Nombre Frente</th>
+							<th class="text-center">Identificación</th>
+							<th class="text-center">Ubicacion</th>
+							<th class="text-center">Kilometros</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -35,8 +38,46 @@
 					</tbody>
 				</table>
 			</div>
+			<div class="col-md-12 table-responsive">
+				<table id="tablaElemento" class="table table-hover">
+					<thead>
+						<tr>
+							<th colspan="2" class="text-center"> Información Apoyo</th>
+						</tr>
+						<tr>
+							<th class="text-center">Numero de Apoyo</th>
+							<th class="text-center">Nombre Elemento</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-12 table-responsive">
+				<table id="tablaDetalle" class="table table-hover">
+					<thead>
+						<tr>
+							<th colspan="10" class="text-center">Detalle Despiece</th>
+						</tr>
+						<tr>
+							<th class="text-center">Apoyo</th>
+							<th class="text-center">Elemento</th>
+							<th class="text-center">Peso Recibido</th>
+							<th class="text-center">Piezas Recibidas</th>
+							<th class="text-center">Cantidad</th>
+							<th class="text-center">Calibre</th>
+							<th class="text-center">Longitud</th>
+							<th class="text-center">Nomenclatura</th>
+							<th class="text-center">Kilogramo</th>
+							<th class="text-center">Figura</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
 			<div class="col-md-12">
-				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Asignacion</button>
+				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Terminar Colocado</button>
 			</div>
 		</div>
 	</div>
@@ -44,23 +85,13 @@
 	<script type="text/javascript">
 		$( "#btnGuardar" ).click(function() {
 			var programa = $("#cmbPrograma").val();
-			var funcion = $("#cmbFuncion").val();
-			var elemento = $("#cmbApoyo").val();
-			var funcionSelect = $("#cmbFuncionSeleccionada").val();
-			var taller = $("#cmbTaller").val();
-			var transporte = $("#cmbTransporte").val();
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/habilitado/asignar/save/",
+		        url: "/control_acero/colocado/recepcion/save/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
 		        		programa: programa,
-		        		funcion: funcion,
-		        		elemento: elemento,
-		        		funcionSelect: funcionSelect,
-		        		taller: taller,
-		        		transporte: transporte
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -158,62 +189,51 @@
 			var programa = $("#cmbPrograma").val();
 			var funcion = $("#cmbFuncion").val();
 			var apoyo = $("#cmbApoyo").val();
-			var tabla = '';
-			/*$.ajax({
+			var tablaFrente = '';
+			var tablaElemento = '';
+			var tablaDetalle = '';
+			$.ajax({
 		        type: "POST",
-		        url: "/control_acero/habilitado/asignar/elemento/",
+		        url: "/control_acero/colocado/recepcion/detalle/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
 		        		programa: programa,
 		        		funcion: funcion,
-		        		elemento: elemento
+		        		apoyo: apoyo
 						},
 		        beforeSend: function (objeto) {
 		        },
 		        success: function (datos) {
 		            try {
-	                    $.each(datos.data, function (count, object) {
-	                    	tabla += '<tr>';
-	                    		tabla += '<td>'+object.materialNumero+'</td>'
-	                    		tabla += '<td>'+object.materialDiametro+'</td>'
-	                    		if(object.materialNumero == 4){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroCuatro)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroCuatro+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 5){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroCinco)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroCinco+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 6){
-									tabla += '<td>'+parseFloat(object.suministroNumeroSeis)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroSeis+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 7){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroSiete)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroSiete+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 8){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroOcho)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroOcho+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 9){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroNueve)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroNueve+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 10){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroDiez)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroDiez+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 11){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroOnce)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroOnce+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 12){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroDoce)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroDoce+'</td>'
-	                    		}
-	                    	tabla += '</tr>';
+		            	console.log(datos);
+	                    $.each(datos.frente, function (count, objectFrente) {
+	                    	tablaFrente += '<tr>'
+	                    						+'<td>'+objectFrente.frenteNombre+'</td>'
+	                    						+'<td>'+objectFrente.frenteIdentificacion+'</td>'
+	                    						+'<td>'+objectFrente.frenteUbicacion+'</td>'
+	                    						+'<td>'+objectFrente.frenteKilometro+'</td>'
+	                    					+'</tr>';
+	                    });
+	                    $.each(datos.apoyo, function (count, objectApoyo) {
+	                    	tablaElemento += '<tr>'
+	                    						+'<td>'+objectApoyo.apoyoNumero+'</td>'
+	                    						+'<td>'+objectApoyo.elementoNombre+'</td>'
+	                    					+'</tr>';
+	                    });
+	                    $.each(datos.detalle, function (count, objectDetalle) {
+	                    	tablaDetalle += '<tr>';
+	                    		tablaDetalle += '<td>'+objectDetalle.apoyo+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.elemento+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.pesoRecibido+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.piezasRecibidas+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.despieceCantidad+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.despieceMaterial+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.despieceLongitud+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.despieceNomenclatura+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.despiecePeso+'</td>';
+	                    		tablaDetalle += '<td>'+objectDetalle.despieceFigura+'</td>';
+	                    	tablaDetalle += '</tr>';
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
@@ -223,10 +243,9 @@
 		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
 		        }
 		    });
-		    $("#tablaSuministro tbody").append(tabla);
-		    //comboTipoFuncion();
-		   	//comboTaller();
-		   	//comboTransporte();*/
+		    $("#tablaFrente tbody").append(tablaFrente);
+		    $("#tablaElemento tbody").append(tablaElemento);
+		    $("#tablaDetalle tbody").append(tablaDetalle);
 		});
 	    $(function () {
 	    	comboPrograma();

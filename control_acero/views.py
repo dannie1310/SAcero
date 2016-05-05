@@ -19,7 +19,7 @@ from django.contrib.auth.decorators import login_required
 import md5
 from django.contrib import messages
 from django.db import connections
-from .forms import ApoyoForm
+from .forms import ApoyoForm, ElementoForm, DespieceForm, MaterialForm, FrenteForm, FuncionForm, TallerForm, TransporteForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render_to_response
 from django.db import connection
@@ -364,7 +364,10 @@ def habilitadoAsignarElemento(request):
 											"controlAsignacion__programaSuministroDetalle__elemento__material__diametro",
 											"controlAsignacion__programaSuministroDetalle__apoyo__numero", 
 											"controlAsignacion__programaSuministroDetalle__elemento__nombre"
-											).filter(estatusEtapa=3, funcion_id=funcion, programaSuministro_id=programa, controlAsignacion__programaSuministroDetalle__elemento__id=elemento)
+											).filter(estatusEtapa=3,
+														funcion_id=funcion,
+														programaSuministro_id=programa,
+														controlAsignacion__programaSuministroDetalle__elemento__id=elemento)
 	for e in etapa:
 		resultado = {"id":e["id"], 
 						"pesoSolicitado":e["pesoSolicitado"], 
@@ -448,7 +451,10 @@ def armadoAsignarElemento(request):
 											"controlAsignacion__programaSuministroDetalle__elemento__despiece__peso",
 											"controlAsignacion__programaSuministroDetalle__elemento__despiece__figura",
 											"controlAsignacion__programaSuministroDetalle__elemento__despiece__material__nombre"
-											).filter(estatusEtapa=4, funcion_id=17, programaSuministro_id=1, controlAsignacion__programaSuministroDetalle__elemento__id=1)
+											).filter(estatusEtapa=4,
+														funcion_id=funcion,
+														programaSuministro_id=programa,
+														controlAsignacion__programaSuministroDetalle__elemento__id=elemento)
 	for e in etapa:
 		resultado = {"id":e["id"], 
 						"apoyo":e["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
@@ -524,7 +530,10 @@ def armadoAsignacionElemento(request):
 											"despiece__peso",
 											"despiece__figura",
 											"despiece__material__nombre"
-											).filter(estatusEtapa=5, funcion_id=17, programaSuministro_id=1, controlAsignacion__programaSuministroDetalle__elemento__id=1)
+											).filter(estatusEtapa=6,
+														funcion_id=funcion,
+														programaSuministro_id=programa,
+														controlAsignacion__programaSuministroDetalle__elemento__id=elemento)
 	for e in etapa:
 		resultado = {"id":e["id"],
 						"pesoRecibido":e["pesoRecibido"],
@@ -1091,6 +1100,179 @@ def apoyosLogicalDelete(request):
 	#c = Apoyo(id=idApoyo, estatus=0)
 	#c.save()
 
+def elementosView(request):
+	elemento_list = Elemento.objects.filter(estatus=1)
+	paginator = Paginator(elemento_list, 5)
+	page = request.GET.get('page')
+	try:
+		elementos = paginator.page(page)
+	except PageNotAnInteger:
+		elementos = paginator.page(1)
+	except EmptyPage:
+		elementos = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/elementos/elementos.html', {"elementos": elementos})
+
+def elementosNewView(request):
+	if request.method == "POST":
+		form = ElementoForm(request.POST)
+		if(form.is_valid()):
+			elemento = form.save(commit=False)
+			elemento.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = ElementoForm()
+		
+	return render(request, 'control_acero/catalogos/elementos/elementos_new.html', {'form': form})
+
+	
+def despiecesView(request):
+	despiece_list = Despiece.objects.filter(estatus=1)
+	paginator = Paginator(despiece_list, 5)
+	page = request.GET.get('page')
+	try:
+		despieces= paginator.page(page)
+	except PageNotAnInteger:
+		despieces = paginator.page(1)
+	except EmptyPage:
+		despieces = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/despieces/despiece.html', {"despieces": despieces})
+
+
+def despiecesNewView(request):
+	if request.method == "POST":
+		form = DespieceForm(request.POST)
+		if(form.is_valid()):
+			despiece = form.save(commit=False)
+			despiece.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = DespieceForm()
+		
+	return render(request, 'control_acero/catalogos/despieces/despiece_new.html', {'form': form})
+
+def materialesView(request):
+	material_list = Material.objects.filter(estatus=1)
+	paginator = Paginator(material_list, 10)
+	page = request.GET.get('page')
+	try:
+		materiales = paginator.page(page)
+	except PageNotAnInteger:
+		materiales = paginator.page(1)
+	except EmptyPage:
+		materiales = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/materiales/material.html', {"materiales": materiales})
+
+def materialesNewView(request):
+	if request.method == "POST":
+		form = MaterialForm(request.POST)
+		if(form.is_valid()):
+			material = form.save(commit=False)
+			material.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = MaterialForm()
+		
+	return render(request, 'control_acero/catalogos/materiales/material_new.html', {'form': form})
+
+def frentesView(request):
+	frente_list = Frente.objects.filter(estatus=1)
+	paginator = Paginator(frente_list, 5)
+	page = request.GET.get('page')
+	try:
+		frentes = paginator.page(page)
+	except PageNotAnInteger:
+		frentes = paginator.page(1)
+	except EmptyPage:
+		frentes = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/frentes/frente.html', {"frentes": frentes})
+
+def frentesNewView(request):
+	if request.method == "POST":
+		form = FrenteForm(request.POST)
+		if(form.is_valid()):
+			frente = form.save(commit=False)
+			frente.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = FrenteForm()
+		
+	return render(request, 'control_acero/catalogos/frentes/frentes_new.html', {'form': form})
+
+
+def funcionesView(request):
+	funciones_list = Funcion.objects.filter(estatus=1)
+	paginator = Paginator(funciones_list, 5)
+	page = request.GET.get('page')
+	try:
+		funciones = paginator.page(page)
+	except PageNotAnInteger:
+		funciones = paginator.page(1)
+	except EmptyPage:
+		funciones = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/funciones/funcion.html', {"funciones": funciones})
+
+def funcionesNewView(request):
+	if request.method == "POST":
+		form = FuncionForm(request.POST)
+		if(form.is_valid()):
+			funcion = form.save(commit=False)
+			funcion.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = FuncionForm()
+		
+	return render(request, 'control_acero/catalogos/funciones/funcion_new.html', {'form': form})
+
+def talleresView(request):
+	talleres_list = Taller.objects.filter(estatus=1)
+	paginator = Paginator(talleres_list, 5)
+	page = request.GET.get('page')
+	try:
+		talleres = paginator.page(page)
+	except PageNotAnInteger:
+		talleres = paginator.page(1)
+	except EmptyPage:
+		talleres = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/talleres/taller.html', {"talleres": talleres})
+
+def talleresNewView(request):
+	if request.method == "POST":
+		form = TallerForm(request.POST)
+		if(form.is_valid()):
+			funcion = form.save(commit=False)
+			funcion.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = TallerForm()
+		
+	return render(request, 'control_acero/catalogos/talleres/taller_new.html', {'form': form})
+
+def transportesView(request):
+	transportes_list = Transporte.objects.filter(estatus=1)
+	paginator = Paginator(transportes_list, 5)
+	page = request.GET.get('page')
+	try:
+		transportes = paginator.page(page)
+	except PageNotAnInteger:
+		transportes = paginator.page(1)
+	except EmptyPage:
+		transportes = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/transportes/transporte.html', {"transportes": transportes})
+
+def transportesNewView(request):
+	if request.method == "POST":
+		form = TransporteForm(request.POST)
+		if(form.is_valid()):
+			funcion = form.save(commit=False)
+			funcion.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = TransporteForm()
+		
+	return render(request, 'control_acero/catalogos/transportes/transporte_new.html', {'form': form})
+
+
+
 def suministroAsignaSave(request):
 	array = {}
 	mensaje = {}
@@ -1243,9 +1425,10 @@ def colocadoRecepcionDetalle(request):
 	data = []
 	dataFrente = []
 	dataApoyo = []
-	programa = request.POST.get('programa', 1)
-	funcion = request.POST.get('funcion', 20)
-	apoyo = request.POST.get('apoyo', 1)
+	dataDetalle = []
+	programa = request.POST.get('programa', 0)
+	funcion = request.POST.get('funcion', 0)
+	apoyo = request.POST.get('apoyo', 0)
 	etapa = EtapaAsignacion.objects.values("id",
 											"controlAsignacion__frente__id",
 											"controlAsignacion__frente__nombre",
@@ -1269,10 +1452,8 @@ def colocadoRecepcionDetalle(request):
 									"controlAsignacion__programaSuministroDetalle__apoyo__numero",
 									"controlAsignacion__programaSuministroDetalle__elemento__id",
 									"controlAsignacion__programaSuministroDetalle__elemento__nombre"
-									).filter(estatusEtapa = 6,
-												funcion_id = funcion,
-												programaSuministro_id = programa,
-												controlAsignacion__programaSuministroDetalle__apoyo__id = apoyo)
+									).filter(estatusEtapa = 1,
+												programaSuministro_id = programa)
 	for e in etapa:
 		resultado = {"apoyoId":e["controlAsignacion__programaSuministroDetalle__apoyo__id"],
 						"apoyoNumero":e["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
@@ -1280,7 +1461,74 @@ def colocadoRecepcionDetalle(request):
 						"elementoNombre":e["controlAsignacion__programaSuministroDetalle__elemento__nombre"]
 						}
 		dataApoyo.append(resultado)
+
+	etapaDetalle = EtapaAsignacion.objects.values("id",
+											"pesoRecibido",
+											"piezasRecibidas",
+											"controlAsignacion__programaSuministroDetalle__apoyo__numero", 
+											"controlAsignacion__programaSuministroDetalle__elemento__nombre",
+											"despiece__nomenclatura",
+											"despiece__cantidad",
+											"despiece__longitud",
+											"despiece__peso",
+											"despiece__figura",
+											"despiece__material__nombre"
+											).filter(estatusEtapa=6,
+														programaSuministro_id=1,
+														controlAsignacion__programaSuministroDetalle__elemento__id=1)
+	for ed in etapaDetalle:
+		resultado = {"id":ed["id"],
+						"pesoRecibido":ed["pesoRecibido"],
+						"piezasRecibidas":ed["piezasRecibidas"],
+						"apoyo":ed["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
+						"elemento":ed["controlAsignacion__programaSuministroDetalle__elemento__nombre"],
+						"despieceNomenclatura":ed["despiece__nomenclatura"],
+						"despieceCantidad":ed["despiece__cantidad"],
+						"despieceLongitud":ed["despiece__longitud"],
+						"despiecePeso":ed["despiece__peso"],
+						"despieceFigura":ed["despiece__figura"],
+						"despieceMaterial":ed["despiece__material__nombre"]
+						}
+		dataDetalle.append(resultado)
 	array = mensaje
 	array["frente"]=dataFrente
 	array["apoyo"]=dataApoyo
+	array["detalle"]=dataDetalle
+	return JsonResponse(array)
+
+def colocadoRecepcionSave(request):
+	array = {}
+	mensaje = {}
+	programa = request.POST.get('programa', 0)
+	etapa = EtapaAsignacion.objects.values("id",
+											"pesoSolicitado",
+											"pesoRecibido",
+											"tiempoEntrega", 
+											"cantidadAsignada",
+											"controlAsignacion_id",
+											"funcion_id",
+											"taller_id",
+											"transporte_id",
+											"programaSuministro_id",
+											"idEtapaPertenece",
+											"piezasRecibidas",
+											"despiece_id"
+										).filter(estatusEtapa = 1, 
+													programaSuministro_id = programa)
+	for e in etapa:
+		e = EtapaAsignacion(pesoSolicitado = e["pesoSolicitado"],
+								pesoRecibido = e["pesoRecibido"],
+								tiempoEntrega = e["tiempoEntrega"],
+								cantidadAsignada = e["cantidadAsignada"],
+								estatusEtapa = 7,
+								controlAsignacion_id = e["controlAsignacion_id"],
+								funcion_id =e["funcion_id"],
+								transporte_id = e["transporte_id"],
+								programaSuministro_id = e["programaSuministro_id"],
+								idEtapaPertenece = e["idEtapaPertenece"],
+								piezasRecibidas = e["piezasRecibidas"],
+								despiece_id = e["despiece_id"])
+		e.save()
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion del Colocado."}
+	array = mensaje
 	return JsonResponse(array)

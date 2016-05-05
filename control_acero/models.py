@@ -28,7 +28,7 @@ class Material(models.Model):
 
 class Despiece(models.Model):
 	nomenclatura = models.CharField(max_length=100)
-	cantidad = models.IntegerField(default=1, max_length=20)
+	cantidad = models.IntegerField(default=1)
 	longitud = models.FloatField(default=0)
 	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	figura = models.CharField(default=1, max_length=20)
@@ -240,6 +240,13 @@ class EtapaAsignacion(models.Model):
 	    (1, 'Activo'),
 	)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	TIPOESTATUS = (
+	    (1, 'En proceso'),
+	    (2, 'Recepcionado'),
+	    (3, 'Enviado'),
+	    (4, 'Rechazado'),
+	)
+	tipoEstatus = models.IntegerField(choices=TIPOESTATUS, default=1)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION

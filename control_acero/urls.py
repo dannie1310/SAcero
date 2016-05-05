@@ -47,6 +47,25 @@ urlpatterns = [
     url(r'^catologos/apoyos/new/$', views.apoyosNewView, name='apoyosNewView'),
     url(r'^catologos/apoyos/(?P<pk>[0-9]+)/edit/$', views.apoyosEditView, name='apoyosEditView'),
     url(r'^catologos/apoyos/delete/(?P<pk>[0-9]+)/$', views.apoyosLogicalDelete, name='apoyosLogicalDelete'),
+
+    url(r'^catologos/elementos/$', views.elementosView, name='elementosView'),
+    url(r'^catologos/elementos/new/$', views.elementosNewView, name='elementosNewView'),
+    url(r'^catologos/despieces/$', views.despiecesView, name='despiecesView'),
+    url(r'^catologos/despieces/new/$', views.despiecesNewView, name='despiecesNewView'),
+    url(r'^catologos/materiales/$', views.materialesView, name='materialesView'),
+    url(r'^catologos/materiales/new/$', views.materialesNewView, name='materialesNewView'),
+    url(r'^catologos/frentes/$', views.frentesView, name='frentesView'),
+    url(r'^catologos/frentes/new/$', views.frentesNewView, name='frentesNewView'),
+    url(r'^catologos/funciones/$', views.funcionesView, name='funcionesView'),
+    url(r'^catologos/funciones/new/$', views.funcionesNewView, name='funcionesNewView'),
+    url(r'^catologos/talleres/$', views.talleresView, name='talleresView'),
+    url(r'^catologos/talleres/new/$', views.talleresNewView, name='talleresNewView'),
+    url(r'^catologos/transportes/$', views.transportesView, name='transportesView'),
+    url(r'^catologos/transportes/new/$', views.transportesNewView, name='transportesNewView'),
+
+
+
+
     url(r'^funcion/show/$', views.funcionShow, name='funcionShow'),
     url(r'^recepcion/$', views.RecepcionView.as_view(), name='recepcion'),
     url(r'^estructura/combo/$', views.estructuraCombo, name='estructuraCombo'),
@@ -119,4 +138,5 @@ urlpatterns = [
     url(r'^colocado/recepcion/comboFuncion/$', views.colocadoRecepcionComboFuncion, name='colocadoRecepcionComboFuncion'),
     url(r'^colocado/recepcion/comboApoyo/$', views.colocadoRecepcionComboApoyo, name='colocadoRecepcionComboApoyo'),
     url(r'^colocado/recepcion/detalle/$', views.colocadoRecepcionDetalle, name='colocadoRecepcionDetalle'),
+    url(r'^colocado/recepcion/save/$', views.colocadoRecepcionSave, name='colocadoRecepcionSave'),
 ]
