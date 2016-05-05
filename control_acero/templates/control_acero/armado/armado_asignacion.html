@@ -1,0 +1,434 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	ARMADO ASIGNACIÓN
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="col-md-12">
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
+				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbElemento">Elige un Elemento:</label>
+				<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+				</select>
+			</div>
+			<div class="col-md-12 table-responsive">
+				<table id="tablaSuministro" class="table table-hover">
+					<thead>
+						<tr>
+							<th class="text-center">Apoyo</th>
+							<th class="text-center">Elemento</th>
+							<th class="text-center">Peso Recibido</th>
+							<th class="text-center">Piezas Recibidas</th>
+							<th class="text-center">Cantidad</th>
+							<th class="text-center">Calibre</th>
+							<th class="text-center">Longitud</th>
+							<th class="text-center">Nomenclatura</th>
+							<th class="text-center">Kilogramo</th>
+							<th class="text-center">Figura</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-12 table-responsive">
+				<table id="tablaSuministroAsignado" class="table table-hover">
+					<thead>
+						<tr>
+							<th colspan="9" class="text-center">Detalle de la Asignación</th>
+						</tr>
+						<tr>
+							<th class="text-center">Proveedores Funciones</th>
+							<th class="text-center">Elige Proveedor</th>
+							<th class="text-center">Transporte</th>
+							<th class="text-center">Agregar</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+	            				<select name="cmbTipoFuncion" id="cmbTipoFuncion" class="cmbTipoFuncion form-control">
+								</select>
+							</td>
+							<td>
+	            				<select name="cmbFuncionSeleccionada" id="cmbFuncionSeleccionada" class="cmbFuncionSeleccionada form-control">
+								</select>
+							</td>
+							<td>
+	            				<select name="cmbTransporte" id="cmbTransporte" class="cmbTransporte form-control">
+								</select>
+							</td>
+							<td>
+								<button class="btn btn-success" name="btnAgregarProveedor" id="btnAgregarProveedor">Agregar</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-12 table-responsive">
+				<table id="tablaArmadoAsigado" class="table table-hover">
+					<thead>
+						<tr>
+							<th colspan="9" class="text-center">Detalle de la Asignación</th>
+						</tr>
+						<tr>
+							<th class="text-center">Nombre Proveedor</th>
+							<th class="text-center">Transporte</th>
+							<th class="text-center">Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-12">
+				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Asignacion</button>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$( "#btnGuardar" ).click(function() {
+			var datos = [];
+			var datosString = '';
+			var suministro = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
+			var elemento = $("#cmbElemento").val();
+			$("input.dataAsignacion[type=text]").each(function(index, element) {
+				console.log(this.name);
+				if(this.name == "dataFuncion"){
+					datosString += this.value+"|";
+				}
+				if(this.name == "dataTransporte"){
+					datosString += this.value;
+					datos.push({"data": datosString});
+					datosString = '';
+				}
+			});
+			var json = JSON.stringify(datos);
+
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/armado/asignacion/save/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		suministro: suministro,
+		        		funcion: funcion,
+		        		elemento:elemento,
+		        		json: json
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion del Frente:\n\n" + otroobj);
+		        }
+		    });
+		});
+		comboPrograma = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/armado/asignacion/comboPrograma/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbPrograma').empty();
+		                $('.cmbPrograma').append('<option value="0">Selecciona un Programa de Suministro</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbPrograma').append('<option value="' + object.idPrograma + '">Folio --->>> ' + object.idPrograma + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboFuncion = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/colocado/recepcion/comboFuncion/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbFuncion').empty();
+		                $('.cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboElemento = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/armado/asignacion/comboElemento/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbElemento').empty();
+		                $('.cmbElemento').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbElemento').append('<option value="' + object.idElemento + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboTipoFuncion = function () {
+	        $('.cmbTipoFuncion').empty();
+	        $('.cmbTipoFuncion').append('<option value="0">Selecciona un Tipo de Proveedor</option>');
+	        $('.cmbTipoFuncion').append('<option value="4">Colocador</option>');
+		};
+		comboFuncionElegido = function (value) {
+			var tipo = value;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asignar/comboFuncionElegido/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		tipo: tipo
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('#cmbFuncionSeleccionada').empty();
+		                $('#cmbFuncionSeleccionada').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('#cmbFuncionSeleccionada').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboTaller = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asignar/comboTaller/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbTaller').empty();
+		                $('.cmbTaller').append('<option value="0">Selecciona un Taller</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbTaller').append('<option value="' + object.idTaller + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboTransporte = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asignar/comboTransporte/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbTransporte').empty();
+		                $('.cmbTransporte').append('<option value="0">Selecciona un Taller</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbTransporte').append('<option value="' + object.idTransporte + '">' + object.placas + ' ---> ' + object.capacidad + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		$( "#cmbElemento" ).change(function() {
+			$("#tablaSuministro tbody").empty();
+			var tabla = '';
+			var programa = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
+			var elemento = this.value;
+			var count = 0;
+			var idTabla = 1;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/armado/asignacion/elemento/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion,
+		        		elemento: elemento
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+	                    $.each(datos.data, function (count, object) {
+	                    	tabla += '<tr>';
+	                    		tabla += '<td>'+object.apoyo+'</td>';
+	                    		tabla += '<td>'+object.elemento+'</td>';
+	                    		tabla += '<td>'+object.pesoRecibido+'</td>';
+	                    		tabla += '<td>'+object.piezasRecibidas+'</td>';
+	                    		tabla += '<td>'+object.despieceCantidad+'</td>';
+	                    		tabla += '<td>'+object.despieceMaterial+'</td>';
+	                    		tabla += '<td>'+object.despieceLongitud+'</td>';
+	                    		tabla += '<td>'+object.despieceNomenclatura+'</td>';
+	                    		tabla += '<td>'+object.despiecePeso+'</td>';
+	                    		tabla += '<td>'+object.despieceFigura+'</td>';
+	                    		tabla += '<td>';
+	                    			tabla += '<input name="txtIdEtapa'+count+'" id="txtIdEtapa'+count+'" value="'+object.id+'" />';
+	                    			tabla += '<input name="txtApoyo'+count+'" id="txtApoyo'+count+'" value="'+object.apoyo+'" />';
+	                    			tabla += '<input name="txtElemento'+count+'" id="txtElemento'+count+'" value="'+object.elemento+'" />';
+	                    			tabla += '<input name="txtDespieceCantidad'+count+'" id="txtDespieceCantidad'+count+'" value="'+object.despieceCantidad+'" />';
+	                    			tabla += '<input name="txtDespieceMaterial'+count+'" id="txtDespieceMaterial'+count+'" value="'+object.despieceMaterial+'" />';
+	                    			tabla += '<input name="txtDespieceLongitud'+count+'" id="txtDespieceLongitud'+count+'" value="'+object.despieceLongitud+'" />';
+	                    			tabla += '<input name="txtDespieceNomenclatura'+count+'" id="txtDespieceNomenclatura'+count+'" value="'+object.despieceNomenclatura+'" />';
+	                    			tabla += '<input name="txtDespiecePeso'+count+'" id="txtDespiecePeso'+count+'" value="'+object.despiecePeso+'" />';
+	                    			tabla += '<input name="txtDespieceFigura'+count+'" id="txtDespieceFigura'+count+'" value="'+object.despieceFigura+'" />';
+	                    		tabla += '</td>';
+	                    	tabla += '</tr>';
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		    $("#tablaSuministro tbody").append(tabla);
+		    //comboTipoFuncion();
+		   	//comboTaller();
+		   	//comboTransporte();
+		});
+		$( "#cmbTipoFuncion" ).change(function() {
+			var value = this.value;
+			comboFuncionElegido(value);
+		});
+		$( "#btnAceptarRecepcion" ).click(function() {
+			$("#tablaSuministroAsignado tbody").empty();
+			var tabla = '';
+			$("input[name='seleccionados']").each( function () {
+				if($(this).is(":checked")){
+					var value = this.value;
+					var id = $("#txtIdEtapa"+value).val();
+					var apoyo = $("#txtApoyo"+value).val();
+					var elemento = $("#txtElemento"+value).val();
+					var cantidad = $("#txtDespieceCantidad"+value).val();
+					var calibre = $("#txtDespieceMaterial"+value).val();
+					var longitud = $("#txtDespieceLongitud"+value).val();
+					var nomenclatura = $("#txtDespieceNomenclatura"+value).val();
+					var kilogramos = $("#txtDespiecePeso"+value).val();
+					var figura = $("#txtDespieceFigura"+value).val();
+					var pesoRecibido = $("#txtPesoRecibido"+value).val();
+					var piezasRecibidas = $("#txtPiezas"+value).val();
+					tabla += '<tr>'
+								+'<td class="text-center">'+apoyo+'</td>'
+								+'<td class="text-center">'+elemento+'</td>'
+								+'<td class="text-center">'+cantidad+'</td>'
+								+'<td class="text-center">'+calibre+'</td>'
+								+'<td class="text-center">'+longitud+'</td>'
+								+'<td class="text-center">'+nomenclatura+'</td>'
+								+'<td class="text-center">'+kilogramos+'</td>'
+								+'<td class="text-center">'+figura+'</td>'
+								+'<td class="text-center">'+pesoRecibido+'</td>'
+								+'<td class="text-center">'+piezasRecibidas+'</td>'
+								+'<td class="text-center">'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+id+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPesoRecibido" id="dataPesoRecibido" value="'+pesoRecibido+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPiezasRecibidas" id="dataPiezasRecibidas" value="'+piezasRecibidas+'" />'
+								+'</td>'
+							+'</tr>';
+				}
+			});
+			$("#tablaSuministroAsignado tbody").append(tabla);
+		});
+		$( "#btnAgregarProveedor" ).click(function() {
+			var funcion = $("#cmbFuncionSeleccionada").val();
+			var funcionText = $("#cmbFuncionSeleccionada option[value='"+funcion+"']").text();
+			var transporte = $("#cmbTransporte").val();
+			var transporteText = $("#cmbTransporte option[value='"+transporte+"']").text();
+			var tabla = '';
+					tabla +='<tr>'
+								+'<td>'+funcionText+'</td>'
+								+'<td>'+transporteText+'</td>'
+								+'<td class="text-center">'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataFuncion" id="dataFuncion" value="'+funcion+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataTransporte" id="dataTransporte" value="'+transporte+'" />'
+								+'</td>'
+							+'<tr>';
+			$("#tablaArmadoAsigado tbody").append(tabla);
+		});
+	    $(function () {
+	    	comboPrograma();
+	    	comboTipoFuncion();
+	    	comboFuncion();
+	    	comboElemento();
+	    	comboTaller();
+	    	comboTransporte();
+	    });
+	</script>
+{% endblock %}

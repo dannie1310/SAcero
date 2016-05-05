@@ -1,0 +1,45 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE APOYO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Nombre</th>
+					<th class="text-center">Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for apoyo in apoyos %}
+				<tr>
+			    	<td>{{apoyo.numero}}</td>
+			    	<td><a href="/control_acero/catologos/apoyos/{{apoyo.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catologos/apoyos/delete/{{apoyo.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
+			   	</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+		    <span class="step-links">
+		        {% if apoyos.has_previous %}
+		            <a href="?page={{ apoyos.previous_page_number }}">previous</a>
+		        {% endif %}
+
+		        <span class="current">
+		            Page {{ apoyos.number }} of {{ apoyos.paginator.num_pages }}.
+		        </span>
+
+		        {% if apoyos.has_next %}
+		            <a href="?page={{ apoyos.next_page_number }}">next</a>
+		        {% endif %}
+		    </span>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<form action="{% url 'apoyosNewView' %}">
+			<button type="submit" class="btn btn-primary">Agregar Nuevo</button>
+		</form>
+	</div>
+{% endblock %}

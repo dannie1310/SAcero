@@ -1,0 +1,237 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	COLOCADO RECEPCIÓN
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="col-md-12">
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
+				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbApoyo">Elige un Elemento:</label>
+				<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
+				</select>
+			</div>
+			<div class="col-md-12 table-responsive">
+				<table id="tablaSuministro" class="table table-hover">
+					<thead>
+						<tr>
+							<th class="text-center"># Varilla</th>
+							<th class="text-center">Diametro</th>
+							<th class="text-center">Piezas</th>
+							<th class="text-center">Cantidad Entregada</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--<td><input type="checkbox" name="test" value="0" /></td>-->
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-12">
+				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Asignacion</button>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$( "#btnGuardar" ).click(function() {
+			var programa = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
+			var elemento = $("#cmbApoyo").val();
+			var funcionSelect = $("#cmbFuncionSeleccionada").val();
+			var taller = $("#cmbTaller").val();
+			var transporte = $("#cmbTransporte").val();
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/habilitado/asignar/save/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion,
+		        		elemento: elemento,
+		        		funcionSelect: funcionSelect,
+		        		taller: taller,
+		        		transporte: transporte
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion del Frente:\n\n" + otroobj);
+		        }
+		    });
+		});
+		comboPrograma = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/colocado/recepcion/comboPrograma/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbPrograma').empty();
+		                $('.cmbPrograma').append('<option value="0">Selecciona un Programa de Suministro</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbPrograma').append('<option value="' + object.idPrograma + '">Folio --->>> ' + object.idPrograma + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboFuncion = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/colocado/recepcion/comboFuncion/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbFuncion').empty();
+		                $('.cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboApoyo = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/colocado/recepcion/comboApoyo/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbApoyo').empty();
+		                $('.cmbApoyo').append('<option value="0">Selecciona un Apoyo</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbApoyo').append('<option value="' + object.idApoyo + '">' + object.numero + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		$( "#cmbApoyo" ).change(function() {
+			var programa = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
+			var apoyo = $("#cmbApoyo").val();
+			var tabla = '';
+			/*$.ajax({
+		        type: "POST",
+		        url: "/control_acero/habilitado/asignar/elemento/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion,
+		        		elemento: elemento
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+	                    $.each(datos.data, function (count, object) {
+	                    	tabla += '<tr>';
+	                    		tabla += '<td>'+object.materialNumero+'</td>'
+	                    		tabla += '<td>'+object.materialDiametro+'</td>'
+	                    		if(object.materialNumero == 4){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroCuatro)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroCuatro+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 5){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroCinco)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroCinco+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 6){
+									tabla += '<td>'+parseFloat(object.suministroNumeroSeis)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroSeis+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 7){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroSiete)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroSiete+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 8){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroOcho)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroOcho+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 9){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroNueve)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroNueve+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 10){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroDiez)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroDiez+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 11){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroOnce)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroOnce+'</td>'
+	                    		}
+	                    		if(object.materialNumero == 12){
+	                    			tabla += '<td>'+parseFloat(object.suministroNumeroDoce)/parseFloat(object.materialPeso)+'</td>'
+	                    			tabla += '<td>'+object.suministroNumeroDoce+'</td>'
+	                    		}
+	                    	tabla += '</tr>';
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		    $("#tablaSuministro tbody").append(tabla);
+		    //comboTipoFuncion();
+		   	//comboTaller();
+		   	//comboTransporte();*/
+		});
+	    $(function () {
+	    	comboPrograma();
+	    	comboFuncion();
+	    	comboApoyo();
+	    });
+	</script>
+{% endblock %}
