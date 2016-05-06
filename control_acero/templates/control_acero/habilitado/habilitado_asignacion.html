@@ -164,12 +164,16 @@
 		    });
 		};
 		comboElemento = function () {
+			var programa = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/habilitado/asignar/comboElemento/",
 		        async: false,
 		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -275,6 +279,9 @@
 		        }
 		    });
 		};
+		$( "#cmbFuncion" ).change(function() {
+			comboElemento();
+		});
 		$( "#cmbElemento" ).change(function() {
 			$("#tablaSuministro tbody").empty();
 			var tabla = '';
@@ -399,7 +406,6 @@
 	    	comboPrograma();
 	    	comboTipoFuncion();
 	    	comboFuncion();
-	    	comboElemento();
 	    	comboTaller();
 	    	comboTransporte();
 	    });

@@ -49,7 +49,7 @@
 				<table id="tablaSuministroAsignado" class="table table-hover">
 					<thead>
 						<tr>
-							<th colspan="9" class="text-center">Detalle de la Asignación</th>
+							<th colspan="11" class="text-center">Detalle de la Asignación</th>
 						</tr>
 						<tr>
 							<th class="text-center">Apoyo</th>
@@ -174,12 +174,16 @@
 		    });
 		};
 		comboElemento = function () {
+			var programa = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/armado/asignar/comboElemento/",
 		        async: false,
 		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -285,6 +289,9 @@
 		        }
 		    });
 		};
+		$( "#cmbFuncion" ).change(function() {
+			comboElemento();
+		});
 		$( "#cmbElemento" ).change(function() {
 			$("#tablaSuministro tbody").empty();
 			var tabla = '';
@@ -320,17 +327,17 @@
 	                    		tabla += '<td> <input class="form-control" name="txtPesoRecibido'+count+'" id="txtPesoRecibido'+count+'" /> </td>';
 	                    		tabla += '<td> <input class="form-control" name="txtPiezas'+count+'" id="txtPiezas'+count+'" /> </td>';
 	                    		tabla += '<td> <input class="form-control" type="checkbox" name="seleccionados" value="'+count+'" /> </td>';
-	                    		tabla += '<td>';
-	                    			tabla += '<td> <input name="txtIdEtapa'+count+'" id="txtIdEtapa'+count+'" value="'+object.id+'" /> </td>';
-	                    			tabla += '<td> <input name="txtApoyo'+count+'" id="txtApoyo'+count+'" value="'+object.apoyo+'" /> </td>';
-	                    			tabla += '<td> <input name="txtElemento'+count+'" id="txtElemento'+count+'" value="'+object.elemento+'" /> </td>';
-	                    			tabla += '<td> <input name="txtDespieceCantidad'+count+'" id="txtDespieceCantidad'+count+'" value="'+object.despieceCantidad+'" /> </td>';
-	                    			tabla += '<td> <input name="txtDespieceMaterial'+count+'" id="txtDespieceMaterial'+count+'" value="'+object.despieceMaterial+'" /> </td>';
-	                    			tabla += '<td> <input name="txtDespieceLongitud'+count+'" id="txtDespieceLongitud'+count+'" value="'+object.despieceLongitud+'" /> </td>';
-	                    			tabla += '<td> <input name="txtDespieceNomenclatura'+count+'" id="txtDespieceNomenclatura'+count+'" value="'+object.despieceNomenclatura+'" /> </td>';
-	                    			tabla += '<td> <input name="txtDespiecePeso'+count+'" id="txtDespiecePeso'+count+'" value="'+object.despiecePeso+'" /> </td>';
-	                    			tabla += '<td> <input name="txtDespieceFigura'+count+'" id="txtDespieceFigura'+count+'" value="'+object.despieceFigura+'" /> </td>';
-	                    			tabla += '<td> <input name="txtDespieceId'+count+'" id="txtDespieceId'+count+'" value="'+object.despieceId+'" /> </td>';
+	                    		tabla += '<td style="display:none;">';
+	                    			tabla += '<input name="txtIdEtapa'+count+'" id="txtIdEtapa'+count+'" value="'+object.id+'" />';
+	                    			tabla += '<input name="txtApoyo'+count+'" id="txtApoyo'+count+'" value="'+object.apoyo+'" />';
+	                    			tabla += '<input name="txtElemento'+count+'" id="txtElemento'+count+'" value="'+object.elemento+'" />';
+	                    			tabla += '<input name="txtDespieceCantidad'+count+'" id="txtDespieceCantidad'+count+'" value="'+object.despieceCantidad+'" />';
+	                    			tabla += '<input name="txtDespieceMaterial'+count+'" id="txtDespieceMaterial'+count+'" value="'+object.despieceMaterial+'" />';
+	                    			tabla += '<input name="txtDespieceLongitud'+count+'" id="txtDespieceLongitud'+count+'" value="'+object.despieceLongitud+'" />';
+	                    			tabla += '<input name="txtDespieceNomenclatura'+count+'" id="txtDespieceNomenclatura'+count+'" value="'+object.despieceNomenclatura+'" />';
+	                    			tabla += '<input name="txtDespiecePeso'+count+'" id="txtDespiecePeso'+count+'" value="'+object.despiecePeso+'" />';
+	                    			tabla += '<input name="txtDespieceFigura'+count+'" id="txtDespieceFigura'+count+'" value="'+object.despieceFigura+'" />';
+	                    			tabla += '<input name="txtDespieceId'+count+'" id="txtDespieceId'+count+'" value="'+object.despieceId+'" />';
 	                    		tabla += '</td>';
 	                    	tabla += '</tr>';
 	                    });
@@ -380,7 +387,7 @@
 								+'<td class="text-center">'+figura+'</td>'
 								+'<td class="text-center">'+pesoRecibido+'</td>'
 								+'<td class="text-center">'+piezasRecibidas+'</td>'
-								+'<td class="text-center">'
+								+'<td style="display:none;" class="text-center">'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+id+'" />'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPesoRecibido" id="dataPesoRecibido" value="'+pesoRecibido+'" />'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPiezasRecibidas" id="dataPiezasRecibidas" value="'+piezasRecibidas+'" />'
@@ -395,7 +402,6 @@
 	    	comboPrograma();
 	    	comboTipoFuncion();
 	    	comboFuncion();
-	    	comboElemento();
 	    	comboTaller();
 	    	comboTransporte();
 	    });

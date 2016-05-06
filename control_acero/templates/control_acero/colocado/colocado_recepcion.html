@@ -160,12 +160,16 @@
 		    });
 		};
 		comboApoyo = function () {
+			var programa = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/colocado/recepcion/comboApoyo/",
 		        async: false,
 		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -185,6 +189,9 @@
 		        }
 		    });
 		};
+		$( "#cmbFuncion" ).change(function() {
+			comboApoyo();
+		});
 		$( "#cmbApoyo" ).change(function() {
 			var programa = $("#cmbPrograma").val();
 			var funcion = $("#cmbFuncion").val();
@@ -250,7 +257,6 @@
 	    $(function () {
 	    	comboPrograma();
 	    	comboFuncion();
-	    	comboApoyo();
 	    });
 	</script>
 {% endblock %}

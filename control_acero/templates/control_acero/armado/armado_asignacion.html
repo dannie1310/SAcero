@@ -170,7 +170,7 @@
 		comboFuncion = function () {
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/colocado/recepcion/comboFuncion/",
+		        url: "/control_acero/armado/asignacion/comboFuncion/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken
@@ -194,12 +194,16 @@
 		    });
 		};
 		comboElemento = function () {
+			var programa = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/armado/asignacion/comboElemento/",
 		        async: false,
 		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		programa: programa,
+		        		funcion: funcion
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -304,6 +308,9 @@
 		        }
 		    });
 		};
+		$( "#cmbFuncion" ).change(function() {
+			comboElemento();
+		});
 		$( "#cmbElemento" ).change(function() {
 			$("#tablaSuministro tbody").empty();
 			var tabla = '';
@@ -338,7 +345,7 @@
 	                    		tabla += '<td>'+object.despieceNomenclatura+'</td>';
 	                    		tabla += '<td>'+object.despiecePeso+'</td>';
 	                    		tabla += '<td>'+object.despieceFigura+'</td>';
-	                    		tabla += '<td>';
+	                    		tabla += '<td style="display:none;">';
 	                    			tabla += '<input name="txtIdEtapa'+count+'" id="txtIdEtapa'+count+'" value="'+object.id+'" />';
 	                    			tabla += '<input name="txtApoyo'+count+'" id="txtApoyo'+count+'" value="'+object.apoyo+'" />';
 	                    			tabla += '<input name="txtElemento'+count+'" id="txtElemento'+count+'" value="'+object.elemento+'" />';
@@ -415,7 +422,7 @@
 					tabla +='<tr>'
 								+'<td>'+funcionText+'</td>'
 								+'<td>'+transporteText+'</td>'
-								+'<td class="text-center">'
+								+'<td style="display:none;" class="text-center">'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataFuncion" id="dataFuncion" value="'+funcion+'" />'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataTransporte" id="dataTransporte" value="'+transporte+'" />'
 								+'</td>'
@@ -426,7 +433,6 @@
 	    	comboPrograma();
 	    	comboTipoFuncion();
 	    	comboFuncion();
-	    	comboElemento();
 	    	comboTaller();
 	    	comboTransporte();
 	    });
