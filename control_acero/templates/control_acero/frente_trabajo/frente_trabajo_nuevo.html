@@ -15,7 +15,7 @@
 				</select>
 			</div>
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFrente">Elegir frente de trabajo:</label>
+				<label  class="control-label" for="cmbFrente">Elegir Frente de trabajo:</label>
 				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 				</select>
 			</div>
@@ -31,7 +31,7 @@
 		<div class="col-md-12">
 			<button type="button" class="btn btn-success" name="seleccionarFrente" id="seleccionarFrente">Seleccionar</button>
 		</div>
-		<div class="col-md-12 table-responsive">
+		<div style="display:none;" id="divFrente" class="col-md-12 table-responsive">
 			<table id="tablaFrente" class="table table-hover">
 				<thead>
 					<tr>
@@ -44,7 +44,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-12">
+		<div style="display:none;" id="divApoyo" class="col-md-12">
 			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbApoyo">Elegir Apoyo:</label>
 				<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
@@ -56,7 +56,7 @@
 				</select>
 			</div>
 		</div>
-		<div class="col-md-12">
+		<div style="display:none;" id="divCantidades" class="col-md-12">
 			<div class="col-md-12 text-center">
 				<h4>Cantidades de Varilla</h4>
 			</div>
@@ -145,11 +145,11 @@
 			</div>
 			<hr style="width: 100%; color: black; height: 1px; background-color:black;" />
 		</div>
-		<div class="col-md-12">
+		<div style="display:none;" id="divCantidadesBotones" class="col-md-12">
 			<button type="button" class="btn btn-info" name="btnAgregaVarilla" id="btnAgregaVarilla">Agregar</button>
 			<button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button>
 		</div>
-		<div class="col-md-12 table-responsive">
+		<div style="display:none;" id="divDetalle" class="col-md-12 table-responsive">
 			<table id="tablaApoyoElemento" class="table table-hover">
 				<thead>
 					<tr>
@@ -173,10 +173,10 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-6 text-center">
+		<div style="display:none;" id="divDetalleSolicita" class="col-md-6 text-center">
 			<button type="button" class="btn btn-success" name="btnSolicitar" id="btnSolicitar">Solicitar</button>
 		</div>
-		<div class="col-md-6 text-center">
+		<div style="display:none;" id="divDetalleCancelar" class="col-md-6 text-center">
 			<button type="button" class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
 		</div>
 	</div>
@@ -267,6 +267,22 @@
 			var frente = $("#cmbFrente").val();
 			var fechaInicial = $("#fechaInicial").val();
 			var fechaFinal = $("#fechaFinal").val();
+			if(orden == 0){
+				mensajeWarning("<b>Debes elegir una Orden de Compra.</b>");
+				return false;
+			}
+			if(frente == 0){
+				mensajeWarning("<b>Debes elegir un Frente de Trabajo.</b>");
+				return false;
+			}
+			if(fechaInicial == 0){
+				mensajeWarning("<b>Debes elegir una Fecha Inicial.</b>");
+				return false;
+			}
+			if(fechaFinal == 0){
+				mensajeWarning("<b>Debes elegir una Fecha Final.</b>");
+				return false;
+			}
 			var tabla = '';
 		    $.ajax({
 		        type: "POST",
@@ -285,7 +301,7 @@
 	                        			+'<td>'+object.nombreFrente+'</td>'
 	                        			+'<td>'+object.identificacion+'</td>'
 	                        			+'<td>'+object.ubicacion+'</td>'
-	                        		+'</tr>'
+	                        		+'</tr>';
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
@@ -296,7 +312,8 @@
 		        }
 		    });
 		    $("#tablaFrente tbody").append(tabla);
-
+		    $("#divFrente").show("slide");
+		    $("#divApoyo").show("slide");
 		});
 		$( "#cmbApoyo" ).change(function() {
 			var value = this.value;
@@ -365,6 +382,11 @@
 		        }
 		    });
 		    $("#tablaInformacionVarillas tbody").append(tabla);
+		    $("#divCantidades").show('slide');
+		    $("#divCantidadesBotones").show('slide');
+		    $("#divDetalle").show('slide');
+		    $("#divDetalleSolicita").show('slide');
+		    $("#divDetalleCancelar").show('slide');
 		});
 		limpiaCantidadVarilla = function () {
 			$("#txtCuatro").val(0);
@@ -406,6 +428,14 @@
 			var apoyoText = $("#cmbApoyo option[value='"+apoyo+"']").text();
 			var elemento = $("#cmbElemento").val();
 			var elementoText = $("#cmbElemento option[value='"+elemento+"']").text();
+			if(apoyo == 0){
+				mensajeWarning("<b>Debes elegir un Apoyo.</b>");
+				return false;
+			}
+			if(elemento == 0){
+				mensajeWarning("<b>Debes elegir un Elemento.</b>");
+				return false;
+			}
 			var numeroCuatro = $("#txtCuatro").val();
 			var numeroCinco = $("#txtCinco").val();
 			var numeroSeis = $("#txtSeis").val();
@@ -415,7 +445,7 @@
 			var numeroDiez = $("#txtDiez").val();
 			var numeroOnce = $("#txtOnce").val();
 			var numeroDoce = $("#txtDoce").val();
-			var total = parseFloat(numeroCuatro) + parseFloat(numeroCinco) + parseFloat(numeroSeis) + parseFloat(numeroSiete) + parseFloat(numeroOcho);
+			var total = parseFloat(numeroCuatro) + parseFloat(numeroCinco) + parseFloat(numeroSeis) + parseFloat(numeroSiete) + parseFloat(numeroOcho) + parseFloat(numeroNueve) + parseFloat(numeroDiez) + parseFloat(numeroOnce) + parseFloat(numeroDoce);
 			var tabla = '';
 				tabla += '<tr>'
 							+'<td class="text-center">'+apoyoText+'</td>'
@@ -432,12 +462,27 @@
 							+'<td class="text-center">'+parseFloat(total).toFixed(4)+'</td>'
 							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span</td>'
 							+'<td style="display:none" class="text-center">'
-								+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+numeroCuatro+'|'+numeroCinco+'|'+numeroSeis+'|'+numeroSiete+'|'+numeroOcho+'|'+numeroNueve+'|'+numeroDiez+'|'+numeroOnce+'|'+numeroDoce+'|'+parseFloat(total).toFixed(4)+'" />'
+								+'<input type="hidden" class="dataVarilla trPosicion" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+numeroCuatro+'|'+numeroCinco+'|'+numeroSeis+'|'+numeroSiete+'|'+numeroOcho+'|'+numeroNueve+'|'+numeroDiez+'|'+numeroOnce+'|'+numeroDoce+'|'+parseFloat(total).toFixed(4)+'" />'
 							+'</td>'
 						+'<tr>';
 			$("#tablaApoyoElemento").append(tabla);
 			limpiaCantidadVarilla();
+			$("#cmbElemento").val(0);
+			actualizaPosicion();
 		});
+        $("#tablaApoyoElemento").on("click", ".trPosicion", function () {
+            var posicion = $(this).attr("pos");
+            console.log(posicion);
+            $("#tablaApoyoElemento tbody tr:eq(" + posicion + ")").remove();
+            actualizaPosicion();
+        });
+        actualizaPosicion = function (dataParte) {
+            var i = 0;
+            $(".trPosicion").each(function () {
+                var pos = $(this).attr("pos", i);
+                i++;
+            });
+        },
 		$( "#btnSolicitar" ).click(function() {
 			var orden = $("#cmbOrden").val();
 			var frente = $("#cmbFrente").val();
@@ -473,6 +518,23 @@
 		            alert("Error en la peticion del Frente:\n\n" + otroobj);
 		        }
 		    });
+		});
+		$( "#btnCancelar" ).click(function() {
+			$("#cmbOrden").val(0);
+			$("#cmbFrente").val(0);
+			$("#fechaInicial").val('');
+			$("#fechaFinal").val('');
+			$("#cmbApoyo").val(0);
+			$("#cmbElemento").val(0);
+			$("#divFrente").hide('slide');
+			$("#divApoyo").hide('slide');
+		    $("#divCantidades").hide('slide');
+		    $("#divCantidadesBotones").hide('slide');
+		    $("#divDetalle").hide('slide');
+		    $("#divDetalleSolicita").hide('slide');
+		    $("#divDetalleCancelar").hide('slide');
+		    $("#tablaFrente tbody").empty();
+		    $("#tablaApoyoElemento tbody").empty();
 		});
 		$( "#countCuatro" ).change(function() {
 			var value = parseFloat(this.value).toFixed(4);

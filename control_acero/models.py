@@ -168,8 +168,8 @@ class Apoyo(models.Model):
 class ProgramaSuministro(models.Model):
 	idOrden = models.IntegerField()
 	frente = models.ForeignKey(Frente)
-	fechaInicial = models.DateTimeField()
-	fechaFinal = models.DateTimeField()
+	fechaInicial = models.DateField()
+	fechaFinal = models.DateField()
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

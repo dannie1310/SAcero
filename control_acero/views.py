@@ -23,7 +23,7 @@ from .forms import ApoyoForm, ElementoForm, DespieceForm, MaterialForm, FrenteFo
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render_to_response
 from django.db import connection
-
+from datetime import datetime
 
 class IndexView(generic.ListView):
 	template_name = 'control_acero/login.html'
@@ -992,7 +992,7 @@ def programaSave(request):
 	fechaFinal = request.POST.get('fechaFinal', 0)
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
-	p = ProgramaSuministro(idOrden=idOrden, fechaInicial=timezone.now(), fechaFinal=timezone.now(), frente_id=idFrente, estatus=1)
+	p = ProgramaSuministro(idOrden=idOrden, fechaInicial=datetime.strptime(fechaInicial, '%d/%m/%Y'), fechaFinal=datetime.strptime(fechaFinal, '%d/%m/%Y'), frente_id=idFrente, estatus=1)
 	p.save()
 	for data in json_object:
 		datos = data["data"]
