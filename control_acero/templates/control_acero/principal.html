@@ -1,16 +1,11 @@
 {% extends 'control_acero/layout.html' %}
-
+{% block title_module %}
+	BIENVENIDO AL SISTEMA CONTROL DE ACERO
+{% endblock %}
 {% block content %}
 	{% if messages %}	    
 		{% for message in messages %}
 	    	<div class="alert alert-warning">{{message}}</div>
 	    {% endfor %}
 	{% endif %}
-
-	<div class="container theme-showcase" role="main">
-		<div class="row">
-
-		</div>
-	</div>
-
 {% endblock %}

@@ -18,8 +18,6 @@
 
     <meta name="keywords" content="">
 
-    <link href='http://fonts.googleapis.com/css?family=Roboto:400,500,700,300,100' rel='stylesheet' type='text/css'>
-
     <!-- styles -->
     <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
@@ -125,27 +123,22 @@
     <div style="display:none;" class="notification mensajeWarning alert alert-warning col-xs-12"></div>
 
 
+    <div class="navbar yamm navbar-inverse" role="navigation" id="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand home" href="#" data-animate-hover="bounce">
+                    <img src="http://equipamiento.grupohi.mx/img/company-icon.png" alt="Obaju logo" class="hidden-xs">
+                </a>
+            </div>
+            <!--/.navbar-header -->
+        </div>
+        <!-- /.container -->
+    </div>
     <!-- *** NAVBAR END *** -->
 
     <div id="all">
 
         <div id="content">
-
-            <!-- *** HEADER MODULO ***
- _________________________________________________________ -->
-            <div id="hot">
-
-                <div class="box">
-                    <div class="container" data-animate="fadeInUpBig">
-                        <div class="col-md-12">
-                            <h2>{% block title_module %}{% endblock %}</h2>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-            <!-- /#hot -->
 
             <!-- *** HEADER MODULO END *** -->
 

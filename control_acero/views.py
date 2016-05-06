@@ -799,8 +799,6 @@ def loginUsuario(request):
 	usuario = request.POST['usuario']
 	clave = request.POST['clave']
 	cursor = connections['modulos_db'].cursor()
-	#v = Empresa.objects.using('auth_db').all()
-	#print v
 	if (usuario == ""):
 		resultado = {"estatus":"error","mensaje":"El campo usuario esta vacio"}
 		return JsonResponse(resultado)
@@ -808,22 +806,26 @@ def loginUsuario(request):
 		resultado = {"estatus":"error","mensaje":"El campo clave esta vacio"}
 		return JsonResponse(resultado)
 	login = Usuario.objects.using('auth_db').filter(usuario=usuario, clave=md5.new(clave).hexdigest())
-	print login
 	for e in login:
 		if(e != ""):
-			print e.usuario
-			#request.session['idUsuario'] = e.idUsuario
+			request.session['idusuario'] = e.idusuario
 			request.session['usuario'] = e.usuario
 			request.session['clave'] = clave
-			#cursor.execute("SELECT [IDBaseDatos],[Nombre],[Mascara],[Servidor],[IDTipoSistemaOrigen],[IDTipoBaseDatos],[EstaActiva],[FechaHoraRegistro] FROM [BasesDatos].[BasesDatos] WHERE EstaActiva = 1")
-			#row = cursor.fetchall()
 			url = '/control_acero/principal/'
-			#url = reverse('/otro', kwargs={'dbs': row})
 			return HttpResponseRedirect(url)
-
 	template_name = '/control_acero'
 	messages.error(request, 'Usuario y/o Password invalidos')
 	return HttpResponseRedirect(template_name)
+
+def logout(request):
+    try:
+        del request.session['idusuario']
+        del request.session['usuario']
+        del request.session['clave']
+    except KeyError:
+        pass
+    template_name = '/control_acero'
+    return HttpResponseRedirect(template_name)
 
 def frenteShow(request):
 	array = {}
@@ -1025,7 +1027,7 @@ def programaSave(request):
 		total = splitData[11]
 		pd = ProgramaSuministroDetalle(idProgramaSuministro=p.pk, apoyo_id=apoyo, elemento_id=elemento, numeroCuatro=numeroCuatro, numeroCinco=numeroCinco, numeroSeis=numeroSeis, numeroSiete=numeroSiete, numeroOcho=numeroOcho, numeroNueve=numeroNueve, numeroDiez=numeroDiez, numeroOnce=numeroOnce, numeroDoce=numeroDoce, total=total)
 		pd.save();
-	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente"}
+	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente", "folio":pd.id}
 	array = mensaje
 	return JsonResponse(array)
 
@@ -1074,7 +1076,7 @@ def frenteActualizaestatus(request):
 
 def apoyosView(request):
 	apoyo_list = Apoyo.objects.filter(estatus=1)
-	paginator = Paginator(apoyo_list, 5)
+	paginator = Paginator(apoyo_list, 10)
 	page = request.GET.get('page')
 	try:
 		apoyos = paginator.page(page)
@@ -1116,7 +1118,7 @@ def apoyosLogicalDelete(request):
 
 def elementosView(request):
 	elemento_list = Elemento.objects.filter(estatus=1)
-	paginator = Paginator(elemento_list, 5)
+	paginator = Paginator(elemento_list, 10)
 	page = request.GET.get('page')
 	try:
 		elementos = paginator.page(page)
@@ -1141,7 +1143,7 @@ def elementosNewView(request):
 	
 def despiecesView(request):
 	despiece_list = Despiece.objects.filter(estatus=1)
-	paginator = Paginator(despiece_list, 5)
+	paginator = Paginator(despiece_list, 10)
 	page = request.GET.get('page')
 	try:
 		despieces= paginator.page(page)
@@ -1190,7 +1192,7 @@ def materialesNewView(request):
 
 def frentesView(request):
 	frente_list = Frente.objects.filter(estatus=1)
-	paginator = Paginator(frente_list, 5)
+	paginator = Paginator(frente_list, 10)
 	page = request.GET.get('page')
 	try:
 		frentes = paginator.page(page)
@@ -1215,7 +1217,7 @@ def frentesNewView(request):
 
 def funcionesView(request):
 	funciones_list = Funcion.objects.filter(estatus=1)
-	paginator = Paginator(funciones_list, 5)
+	paginator = Paginator(funciones_list, 10)
 	page = request.GET.get('page')
 	try:
 		funciones = paginator.page(page)
@@ -1239,7 +1241,7 @@ def funcionesNewView(request):
 
 def talleresView(request):
 	talleres_list = Taller.objects.filter(estatus=1)
-	paginator = Paginator(talleres_list, 5)
+	paginator = Paginator(talleres_list, 10)
 	page = request.GET.get('page')
 	try:
 		talleres = paginator.page(page)
@@ -1263,7 +1265,7 @@ def talleresNewView(request):
 
 def transportesView(request):
 	transportes_list = Transporte.objects.filter(estatus=1)
-	paginator = Paginator(transportes_list, 5)
+	paginator = Paginator(transportes_list, 10)
 	page = request.GET.get('page')
 	try:
 		transportes = paginator.page(page)
@@ -1508,7 +1510,7 @@ def colocadoRecepcionDetalle(request):
 											"despiece__material__nombre"
 											).filter(estatusEtapa=6,
 														programaSuministro_id=programa,
-														controlAsignacion__programaSuministroDetalle__elemento__id=apoyo)
+														controlAsignacion__programaSuministroDetalle__apoyo__id=apoyo)
 	for ed in etapaDetalle:
 		resultado = {"id":ed["id"],
 						"pesoRecibido":ed["pesoRecibido"],

@@ -13,7 +13,6 @@ class ElementoForm(forms.ModelForm):
 		fields = ['nombre', 'tipo','estatus', 'peso']
 		exclude = ['estatus']
 
-
 class DespieceForm(forms.ModelForm):
 	class Meta:
 		model = Despiece

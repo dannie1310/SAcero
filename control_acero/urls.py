@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^controlAsignacion/$', views.controlAsignacionView, name='controlAsignacionView'),
     url(r'^controlAsignacion/nuevo/$', views.controlAsignacionNuevoView, name='controlAsignacionNuevoView'),
     url(r'^usuario/login/$', views.loginUsuario, name='loginUsuario'),
+    url(r'^usuario/logout/$', views.logout, name='logout'),
     url(r'^acceso/$', views.AccesoView.as_view(), name='acceso'),
     #url(r'^suministro/$', views.SuministroView.as_view(), name='suministro'),
     url(r'^frente/$', views.FrenteView.as_view(), name='frente'),

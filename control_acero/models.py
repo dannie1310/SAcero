@@ -6,6 +6,32 @@ from decimal import Decimal
 import datetime
 
 # Create your models here.
+class Modulo(models.Model):
+	nombre = models.CharField(max_length=100)
+	padre = models.IntegerField(default=0)
+	url = models.CharField(max_length=100)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.nombre
+
+class Grupo(models.Model):
+	nombre = models.CharField(max_length=100)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.nombre
+
 class Material(models.Model):
 	nombre = models.CharField(blank=True, max_length=100)
 	numero = models.IntegerField(default=0)
