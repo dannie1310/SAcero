@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from control_acero.report.models_auth import Empresa, Usuario
-from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, FrenteAsigna, ProgramaSuministro, ProgramaSuministroDetalle, EtapaAsignacion, Taller, Transporte
+from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, FrenteAsigna, ProgramaSuministro, ProgramaSuministroDetalle, EtapaAsignacion, Taller, Transporte, Archivo
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
@@ -24,6 +25,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render_to_response
 from django.db import connection
 from datetime import datetime
+from base64 import b64encode
+import os
+from django.utils.crypto import get_random_string
 
 class IndexView(generic.ListView):
 	template_name = 'control_acero/login.html'
@@ -233,14 +237,40 @@ def suministroAsignarCantidades(request):
 	array = {}
 	mensaje = {}
 	data = []
-	idPrograma = request.POST.get('programa', 0)
-	idFuncion = request.POST.get('funcion', 0)
-	suministro = EtapaAsignacion.objects.values('id', 'pesoSolicitado', 'pesoRecibido', 'controlAsignacion_id', 'funcion_id', 'programaSuministro_id').filter(programaSuministro_id=idPrograma, funcion_id=idFuncion)
+	dataFiles = []
+	idPrograma = request.POST.get('programa', 1)
+	idFuncion = request.POST.get('funcion', 1)
+	suministro = EtapaAsignacion.objects.values('id',
+													'pesoSolicitado',
+													'pesoRecibido',
+													'controlAsignacion_id',
+													'funcion_id',
+													'programaSuministro_id'
+													).filter(
+													programaSuministro_id = idPrograma,
+													funcion_id=idFuncion)
 	for s in suministro:
-		resultado = {"id":s["id"],"pesoSolicitado":s["pesoSolicitado"],"pesoRecibido":s["pesoRecibido"],"idAsignacion":s["controlAsignacion_id"],"idFuncion":s["funcion_id"],"idPrograma":s["programaSuministro_id"]}
+		resultado = {"id":s["id"],
+						"pesoSolicitado":s["pesoSolicitado"],
+						"pesoRecibido":s["pesoRecibido"],
+						"idAsignacion":s["controlAsignacion_id"],
+						"idFuncion":s["funcion_id"],
+						"idPrograma":s["programaSuministro_id"]}
 		data.append(resultado)
+		suministroFiles = Archivo.objects.values('id',
+													'archivo'
+													).filter(
+													etapaAsignacion_id = s["id"])
+		for sf in suministroFiles:
+			archivo = sf["archivo"]
+			archivoDecode = archivo.decode("base64")
+			resultado = {"id":sf["id"],
+							"file":archivoDecode}
+			dataFiles.append(resultado)
+
 	array = mensaje
 	array["data"]=data
+	array["files"]=dataFiles
 	return JsonResponse(array)
 
 def habilitadoAsignaComboPrograma(request):
@@ -1027,7 +1057,7 @@ def programaSave(request):
 		total = splitData[11]
 		pd = ProgramaSuministroDetalle(idProgramaSuministro=p.pk, apoyo_id=apoyo, elemento_id=elemento, numeroCuatro=numeroCuatro, numeroCinco=numeroCinco, numeroSeis=numeroSeis, numeroSiete=numeroSiete, numeroOcho=numeroOcho, numeroNueve=numeroNueve, numeroDiez=numeroDiez, numeroOnce=numeroOnce, numeroDoce=numeroDoce, total=total)
 		pd.save();
-	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente", "folio":pd.id}
+	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente.", "folio":p.id}
 	array = mensaje
 	return JsonResponse(array)
 
@@ -1303,11 +1333,36 @@ def suministroAsignaSave(request):
 		pesoRecibido = splitData[3]
 		idFuncion = splitData[4]
 		tipoRecepcion = splitData[5]
-		e = EtapaAsignacion(pesoSolicitado=pesoSolicitado, pesoRecibido=pesoRecibido, estatusEtapa=1, estatus=1, controlAsignacion_id=idAsignacion, funcion_id=idFuncion, programaSuministro_id=idSuministro)
+		archivos = splitData[6]
+		print archivos
+		e = EtapaAsignacion(pesoSolicitado = pesoSolicitado,
+								pesoRecibido = pesoRecibido,
+								estatusEtapa = 1,
+								estatus = 1,
+								controlAsignacion_id = idAsignacion,
+								funcion_id = idFuncion, programaSuministro_id = idSuministro,
+								tipoRecepcion = tipoRecepcion)
 		e.save();
+		if(archivos != ""):
+			archivo = archivos.split("}{")
+			for file in archivo:
+				print file
+				fileBase64 = leeArchivo("control_acero/tmp/"+file)
+				a = Archivo(archivo = fileBase64,
+								etapaAsignacion_id = e.pk,
+								estatus = 1,
+								tipo = 1)
+				a.save();
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de suministro correctamente."}
 	array = mensaje
 	return JsonResponse(array)
+
+def leeArchivo(archivo):
+	with open(archivo, "rb") as f:
+		data = f.read()
+		fileBase64Encode = data.encode("base64")
+	os.remove(archivo);
+	return fileBase64Encode
 
 def suministroAsignarSave(request):
 	array = {}
@@ -1347,7 +1402,7 @@ def suministroAsignarSave(request):
 								programaSuministro_id=idPrograma,
 								idEtapaPertenece=etapaPertenece)
 		e.save();
-	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Suministro correctamente."}
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignación de Suministro correctamente."}
 	array = mensaje
 	return JsonResponse(array)
 
@@ -1567,3 +1622,18 @@ def colocadoRecepcionSave(request):
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion del Colocado."}
 	array = mensaje
 	return JsonResponse(array)
+
+def imagenesBase64(request):
+	archivo = request.FILES['archivo']
+	archivoName = request.FILES['archivo'].name
+	unique_string = get_random_string(length=10)
+	nameFile = unique_string+"_"+archivoName
+	path = handle_uploaded_file(archivo, nameFile)
+	mensaje = {"imagen":nameFile}
+	array = mensaje
+	return JsonResponse(array)
+
+def handle_uploaded_file(archivo, archivoName):
+    with open("control_acero/tmp/"+archivoName, 'wb+') as destination:
+        for chunk in archivo.chunks():
+            return destination.write(chunk)

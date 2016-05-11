@@ -273,6 +273,29 @@ class EtapaAsignacion(models.Model):
 	    (4, 'Rechazado'),
 	)
 	tipoEstatus = models.IntegerField(choices=TIPOESTATUS, default=1)
+	TIPORECEPCION = (
+	    (0, 'Parcial'),
+	    (1, 'Total'),
+	)
+	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class Archivo(models.Model):
+	archivo = models.BinaryField()
+	etapaAsignacion = models.ForeignKey(EtapaAsignacion, null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	TIPOARCHIVO = (
+	    (0, 'Certificado'),
+	    (1, 'Remision'),
+	)
+	tipo = models.IntegerField(choices=TIPOARCHIVO, default=1)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION

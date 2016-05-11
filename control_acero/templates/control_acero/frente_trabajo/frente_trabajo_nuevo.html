@@ -2,6 +2,25 @@
 {% block title_module %}
 	CREAR PROGRAMA DE SUMINISTRO
 {% endblock %}
+{% block modals %}
+<!-- Modal -->
+<div class="modal fade" id="modalPdf" tabindex="-1" role="dialog" aria-labelledby="modalPdfLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalPdfLabel">Impresion PDF</h4>
+			</div>
+			<div class="modal-body">
+				<iframe class="col-lg-12 col-md-12 col-sm-12" height="600" name="framePdf" id="framePdf"></iframe>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
@@ -183,11 +202,8 @@
 			<button type="button" class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
 		</div>
 		<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
-			<button type="button" class="btn btn-success" name="btnImprimir" id="btnImprimir">Imprimir</button>
+			<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
 		</div>
-	</div>
-	<div style="display:none;" class="col-md-12" id="divFrameImpresion">
-		<iframe width="800" height="400" name="framePdf" id="framePdf"></iframe>
 	</div>
 	<script type="text/javascript">
 		comboFrente = function () {
@@ -590,10 +606,8 @@
 		});
 		$( "#btnImprimir" ).click(function() {
 			var folio = $("#txtFolio").val();
-			//var href = "http://localhost:8000/ProgramaSuministro/"+folio;
-			var href = "http://localhost:8000/ProgramaSuministro/1";
+			var href = "http://localhost:8000/ProgramaSuministro/"+folio;
 			$("#framePdf").attr("src", href);
-			$("#divFrameImpresion").show('slide');
 		});
 	    $(function () {
 	    	comboFrente();

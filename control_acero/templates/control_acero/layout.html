@@ -40,6 +40,10 @@
     <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet" />
     <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker3.standalone.min.css' %}" rel="stylesheet" />
 
+    <!-- ESTILOS UPLOAD FILE -->
+    <link href="{% static 'uploadFile4.0.10/css/uploadfile.css' %}" rel="stylesheet" />
+
+
     <script src="{% static 'js/respond.min.js' %}"></script>
 
     <!-- PLUGIN JQUERY-->
@@ -51,6 +55,9 @@
     <!-- PLUGIN DATEPICKER BOOTSTRAP-->
     <script src="{% static 'datepicker-1.5.1/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'datepicker-1.5.1/locales/bootstrap-datepicker.es.min.js' %}"></script>
+
+    <!-- PLUGIN UPLOAD FILE-->
+    <script src="{% static 'uploadFile4.0.10/js/jquery.uploadfile.min.js' %}"></script>
 
     <script type="text/javascript">
         function getCookie(name) {
@@ -109,7 +116,7 @@
         }
     </script>
     <style>
-        .notification {
+        .notificacion {
             position: fixed;
             z-index: 1051; /* must be larger than .modal */
         }
@@ -118,9 +125,9 @@
 </head>
 
 <body>
-    <div style="display:none;" class="notification mensajeInfo alert alert-info col-xs-12"></div>
-    <div style="display:none;" class="notification mensajeSuccess alert alert-success col-xs-12"></div>
-    <div style="display:none;" class="notification mensajeWarning alert alert-warning col-xs-12"></div>
+    <div style="display:none;" class="notificacion mensajeInfo alert alert-info col-xs-12"></div>
+    <div style="display:none;" class="notificacion mensajeSuccess alert alert-success col-xs-12"></div>
+    <div style="display:none;" class="notificacion mensajeWarning alert alert-warning col-xs-12"></div>
     <!-- *** TOPBAR ***
  _________________________________________________________ -->
     <div id="top">
@@ -302,7 +309,7 @@
 
             </div>
             <!-- /#hot -->
-
+            {% block modals %}{% endblock %}
             <!-- *** HEADER MODULO END *** -->
 
             <div class="box text-center" data-animate="fadeInUp">

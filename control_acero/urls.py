@@ -140,4 +140,8 @@ urlpatterns = [
     url(r'^colocado/recepcion/comboApoyo/$', views.colocadoRecepcionComboApoyo, name='colocadoRecepcionComboApoyo'),
     url(r'^colocado/recepcion/detalle/$', views.colocadoRecepcionDetalle, name='colocadoRecepcionDetalle'),
     url(r'^colocado/recepcion/save/$', views.colocadoRecepcionSave, name='colocadoRecepcionSave'),
+    #"""------------------------------------------"""
+    #""" RUTAS RELACIONADAS CON IMAGENES """
+    #"""------------------------------------------"""
+    url(r'^imagenes/base64/$', views.imagenesBase64, name='imagenesBase64'),
 ]

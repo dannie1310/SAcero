@@ -22,6 +22,7 @@
 							<th class="text-center">No</th>
 							<th class="text-center">Peso Solicitado</th>
 							<th class="text-center">Peso Recibido</th>
+							<th class="text-center">Peso por Asignar</th>
 							<th class="text-center">Proveedores Funciones</th>
 							<th class="text-center">Elige Proveedor</th>
 							<th class="text-center">Asignar Taller</th>
@@ -288,6 +289,7 @@
 	                        			+'<td>'+idTabla+'</td>'
 	                        			+'<td>'+object.pesoSolicitado+'</td>'
 	                        			+'<td>'+object.pesoRecibido+'</td>'
+	                        			+'<td class="warning"><div id="faltante_'+count+'">'+object.pesoRecibido+'</div></td>'
 	                        			+'<td>'
 	                        				+'<select name="cmbTipoFuncion'+count+'" count="'+count+'" id="cmbTipoFuncion'+count+'" class="cmbTipoFuncion form-control">'
 											+'</select>'
@@ -306,7 +308,7 @@
 	                        				+'<select name="cmbTransporte'+count+'" id="cmbTransporte'+count+'" class="cmbTransporte form-control">'
 											+'</select>'
 	                        			+'</td>'
-	                        			+'<td><input type="text" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" /></td>'
+	                        			+'<td><input type="number" step="0.0001" class="form-control currency" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value="0" /></td>'
 	                        			+'<td><button onClick=agregaAsignacion('+count+') type="button" class="btn btn-info btnAsignar" name="btnAsignar'+count+'" id="btnAsignar'+count+'">Asignar</button></td>'
 	                        			+'<td style="display:none;">'
 	                        				+'<input type="text" readonly disabled name="idTabla'+count+'" id="idTabla'+count+'" value="'+idTabla+'" />'
@@ -338,11 +340,13 @@
 			comboFuncionElegido(count, value);
 		});
 		function agregaAsignacion (posicion){
+			var posicionReal = (posicion+(1));
 			var programa = $("#cmbPrograma").val();
 			var idTabla = $("#idTabla"+posicion).val();
 			var idAsignacion = $("#idAsignacion"+posicion).val();
 			var pesoSolicitado = $("#pesoSolicitado"+posicion).val();
 			var pesoRecibido = $("#pesoRecibido"+posicion).val();
+			var tipoFuncion = $("#cmbTipoFuncion"+posicion).val();
 			var funcion = $("#cmbFuncionSeleccionada"+posicion).val();
 			var funcionText = $("#cmbFuncionSeleccionada"+posicion+" option[value='"+funcion+"']").text();
 			var taller = $("#cmbTaller"+posicion).val();
@@ -351,6 +355,37 @@
 			var transporteText = $("#cmbTransporte"+posicion+" option[value='"+transporte+"']").text();
 			var cantidadAsignada = $("#cantidadAsignada"+posicion).val();
 			var etapaPertenece = $("#etapaPertenece"+posicion).val();
+			var faltante = $("#faltante_"+posicion).text();
+			if(tipoFuncion == 0){
+				mensajeWarning("<b>Debes elegir un Tipo de Proveedor para el registro "+posicionReal+".</b>");
+				return false;
+			}
+			if(funcion == 0){
+				mensajeWarning("<b>Debes elegir un Proveedor para el registro "+posicionReal+".</b>");
+				return false;
+			}
+			if(taller == 0){
+				mensajeWarning("<b>Debes elegir un Taller para el registro "+posicionReal+".</b>");
+				return false;
+			}
+			if(transporte == 0){
+				mensajeWarning("<b>Debes elegir un Transporte para el registro "+posicionReal+".</b>");
+				return false;
+			}
+			if(cantidadAsignada == 0){
+				mensajeWarning("<b>Debes Asignar una cantidad para el registro "+posicionReal+".</b>");
+				return false;
+			}
+			if(parseFloat(faltante) == 0){
+				mensajeInfo("<b>Ya no existe nada por asignar para el registro "+posicionReal+"</b>");
+				return false;
+			}
+			if(parseFloat(faltante) < parseFloat(cantidadAsignada)){
+				mensajeWarning("<b>No puedes asignar mas de lo que recibiste para el registro "+posicionReal+"</b>");
+				return false;
+			}
+			var operacion = parseFloat(faltante)-parseFloat(cantidadAsignada);
+			$("#faltante_"+posicion).html(operacion.toFixed(4));
 			var tabla = '';
 				tabla += '<tr>'
 							+'<td class="text-center">'+idTabla+'</td>'
