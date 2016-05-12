@@ -361,41 +361,42 @@
 		        success: function (datos) {
 		            try {
 	                    $.each(datos.data, function (count, object) {
+	                    	console.log(object);
 	                    	if(object.materialNumero == 4){
-	                    		$("#txtCuatro").val(object.materialPeso);
-	                    		$("#txtCuatroOriginal").val(object.materialPeso);
+	                    		$("#txtCuatro").val(object.conversion);
+	                    		$("#txtCuatroOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 5){
-	                    		$("#txtCinco").val(object.materialPeso);
-	                    		$("#txtCincoOriginal").val(object.materialPeso);
+	                    		$("#txtCinco").val(object.conversion);
+	                    		$("#txtCincoOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 6){
-	                    		$("#txtSeis").val(object.materialPeso);
-	                    		$("#txtSeisOriginal").val(object.materialPeso);
+	                    		$("#txtSeis").val(object.conversion);
+	                    		$("#txtSeisOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 7){
-	                    		$("#txtSiete").val(object.materialPeso);
-	                    		$("#txtSieteOriginal").val(object.materialPeso);
+	                    		$("#txtSiete").val(object.conversion);
+	                    		$("#txtSieteOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 8){
-	                    		$("#txtOcho").val(object.materialPeso);
-	                    		$("#txtOchoOriginal").val(object.materialPeso);
+	                    		$("#txtOcho").val(object.conversion);
+	                    		$("#txtOchoOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 9){
-	                    		$("#txtNueve").val(object.materialPeso);
-	                    		$("#txtNueveOriginal").val(object.materialPeso);
+	                    		$("#txtNueve").val(object.conversion);
+	                    		$("#txtNueveOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 10){
-	                    		$("#txtDiez").val(object.materialPeso);
-	                    		$("#txtDiezOriginal").val(object.materialPeso);
+	                    		$("#txtDiez").val(object.conversion);
+	                    		$("#txtDiezOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 11){
-	                    		$("#txtOnce").val(object.materialPeso);
-	                    		$("#txtOnceOriginal").val(object.materialPeso);
+	                    		$("#txtOnce").val(object.conversion);
+	                    		$("#txtOnceOriginal").val(object.conversion);
 	                    	}
 	                    	if(object.materialNumero == 12){
-	                    		$("#txtDoce").val(object.materialPeso);
-	                    		$("#txtDoceOriginal").val(object.materialPeso);
+	                    		$("#txtDoce").val(object.conversion);
+	                    		$("#txtDoceOriginal").val(object.conversion);
 	                    	}
 	                    });
 		            } catch (e) {

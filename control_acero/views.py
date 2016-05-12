@@ -258,14 +258,15 @@ def suministroAsignarCantidades(request):
 						"idPrograma":s["programaSuministro_id"]}
 		data.append(resultado)
 		suministroFiles = Archivo.objects.values('id',
-													'archivo'
+													'archivo',
+													'etapaAsignacion_id'
 													).filter(
 													etapaAsignacion_id = s["id"])
 		for sf in suministroFiles:
 			archivo = sf["archivo"]
-			archivoDecode = archivo.decode("base64")
 			resultado = {"id":sf["id"],
-							"file":archivoDecode}
+							"etapaAsignacionId":sf["etapaAsignacion_id"],
+							"file":"data:image/jpg;base64,"+archivo}
 			dataFiles.append(resultado)
 
 	array = mensaje
@@ -1087,9 +1088,26 @@ def elementoMaterial(request):
 	mensaje = {}
 	data = []
 	idElemento = request.POST.get('idElemento', 0)
-	elemento = Elemento.objects.values('id','nombre', 'material__id', 'material__nombre', 'material__numero', 'material__peso', 'material__proveedor').filter(id=idElemento)
+	elemento = Elemento.objects.values('id',
+										'nombre',
+										'material__id',
+										'material__nombre',
+										'material__numero',
+										'material__peso',
+										'material__proveedor',
+										'material__longitud').filter(id=idElemento)
 	for e in elemento:
-		resultado = {"idElemento":e["id"],"nombreElemento":e['nombre'],"idMaterial":e['material__id'],"nombreMaterial":e['material__nombre'],"materialNumero":e['material__numero'],"materialPeso":e['material__peso'],"materialProveedor":e['material__proveedor']}
+		conversion = e['material__peso'] * e['material__longitud'];
+		conversionDecimal = "%.4f" % conversion
+		resultado = {"idElemento":e["id"],
+						"nombreElemento":e['nombre'],
+						"idMaterial":e['material__id'],
+						"nombreMaterial":e['material__nombre'],
+						"materialNumero":e['material__numero'],
+						"materialPeso":e['material__peso'],
+						"materialProveedor":e['material__proveedor'],
+						"materialLongitud":e['material__longitud'],
+						"conversion":conversionDecimal}
 		data.append(resultado)
 	array["data"]=data
 	return JsonResponse(array)
@@ -1220,6 +1238,19 @@ def materialesNewView(request):
 		
 	return render(request, 'control_acero/catalogos/materiales/material_new.html', {'form': form})
 
+def materialesEditView(request, pk):
+	material = get_object_or_404(Material, pk=pk)
+	if request.method == "POST":
+		form = MaterialForm(request.POST, instance=material)
+		if(form.is_valid()):
+			material = form.save(commit=False)
+			material.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = MaterialForm(instance=material)
+		
+	return render(request, 'control_acero/catalogos/materiales/material_edit.html', {'form': form})
+
 def frentesView(request):
 	frente_list = Frente.objects.filter(estatus=1)
 	paginator = Paginator(frente_list, 10)
@@ -1334,7 +1365,6 @@ def suministroAsignaSave(request):
 		idFuncion = splitData[4]
 		tipoRecepcion = splitData[5]
 		archivos = splitData[6]
-		print archivos
 		e = EtapaAsignacion(pesoSolicitado = pesoSolicitado,
 								pesoRecibido = pesoRecibido,
 								estatusEtapa = 1,
@@ -1431,7 +1461,6 @@ def habilitadoAsignarSave(request):
 	taller = request.POST.get('taller')
 	transporte = request.POST.get('transporte')
 	etapa = EtapaAsignacion.objects.values('id', 'pesoSolicitado', 'pesoRecibido', 'cantidadAsignada', 'controlAsignacion_id', 'funcion_id', 'taller_id', 'transporte_id', 'programaSuministro_id').filter(programaSuministro_id=programa,funcion_id=funcion, controlAsignacion__programaSuministroDetalle__elemento__id=elemento).order_by('-id')[:1]
-	print "-----"
 	for e in etapa:
 		e = EtapaAsignacion(pesoSolicitado=e["pesoSolicitado"], pesoRecibido=e["pesoRecibido"], cantidadAsignada=e["cantidadAsignada"], estatusEtapa=4, estatus=1, controlAsignacion_id=e["controlAsignacion_id"], funcion_id=funcionSelect, taller_id=taller, transporte_id=transporte, programaSuministro_id=e["programaSuministro_id"])
 		e.save();
@@ -1626,6 +1655,7 @@ def colocadoRecepcionSave(request):
 def imagenesBase64(request):
 	archivo = request.FILES['archivo']
 	archivoName = request.FILES['archivo'].name
+	typeFile = request.FILES['archivo'].content_type
 	unique_string = get_random_string(length=10)
 	nameFile = unique_string+"_"+archivoName
 	path = handle_uploaded_file(archivo, nameFile)

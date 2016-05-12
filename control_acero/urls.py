@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^catologos/despieces/new/$', views.despiecesNewView, name='despiecesNewView'),
     url(r'^catologos/materiales/$', views.materialesView, name='materialesView'),
     url(r'^catologos/materiales/new/$', views.materialesNewView, name='materialesNewView'),
+    url(r'^catologos/materiales/(?P<pk>[0-9]+)/edit/$', views.materialesEditView, name='materialesEditView'),
     url(r'^catologos/frentes/$', views.frentesView, name='frentesView'),
     url(r'^catologos/frentes/new/$', views.frentesNewView, name='frentesNewView'),
     url(r'^catologos/funciones/$', views.funcionesView, name='funcionesView'),

@@ -22,7 +22,7 @@ class DespieceForm(forms.ModelForm):
 class MaterialForm(forms.ModelForm):
 	class Meta:
 		model = Material
-		fields = ['nombre', 'estatus', 'diametro','peso','proveedor','tipo','numero']
+		fields = ['nombre', 'estatus', 'diametro','peso','longitud','proveedor','tipo','numero']
 		exclude = ['estatus']
 
 class FrenteForm(forms.ModelForm):

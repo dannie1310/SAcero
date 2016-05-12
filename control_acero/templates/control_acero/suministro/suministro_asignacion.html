@@ -2,6 +2,26 @@
 {% block title_module %}
 	SUMINISTRO ASIGNACIÓN
 {% endblock %}
+{% block modals %}
+<!-- Modal -->
+<div class="modal fade" id="modalCertificado" tabindex="-1" role="dialog" aria-labelledby="modalCertificadoLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalCertificadoLabel">Visualizar Certificados</h4>
+			</div>
+			<div class="modal-body">
+				<div class="archivos"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success btnProcesar" name="btnProcesar" id="btnProcesar">Procesar</button>
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
@@ -270,6 +290,7 @@
 			var funcion = this.value;
 			var count = 0;
 			var idTabla = 1;
+			var files = [];
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/suministro/asignar/cantidades/",
@@ -286,38 +307,44 @@
 	                    $.each(datos.data, function (count, object) {
 	                        tabla += '<tr>'
 	                        			//+'<td>'+object.id+'</td>'
-	                        			+'<td>'+idTabla+'</td>'
-	                        			+'<td>'+object.pesoSolicitado+'</td>'
-	                        			+'<td>'+object.pesoRecibido+'</td>'
-	                        			+'<td class="warning"><div id="faltante_'+count+'">'+object.pesoRecibido+'</div></td>'
-	                        			+'<td>'
-	                        				+'<select name="cmbTipoFuncion'+count+'" count="'+count+'" id="cmbTipoFuncion'+count+'" class="cmbTipoFuncion form-control">'
-											+'</select>'
-	                        			+'</td>'
-	                        			+'<td>'
-	                        				+'<select name="cmbFuncionSeleccionada'+count+'" id="cmbFuncionSeleccionada'+count+'" class="form-control">'
-											+'</select>'
-	                        			+'</td>'
-	                        			+'<td>'
-	                        				+'<select name="cmbTaller'+count+'" id="cmbTaller'+count+'" class="cmbTaller form-control">'
-											+'</select>'
-	                        			+'</td>'
-	                        			+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
-	                        			+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
-	                        			+'<td>'
-	                        				+'<select name="cmbTransporte'+count+'" id="cmbTransporte'+count+'" class="cmbTransporte form-control">'
-											+'</select>'
-	                        			+'</td>'
-	                        			+'<td><input type="number" step="0.0001" class="form-control currency" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value="0" /></td>'
-	                        			+'<td><button onClick=agregaAsignacion('+count+') type="button" class="btn btn-info btnAsignar" name="btnAsignar'+count+'" id="btnAsignar'+count+'">Asignar</button></td>'
-	                        			+'<td style="display:none;">'
-	                        				+'<input type="text" readonly disabled name="idTabla'+count+'" id="idTabla'+count+'" value="'+idTabla+'" />'
-	                        				+'<input type="text" readonly disabled name="idAsignacion'+count+'" id="idAsignacion'+count+'" value="'+object.idAsignacion+'" />'
-	                        				+'<input type="text" readonly disabled name="pesoSolicitado'+count+'" id="pesoSolicitado'+count+'" value="'+object.pesoSolicitado+'" />'
-	                        				+'<input type="text" readonly disabled name="pesoRecibido'+count+'" id="pesoRecibido'+count+'" value="'+object.pesoRecibido+'" />'
-	                        				+'<input type="text" readonly disabled name="etapaPertenece'+count+'" id="etapaPertenece'+count+'" value="'+object.id+'" />'
-	                        			+'</td>'
-	                        		+'</tr>';
+	                        		tabla +='<td>'+idTabla+'</td>';
+	                        		tabla +='<td>'+object.pesoSolicitado+'</td>';
+	                        		tabla +='<td>'+object.pesoRecibido+'</td>';
+	                        		tabla +='<td class="warning"><div id="faltante_'+count+'">'+object.pesoRecibido+'</div></td>';
+	                        		tabla +='<td>';
+	                        			tabla +='<select name="cmbTipoFuncion'+count+'" count="'+count+'" id="cmbTipoFuncion'+count+'" class="cmbTipoFuncion form-control">';
+										tabla +='</select>';
+	                        		tabla +='</td>';
+	                        		tabla +='<td>';
+	                        			tabla +='<select name="cmbFuncionSeleccionada'+count+'" id="cmbFuncionSeleccionada'+count+'" class="form-control">';
+										tabla +='</select>';
+	                        		tabla +='</td>';
+	                        		tabla +='<td>';
+	                        			tabla +='<select name="cmbTaller'+count+'" id="cmbTaller'+count+'" class="cmbTaller form-control">';
+										tabla +='</select>';
+	                        		tabla +='</td>';
+					                    $.each(datos.files, function (countFile, objectFile) {
+					                    	if(object.id == objectFile.etapaAsignacionId){
+												files.push(objectFile.file);
+					                    	}
+					                   	});
+					                   	console.log(files);
+	                        		tabla +='<td><span class="glyphicon glyphicon-eye-open" data-toggle="modal" data-file="'+files+'" data-target="#modalCertificado" aria-hidden="true"></span></td>';
+	                        		tabla +='<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>';
+	                        		tabla +='<td>';
+	                        			tabla +='<select name="cmbTransporte'+count+'" id="cmbTransporte'+count+'" class="cmbTransporte form-control">';
+										tabla +='</select>';
+	                        		tabla +='</td>';
+	                        		tabla +='<td><input type="number" step="0.0001" class="form-control currency" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value="0" /></td>';
+	                        		tabla +='<td><button onClick=agregaAsignacion('+count+') type="button" class="btn btn-info btnAsignar" name="btnAsignar'+count+'" id="btnAsignar'+count+'">Asignar</button></td>';
+	                        		tabla +='<td style="display:none;">';
+	                        			tabla +='<input type="text" readonly disabled name="idTabla'+count+'" id="idTabla'+count+'" value="'+idTabla+'" />';
+	                        			tabla +='<input type="text" readonly disabled name="idAsignacion'+count+'" id="idAsignacion'+count+'" value="'+object.idAsignacion+'" />';
+	                        			tabla +='<input type="text" readonly disabled name="pesoSolicitado'+count+'" id="pesoSolicitado'+count+'" value="'+object.pesoSolicitado+'" />';
+	                        			tabla +='<input type="text" readonly disabled name="pesoRecibido'+count+'" id="pesoRecibido'+count+'" value="'+object.pesoRecibido+'" />';
+	                        			tabla +='<input type="text" readonly disabled name="etapaPertenece'+count+'" id="etapaPertenece'+count+'" value="'+object.id+'" />';
+	                        		tabla +='</td>';
+	                        	tabla +='</tr>';
 	                    	count++;
 	                    	idTabla++;
 	                    });
@@ -411,6 +438,17 @@
 						+'</tr>';
 			$("#tablaSuministroAsignado").append(tabla);
 		}
+		$('#modalCertificado').on('show.bs.modal', function (e) {
+		    var filesString = $(e.relatedTarget).data('file');
+		    var html = '';
+		    var files = filesString.split(",");
+		    var arrayLength = files.length;
+			for (var i = 0; i < arrayLength; i++) {
+				html += '<img src="'+files[i]+'"/></br>';
+			}
+			console.log(html);
+			$(".archivos").append(html);
+		});
 	    $(function () {
 	    	comboPrograma();
 	    	comboFuncion();
