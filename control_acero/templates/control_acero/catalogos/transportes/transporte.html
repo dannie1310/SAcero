@@ -1,0 +1,49 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE TRANSPORTE
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Tipo</th>
+					<th class="text-center">Placas</th>
+					<th class="text-center">Capacidad</th>
+					<th class="text-center">Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for transporte in transportes %}
+				<tr>
+			    	<td>{{transporte.tipo}}</td>
+			    	<td>{{transporte.placas}}</td>
+			    	<td>{{transporte.capacidad}}</td>
+			    	<td><a href="/control_acero/catologos/transportes/{{transporte.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catologos/transportes/delete/{{transporte.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
+			   	</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+		    <span class="step-links">
+		        {% if transportes.has_previous %}
+		            <a href="?page={{ transportes.previous_page_number }}">previous</a>
+		        {% endif %}
+
+		        <span class="current">
+		            Page {{ transportes.number }} of {{ transportes.paginator.num_pages }}.
+		        </span>
+
+		        {% if transportes.has_next %}
+		            <a href="?page={{ transportes.next_page_number }}">next</a>
+		        {% endif %}
+		    </span>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<form action="{% url 'transportesNewView' %}">
+			<button type="submit" class="btn btn-primary">Agregar Nuevo</button>
+		</form>
+	</div>
+{% endblock %}

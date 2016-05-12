@@ -1,0 +1,11 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE MATERIAL (EDITAR)
+{% endblock %}
+{% block content %}
+<a href="{% url 'materialesView' %}">Regresar</a>
+        <form method="POST" class="post-form">{% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Guardar</button>
+        </form>
+{% endblock %}

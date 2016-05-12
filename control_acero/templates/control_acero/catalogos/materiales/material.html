@@ -1,0 +1,58 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE MATERIAL
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Nombre</th>
+					<th class="text-center">Peso (Kg)</th>
+					<th class="text-center">Diametro</th>
+					<th class="text-center">Longitud</th>
+					<th class="text-center">Proveedor</th>
+					<th class="text-center">Tipo</th>
+					<th class="text-center">Numero</th>
+					
+					<th class="text-center">Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for material in materiales %}
+				<tr>
+			    	<td>{{material.nombre}}</td>
+			    	<td>{{material.peso}}</td>
+			    	<td>{{material.diametro}}</td>
+			    	<td>{{material.longitud}}</td>
+			    	<td>{{material.proveedor}}</td>
+			    	<td>{{material.tipo}}</td>
+			    	<td>{{material.numero}}</td>
+			    	<td><a href="/control_acero/catologos/materiales/{{material.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catologos/materiales/delete/{{material.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
+			   	</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+		    <span class="step-links">
+		        {% if materiales.has_previous %}
+		            <a href="?page={{ materiales.previous_page_number }}">previous</a>
+		        {% endif %}
+
+		        <span class="current">
+		            Page {{ materiales.number }} of {{ materiales.paginator.num_pages }}.
+		        </span>
+
+		        {% if materiales.has_next %}
+		            <a href="?page={{ materiales.next_page_number }}">next</a>
+		        {% endif %}
+		    </span>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<form action="{% url 'materialesNewView' %}">
+			<button type="submit" class="btn btn-primary">Agregar Nuevo</button>
+		</form>
+	</div>
+{% endblock %}

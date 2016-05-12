@@ -1,0 +1,47 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE ELEMENTO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Nombre</th>
+					<th class="text-center">Peso (Kg)</th>
+					<th class="text-center">Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for elemento in elementos %}
+				<tr>
+			    	<td>{{elemento.nombre}}</td>
+			    	<td>{{elemento.peso}}</td>
+			    	<td><a href="/control_acero/catologos/elementos/{{elemento.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catologos/elementos/delete/{{elemento.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
+			   	</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+		    <span class="step-links">
+		        {% if elementos.has_previous %}
+		            <a href="?page={{ elementos.previous_page_number }}">previous</a>
+		        {% endif %}
+
+		        <span class="current">
+		            Page {{ elementos.number }} of {{ elementos.paginator.num_pages }}.
+		        </span>
+
+		        {% if elementos.has_next %}
+		            <a href="?page={{ elementos.next_page_number }}">next</a>
+		        {% endif %}
+		    </span>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<form action="{% url 'elementosNewView' %}">
+			<button type="submit" class="btn btn-primary">Agregar Nuevo</button>
+		</form>
+	</div>
+{% endblock %}

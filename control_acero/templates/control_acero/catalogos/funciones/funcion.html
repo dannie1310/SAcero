@@ -1,0 +1,49 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE FUNCION
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Tipo</th>
+					<th class="text-center">Proveedor</th>
+					<th class="text-center">Tonelaje Maximo</th>
+					<th class="text-center">Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for funcion in funciones %}
+				<tr>
+			    	<td>{{funcion.tipo}}</td>
+			    	<td>{{funcion.proveedor}}</td>
+			    	<td>{{funcion.tonelajeMaximo}}</td>
+			    	<td><a href="/control_acero/catologos/funciones/{{funcion.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catologos/funciones/delete/{{funcion.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
+			   	</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+		    <span class="step-links">
+		        {% if funciones.has_previous %}
+		            <a href="?page={{ funciones.previous_page_number }}">previous</a>
+		        {% endif %}
+
+		        <span class="current">
+		            Page {{ funciones.number }} of {{ funciones.paginator.num_pages }}.
+		        </span>
+
+		        {% if funciones.has_next %}
+		            <a href="?page={{ funciones.next_page_number }}">next</a>
+		        {% endif %}
+		    </span>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<form action="{% url 'funcionesNewView' %}">
+			<button type="submit" class="btn btn-primary">Agregar Nuevo</button>
+		</form>
+	</div>
+{% endblock %}
