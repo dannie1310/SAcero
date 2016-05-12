@@ -259,20 +259,32 @@ def suministroAsignarCantidades(request):
 		data.append(resultado)
 		suministroFiles = Archivo.objects.values('id',
 													'archivo',
-													'etapaAsignacion_id'
+													'etapaAsignacion_id',
+													'extension',
+													'nombreArchivo'
 													).filter(
 													etapaAsignacion_id = s["id"])
 		for sf in suministroFiles:
 			archivo = sf["archivo"]
+			extension = sf["extension"]
+			ext = extensiones(extension)
 			resultado = {"id":sf["id"],
 							"etapaAsignacionId":sf["etapaAsignacion_id"],
-							"file":"data:image/jpg;base64,"+archivo}
+							"nombreArchivo":sf["nombreArchivo"],
+							"file":"data:"+ext+";charset=utf-8;base64,"+archivo}
 			dataFiles.append(resultado)
-
 	array = mensaje
 	array["data"]=data
 	array["files"]=dataFiles
 	return JsonResponse(array)
+
+def extensiones(extension):
+	ext = "";
+	if(extension == ".jpg"):
+		ext = "image/jpeg"
+	if(extension == ".pdf"):
+		ext = "application/pdf"
+	return ext
 
 def habilitadoAsignaComboPrograma(request):
 	array = {}
@@ -1094,11 +1106,20 @@ def elementoMaterial(request):
 										'material__nombre',
 										'material__numero',
 										'material__peso',
+										'material__diametro',
 										'material__proveedor',
-										'material__longitud').filter(id=idElemento)
+										'material__longitud',
+										'material__factor__pva',
+										'material__factor__factorPulgada',
+										'material__factor__pi').filter(id=idElemento)
 	for e in elemento:
-		conversion = e['material__peso'] * e['material__longitud'];
-		conversionDecimal = "%.4f" % conversion
+		diametro = e['material__diametro']
+		pva = e['material__factor__pva']
+		factorPulgada = e['material__factor__factorPulgada']
+		pi = e['material__factor__pi']
+		diametroMetro = diametro / 1000
+		factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
+		factorCalculadoDecimal = "%.4f" % ((factorCalculado) * e['material__longitud'])
 		resultado = {"idElemento":e["id"],
 						"nombreElemento":e['nombre'],
 						"idMaterial":e['material__id'],
@@ -1107,7 +1128,7 @@ def elementoMaterial(request):
 						"materialPeso":e['material__peso'],
 						"materialProveedor":e['material__proveedor'],
 						"materialLongitud":e['material__longitud'],
-						"conversion":conversionDecimal}
+						"conversion":factorCalculadoDecimal}
 		data.append(resultado)
 	array["data"]=data
 	return JsonResponse(array)
@@ -1376,9 +1397,12 @@ def suministroAsignaSave(request):
 		if(archivos != ""):
 			archivo = archivos.split("}{")
 			for file in archivo:
-				print file
 				fileBase64 = leeArchivo("control_acero/tmp/"+file)
+				fileExtension = os.path.splitext(file)
+				print fileExtension
 				a = Archivo(archivo = fileBase64,
+								extension = fileExtension[1],
+								nombreArchivo = file,
 								etapaAsignacion_id = e.pk,
 								estatus = 1,
 								tipo = 1)

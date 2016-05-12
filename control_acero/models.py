@@ -32,6 +32,20 @@ class Grupo(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.nombre
 
+class Factor(models.Model):
+	pva = models.IntegerField()
+	factorPulgada = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	pi = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True, null=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
 class Material(models.Model):
 	nombre = models.CharField(blank=True, max_length=100)
 	numero = models.IntegerField(default=0)
@@ -41,14 +55,14 @@ class Material(models.Model):
 	    (2, 'Rollo'),
 	)
 	tipo = models.IntegerField(choices=ESTATUSTIPO, default=1)
-	diametro = models.FloatField(default=0)
+	diametro = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	longitud = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	longitud = models.IntegerField(null=True)
+	factor = models.ForeignKey(Factor, null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
 	)
-
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
@@ -299,6 +313,8 @@ class Archivo(models.Model):
 	)
 	tipo = models.IntegerField(choices=TIPOARCHIVO, default=1)
 	tipoArchivo = models.CharField(max_length=50, null=True)
+	nombreArchivo = models.CharField(max_length=100, null=True)
+	extension = models.CharField(max_length=8, null=True)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION

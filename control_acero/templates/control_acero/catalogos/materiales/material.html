@@ -8,13 +8,11 @@
 			<thead>
 				<tr>
 					<th class="text-center">Nombre</th>
-					<th class="text-center">Peso (Kg)</th>
-					<th class="text-center">Diametro</th>
+					<th class="text-center">Peso (Kg) Metro Lineal Calculado</th>
+					<th class="text-center">Diametro en Milimetros</th>
 					<th class="text-center">Longitud</th>
 					<th class="text-center">Proveedor</th>
 					<th class="text-center">Tipo</th>
-					<th class="text-center">Numero</th>
-					
 					<th class="text-center">Acciones</th>
 				</tr>
 			</thead>
@@ -26,8 +24,7 @@
 			    	<td>{{material.diametro}}</td>
 			    	<td>{{material.longitud}}</td>
 			    	<td>{{material.proveedor}}</td>
-			    	<td>{{material.tipo}}</td>
-			    	<td>{{material.numero}}</td>
+			    	<td>{{ material.get_tipo_display }}</td>
 			    	<td><a href="/control_acero/catologos/materiales/{{material.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catologos/materiales/delete/{{material.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
 			   	</tr>
 			{% endfor %}

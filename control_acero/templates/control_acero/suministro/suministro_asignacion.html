@@ -9,13 +9,12 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="modalCertificadoLabel">Visualizar Certificados</h4>
+				<h3 class="modal-title" id="modalCertificadoLabel">Visualizar Certificados</h3>
 			</div>
 			<div class="modal-body">
 				<div class="archivos"></div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-success btnProcesar" name="btnProcesar" id="btnProcesar">Procesar</button>
 				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
 			</div>
 		</div>
@@ -323,13 +322,15 @@
 	                        			tabla +='<select name="cmbTaller'+count+'" id="cmbTaller'+count+'" class="cmbTaller form-control">';
 										tabla +='</select>';
 	                        		tabla +='</td>';
-					                    $.each(datos.files, function (countFile, objectFile) {
-					                    	if(object.id == objectFile.etapaAsignacionId){
-												files.push(objectFile.file);
-					                    	}
-					                   	});
-					                   	console.log(files);
-	                        		tabla +='<td><span class="glyphicon glyphicon-eye-open" data-toggle="modal" data-file="'+files+'" data-target="#modalCertificado" aria-hidden="true"></span></td>';
+	                        		tabla +='<td>';
+	                        					tabla +='<span class="glyphicon glyphicon-eye-open" data-toggle="modal" data-count="'+count+'" data-target="#modalCertificado" aria-hidden="true">';
+							                    $.each(datos.files, function (countFile, objectFile) {
+							                    	if(object.id == objectFile.etapaAsignacionId){
+							                    		tabla +='<input type="hidden" class="showImage_'+count+'" nombre="'+objectFile.nombreArchivo+'" name="txt" value="'+objectFile.file+'" />';
+							                    	}
+							                   	});
+	                        					tabla +='</span>';
+	                        		tabla +='</td>';
 	                        		tabla +='<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>';
 	                        		tabla +='<td>';
 	                        			tabla +='<select name="cmbTransporte'+count+'" id="cmbTransporte'+count+'" class="cmbTransporte form-control">';
@@ -439,14 +440,25 @@
 			$("#tablaSuministroAsignado").append(tabla);
 		}
 		$('#modalCertificado').on('show.bs.modal', function (e) {
-		    var filesString = $(e.relatedTarget).data('file');
+			$(".archivos").empty();
+		    var count = $(e.relatedTarget).data('count');
 		    var html = '';
-		    var files = filesString.split(",");
-		    var arrayLength = files.length;
-			for (var i = 0; i < arrayLength; i++) {
-				html += '<img src="'+files[i]+'"/></br>';
-			}
-			console.log(html);
+		    html += '<div class="col-md-12">';
+					html += '<table class="table table-hover">';
+						html += '<thead>';
+							html += '<tr>';
+								html += '<th>Certificados Cargados</th>';
+							html += '</tr>';
+						html += '</thead>';
+						html += '<tbody>';
+			$("input.showImage_"+count).each(function(index, element) {
+				html += '<tr>';
+					html += '<td><a class="col-md-8" target="_blank" href="'+this.value+'">'+$(this).attr("nombre")+'<a/></td>';
+				html += '</tr>';
+			});
+					html += '</tbody>';
+				html += '</table>';
+			html += '</div>';
 			$(".archivos").append(html);
 		});
 	    $(function () {
