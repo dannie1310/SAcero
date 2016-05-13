@@ -282,6 +282,8 @@ def extensiones(extension):
 	ext = "";
 	if(extension == ".jpg"):
 		ext = "image/jpeg"
+	if(extension == ".png"):
+		ext = "image/png"
 	if(extension == ".pdf"):
 		ext = "application/pdf"
 	return ext

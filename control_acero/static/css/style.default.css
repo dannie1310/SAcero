@@ -85,8 +85,9 @@ h1 {
   font-size: 18px;
   font-weight: 400;
   text-transform: uppercase;
-  padding-bottom: 10px;
-  border-bottom: dotted 1px #555555;
+  padding-top: 10px;
+  border-top: dotted 1px #555555;
+  border-width: 5px;
 }
 @media (max-width: 767px) {
   .navbar .yamm-content h5 {

@@ -24,6 +24,16 @@ class MaterialForm(forms.ModelForm):
 		model = Material
 		fields = ['nombre', 'estatus', 'diametro','peso','longitud','proveedor','tipo','numero', 'factor']
 		exclude = ['estatus']
+		widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'diametro': forms.NumberInput(attrs={'class': 'form-control'}),
+            'peso': forms.NumberInput(attrs={'class': 'form-control'}),
+            'longitud': forms.NumberInput(attrs={'class': 'form-control'}),
+            'proveedor': forms.TextInput(attrs={'class': 'form-control'}),
+            'numero': forms.NumberInput(attrs={'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
+            'factor': forms.Select(attrs={'class': 'form-control'}),
+        }
 
 class FrenteForm(forms.ModelForm):
 	class Meta:

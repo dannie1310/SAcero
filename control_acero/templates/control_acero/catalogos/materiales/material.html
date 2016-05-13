@@ -30,24 +30,38 @@
 			{% endfor %}
 			</tbody>
 		</table>
-
-		<div class="pagination">
-		    <span class="step-links">
+		<div class="col-md-12">
+	        <ul class="pagination">
 		        {% if materiales.has_previous %}
-		            <a href="?page={{ materiales.previous_page_number }}">previous</a>
+		            <li>
+		            	<a href="?page=1"> Principio </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ materiales.previous_page_number }}"> << </a>
+		            </li>
 		        {% endif %}
-
-		        <span class="current">
-		            Page {{ materiales.number }} of {{ materiales.paginator.num_pages }}.
-		        </span>
-
+				{% for page in materiales.paginator.page_range %}
+	            	<li class="{% if materiales.number == page %}active{% endif %}">
+	            		<a href="?page={{ page }}">{{ page }}</a>
+	            	</li>
+				{% endfor %}
 		        {% if materiales.has_next %}
-		            <a href="?page={{ materiales.next_page_number }}">next</a>
+		        	<li>
+		            	<a href="?page={{ materiales.next_page_number }}"> >> </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ materiales.paginator.num_pages }}"> Fin </a>
+		            </li>
 		        {% endif %}
-		    </span>
-		</div>
+	        </ul>
+	    </div>
+	   	<div class="col-md-12">
+	        <span class="current">
+	            <h4> Pagina {{ materiales.number }} de {{ materiales.paginator.num_pages }}. </h4>
+	        </span>
+	    </div>
 	</div>
-	<div class="col-xs-12">
+	<div class="col-md-12">
 		<form action="{% url 'materialesNewView' %}">
 			<button type="submit" class="btn btn-primary">Agregar Nuevo</button>
 		</form>

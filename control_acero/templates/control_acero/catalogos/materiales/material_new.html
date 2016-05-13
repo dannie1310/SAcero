@@ -3,8 +3,13 @@
 	CATALOGO DE MATERIALES (NUEVO)
 {% endblock %}
 {% block content %}
-        <form method="POST" class="post-form">{% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="save btn btn-default">Save</button>
-        </form>
+	<div class="col-xs-12 text-left">
+		<button type="submit" class="btn btn-info"><a href="{% url 'materialesView' %}"><font color="FFFFFF"> << Regresar </font></a></button>
+	</div>
+	<div class="col-xs-12">
+	    <form method="POST" class="post-form">{% csrf_token %}
+	        {{ form.as_p }}
+	        <button type="submit" class="btn btn-success">Guardar</button>
+	    </form>
+	</div>
 {% endblock %}

@@ -11,9 +11,9 @@
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h3 class="modal-title" id="modalCertificadoLabel">Visualizar Certificados</h3>
 			</div>
-			<div class="modal-body">
+			<!-- <div class="modal-body"> -->
 				<div class="archivos"></div>
-			</div>
+			<!-- </div> -->
 			<div class="modal-footer">
 				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
 			</div>
@@ -323,7 +323,7 @@
 										tabla +='</select>';
 	                        		tabla +='</td>';
 	                        		tabla +='<td>';
-	                        					tabla +='<span class="glyphicon glyphicon-eye-open" data-toggle="modal" data-count="'+count+'" data-target="#modalCertificado" aria-hidden="true">';
+	                        					tabla +='<span style="cursor:pointer;" class="glyphicon glyphicon-eye-open" data-toggle="modal" data-count="'+count+'" data-target="#modalCertificado" aria-hidden="true">';
 							                    $.each(datos.files, function (countFile, objectFile) {
 							                    	if(object.id == objectFile.etapaAsignacionId){
 							                    		tabla +='<input type="hidden" class="showImage_'+count+'" nombre="'+objectFile.nombreArchivo+'" name="txt" value="'+objectFile.file+'" />';
