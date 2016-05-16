@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from control_acero.report.models_auth import Empresa, Usuario
-from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, FrenteAsigna, ProgramaSuministro, ProgramaSuministroDetalle, EtapaAsignacion, Taller, Transporte, Archivo
+from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, ProgramaSuministro, ProgramaSuministroDetalle, EtapaAsignacion, Taller, Transporte, Archivo
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
@@ -670,27 +670,6 @@ def programaCombofiltrado(request):
 	array["data"]=data
 	return JsonResponse(array)
 
-def frenteGuardaFrenteView(request):
-	respuesta = request.POST.get('json')
-	json_object = json.loads(respuesta)
-	array = {}
-	mensaje = {}
-	for data in json_object:
-		datos = data["data"]
-		splitData = datos.split("|")
-		orden = splitData[0]
-		frente = splitData[1]
-		tipo = splitData[2]
-		estructura = splitData[3]
-		f = FrenteAsigna(idOrden = orden, idFrente = frente, tipo = tipo, idEstructuraElemento = estructura)
-		f.save()
-		if f.pk is not None:
-			mensaje = {"estatus":"ok", "mensaje":"El Frente de Trabajo fue asignado correctamente"}
-		else:
-			mensaje = {"estatus":"error", "mensaje":"Ocurrio un error al intentar crear el Frente de Trabajo"}
-	array = mensaje
-	return JsonResponse(array)
-
 def controlAsignacionView(request):
 	template = 'control_acero/control_asignacion/control_asignacion.html'
 	return render(request, template)
@@ -1037,7 +1016,8 @@ def elementoComboApoyoElemento(request):
 	mensaje = {}
 	data = []
 	idApoyo = request.POST.get('idApoyo', 0)
-	elemento = Elemento.objects.filter(apoyo=1)
+	elemento = Elemento.objects.filter(apoyo=idApoyo)
+	print elemento
 	for e in elemento:
 		resultado = {"idElemento":e.id,"nombre":e.nombre}
 		data.append(resultado)
@@ -1055,24 +1035,26 @@ def programaSave(request):
 	fechaFinal = request.POST.get('fechaFinal', 0)
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
-	p = ProgramaSuministro(idOrden=idOrden, fechaInicial=datetime.strptime(fechaInicial, '%d/%m/%Y'), fechaFinal=datetime.strptime(fechaFinal, '%d/%m/%Y'), frente_id=idFrente, estatus=1)
+	p = ProgramaSuministro(idOrden=idOrden,
+							fechaInicial=datetime.strptime(fechaInicial, '%d/%m/%Y'),
+							fechaFinal=datetime.strptime(fechaFinal, '%d/%m/%Y'),
+							frente_id=idFrente,
+							estatus=1)
 	p.save()
 	for data in json_object:
 		datos = data["data"]
 		splitData = datos.split("|")
 		apoyo = splitData[0]
 		elemento = splitData[1]
-		numeroCuatro = splitData[2]
-		numeroCinco= splitData[3]
-		numeroSeis = splitData[4]
-		numeroSiete = splitData[5]
-		numeroOcho = splitData[6]
-		numeroNueve = splitData[7]
-		numeroDiez = splitData[8]
-		numeroOnce = splitData[9]
-		numeroDoce = splitData[10]
-		total = splitData[11]
-		pd = ProgramaSuministroDetalle(idProgramaSuministro=p.pk, apoyo_id=apoyo, elemento_id=elemento, numeroCuatro=numeroCuatro, numeroCinco=numeroCinco, numeroSeis=numeroSeis, numeroSiete=numeroSiete, numeroOcho=numeroOcho, numeroNueve=numeroNueve, numeroDiez=numeroDiez, numeroOnce=numeroOnce, numeroDoce=numeroDoce, total=total)
+		idMaterial = splitData[2]
+		pesoMaterial= splitData[3]
+		cantidadMaterial = splitData[4]
+		pd = ProgramaSuministroDetalle(programaSuministro_id=p.pk,
+										material_id=idMaterial,
+										apoyo_id=apoyo,
+										elemento_id=elemento,
+										peso=pesoMaterial,
+										cantidad=cantidadMaterial)
 		pd.save();
 	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente.", "folio":p.id}
 	array = mensaje
@@ -1116,6 +1098,7 @@ def elementoMaterial(request):
 										'material__factor__pva',
 										'material__factor__factorPulgada',
 										'material__factor__pi').filter(id=idElemento)
+	print elemento.query
 	for e in elemento:
 		diametro = e['material__diametro']
 		pva = e['material__factor__pva']

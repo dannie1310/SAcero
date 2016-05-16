@@ -110,17 +110,6 @@ class Elemento(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.nombre
 
-class Ingenieria(models.Model):
-	ubicacion = models.CharField(max_length=100)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.ubicacion
-
 class Transporte(models.Model):
 	TIPOTRANSPORTE = (
 	    (1, 'Local'),
@@ -185,13 +174,6 @@ class Frente(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.nombre
 
-class FrenteAsigna(models.Model):
-	idOrden = models.IntegerField(null=True, blank=True)
-	idFrente = models.IntegerField(blank=True)
-	tipo = models.IntegerField()
-	idEstructuraElemento = models.IntegerField()
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-
 class Apoyo(models.Model):
 	numero = models.CharField(max_length=100)
 	elemento = models.ManyToManyField(
@@ -223,19 +205,12 @@ class ProgramaSuministro(models.Model):
 		return self.idOrden
 
 class ProgramaSuministroDetalle(models.Model):
-	idProgramaSuministro = models.IntegerField()
+	programaSuministro = models.ForeignKey(ProgramaSuministro, null=True)
+	material = models.ForeignKey(Material, null=True)
+	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	cantidad = models.IntegerField(null=True)
 	apoyo = models.ForeignKey(Apoyo)
 	elemento = models.ForeignKey(Elemento)
-	numeroCuatro = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroCinco = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroSeis = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroSiete = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroOcho = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroNueve = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroDiez = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroOnce = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	numeroDoce = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	total = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Apoyo, Material, Despiece, Elemento, Ingenieria, Transporte, Taller, Funcion, Frente, Factor
+from .models import Apoyo, Material, Despiece, Elemento, Transporte, Taller, Funcion, Frente, Factor
 
 admin.site.register(Apoyo)
 admin.site.register(Material)

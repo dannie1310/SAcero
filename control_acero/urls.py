@@ -8,7 +8,6 @@ urlpatterns = [
     url(r'^home/$', views.HomeView.as_view(), name='home'),
     url(r'^principal/$', views.principalView, name='principalView'),
     url(r'^frenteTrabajo/$', views.frenteTrabajoView, name='frenteTrabajoView'),
-    url(r'^frente/guardaFrente/$', views.frenteGuardaFrenteView, name='frenteGuardaFrenteView'),
     url(r'^controlAsignacion/$', views.controlAsignacionView, name='controlAsignacionView'),
     url(r'^controlAsignacion/nuevo/$', views.controlAsignacionNuevoView, name='controlAsignacionNuevoView'),
     url(r'^usuario/login/$', views.loginUsuario, name='loginUsuario'),
