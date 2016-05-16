@@ -125,6 +125,9 @@
 </head>
 
 <body>
+<div style="display:none">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+</div>
     <div style="display:none;" class="notificacion mensajeInfo alert alert-info col-xs-12"></div>
     <div style="display:none;" class="notificacion mensajeSuccess alert alert-success col-xs-12"></div>
     <div style="display:none;" class="notificacion mensajeWarning alert alert-warning col-xs-12"></div>

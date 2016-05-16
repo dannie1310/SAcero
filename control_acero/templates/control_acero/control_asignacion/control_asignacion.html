@@ -2,6 +2,26 @@
 {% block title_module %}
 	CONTROL DE ASIGNACIONES
 {% endblock %}
+{% block modals %}
+<!-- Modal Plan -->
+<div class="modal fade" id="modalPlan" tabindex="-1" role="dialog" aria-labelledby="modalPlanLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalPlanLabel">Carga de Plan de Entrega</h4>
+			</div>
+			<div class="modal-body">
+				<div class="upload"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success btnProcesar" name="btnProcesar" id="btnProcesar">Procesar</button>
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
@@ -83,11 +103,11 @@
 	                        $('.cmbOrden').append('<option value="' + object.idOrden + '">Orden' + object.idOrden + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo Funcion:" + e);
+		                alert("Error al cargar Combo Orden:" + e);
 		            }
 		        },
 		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		            alert("Error en la peticion de Combo Orden:\n\n" + otroobj);
 		        }
 		    });
 		};
@@ -164,11 +184,11 @@
 	                        $('.cmbPrograma').append('<option value="' + object.idPrograma + '">Folio --->>> ' + object.idPrograma + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo Funcion:" + e);
+		                alert("Error al cargar Combo Programa:" + e);
 		            }
 		        },
 		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		            alert("Error en la peticion de Combo Programa:\n\n" + otroobj);
 		        }
 		    });
 		};
@@ -198,11 +218,13 @@
                     $(".elementoMultiple").select2();
                 },
 		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		            alert("Error en la peticion de Combo Estructura:\n\n" + otroobj);
 		        }
 		    });
 		};
 		$( "#btnAgregaAsignacion" ).click(function() {
+			$("#tablaAsignacion tbody").empty();
+			var count = 0;
 			var orden = $("#cmbOrden").val();
 			var ordenText = $("#cmbOrden option[value='"+orden+"']").text();
 			var frente = $("#cmbFrente").val();
@@ -222,7 +244,7 @@
 							+'<td class="text-center">'+programa+'</td>'
 							+'<td class="text-center">'+object.text+'</td>'
 							+'<td class="text-center">'+funcionText+'</td>'
-							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-file"></span></td>'
+							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-file" aria-hidden="true" data-toggle="modal" data-target="#modalPlan"></span></td>'
 							+'<td class="text-center">'+totalElemento+'</td>'
 							+'<td style="display:none;" class="text-center"><input type="text" disabled readonly class="form-control dataAsignacion" name="txtPeso" id="txtPeso" value="'+totalElemento+'" /></td>'
 							+'<td class="text-center"><input type="text" class="form-control dataAsignacion" name="txtDias" id="txtDias" /></td>'
@@ -234,6 +256,7 @@
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtFuncion" id="txtFuncion" value="'+funcion+'" />'
 							+'</td>'
 						+'<tr>';
+				count++;
 			});
 			$("#tablaAsignacion").append(tabla);
 		});

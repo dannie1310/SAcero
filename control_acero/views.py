@@ -69,7 +69,8 @@ def apoyoCombofiltrado(request):
 	data = []
 	apoyo = Apoyo.objects.filter(estatus=1)
 	for a in apoyo:
-			resultado = {"idApoyo":a.id,"numero":a.numero}
+			resultado = {"idApoyo":a.id,
+							"numero":a.numero}
 			data.append(resultado)
 
 	array = mensaje
@@ -261,7 +262,8 @@ def suministroAsignarCantidades(request):
 													'archivo',
 													'etapaAsignacion_id',
 													'extension',
-													'nombreArchivo'
+													'nombreArchivo',
+													'tipo'
 													).filter(
 													etapaAsignacion_id = s["id"])
 		for sf in suministroFiles:
@@ -271,6 +273,7 @@ def suministroAsignarCantidades(request):
 			resultado = {"id":sf["id"],
 							"etapaAsignacionId":sf["etapaAsignacion_id"],
 							"nombreArchivo":sf["nombreArchivo"],
+							"tipo":sf["tipo"],
 							"file":"data:"+ext+";charset=utf-8;base64,"+archivo}
 			dataFiles.append(resultado)
 	array = mensaje
@@ -855,7 +858,6 @@ def loginUsuario(request):
 		if(e != ""):
 			request.session['idusuario'] = e.idusuario
 			request.session['usuario'] = e.usuario
-			request.session['clave'] = clave
 			url = '/control_acero/principal/'
 			return HttpResponseRedirect(url)
 	template_name = '/control_acero'
@@ -1388,6 +1390,7 @@ def suministroAsignaSave(request):
 		idFuncion = splitData[4]
 		tipoRecepcion = splitData[5]
 		archivos = splitData[6]
+		archivosRemision = splitData[7]
 		e = EtapaAsignacion(pesoSolicitado = pesoSolicitado,
 								pesoRecibido = pesoRecibido,
 								estatusEtapa = 1,
@@ -1401,13 +1404,24 @@ def suministroAsignaSave(request):
 			for file in archivo:
 				fileBase64 = leeArchivo("control_acero/tmp/"+file)
 				fileExtension = os.path.splitext(file)
-				print fileExtension
 				a = Archivo(archivo = fileBase64,
 								extension = fileExtension[1],
 								nombreArchivo = file,
 								etapaAsignacion_id = e.pk,
 								estatus = 1,
 								tipo = 1)
+				a.save();
+		if(archivosRemision != ""):
+			archivoRemision = archivosRemision.split("}{")
+			for fileRemision in archivoRemision:
+				fileRemisionBase64 = leeArchivo("control_acero/tmp/"+fileRemision)
+				fileRemisionExtension = os.path.splitext(fileRemision)
+				a = Archivo(archivo = fileRemisionBase64,
+								extension = fileRemisionExtension[1],
+								nombreArchivo = fileRemision,
+								etapaAsignacion_id = e.pk,
+								estatus = 1,
+								tipo = 2)
 				a.save();
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de suministro correctamente."}
 	array = mensaje

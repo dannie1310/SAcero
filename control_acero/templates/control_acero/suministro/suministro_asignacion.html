@@ -3,7 +3,7 @@
 	SUMINISTRO ASIGNACIÓN
 {% endblock %}
 {% block modals %}
-<!-- Modal -->
+<!-- Modal Certificados-->
 <div class="modal fade" id="modalCertificado" tabindex="-1" role="dialog" aria-labelledby="modalCertificadoLabel">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
@@ -13,6 +13,23 @@
 			</div>
 			<!-- <div class="modal-body"> -->
 				<div class="archivos"></div>
+			<!-- </div> -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Modal Remisiones-->
+<div class="modal fade" id="modalRemision" tabindex="-1" role="dialog" aria-labelledby="modalRemisionLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h3 class="modal-title" id="modalRemisionLabel">Visualizar Remisiones</h3>
+			</div>
+			<!-- <div class="modal-body"> -->
+				<div class="archivosRemision"></div>
 			<!-- </div> -->
 			<div class="modal-footer">
 				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
@@ -290,6 +307,7 @@
 			var count = 0;
 			var idTabla = 1;
 			var files = [];
+			var filesRemisiones = [];
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/suministro/asignar/cantidades/",
@@ -325,13 +343,21 @@
 	                        		tabla +='<td>';
 	                        					tabla +='<span style="cursor:pointer;" class="glyphicon glyphicon-eye-open" data-toggle="modal" data-count="'+count+'" data-target="#modalCertificado" aria-hidden="true">';
 							                    $.each(datos.files, function (countFile, objectFile) {
-							                    	if(object.id == objectFile.etapaAsignacionId){
+							                    	if(object.id == objectFile.etapaAsignacionId && objectFile.tipo == 1){
 							                    		tabla +='<input type="hidden" class="showImage_'+count+'" nombre="'+objectFile.nombreArchivo+'" name="txt" value="'+objectFile.file+'" />';
 							                    	}
 							                   	});
 	                        					tabla +='</span>';
 	                        		tabla +='</td>';
-	                        		tabla +='<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>';
+	                        		tabla +='<td>';
+	                        					tabla +='<span style="cursor:pointer;" class="glyphicon glyphicon-eye-open" data-toggle="modal" data-count="'+count+'" data-target="#modalRemision" aria-hidden="true">';
+							                    $.each(datos.files, function (countFile, objectFile) {
+							                    	if(object.id == objectFile.etapaAsignacionId && objectFile.tipo == 2){
+							                    		tabla +='<input type="hidden" class="showImageRemision_'+count+'" nombre="'+objectFile.nombreArchivo+'" name="txt" value="'+objectFile.file+'" />';
+							                    	}
+							                   	});
+	                        					tabla +='</span>';
+	                        		tabla +='</td>';
 	                        		tabla +='<td>';
 	                        			tabla +='<select name="cmbTransporte'+count+'" id="cmbTransporte'+count+'" class="cmbTransporte form-control">';
 										tabla +='</select>';
@@ -460,6 +486,28 @@
 				html += '</table>';
 			html += '</div>';
 			$(".archivos").append(html);
+		});
+		$('#modalRemision').on('show.bs.modal', function (e) {
+			$(".archivosRemision").empty();
+		    var count = $(e.relatedTarget).data('count');
+		    var html = '';
+		    html += '<div class="col-md-12">';
+					html += '<table class="table table-hover">';
+						html += '<thead>';
+							html += '<tr>';
+								html += '<th>Remisiones Cargadas</th>';
+							html += '</tr>';
+						html += '</thead>';
+						html += '<tbody>';
+			$("input.showImageRemision_"+count).each(function(index, element) {
+				html += '<tr>';
+					html += '<td><a class="col-md-8" target="_blank" href="'+this.value+'">'+$(this).attr("nombre")+'<a/></td>';
+				html += '</tr>';
+			});
+					html += '</tbody>';
+				html += '</table>';
+			html += '</div>';
+			$(".archivosRemision").append(html);
 		});
 	    $(function () {
 	    	comboPrograma();
