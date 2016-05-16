@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Sum
 import json
 from django.core.mail import send_mail
 from django.contrib.auth import logout
@@ -123,10 +123,16 @@ def asignacionComboElementos(request):
 	mensaje = {}
 	data = []
 	idPrograma = request.POST.get('programa', 0)
-	elementos = ProgramaSuministroDetalle.objects.values('id','numeroCuatro','numeroCuatro','numeroCinco','numeroSeis','numeroSiete','numeroOcho','numeroNueve','numeroDiez','numeroOnce','numeroDoce','total','apoyo__numero','elemento__nombre').filter(idProgramaSuministro=idPrograma)
-	for e in elementos:
-		resultado = {"id":e["id"],"numeroCuatro":e["numeroCuatro"],"numeroCinco":e["numeroCinco"],"numeroSeis":e["numeroSeis"],"numeroSiete":e["numeroSiete"],"numeroOcho":e["numeroOcho"],"numeroNueve":e["numeroNueve"],"numeroDiez":e["numeroDiez"],"numeroOnce":e["numeroOnce"],"numeroDoce":e["numeroDoce"],"total":e["total"],"apoyoNumero":e["apoyo__numero"],"elementoNombre":e["elemento__nombre"]}
-		data.append(resultado)
+	elementoDistinct = ProgramaSuministroDetalle.objects.filter(programaSuministro_id=idPrograma).values_list('elemento_id', flat=True).distinct()
+	print elementoDistinct.query
+	for ed in elementoDistinct:
+		elementos = Elemento.objects.values('id',
+											'nombre').filter(id=ed)
+		for e in elementos:
+			print e
+			resultado = {"id":e["id"],
+							"elementoNombre":e["nombre"]}
+			data.append(resultado)
 	array = mensaje
 	array["data"]=data
 	return JsonResponse(array)
@@ -1098,7 +1104,7 @@ def elementoMaterial(request):
 										'material__factor__pva',
 										'material__factor__factorPulgada',
 										'material__factor__pi').filter(id=idElemento)
-	print elemento.query
+	#print elemento.query
 	for e in elemento:
 		diametro = e['material__diametro']
 		pva = e['material__factor__pva']
