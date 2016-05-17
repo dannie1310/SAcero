@@ -85,9 +85,8 @@ h1 {
   font-size: 18px;
   font-weight: 400;
   text-transform: uppercase;
-  padding-top: 10px;
-  border-top: dotted 1px #555555;
-  border-width: 5px;
+  padding-bottom: 10px;
+  border-bottom: dotted 1px #555555;
 }
 @media (max-width: 767px) {
   .navbar .yamm-content h5 {
@@ -999,7 +998,8 @@ h1 {
   }
 }
 .yamm .dropdown.yamm-fw .dropdown-menu {
-  position:absolute;
+  left: 0;
+  right: 0;
 }
 /* Original Boostrap template overwrite */
 /* nav */

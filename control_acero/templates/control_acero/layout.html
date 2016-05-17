@@ -1,370 +1,346 @@
 {% load staticfiles %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="robots" content="all,follow">
+        <meta name="googlebot" content="index,follow,snippet,archive">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Hermes Control de Acero">
+        <meta name="author" content="Roman C. Jiménez Estrada">
+        <meta name="keywords" content="">
 
-<head>
+        <title>
+            Control Acero
+        </title>
 
-    <meta charset="utf-8">
-    <meta name="robots" content="all,follow">
-    <meta name="googlebot" content="index,follow,snippet,archive">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Obaju e-commerce template">
-    <meta name="author" content="Ondrej Svestka | ondrejsvestka.cz">
-    <meta name="keywords" content="">
+        <meta name="keywords" content="">
 
-    <title>
-        Control Acero
-    </title>
+        <!-- styles -->
+        <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
+        <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'css/animate.min.css' %}" rel="stylesheet">
+        <link href="{% static 'css/owl.carousel.css' %}" rel="stylesheet">
+        <link href="{% static 'css/owl.theme.css' %}" rel="stylesheet">
 
-    <meta name="keywords" content="">
+        <!-- theme stylesheet -->
+        <link href="{% static 'css/style.default.css' %}" rel="stylesheet" id="theme-stylesheet">
 
-    <!-- styles -->
-    <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/animate.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/owl.carousel.css' %}" rel="stylesheet">
-    <link href="{% static 'css/owl.theme.css' %}" rel="stylesheet">
+        <!-- your stylesheet with modifications -->
+        <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
-    <!-- theme stylesheet -->
-    <link href="{% static 'css/style.default.css' %}" rel="stylesheet" id="theme-stylesheet">
+        <!-- ESTILOS SELECT2-->
+        <link href="{% static 'select2-4.0.2/css/select2.min.css' %}" rel="stylesheet" />
 
-    <!-- your stylesheet with modifications -->
-    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+        <!-- ESTILOS DATEPICKER BOOTSTRAP-->
+        <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker.standalone.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker3.standalone.min.css' %}" rel="stylesheet" />
 
-    <!-- ESTILOS SELECT2-->
-    <link href="{% static 'select2-4.0.2/css/select2.min.css' %}" rel="stylesheet" />
-
-    <!-- ESTILOS DATEPICKER BOOTSTRAP-->
-    <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" />
-    <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker.standalone.min.css' %}" rel="stylesheet" />
-    <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet" />
-    <link href="{% static 'datepicker-1.5.1/css/bootstrap-datepicker3.standalone.min.css' %}" rel="stylesheet" />
-
-    <!-- ESTILOS UPLOAD FILE -->
-    <link href="{% static 'uploadFile4.0.10/css/uploadfile.css' %}" rel="stylesheet" />
+        <!-- ESTILOS UPLOAD FILE -->
+        <link href="{% static 'uploadFile4.0.10/css/uploadfile.css' %}" rel="stylesheet" />
 
 
-    <script src="{% static 'js/respond.min.js' %}"></script>
+        <script src="{% static 'js/respond.min.js' %}"></script>
 
-    <!-- PLUGIN JQUERY-->
-    <script src="{% static 'js/jquery-1.12.3.min.js' %}"></script>
+        <!-- PLUGIN JQUERY-->
+        <script src="{% static 'js/jquery-1.12.3.min.js' %}"></script>
 
-    <!-- PLUGIN SELECT2-->
-    <script src="{% static 'select2-4.0.2/js/select2.min.js' %}"></script>
+        <!-- PLUGIN SELECT2-->
+        <script src="{% static 'select2-4.0.2/js/select2.min.js' %}"></script>
 
-    <!-- PLUGIN DATEPICKER BOOTSTRAP-->
-    <script src="{% static 'datepicker-1.5.1/js/bootstrap-datepicker.min.js' %}"></script>
-    <script src="{% static 'datepicker-1.5.1/locales/bootstrap-datepicker.es.min.js' %}"></script>
+        <!-- PLUGIN DATEPICKER BOOTSTRAP-->
+        <script src="{% static 'datepicker-1.5.1/js/bootstrap-datepicker.min.js' %}"></script>
+        <script src="{% static 'datepicker-1.5.1/locales/bootstrap-datepicker.es.min.js' %}"></script>
 
-    <!-- PLUGIN UPLOAD FILE-->
-    <script src="{% static 'uploadFile4.0.10/js/jquery.uploadfile.min.js' %}"></script>
+        <!-- PLUGIN UPLOAD FILE-->
+        <script src="{% static 'uploadFile4.0.10/js/jquery.uploadfile.min.js' %}"></script>
 
-    <script type="text/javascript">
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+        <script type="text/javascript">
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
                     }
                 }
+                return cookieValue;
             }
-            return cookieValue;
-        }
-        var csrftoken = getCookie('csrftoken');
-        function csrfSafeMethod(method) {
-            // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            var csrftoken = getCookie('csrftoken');
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
                 }
+            });
+            function mensajeInfo (mensaje) {
+                $(".mensajeInfo").empty();
+                $(".mensajeInfo").hide();
+                $(".mensajeInfo").show();
+                $(".mensajeInfo").append(mensaje);
+                setTimeout(function () {
+                    $(".mensajeInfo").hide("slide");
+                }, 3000);
             }
-        });
-        function mensajeInfo (mensaje) {
-            $(".mensajeInfo").empty();
-            $(".mensajeInfo").hide();
-            $(".mensajeInfo").show();
-            $(".mensajeInfo").append(mensaje);
-            setTimeout(function () {
-                $(".mensajeInfo").hide("slide");
-            }, 3000);
-        }
-        function mensajeSuccess (mensaje) {
-            $(".mensajeSuccess").empty();
-            $(".mensajeSuccess").hide();
-            $(".mensajeSuccess").show();
-            $(".mensajeSuccess").append(mensaje);
-            setTimeout(function () {
-                $(".mensajeSuccess").hide("slide");
-            }, 3000);
-        }
-        function mensajeWarning (mensaje) {
-            $(".mensajeWarning").empty();
-            $(".mensajeWarning").hide();
-            $(".mensajeWarning").show();
-            $(".mensajeWarning").append(mensaje);
-            setTimeout(function () {
-                $(".mensajeWarning").hide("slide");
-            }, 3000);
-        }
-    </script>
-    <style>
-        .notificacion {
-            position: fixed;
-            z-index: 1051; /* must be larger than .modal */
-        }
-    </style>
-
-</head>
-
-<body>
-<div style="display:none">
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-</div>
-    <div style="display:none;" class="notificacion mensajeInfo alert alert-info col-xs-12"></div>
-    <div style="display:none;" class="notificacion mensajeSuccess alert alert-success col-xs-12"></div>
-    <div style="display:none;" class="notificacion mensajeWarning alert alert-warning col-xs-12"></div>
-    <!-- *** TOPBAR ***
- _________________________________________________________ -->
-    <div id="top">
-        <div class="container">
-            <div class="col-md-6" data-animate="fadeInDown">
-                <ul class="menu">
-                    <li><a href="#">Bienvenido</a>
-                    </li>
-                    <li><a href="{% url 'logout' %}">Salir</a>
-                    </li>
-                </ul>
-            </div>
+            function mensajeSuccess (mensaje) {
+                $(".mensajeSuccess").empty();
+                $(".mensajeSuccess").hide();
+                $(".mensajeSuccess").show();
+                $(".mensajeSuccess").append(mensaje);
+                setTimeout(function () {
+                    $(".mensajeSuccess").hide("slide");
+                }, 3000);
+            }
+            function mensajeWarning (mensaje) {
+                $(".mensajeWarning").empty();
+                $(".mensajeWarning").hide();
+                $(".mensajeWarning").show();
+                $(".mensajeWarning").append(mensaje);
+                setTimeout(function () {
+                    $(".mensajeWarning").hide("slide");
+                }, 3000);
+            }
+        </script>
+        <style>
+            .notificacion {
+                position: fixed;
+                z-index: 1051; /* must be larger than .modal */
+            }
+        </style>
+    </head>
+    <body>
+        <div style="display:none">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         </div>
-    </div>
-
-    <!-- *** TOP BAR END *** -->
-
-    <!-- *** NAVBAR ***
- _________________________________________________________ -->
-
-    <div class="navbar navbar-default yamm" role="navigation" id="navbar">
-        <div class="container">
-            <div class="navbar-header">
-
-                <a class="navbar-brand home" href="{% url 'principalView' %}" data-animate-hover="bounce">
-                    <img src="http://equipamiento.grupohi.mx/img/company-icon.png" alt="Obaju logo" class="hidden-xs">
-                    <img src="http://equipamiento.grupohi.mx/img/company-icon.png" alt="Obaju logo" class="visible-xs"><span class="sr-only">Obaju - go to homepage</span>
-                </a>
-                <div class="navbar-buttons">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
-                        <span class="sr-only">Toggle navigation</span>
-                        <i class="fa fa-align-justify"></i>
-                    </button>
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#search">
-                        <span class="sr-only">Toggle search</span>
-                        <i class="fa fa-search"></i>
-                    </button>
-                    <a class="btn btn-default navbar-toggle" href="basket.html">
-                        <i class="fa fa-shopping-cart"></i>  <span class="hidden-xs">3 items in cart</span>
-                    </a>
+        <div style="display:none;" class="notificacion mensajeInfo alert alert-info col-xs-12"></div>
+        <div style="display:none;" class="notificacion mensajeSuccess alert alert-success col-xs-12"></div>
+        <div style="display:none;" class="notificacion mensajeWarning alert alert-warning col-xs-12"></div>
+        <!-- *** TOPBAR ***
+     _________________________________________________________ -->
+        <div id="top">
+            <div class="container">
+                <div class="col-md-6" data-animate="fadeInDown">
+                    <ul class="menu">
+                        <li><a href="#">Bienvenido</a>
+                        </li>
+                        <li><a href="{% url 'logout' %}">Salir</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <!--/.navbar-header -->
-
-            <div class="navbar-collapse collapse" id="navigation">
-
-                <ul class="nav navbar-nav navbar-left">
-                    <li class="active"><a href="{% url 'principalView' %}">INICIO</a>
-                    </li>
-                    <!--<li class="dropdown yamm-fw">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">ADMINISTRACIÓN <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <div class="yamm-content">
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <ul>
-                                                <li><a href="{% url 'apoyosView' %}">Usuarios</a>
-                                                </li>
-                                                <li><a href="{% url 'elementosView' %}">Grupos</a>
-                                                </li>
-                                            </ul> 
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>-->
-                    <li class="dropdown yamm-fw">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">CATALOGO <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <div class="yamm-content">
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <ul>
-                                                <li><a href="{% url 'apoyosView' %}">Apoyos</a>
-                                                </li>
-                                                <li><a href="{% url 'elementosView' %}">Elementos</a>
-                                                </li>
-                                                <li><a href="{% url 'despiecesView' %}">Despieces</a>
-                                                </li>
-                                                <li><a href="{% url 'materialesView' %}">Materiales</a>
-                                                </li>
-                                                <li><a href="{% url 'frentesView' %}">Frentes</a>
-                                                </li>
-                                                <li><a href="{% url 'funcionesView' %}">Funciones</a>
-                                                </li>
-                                                <li><a href="{% url 'talleresView' %}">Talleres</a>
-                                                </li>
-                                                <li><a href="{% url 'transportesView' %}">Transportes</a>
-                                                </li>
-                                            </ul> 
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown yamm-fw">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">MODULOS <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <div class="yamm-content">
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <h5>PROCESO</h5>
-                                            <ul>
-                                                <li><a href="{% url 'frenteTrabajoNuevoView' %}">Frente de Trabajo</a>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li><a href="{% url 'controlAsignacionView' %}">Control Asignaciones</a>
-                                                </li>
-                                            </ul>
-                                            <h5>SUMINISTRO</h5>
-                                            <ul>
-                                                <li><a href="{% url 'suministroRecepcionView' %}">Recepción</a>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li><a href="{% url 'suministroAsignacionView' %}">Asignación</a>
-                                                </li>
-                                            </ul>
-                                            <h5>HABILITADO</h5>
-                                            <ul>
-                                                <li><a href="{% url 'habilitadoRecepcionView' %}">Recepción</a>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li><a href="{% url 'habilitadoAsignacionView' %}">Asignación</a>
-                                                </li>
-                                            </ul>
-                                            <h5>ARMADO</h5>
-                                            <ul>
-                                                <li><a href="{% url 'armadoRecepcionView' %}">Recepción</a>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li><a href="{% url 'armadoAsignacionView' %}">Asignación</a>
-                                                </li>
-                                            </ul>
-                                            <h5>COLOCADO</h5>
-                                            <ul>
-                                                <li><a href="{% url 'colocadoRecepcionView' %}">Recepción</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- /.yamm-content -->
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
         </div>
-        <!-- /.container -->
-    </div>
-    <!-- /#navbar -->
 
-    <!-- *** NAVBAR END *** -->
+        <!-- *** TOP BAR END *** -->
 
-    <div id="all">
+        <!-- *** NAVBAR ***
+     _________________________________________________________ -->
 
-        <div id="content">
+        <div class="navbar navbar-default yamm" role="navigation" id="navbar">
+            <div class="container">
+                <div class="navbar-header">
 
-            <!-- *** HEADER MODULO ***
- _________________________________________________________ -->
-            <div id="hot">
+                    <a class="navbar-brand home" href="{% url 'principalView' %}" data-animate-hover="bounce">
+                        <img src="http://equipamiento.grupohi.mx/img/company-icon.png" alt="Obaju logo" class="hidden-xs">
+                        <img src="http://equipamiento.grupohi.mx/img/company-icon.png" alt="Obaju logo" class="visible-xs"><span class="sr-only">Obaju - go to homepage</span>
+                    </a>
+                    <div class="navbar-buttons">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
+                            <span class="sr-only">Toggle navigation</span>
+                            <i class="fa fa-align-justify"></i>
+                        </button>
+                    </div>
+                </div>
+                <!--/.navbar-header -->
 
-                <div class="box">
-                    <div class="container" data-animate="fadeInUpBig">
-                        <div class="col-md-12">
-                            <h2>{% block title_module %}{% endblock %}</h2>
+                <div class="navbar-collapse collapse" id="navigation">
+
+                    <ul class="nav navbar-nav navbar-left">
+                        <li class="active"><a href="{% url 'principalView' %}">INICIO</a>
+                        </li>
+                        <li class="dropdown yamm-fw">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">CATALOGO <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <div class="yamm-content">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <ul>
+                                                    <li><a href="{% url 'apoyosView' %}">Apoyos</a>
+                                                    </li>
+                                                    <li><a href="{% url 'elementosView' %}">Elementos</a>
+                                                    </li>
+                                                    <li><a href="{% url 'despiecesView' %}">Despieces</a>
+                                                    </li>
+                                                    <li><a href="{% url 'materialesView' %}">Materiales</a>
+                                                    </li>
+                                                    <li><a href="{% url 'frentesView' %}">Frentes</a>
+                                                    </li>
+                                                    <li><a href="{% url 'funcionesView' %}">Funciones</a>
+                                                    </li>
+                                                    <li><a href="{% url 'talleresView' %}">Talleres</a>
+                                                    </li>
+                                                    <li><a href="{% url 'transportesView' %}">Transportes</a>
+                                                    </li>
+                                                </ul> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown yamm-fw">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">MODULOS <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <div class="yamm-content">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <h5>PROCESO</h5>
+                                                <ul>
+                                                    <li><a href="{% url 'frenteTrabajoNuevoView' %}">Frente de Trabajo</a>
+                                                    </li>
+                                                </ul>
+                                                <ul>
+                                                    <li><a href="{% url 'controlAsignacionView' %}">Control Asignaciones</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h5>SUMINISTRO</h5>
+                                                <ul>
+                                                    <li><a href="{% url 'suministroRecepcionView' %}">Recepción</a>
+                                                    </li>
+                                                </ul>
+                                                <ul>
+                                                    <li><a href="{% url 'suministroAsignacionView' %}">Asignación</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h5>HABILITADO</h5>
+                                                <ul>
+                                                    <li><a href="{% url 'habilitadoRecepcionView' %}">Recepción</a>
+                                                    </li>
+                                                </ul>
+                                                <ul>
+                                                    <li><a href="{% url 'habilitadoAsignacionView' %}">Asignación</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h5>ARMADO</h5>
+                                                <ul>
+                                                    <li><a href="{% url 'armadoRecepcionView' %}">Recepción</a>
+                                                    </li>
+                                                </ul>
+                                                <ul>
+                                                    <li><a href="{% url 'armadoAsignacionView' %}">Asignación</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-3 col-md-offset-3">
+                                                <h5>COLOCADO</h5>
+                                                <ul>
+                                                    <li><a href="{% url 'colocadoRecepcionView' %}">Recepción</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h5>INVENTARIO</h5>
+                                                <ul>
+                                                    <li><a href="{% url 'movimientosView' %}">Movimientos</a>
+                                                    </li>
+                                                </ul>
+                                                <ul>
+                                                    <li><a href="{% url 'fisicoView' %}">Inventario Físico</a>
+                                                    </li>
+                                                </ul>
+                                                <ul>
+                                                    <li><a href="#">Existencias</a>
+                                                    </li>
+                                                </ul>
+                                                <ul>
+                                                    <li><a href="#">Control Incidencias</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.yamm-content -->
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /.container -->
+        </div>
+        <!-- /#navbar -->
+
+        <!-- *** NAVBAR END *** -->
+
+        <div id="all">
+            <div id="content">
+                <div id="hot">
+                    <div class="box">
+                        <div class="container" data-animate="fadeInUpBig">
+                            <div class="col-md-12">
+                                <h2>{% block title_module %}{% endblock %}</h2>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-
-            </div>
-            <!-- /#hot -->
-            {% block modals %}{% endblock %}
-            <!-- *** HEADER MODULO END *** -->
-
-            <div class="box text-center" data-animate="fadeInUp">
-                <div class="container" data-animate="fadeInUp">
-                    <div class="col-xs-12">
-                        {% block content %}{% endblock %}
+                {% block modals %}{% endblock %}
+                <div class="box text-center" data-animate="fadeInUp">
+                    <div class="container" data-animate="fadeInUp">
+                        <div class="col-xs-12">
+                            {% block content %}{% endblock %}
+                        </div>
                     </div>
                 </div>
             </div>
+            <div id="copyright">
+                <div class="container">
+                    <div class="col-md-6">
+                        <p class="pull-left">© Hermes 2016.</p>
 
-            <!-- *** BLOG HOMEPAGE END *** -->
-
-
-        </div>
-        <!-- /#content -->
-
-        <div id="copyright">
-            <div class="container">
-                <div class="col-md-6">
-                    <p class="pull-left">© Hermes 2016.</p>
-
-                </div>
-                <div class="col-md-6">
-                    <p class="pull-right">Sistema Control de Acero <a href="http://www.bootstrapious.com">Hermes</a>
-                        <!-- Not removing these links is part of the licence conditions of the template. Thanks for understanding :) -->
-                    </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="pull-right">Sistema Control de Acero <a href="#">Hermes</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- *** COPYRIGHT END *** -->
-
-    </div>
-    <!-- /#all -->
-    <!-- *** SCRIPTS TO INCLUDE ***
- _________________________________________________________ -->
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/jquery.cookie.js' %}"></script>
-    <script src="{% static 'js/waypoints.min.js' %}"></script>
-    <script src="{% static 'js/modernizr.js' %}"></script>
-    <script src="{% static 'js/bootstrap-hover-dropdown.js' %}"></script>
-    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
-    <script src="{% static 'js/front.js' %}"></script>
-    <script type="text/javascript">
-        $('.calendario').datepicker({
-            format: "dd/mm/yyyy",
-            language: "es",
-            autoclose: true
-        });
-    </script>
-
-
-</body>
+        <!-- /#all -->
+        <!-- *** SCRIPTS TO INCLUDE ***
+     _________________________________________________________ -->
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/jquery.cookie.js' %}"></script>
+        <script src="{% static 'js/waypoints.min.js' %}"></script>
+        <script src="{% static 'js/modernizr.js' %}"></script>
+        <script src="{% static 'js/bootstrap-hover-dropdown.js' %}"></script>
+        <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+        <script src="{% static 'js/front.js' %}"></script>
+        <script type="text/javascript">
+            $('.calendario').datepicker({
+                format: "dd/mm/yyyy",
+                language: "es",
+                autoclose: true
+            });
+        </script>
+    </body>
 
 </html>

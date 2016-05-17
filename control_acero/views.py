@@ -77,6 +77,43 @@ def apoyoCombofiltrado(request):
 	array["data"]=data
 	return JsonResponse(array)
 
+
+def movimientosShow(request): #pendiente....
+	array = {}
+	data = []
+	mensaje = {"estatus":"ok", "mensaje":"Correcto"}
+
+	idFrente = request.POST.get('idFrente', 0)
+	frente = Frente.objects.filter(id=idFrente)
+	elementos = ControlAsignacion.objects.values('id',
+												'etapaAsignacion__pesoSolicitado',
+												'etapaAsignacion__pesoRecibido',
+												
+												'programaSuministroDetalle__apoyo__numero',
+												'programaSuministroDetalle__elemento__nombre',
+												'funcion__id',
+												'funcion__proveedor',
+												'estatusEtapa',
+												'programaSuministro__id')
+	#.filter(frente=frente_id)
+
+	for e in elementos:
+		resultado = {"id":e["id"],
+						"pesoSolicitado":e["etapaAsignacion__pesoSolicitado"],
+						"pesoRecibido":e["etapaAsignacion__pesoRecibido"],
+						"apoyo":e["programaSuministroDetalle__apoyo__numero"],
+						"elemento":e["programaSuministroDetalle__elemento__nombre"],
+						"funcion":e["funcion__id"],
+						"funcionProveedor":e["funcion__proveedor"],
+						"estatusEtapa":e["estatusEtapa"],
+						"programaId":e["programaSuministro__id"]}
+		print (resultado)
+		data.append(resultado)
+	array = mensaje
+	array["data"]=data
+	
+	return JsonResponse(array)
+
 def asignacionComboOrden(request):
 	array = {}
 	mensaje = {}
@@ -122,15 +159,17 @@ def asignacionComboElementos(request):
 	array = {}
 	mensaje = {}
 	data = []
-	idPrograma = request.POST.get('programa', 0)
+	idPrograma = request.POST.get('programa', 1)
 	elementoDistinct = ProgramaSuministroDetalle.objects.filter(programaSuministro_id=idPrograma).values_list('elemento_id', flat=True).distinct()
-	print elementoDistinct.query
 	for ed in elementoDistinct:
+		peso = ProgramaSuministroDetalle.objects.filter(programaSuministro_id=idPrograma,
+														elemento_id=ed).aggregate(Sum('peso'))
 		elementos = Elemento.objects.values('id',
 											'nombre').filter(id=ed)
 		for e in elementos:
 			resultado = {"id":e["id"],
-							"elementoNombre":e["nombre"]}
+							"elementoNombre":e["nombre"],
+							"total": peso["peso__sum"]}
 			data.append(resultado)
 	array = mensaje
 	array["data"]=data
@@ -713,6 +752,14 @@ def armadoAsignacionView(request):
 
 def colocadoRecepcionView(request):
 	template = 'control_acero/colocado/colocado_recepcion.html'
+	return render(request, template)
+
+def movimientosView(request):
+	template = 'control_acero/inventario/movimientos.html'
+	return render(request, template)
+
+def fisicoView(request):
+	template = 'control_acero/inventario/fisico.html'
 	return render(request, template)
 
 class AccesoView(generic.ListView):
@@ -1695,3 +1742,34 @@ def handle_uploaded_file(archivo, archivoName):
     with open("control_acero/tmp/"+archivoName, 'wb+') as destination:
         for chunk in archivo.chunks():
             return destination.write(chunk)
+
+def fisicoBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	dataSuministro = []
+	#dataApoyo = []
+	#dataDetalle = []
+	fechaInicial = request.POST.get('fechaInicial', '17/05/2016')
+	fechaFinal = request.POST.get('fechaFinal', '17/05/2016')
+	fechaInicialFormat = datetime.strptime(fechaInicial+" 00:00:00", '%d/%m/%Y %H:%M:%S')
+	fechaFinalFormat = datetime.strptime(fechaFinal+" 23:59:59", '%d/%m/%Y %H:%M:%S')
+	etapas = EtapaAsignacion.objects.values("id",
+												"pesoSolicitado",
+												"pesoRecibido",
+												"cantidadAsignada").filter(fechaRegistro__gte=fechaInicialFormat,
+															fechaRegistro__lte=fechaFinalFormat);
+	for e in etapas:
+		resultado = {"id":e["id"],
+						"pesoSolicitado":e["pesoSolicitado"],
+						"pesoRecibido":e["pesoRecibido"],
+						"cantidadAsignada":e["cantidadAsignada"]
+
+					}
+		dataSuministro.append(resultado)
+
+	array = mensaje
+	array["Suministro"]=dataSuministro
+	#array["apoyo"]=dataApoyo
+	#array["detalle"]=dataDetalle
+	return JsonResponse(array)

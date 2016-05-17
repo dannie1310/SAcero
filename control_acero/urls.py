@@ -25,6 +25,15 @@ urlpatterns = [
     url(r'^frenteTrabajo/$', views.frenteTrabajoView, name='frenteTrabajoView'),
     url(r'^frenteTrabajo/nuevo/$', views.frenteTrabajoNuevoView, name='frenteTrabajoNuevoView'),
     url(r'^frenteTrabajo/show/$', views.frenteTrabajoShow, name='frenteTrabajoShow'),
+
+      #"""------------------------------------------"""
+    #"""        RUTAS RELACIONADAS CON INVENTARIOS  """
+    #"""--------------------------------------------"""
+    url(r'^inventario/movimientos/$', views.movimientosView, name='movimientosView'),
+    url(r'^inventario/movimientos/show/$', views.movimientosShow, name='movimientosShow'),
+    url(r'^inventario/fisico/$', views.fisicoView, name='fisicoView'),
+    url(r'^inventario/fisico/busqueda/$', views.fisicoBusquedaView, name='fisicoBusquedaView'),
+
     #"""------------------------------------------"""
     #"""        RUTAS RELACIONADAS CON APOYO      """
     #"""------------------------------------------"""
