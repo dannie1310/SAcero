@@ -129,7 +129,6 @@ def asignacionComboElementos(request):
 		elementos = Elemento.objects.values('id',
 											'nombre').filter(id=ed)
 		for e in elementos:
-			print e
 			resultado = {"id":e["id"],
 							"elementoNombre":e["nombre"]}
 			data.append(resultado)
