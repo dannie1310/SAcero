@@ -52,26 +52,39 @@ urlpatterns = [
     #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CATALOGO DE APOYOS  """
     #"""------------------------------------------"""
-    url(r'^catologos/apoyos/$', views.apoyosView, name='apoyosView'),
-    url(r'^catologos/apoyos/new/$', views.apoyosNewView, name='apoyosNewView'),
-    url(r'^catologos/apoyos/(?P<pk>[0-9]+)/edit/$', views.apoyosEditView, name='apoyosEditView'),
-    url(r'^catologos/apoyos/delete/(?P<pk>[0-9]+)/$', views.apoyosLogicalDelete, name='apoyosLogicalDelete'),
+    url(r'^catalogos/apoyos/$', views.apoyosView, name='apoyosView'),
+    url(r'^catalogos/apoyos/new/$', views.apoyosNewView, name='apoyosNewView'),
+    url(r'^catalogos/apoyos/(?P<pk>[0-9]+)/edit/$', views.apoyosEditView, name='apoyosEditView'),
+    url(r'^catalogos/apoyos/(?P<pk>[0-9]+)/delete/$', views.apoyosLogicalDelete, name='apoyosLogicalDelete'),
 
-    url(r'^catologos/elementos/$', views.elementosView, name='elementosView'),
-    url(r'^catologos/elementos/new/$', views.elementosNewView, name='elementosNewView'),
-    url(r'^catologos/despieces/$', views.despiecesView, name='despiecesView'),
-    url(r'^catologos/despieces/new/$', views.despiecesNewView, name='despiecesNewView'),
-    url(r'^catologos/materiales/$', views.materialesView, name='materialesView'),
-    url(r'^catologos/materiales/new/$', views.materialesNewView, name='materialesNewView'),
-    url(r'^catologos/materiales/(?P<pk>[0-9]+)/edit/$', views.materialesEditView, name='materialesEditView'),
-    url(r'^catologos/frentes/$', views.frentesView, name='frentesView'),
-    url(r'^catologos/frentes/new/$', views.frentesNewView, name='frentesNewView'),
-    url(r'^catologos/funciones/$', views.funcionesView, name='funcionesView'),
-    url(r'^catologos/funciones/new/$', views.funcionesNewView, name='funcionesNewView'),
-    url(r'^catologos/talleres/$', views.talleresView, name='talleresView'),
-    url(r'^catologos/talleres/new/$', views.talleresNewView, name='talleresNewView'),
-    url(r'^catologos/transportes/$', views.transportesView, name='transportesView'),
-    url(r'^catologos/transportes/new/$', views.transportesNewView, name='transportesNewView'),
+    url(r'^catalogos/elementos/$', views.elementosView, name='elementosView'),
+    url(r'^catalogos/elementos/new/$', views.elementosNewView, name='elementosNewView'),
+    url(r'^catalogos/elementos/(?P<pk>[0-9]+)/edit/$', views.elementosEditView, name='elementosEditView'),
+
+    url(r'^catalogos/despieces/$', views.despiecesView, name='despiecesView'),
+    url(r'^catalogos/despieces/new/$', views.despiecesNewView, name='despiecesNewView'),
+    url(r'^catalogos/despieces/(?P<pk>[0-9]+)/edit/$',views.despiecesEditView, name='despiecesEditView'),
+
+    url(r'^catalogos/materiales/$', views.materialesView, name='materialesView'),
+    url(r'^catalogos/materiales/new/$', views.materialesNewView, name='materialesNewView'),
+    url(r'^catalogos/materiales/(?P<pk>[0-9]+)/edit/$', views.materialesEditView, name='materialesEditView'),
+
+    url(r'^catalogos/frentes/$', views.frentesView, name='frentesView'),
+    url(r'^catalogos/frentes/new/$', views.frentesNewView, name='frentesNewView'),
+    url(r'^catalogos/frentes/(?P<pk>[0-9]+)/edit/$', views.frentesEditView, name='frentesEditView'),
+
+
+    url(r'^catalogos/funciones/$', views.funcionesView, name='funcionesView'),
+    url(r'^catalogos/funciones/new/$', views.funcionesNewView, name='funcionesNewView'),
+    url(r'^catalogos/funciones/(?P<pk>[0-9]+)/edit/$', views.funcionesEditView, name='funcionesEditView'),
+
+    url(r'^catalogos/talleres/$', views.talleresView, name='talleresView'),
+    url(r'^catalogos/talleres/new/$', views.talleresNewView, name='talleresNewView'),
+    url(r'^catalogos/talleres/(?P<pk>[0-9]+)/edit/$', views.talleresEditView, name='talleresEditView'),
+
+    url(r'^catalogos/transportes/$', views.transportesView, name='transportesView'),
+    url(r'^catalogos/transportes/new/$', views.transportesNewView, name='transportesNewView'),
+    url(r'^catalogos/transportes/(?P<pk>[0-9]+)/edit/$', views.transportesEditView, name='transportesEditView'),
 
 
 

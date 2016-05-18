@@ -1199,6 +1199,9 @@ def frenteActualizaestatus(request):
 	array = mensaje
 	return JsonResponse(array)
 
+
+	#catalogos#
+
 def apoyosView(request):
 	apoyo_list = Apoyo.objects.filter(estatus=1)
 	paginator = Paginator(apoyo_list, 10)
@@ -1236,10 +1239,22 @@ def apoyosEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/apoyos/apoyo_edit.html', {'form': form})
 
-def apoyosLogicalDelete(request):
-	print request
-	#c = Apoyo(id=idApoyo, estatus=0)
-	#c.save()
+def apoyosLogicalDelete(request, pk):
+	apoyo = get_object_or_404(Apoyo, pk=pk)
+
+	
+	if request.method == "POST":
+		form = ApoyoForm(request.POST, estatus=0, instance=apoyo)
+		if(form.is_valid()):
+			apoyo = form.save(commit=False)
+			apoyo.save()
+			print estatus
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = ApoyoForm(instance=apoyo)
+		
+	return render(request, 'control_acero/catalogos/apoyos/apoyo_delete.html', {'form': form})
+	
 
 def elementosView(request):
 	elemento_list = Elemento.objects.filter(estatus=1)
@@ -1264,6 +1279,19 @@ def elementosNewView(request):
 		form = ElementoForm()
 		
 	return render(request, 'control_acero/catalogos/elementos/elementos_new.html', {'form': form})
+
+def elementosEditView(request, pk):
+	elemento = get_object_or_404(Elemento, pk=pk)
+	if request.method == "POST":
+		form = ElementoForm(request.POST, instance=elemento)
+		if(form.is_valid()):
+			elemento = form.save(commit=False)
+			elemento.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = ElementoForm(instance=elemento)
+		
+	return render(request, 'control_acero/catalogos/elementos/elementos_edit.html', {'form': form})
 
 	
 def despiecesView(request):
@@ -1290,6 +1318,19 @@ def despiecesNewView(request):
 		form = DespieceForm()
 		
 	return render(request, 'control_acero/catalogos/despieces/despiece_new.html', {'form': form})
+
+def despiecesEditView(request, pk):
+	despiece = get_object_or_404(Despiece, pk=pk)
+	if request.method == "POST":
+		form = DespieceForm(request.POST, instance=despiece)
+		if(form.is_valid()):
+			despiece = form.save(commit=False)
+			despiece.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = DespieceForm(instance=despiece)
+		
+	return render(request, 'control_acero/catalogos/despieces/despiece_edit.html', {'form': form})
 
 def materialesView(request):
 	material_list = Material.objects.filter(estatus=1)
@@ -1350,7 +1391,20 @@ def frentesNewView(request):
 	else:
 		form = FrenteForm()
 		
-	return render(request, 'control_acero/catalogos/frentes/frentes_new.html', {'form': form})
+	return render(request, 'control_acero/catalogos/frentes/frente_new.html', {'form': form})
+
+def frentesEditView(request, pk):
+	frente = get_object_or_404(Frente, pk=pk)
+	if request.method == "POST":
+		form = FrenteForm(request.POST, instance=frente)
+		if(form.is_valid()):
+			frente = form.save(commit=False)
+			frente.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = FrenteForm(instance=frente)
+		
+	return render(request, 'control_acero/catalogos/frentes/frente_edit.html', {'form': form})
 
 
 def funcionesView(request):
@@ -1377,6 +1431,19 @@ def funcionesNewView(request):
 		
 	return render(request, 'control_acero/catalogos/funciones/funcion_new.html', {'form': form})
 
+def funcionesEditView(request, pk):
+	funcion = get_object_or_404(Funcion, pk=pk)
+	if request.method == "POST":
+		form = FuncionForm(request.POST, instance=funcion)
+		if(form.is_valid()):
+			funcion = form.save(commit=False)
+			funcion.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = FuncionForm(instance=funcion)
+		
+	return render(request, 'control_acero/catalogos/funciones/funcion_edit.html', {'form': form})
+
 def talleresView(request):
 	talleres_list = Taller.objects.filter(estatus=1)
 	paginator = Paginator(talleres_list, 10)
@@ -1400,6 +1467,19 @@ def talleresNewView(request):
 		form = TallerForm()
 		
 	return render(request, 'control_acero/catalogos/talleres/taller_new.html', {'form': form})
+
+def talleresEditView(request, pk):
+	taller = get_object_or_404(Taller, pk=pk)
+	if request.method == "POST":
+		form = TallerForm(request.POST, instance=taller)
+		if(form.is_valid()):
+			taller = form.save(commit=False)
+			taller.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = TallerForm(instance=taller)
+		
+	return render(request, 'control_acero/catalogos/talleres/taller_edit.html', {'form': form})
 
 def transportesView(request):
 	transportes_list = Transporte.objects.filter(estatus=1)
@@ -1425,6 +1505,18 @@ def transportesNewView(request):
 		
 	return render(request, 'control_acero/catalogos/transportes/transporte_new.html', {'form': form})
 
+def transportesEditView(request, pk):
+	transporte = get_object_or_404(Transporte, pk=pk)
+	if request.method == "POST":
+		form = TransporteForm(request.POST, instance=transporte)
+		if(form.is_valid()):
+			transporte = form.save(commit=False)
+			transporte.save()
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = TransporteForm(instance=transporte)
+		
+	return render(request, 'control_acero/catalogos/transportes/transporte_edit.html', {'form': form})
 
 
 def suministroAsignaSave(request):

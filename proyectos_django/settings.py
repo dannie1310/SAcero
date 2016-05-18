@@ -79,9 +79,9 @@ WSGI_APPLICATION = 'proyectos_django.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'control_acero',                 
+        'NAME': 'control',                 
         'USER': 'root',                    
-        'PASSWORD': '12345',                
+        'PASSWORD': 'root',                
         'HOST': '127.0.0.1',                     
         'PORT': '3306',
         'OPTIONS': {
@@ -98,15 +98,8 @@ DATABASES = {
         'OPTIONS': {
            'init_command': 'SET default_storage_engine=INNODB',
         }
-    },
-    'modulos_db': {
-        'ENGINE': 'sql_server.pyodbc', 
-        'NAME': 'ModulosSAO',                 
-        'USER': 'develop',                    
-        'PASSWORD': 'develop',                
-        'HOST': '172.20.74.3\GHIAPP_DEVELOP',
-        'PORT': '1433',
     }
+ 
 }
 
 

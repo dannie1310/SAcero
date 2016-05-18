@@ -3,9 +3,14 @@
 	CATALOGO DE MATERIAL (EDITAR)
 {% endblock %}
 {% block content %}
-<a href="{% url 'materialesView' %}">Regresar</a>
+
+	<div class="col-xs-12">
         <form method="POST" class="post-form">{% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-success">Guardar</button>
         </form>
+    </div>
+    <div class="col-xs-12 text-left">
+		<button type="submit" class="btn btn-info"><a href="{% url 'materialesView' %}"><font color="FFFFFF"> << Regresar </font></a></button>
+	</div>
 {% endblock %}
