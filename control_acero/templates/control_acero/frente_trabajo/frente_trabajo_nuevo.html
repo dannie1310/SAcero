@@ -1,6 +1,6 @@
 {% extends 'control_acero/layout.html' %}
 {% block title_module %}
-	CREAR PROGRAMA DE SUMINISTRO
+	RECEPCIÓN DE MATERIAL
 {% endblock %}
 {% block modals %}
 <!-- Modal -->
@@ -28,17 +28,21 @@
 				<h4> Folio: <label id="folio"></label><input type="hidden" readonly disabled name="txtFolio" id="txtFolio" /></h4>
 			</div>
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbOrden">Elegir Orden de Compra:</label>
-				<select name="cmbOrden" id="cmbOrden" class="cmbOrden form-control">
-					<option value="0">Selecciona una Orden de Compra</option>
-					<option value="1">Orden 1</option>
-					<option value="2">Orden 2</option>
-					<option value="3">Orden 3</option>
-				</select>
+				<label  class="control-label" for="cmbOrden">Digitar Orden de Compra:</label>
+				<input type="number" name="cmbOrden" id="cmbOrden" class="cmbOrden form-control"/>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="remision">Agregar Remisión:</label>
+				<input type="text" class="form-control" name="remision" id="remision"></input>
 			</div>
 			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbFrente">Elegir Frente de trabajo:</label>
 				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
 			<div class="form-group col-md-6">
@@ -57,6 +61,7 @@
 			<table id="tablaFrente" class="table table-hover">
 				<thead>
 					<tr>
+						<th class="text-center">Remisión</th>
 						<th class="text-center">Nombre del Frente</th>
 						<th class="text-center">Identificación del Tramo</th>
 						<th class="text-center">Ubicación</th>
@@ -91,17 +96,30 @@
 			<table id="tablaApoyoElemento" class="table table-hover">
 				<thead>
 					<tr>
-						<th class="text-center">Apoyo</th>
-						<th class="text-center">Elemento</th>
 						<th class="text-center">Material</th>
 						<th class="text-center">Peso Total</th>
 						<th class="text-center">Número de Piezas</th>
+						<th class="text-center">Longitud</th>
 						<th class="text-center">Eliminar</th>
 					</tr>
 				</thead>
 				<tbody>
 					
 				</tbody>
+				<tfoot>
+					<tr>
+						<th>Peso Neto</th>
+						<th><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
+					</tr>
+					<tr>
+						<th>Peso Tara</th>
+						<th><input class="form-control" type="number" name="txtTara" oninput="calculaPeso()" id="txtTara" /></th>
+					</tr>
+					<tr>
+						<th>Peso Bruto</th>
+						<th><div id="divPesoBruto"></div><input type="hidden" name="txtPesoBruto" id="txtPesoBruto" /></th>
+					</tr>
+				</tfoot>
 			</table>
 		</div>
 		<div style="display:none;" id="divDetalleSolicita" class="col-md-6 text-center">
@@ -198,6 +216,7 @@
 		$( "#seleccionarFrente" ).click(function() {
 			$("#tablaFrente tbody").empty();
 			var orden = $("#cmbOrden").val();
+			var remision = $("#remision").val();
 			var frente = $("#cmbFrente").val();
 			var fechaInicial = $("#fechaInicial").val();
 			var fechaFinal = $("#fechaFinal").val();
@@ -232,6 +251,7 @@
 		            try {
 	                    $.each(datos.data, function (count, object) {
 	                        tabla += '<tr>'
+	                        			+'<td>'+remision+'</td>'
 	                        			+'<td>'+object.nombreFrente+'</td>'
 	                        			+'<td>'+object.identificacion+'</td>'
 	                        			+'<td>'+object.ubicacion+'</td>'
@@ -247,7 +267,53 @@
 		    });
 		    $("#tablaFrente tbody").append(tabla);
 		    $("#divFrente").show("slide");
-		    $("#divApoyo").show("slide");
+		    //$("#divApoyo").show("slide");
+			$("#divCantidades").empty();
+			var tabla = '';
+			var html = '';
+			var conversionInicial = 0;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/elemento/elementomaterial/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+	                    $.each(datos.data, function (count, object) {
+	                    	conversionInicial = (object.conversion)*(object.materialLongitud);
+	                    	html +=	'<div class="form-group col-md-6">'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
+										+ '<label class="control-label" for="count'+object.idMaterial+'"></label>'
+										+ '<input class="form-control currency" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="number" min="1" value="1" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">Piezas por Peso</label>'
+										+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="'+object.conversion+'"></input>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">Peso por Varilla</label>'
+										+ '<input type="text" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
+										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">Longitud</label>'
+										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
+										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
+										+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
+									+ '</div>';
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion del Frente:\n\n" + otroobj);
+		        }
+		    });
+		    $("#tablaInformacionVarillas tbody").append(tabla);
+		    $("#divCantidades").append(html);
+		    $("#divCantidadesBotones").show('slide');
+		    $("#divDetalle").show('slide');
+		    $("#divDetalleSolicita").show('slide');
+		    $("#divDetalleCancelar").show('slide');
 		});
 		$( "#cmbApoyo" ).change(function() {
 			var value = this.value;
@@ -258,6 +324,7 @@
 			var value = this.value;
 			var tabla = '';
 			var html = '';
+			var conversionInicial = 0;
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/elemento/elementomaterial/",
@@ -271,14 +338,19 @@
 		        success: function (datos) {
 		            try {
 	                    $.each(datos.data, function (count, object) {
+	                    	conversionInicial = (object.conversion)*(object.materialLongitud);
 	                    	html +=	'<div class="form-group col-md-6">'
 										+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 										+ '<label class="control-label" for="count'+object.idMaterial+'"></label>'
 										+ '<input class="form-control currency" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="number" min="1" value="1" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
-										+ '<label class="control-label" for="txt'+object.idMaterial+'">Cantidad Total</label>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">Piezas por Peso</label>'
 										+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="'+object.conversion+'"></input>'
-										+ '<label class="control-label" for="txt'+object.idMaterial+'">Peso Real por Varilla</label>'
-										+ '<input type="text" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+object.conversion+'"></input>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">Peso por Varilla</label>'
+										+ '<input type="text" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
+										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">Longitud</label>'
+										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
+										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
 										+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
 									+ '</div>';
 	                    });
@@ -298,53 +370,54 @@
 		    $("#divDetalleCancelar").show('slide');
 		});
 		$( "#btnAgregaVarilla" ).click(function() {
-			var apoyo = $("#cmbApoyo").val();
-			var apoyoText = $("#cmbApoyo option[value='"+apoyo+"']").text();
-			var elemento = $("#cmbElemento").val();
-			var elementoText = $("#cmbElemento option[value='"+elemento+"']").text();
+			$("#divPesoTotal").empty();
+			$("#txtPesoTotal").empty();
 			var tabla = '';
 			var idMaterial = 0;
 			var pesoMaterial = 0;
 			var material = '';
 			var cantidadMaterial = 0;
-			if(apoyo == 0){
-				mensajeWarning("<b>Debes elegir un Apoyo.</b>");
-				return false;
-			}
-			if(elemento == 0){
-				mensajeWarning("<b>Debes elegir un Elemento.</b>");
-				return false;
-			}
 			var colors = ["primary", "success", "info", "warning", "default", "danger"];
 			var randomColor = Math.floor(Math.random()*colors.length);
 			var color = colors[randomColor];
+			var apoyo = 1;
+			var elemento = 1;
+			var pesoTotal = 0;
 
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
+				longitud = $("#txt"+idMaterial+"Longitud").val();
 				pesoMaterial = this.value;
+				pesoTotal += parseFloat(pesoMaterial);
 				material = $(this).attr("attrMaterial");
 				tabla += '<tr class="'+color+'">'
-							+'<td class="text-center">'+apoyoText+'</td>'
-							+'<td class="text-center">'+elementoText+'</td>'
 							+'<td class="text-center">'+material+'</td>'
 							+'<td class="text-center">'+pesoMaterial+'</td>'
 							+'<td class="text-center">'+cantidadMaterial+'</td>'
+							+'<td class="text-center">'+longitud+'</td>'
 							//+'<td class="text-center">'+parseFloat(total).toFixed(4)+'</td>'
 							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span</td>'
 							+'<td style="display:none" class="text-center">'
-								+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'" />'
+								+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
 							+'</td>'
 						+'<tr>';
 			});
 			$("#tablaApoyoElemento").append(tabla);
 			$("#cmbElemento").val(0);
+			$("#divPesoTotal").append(pesoTotal);
+			$("#txtPesoTotal").val(pesoTotal);
 		});
 		$( "#btnSolicitar" ).click(function() {
 			var orden = $("#cmbOrden").val();
+			var remision = $("#remision").val();
 			var frente = $("#cmbFrente").val();
+			var funcion = $("#cmbFuncion").val();
 			var fechaInicial = $("#fechaInicial").val();
 			var fechaFinal = $("#fechaFinal").val();
+			var pesoTara = $("#txtTara").val();
+			var pesoBruto = $("#txtPesoBruto").val();
+			var pesoTotal = $("#txtPesoTotal").val();
         	var datos = [];
 			$(":input[class=dataVarilla]").each(function(index, element) {
 				datos.push({"data": this.value});
@@ -356,10 +429,15 @@
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
+		        		remision: remision,
 		        		idOrden: orden,
 		        		idFrente: frente,
+		        		funcion: funcion,
 		        		fechaInicial: fechaInicial,
 		        		fechaFinal: fechaFinal,
+		        		pesoTara: pesoTara,
+		        		pesoBruto: pesoBruto,
+		        		pesoTotal: pesoTotal,
 		        		json: json
 						},
 		        beforeSend: function (objeto) {
@@ -398,7 +476,10 @@
 		function cantidadMaterial (id){
 			var value = $("#count"+id).val();
 			var original = parseFloat($("#txt"+id+"Original").val());
-			var total = (value)*(original);
+			var conversion = parseFloat($("#txt"+id+"Conversion").val());
+			var longitud = parseFloat($("#txt"+id+"Longitud").val());
+			var val = conversion * longitud;
+			var total = value / val;
 			$("#txt"+id).val(parseFloat(total).toFixed(4));
 		}
 		$( "#btnImprimir" ).click(function() {
@@ -406,9 +487,48 @@
 			var href = "http://localhost:8000/ProgramaSuministro/"+folio;
 			$("#framePdf").attr("src", href);
 		});
+		function calculaPeso(){
+			$("#divPesoBruto").empty();
+			$("#txtPesoBruto").val('');
+			var tara = $("#txtTara").val();
+			var total = $("#txtPesoTotal").val();
+			var bruto = parseFloat(tara)+parseFloat(total);
+			var brutoDecimal = bruto.toFixed(3);
+			$("#divPesoBruto").append(brutoDecimal);
+			$("#txtPesoBruto").val(brutoDecimal);
+		}
+		comboFuncion = function () {
+			var tipo = 1;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asignar/comboFuncionElegido/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		tipo: tipo
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('#cmbFuncion').empty();
+		                $('#cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('#cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
 	    $(function () {
 	    	comboFrente();
 	    	comboApoyo();
+	    	comboFuncion();
 	    });
 	</script>
 {% endblock %}

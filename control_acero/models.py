@@ -191,6 +191,11 @@ class Apoyo(models.Model):
 
 class ProgramaSuministro(models.Model):
 	idOrden = models.IntegerField()
+	remision = models.IntegerField(null=True)
+	funcion = models.ForeignKey(Funcion, null=True)
+	pesoTara = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	pesoBruto = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	pesoNeto = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	frente = models.ForeignKey(Frente)
 	fechaInicial = models.DateField()
 	fechaFinal = models.DateField()
@@ -207,10 +212,11 @@ class ProgramaSuministro(models.Model):
 class ProgramaSuministroDetalle(models.Model):
 	programaSuministro = models.ForeignKey(ProgramaSuministro, null=True)
 	material = models.ForeignKey(Material, null=True)
-	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	cantidad = models.IntegerField(null=True)
+	peso = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	cantidad = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	apoyo = models.ForeignKey(Apoyo)
 	elemento = models.ForeignKey(Elemento)
+	longitud = models.IntegerField(null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

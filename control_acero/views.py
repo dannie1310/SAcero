@@ -219,7 +219,7 @@ def suministroAsignarComboPrograma(request):
 	array = {}
 	mensaje = {}
 	data = []
-	programaSuministro = EtapaAsignacion.objects.all().values_list('programaSuministro_id', flat=True).distinct()
+	programaSuministro = ProgramaSuministro.objects.all().values_list('id', flat=True).distinct()
 	for p in programaSuministro:
 		resultado = {"idPrograma":p}
 		data.append(resultado)
@@ -231,7 +231,7 @@ def suministroAsignarComboFuncion(request):
 	array = {}
 	mensaje = {}
 	data = []
-	controlFuncion = EtapaAsignacion.objects.all().values_list('funcion_id', flat=True).distinct()
+	controlFuncion = ProgramaSuministro.objects.all().values_list('funcion_id', flat=True).distinct()
 	for cf in controlFuncion:
 		funcion = Funcion.objects.filter(id=cf)
 		for f in funcion:
@@ -285,44 +285,50 @@ def suministroAsignarCantidades(request):
 	dataFiles = []
 	idPrograma = request.POST.get('programa', 1)
 	idFuncion = request.POST.get('funcion', 1)
-	suministro = EtapaAsignacion.objects.values('id',
-													'pesoSolicitado',
-													'pesoRecibido',
-													'controlAsignacion_id',
-													'funcion_id',
-													'programaSuministro_id'
-													).filter(
-													programaSuministro_id = idPrograma,
-													funcion_id=idFuncion)
-	for s in suministro:
-		resultado = {"id":s["id"],
-						"pesoSolicitado":s["pesoSolicitado"],
-						"pesoRecibido":s["pesoRecibido"],
-						"idAsignacion":s["controlAsignacion_id"],
-						"idFuncion":s["funcion_id"],
-						"idPrograma":s["programaSuministro_id"]}
-		data.append(resultado)
-		suministroFiles = Archivo.objects.values('id',
-													'archivo',
-													'etapaAsignacion_id',
-													'extension',
-													'nombreArchivo',
-													'tipo'
-													).filter(
-													etapaAsignacion_id = s["id"])
-		for sf in suministroFiles:
-			archivo = sf["archivo"]
-			extension = sf["extension"]
-			ext = extensiones(extension)
-			resultado = {"id":sf["id"],
-							"etapaAsignacionId":sf["etapaAsignacion_id"],
-							"nombreArchivo":sf["nombreArchivo"],
-							"tipo":sf["tipo"],
-							"file":"data:"+ext+";charset=utf-8;base64,"+archivo}
-			dataFiles.append(resultado)
-	array = mensaje
-	array["data"]=data
-	array["files"]=dataFiles
+	p = ProgramaSuministroDetalle.objects.values('id', 'material__nombre').filter(programaSuministro__id = idPrograma,
+														programaSuministro__funcion__id=idFuncion) \
+												.annotate(pesoMaterial = Sum('peso')) \
+												.annotate(cantidadMaterial = Sum('cantidad')) \
+												.order_by('material_id')
+	print p.query
+	# suministro = EtapaAsignacion.objects.values('id',
+	# 												'pesoSolicitado',
+	# 												'pesoRecibido',
+	# 												'controlAsignacion_id',
+	# 												'funcion_id',
+	# 												'programaSuministro_id'
+	# 												).filter(
+	# 												programaSuministro_id = idPrograma,
+	# 												funcion_id=idFuncion)
+	# for s in suministro:
+	# 	resultado = {"id":s["id"],
+	# 					"pesoSolicitado":s["pesoSolicitado"],
+	# 					"pesoRecibido":s["pesoRecibido"],
+	# 					"idAsignacion":s["controlAsignacion_id"],
+	# 					"idFuncion":s["funcion_id"],
+	# 					"idPrograma":s["programaSuministro_id"]}
+	# 	data.append(resultado)
+	# 	suministroFiles = Archivo.objects.values('id',
+	# 												'archivo',
+	# 												'etapaAsignacion_id',
+	# 												'extension',
+	# 												'nombreArchivo',
+	# 												'tipo'
+	# 												).filter(
+	# 												etapaAsignacion_id = s["id"])
+	# 	for sf in suministroFiles:
+	# 		archivo = sf["archivo"]
+	# 		extension = sf["extension"]
+	# 		ext = extensiones(extension)
+	# 		resultado = {"id":sf["id"],
+	# 						"etapaAsignacionId":sf["etapaAsignacion_id"],
+	# 						"nombreArchivo":sf["nombreArchivo"],
+	# 						"tipo":sf["tipo"],
+	# 						"file":"data:"+ext+";charset=utf-8;base64,"+archivo}
+	# 		dataFiles.append(resultado)
+	# array = mensaje
+	# array["data"]=data
+	# array["files"]=dataFiles
 	return JsonResponse(array)
 
 def extensiones(extension):
@@ -1083,11 +1089,21 @@ def programaSave(request):
 	mensaje = {}
 	idOrden = request.POST.get('idOrden', 0)
 	idFrente = request.POST.get('idFrente', 0)
+	funcion = request.POST.get('funcion', 0)
 	fechaInicial = request.POST.get('fechaInicial', 0)
 	fechaFinal = request.POST.get('fechaFinal', 0)
+	remision = request.POST.get('remision', 0)
+	pesoBruto = request.POST.get('pesoBruto', 0)
+	pesoTara = request.POST.get('pesoTara', 0)
+	pesoTotal = request.POST.get('pesoTotal', 0)
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
 	p = ProgramaSuministro(idOrden=idOrden,
+							remision=remision,
+							funcion_id=funcion,
+							pesoBruto=pesoBruto,
+							pesoTara=pesoTara,
+							pesoNeto=pesoTotal,
 							fechaInicial=datetime.strptime(fechaInicial, '%d/%m/%Y'),
 							fechaFinal=datetime.strptime(fechaFinal, '%d/%m/%Y'),
 							frente_id=idFrente,
@@ -1099,14 +1115,17 @@ def programaSave(request):
 		apoyo = splitData[0]
 		elemento = splitData[1]
 		idMaterial = splitData[2]
-		pesoMaterial= splitData[3]
-		cantidadMaterial = splitData[4]
+		cantidadMaterial= splitData[3]
+		pesoMaterial = splitData[4]
+		longitud = splitData[4]
 		pd = ProgramaSuministroDetalle(programaSuministro_id=p.pk,
 										material_id=idMaterial,
 										apoyo_id=apoyo,
 										elemento_id=elemento,
 										peso=pesoMaterial,
-										cantidad=cantidadMaterial)
+										cantidad=cantidadMaterial,
+										longitud=longitud
+										)
 		pd.save();
 	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente.", "folio":p.id}
 	array = mensaje
@@ -1138,35 +1157,33 @@ def elementoMaterial(request):
 	mensaje = {}
 	data = []
 	idElemento = request.POST.get('idElemento', 0)
-	elemento = Elemento.objects.values('id',
+	elemento = Material.objects.values(
+										'id',
 										'nombre',
-										'material__id',
-										'material__nombre',
-										'material__numero',
-										'material__peso',
-										'material__diametro',
-										'material__proveedor',
-										'material__longitud',
-										'material__factor__pva',
-										'material__factor__factorPulgada',
-										'material__factor__pi').filter(id=idElemento)
+										'numero',
+										'peso',
+										'diametro',
+										'proveedor',
+										'longitud',
+										'factor__pva',
+										'factor__factorPulgada',
+										'factor__pi').filter()
 	#print elemento.query
 	for e in elemento:
-		diametro = e['material__diametro']
-		pva = e['material__factor__pva']
-		factorPulgada = e['material__factor__factorPulgada']
-		pi = e['material__factor__pi']
+		diametro = e['diametro']
+		pva = e['factor__pva']
+		factorPulgada = e['factor__factorPulgada']
+		pi = e['factor__pi']
 		diametroMetro = diametro / 1000
 		factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
-		factorCalculadoDecimal = "%.4f" % ((factorCalculado) * e['material__longitud'])
-		resultado = {"idElemento":e["id"],
-						"nombreElemento":e['nombre'],
-						"idMaterial":e['material__id'],
-						"nombreMaterial":e['material__nombre'],
-						"materialNumero":e['material__numero'],
-						"materialPeso":e['material__peso'],
-						"materialProveedor":e['material__proveedor'],
-						"materialLongitud":e['material__longitud'],
+		factorCalculadoDecimal = "%.4f" % factorCalculado
+		resultado = {
+						"idMaterial":e['id'],
+						"nombreMaterial":e['nombre'],
+						"materialNumero":e['numero'],
+						"materialPeso":e['peso'],
+						"materialProveedor":e['proveedor'],
+						"materialLongitud":e['longitud'],
 						"conversion":factorCalculadoDecimal}
 		data.append(resultado)
 	array["data"]=data
