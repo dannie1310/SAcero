@@ -56,14 +56,12 @@
 					<thead>
 						<tr>
 							<th class="text-center">No</th>
-							<th class="text-center">Peso Solicitado</th>
-							<th class="text-center">Peso Recibido</th>
-							<th class="text-center">Peso por Asignar</th>
+							<th class="text-center">Nombre Material</th>
+							<th class="text-center">Peso</th>
+							<th class="text-center">Cantidad</th>
 							<th class="text-center">Proveedores Funciones</th>
 							<th class="text-center">Elige Proveedor</th>
 							<th class="text-center">Asignar Taller</th>
-							<th class="text-center">Certificado</th>
-							<th class="text-center">Remisión</th>
 							<th class="text-center">Transporte</th>
 							<th class="text-center">Asignar Cantidad</th>
 							<th class="text-center">Asignar</th>
@@ -325,9 +323,10 @@
 	                        tabla += '<tr>'
 	                        			//+'<td>'+object.id+'</td>'
 	                        		tabla +='<td>'+idTabla+'</td>';
-	                        		tabla +='<td>'+object.pesoSolicitado+'</td>';
-	                        		tabla +='<td>'+object.pesoRecibido+'</td>';
-	                        		tabla +='<td class="warning"><div id="faltante_'+count+'">'+object.pesoRecibido+'</div></td>';
+	                        		tabla +='<td>'+object.materialNombre+'</td>';
+	                        		tabla +='<td>'+object.peso+'</td>';
+	                        		tabla +='<td class="warning"><div id="faltante_'+count+'">'+object.peso+'</div></td>';
+									tabla +='<td>'+object.cantidad+'</td>';
 	                        		tabla +='<td>';
 	                        			tabla +='<select name="cmbTipoFuncion'+count+'" count="'+count+'" id="cmbTipoFuncion'+count+'" class="cmbTipoFuncion form-control">';
 										tabla +='</select>';

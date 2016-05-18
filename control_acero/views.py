@@ -285,50 +285,19 @@ def suministroAsignarCantidades(request):
 	dataFiles = []
 	idPrograma = request.POST.get('programa', 1)
 	idFuncion = request.POST.get('funcion', 1)
-	p = ProgramaSuministroDetalle.objects.values('id', 'material__nombre').filter(programaSuministro__id = idPrograma,
+	ps = ProgramaSuministroDetalle.objects.values('id', 'material__nombre').filter(programaSuministro__id = idPrograma,
 														programaSuministro__funcion__id=idFuncion) \
 												.annotate(pesoMaterial = Sum('peso')) \
 												.annotate(cantidadMaterial = Sum('cantidad')) \
 												.order_by('material_id')
-	print p.query
-	# suministro = EtapaAsignacion.objects.values('id',
-	# 												'pesoSolicitado',
-	# 												'pesoRecibido',
-	# 												'controlAsignacion_id',
-	# 												'funcion_id',
-	# 												'programaSuministro_id'
-	# 												).filter(
-	# 												programaSuministro_id = idPrograma,
-	# 												funcion_id=idFuncion)
-	# for s in suministro:
-	# 	resultado = {"id":s["id"],
-	# 					"pesoSolicitado":s["pesoSolicitado"],
-	# 					"pesoRecibido":s["pesoRecibido"],
-	# 					"idAsignacion":s["controlAsignacion_id"],
-	# 					"idFuncion":s["funcion_id"],
-	# 					"idPrograma":s["programaSuministro_id"]}
-	# 	data.append(resultado)
-	# 	suministroFiles = Archivo.objects.values('id',
-	# 												'archivo',
-	# 												'etapaAsignacion_id',
-	# 												'extension',
-	# 												'nombreArchivo',
-	# 												'tipo'
-	# 												).filter(
-	# 												etapaAsignacion_id = s["id"])
-	# 	for sf in suministroFiles:
-	# 		archivo = sf["archivo"]
-	# 		extension = sf["extension"]
-	# 		ext = extensiones(extension)
-	# 		resultado = {"id":sf["id"],
-	# 						"etapaAsignacionId":sf["etapaAsignacion_id"],
-	# 						"nombreArchivo":sf["nombreArchivo"],
-	# 						"tipo":sf["tipo"],
-	# 						"file":"data:"+ext+";charset=utf-8;base64,"+archivo}
-	# 		dataFiles.append(resultado)
-	# array = mensaje
-	# array["data"]=data
-	# array["files"]=dataFiles
+	for p in ps:
+		resultado = {"id":p["id"],
+						"materialNombre":p["material__nombre"],
+						"peso":p["pesoMaterial"],
+						"cantidad":p["cantidadMaterial"]
+					}
+		data.append(resultado)
+	array["data"]=data
 	return JsonResponse(array)
 
 def extensiones(extension):
