@@ -245,19 +245,18 @@ class ControlAsignacion(models.Model):
 		return self.idOrden
 
 class EtapaAsignacion(models.Model):
-	pesoSolicitado = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
-	pesoRecibido = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	peso = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	cantidad = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	tiempoEntrega = models.IntegerField(null=True)
 	programaSuministro = models.ForeignKey(ProgramaSuministro, null=True)
-	controlAsignacion = models.ForeignKey(ControlAsignacion)
+	programaSuministroDetalle = models.ForeignKey(ProgramaSuministroDetalle, null=True)
 	funcion = models.ForeignKey(Funcion)
 	taller = models.ForeignKey(Taller, null=True)
 	transporte = models.ForeignKey(Transporte, null=True)
-	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
+	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	idEtapaPertenece = models.IntegerField(null=True)
 	despiece = models.ForeignKey(Despiece, null=True)
 	estatusEtapa = models.IntegerField()
-	piezasRecibidas = models.IntegerField(null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

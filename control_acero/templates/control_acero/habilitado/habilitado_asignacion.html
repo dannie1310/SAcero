@@ -24,10 +24,12 @@
 				<table id="tablaSuministro" class="table table-hover">
 					<thead>
 						<tr>
-							<th class="text-center"># Varilla</th>
-							<th class="text-center">Diametro</th>
-							<th class="text-center">Piezas</th>
-							<th class="text-center">Cantidad Entregada</th>
+							<th class="text-center">Material Nombre</th>
+							<th class="text-center">Despiece Nomenclatura</th>
+							<th class="text-center">Despiece Figura</th>
+							<th class="text-center">Despiece Longitud</th>
+							<th class="text-center">Despiece Cantidad</th>
+							<th class="text-center">Despiece Peso</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -290,6 +292,8 @@
 			var elemento = this.value;
 			var count = 0;
 			var idTabla = 1;
+			var total = 0;
+			var totalDespiecePeso = 0;
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/habilitado/asignar/elemento/",
@@ -305,46 +309,37 @@
 		        success: function (datos) {
 		            try {
 	                    $.each(datos.data, function (count, object) {
+	                    	if(total != object.materialId && total != 0){
+	                    		tabla += '<tr class="info">';
+	                    			tabla += '<td><b>Totales</b></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td><b>'+totalDespiecePeso.toFixed(4)+'</b></td>';
+	                    		tabla += '</tr>';
+	                    		totalDespiecePeso = 0;
+	                    	}
 	                    	tabla += '<tr>';
-	                    		tabla += '<td>'+object.materialNumero+'</td>'
-	                    		tabla += '<td>'+object.materialDiametro+'</td>'
-	                    		if(object.materialNumero == 4){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroCuatro)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroCuatro+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 5){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroCinco)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroCinco+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 6){
-									tabla += '<td>'+parseFloat(object.suministroNumeroSeis)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroSeis+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 7){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroSiete)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroSiete+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 8){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroOcho)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroOcho+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 9){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroNueve)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroNueve+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 10){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroDiez)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroDiez+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 11){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroOnce)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroOnce+'</td>'
-	                    		}
-	                    		if(object.materialNumero == 12){
-	                    			tabla += '<td>'+parseFloat(object.suministroNumeroDoce)/parseFloat(object.materialPeso)+'</td>'
-	                    			tabla += '<td>'+object.suministroNumeroDoce+'</td>'
-	                    		}
+	                    		tabla += '<td>'+object.materialNombre+'</td>'
+	                    		tabla += '<td>'+object.despieceNomenclatura+'</td>'
+	                    		tabla += '<td>'+object.despieceFigura+'</td>'
+	                    		tabla += '<td>'+object.despieceLongitud+'</td>'
+	                    		tabla += '<td>'+object.despieceCantidad+'</td>'
+	                    		tabla += '<td>'+object.despiecePeso+'</td>'
 	                    	tabla += '</tr>';
+	                    	total = object.materialId;
+	                    	totalDespiecePeso += parseFloat(object.despiecePeso);
+	                    	if(count == datos.data.length-1){
+	                    		tabla += '<tr class="info">';
+	                    			tabla += '<td><b>Totales</b></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td></td>';
+	                    			tabla += '<td><b>'+totalDespiecePeso.toFixed(4)+'</b></td>';
+	                    		tabla += '</tr>';
+	                    	}
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);

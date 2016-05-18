@@ -80,12 +80,10 @@
 						</tr>
 						<tr>
 							<th class="text-center">Pertenece al Registro</th>
-							<th class="text-center">Peso Solicitado</th>
-							<th class="text-center">Peso Recibido</th>
+							<th class="text-center">Peso</th>
+							<th class="text-center">Cantidad</th>
 							<th class="text-center">Proveedor Asignado</th>
 							<th class="text-center">Taller Asignado</th>
-							<th class="text-center">Certificado</th>
-							<th class="text-center">Remisión</th>
 							<th class="text-center">Transporte Asignado</th>
 							<th class="text-center">Cantidad Asignada</th>
 						</tr>
@@ -105,13 +103,13 @@
 			var datos = [];
 			var datosString = '';
 			$("input.dataAsignacion[type=text]").each(function(index, element) {
-				if(this.name == "txtAsignacion"){
+				if(this.name == "txtDetalleSuministro"){
 					datosString += this.value+"|";
 				}
-				if(this.name == "txtPesoSolicitado"){
+				if(this.name == "txtPeso"){
 					datosString += this.value+"|";
 				}
-				if(this.name == "txtPesoRecibido"){
+				if(this.name == "txtCantidad"){
 					datosString += this.value+"|";
 				}
 				if(this.name == "txtFuncion"){
@@ -127,9 +125,6 @@
 					datosString += this.value+"|";
 				}
 				if(this.name == "txtPrograma"){
-					datosString += this.value+"|";
-				}
-				if(this.name == "txtEtapaPertenece"){
 					datosString += this.value;
 					datos.push({"data": datosString});
 					datosString = '';
@@ -321,12 +316,10 @@
 		            try {
 	                    $.each(datos.data, function (count, object) {
 	                        tabla += '<tr>'
-	                        			//+'<td>'+object.id+'</td>'
 	                        		tabla +='<td>'+idTabla+'</td>';
 	                        		tabla +='<td>'+object.materialNombre+'</td>';
-	                        		tabla +='<td>'+object.peso+'</td>';
 	                        		tabla +='<td class="warning"><div id="faltante_'+count+'">'+object.peso+'</div></td>';
-									tabla +='<td>'+object.cantidad+'</td>';
+	                        		tabla +='<td>'+object.cantidad+'</td>';
 	                        		tabla +='<td>';
 	                        			tabla +='<select name="cmbTipoFuncion'+count+'" count="'+count+'" id="cmbTipoFuncion'+count+'" class="cmbTipoFuncion form-control">';
 										tabla +='</select>';
@@ -340,24 +333,6 @@
 										tabla +='</select>';
 	                        		tabla +='</td>';
 	                        		tabla +='<td>';
-	                        					tabla +='<span style="cursor:pointer;" class="glyphicon glyphicon-eye-open" data-toggle="modal" data-count="'+count+'" data-target="#modalCertificado" aria-hidden="true">';
-							                    $.each(datos.files, function (countFile, objectFile) {
-							                    	if(object.id == objectFile.etapaAsignacionId && objectFile.tipo == 1){
-							                    		tabla +='<input type="hidden" class="showImage_'+count+'" nombre="'+objectFile.nombreArchivo+'" name="txt" value="'+objectFile.file+'" />';
-							                    	}
-							                   	});
-	                        					tabla +='</span>';
-	                        		tabla +='</td>';
-	                        		tabla +='<td>';
-	                        					tabla +='<span style="cursor:pointer;" class="glyphicon glyphicon-eye-open" data-toggle="modal" data-count="'+count+'" data-target="#modalRemision" aria-hidden="true">';
-							                    $.each(datos.files, function (countFile, objectFile) {
-							                    	if(object.id == objectFile.etapaAsignacionId && objectFile.tipo == 2){
-							                    		tabla +='<input type="hidden" class="showImageRemision_'+count+'" nombre="'+objectFile.nombreArchivo+'" name="txt" value="'+objectFile.file+'" />';
-							                    	}
-							                   	});
-	                        					tabla +='</span>';
-	                        		tabla +='</td>';
-	                        		tabla +='<td>';
 	                        			tabla +='<select name="cmbTransporte'+count+'" id="cmbTransporte'+count+'" class="cmbTransporte form-control">';
 										tabla +='</select>';
 	                        		tabla +='</td>';
@@ -365,10 +340,9 @@
 	                        		tabla +='<td><button onClick=agregaAsignacion('+count+') type="button" class="btn btn-info btnAsignar" name="btnAsignar'+count+'" id="btnAsignar'+count+'">Asignar</button></td>';
 	                        		tabla +='<td style="display:none;">';
 	                        			tabla +='<input type="text" readonly disabled name="idTabla'+count+'" id="idTabla'+count+'" value="'+idTabla+'" />';
-	                        			tabla +='<input type="text" readonly disabled name="idAsignacion'+count+'" id="idAsignacion'+count+'" value="'+object.idAsignacion+'" />';
-	                        			tabla +='<input type="text" readonly disabled name="pesoSolicitado'+count+'" id="pesoSolicitado'+count+'" value="'+object.pesoSolicitado+'" />';
-	                        			tabla +='<input type="text" readonly disabled name="pesoRecibido'+count+'" id="pesoRecibido'+count+'" value="'+object.pesoRecibido+'" />';
-	                        			tabla +='<input type="text" readonly disabled name="etapaPertenece'+count+'" id="etapaPertenece'+count+'" value="'+object.id+'" />';
+	                        			tabla +='<input type="text" readonly disabled name="idDetalleSuiministro'+count+'" id="idDetalleSuiministro'+count+'" value="'+object.id+'" />';
+	                        			tabla +='<input type="text" readonly disabled name="pesoSolicitado'+count+'" id="pesoSolicitado'+count+'" value="'+object.peso+'" />';
+	                        			tabla +='<input type="text" readonly disabled name="pesoRecibido'+count+'" id="pesoRecibido'+count+'" value="'+object.cantidad+'" />';
 	                        		tabla +='</td>';
 	                        	tabla +='</tr>';
 	                    	count++;
@@ -396,7 +370,7 @@
 			var posicionReal = (posicion+(1));
 			var programa = $("#cmbPrograma").val();
 			var idTabla = $("#idTabla"+posicion).val();
-			var idAsignacion = $("#idAsignacion"+posicion).val();
+			var idDetalleSuiministro = $("#idDetalleSuiministro"+posicion).val();
 			var pesoSolicitado = $("#pesoSolicitado"+posicion).val();
 			var pesoRecibido = $("#pesoRecibido"+posicion).val();
 			var tipoFuncion = $("#cmbTipoFuncion"+posicion).val();
@@ -407,7 +381,6 @@
 			var transporte = $("#cmbTransporte"+posicion).val();
 			var transporteText = $("#cmbTransporte"+posicion+" option[value='"+transporte+"']").text();
 			var cantidadAsignada = $("#cantidadAsignada"+posicion).val();
-			var etapaPertenece = $("#etapaPertenece"+posicion).val();
 			var faltante = $("#faltante_"+posicion).text();
 			if(tipoFuncion == 0){
 				mensajeWarning("<b>Debes elegir un Tipo de Proveedor para el registro "+posicionReal+".</b>");
@@ -446,20 +419,17 @@
 							+'<td class="text-center">'+pesoRecibido+'</td>'
 							+'<td class="text-center">'+funcionText+'</td>'
 							+'<td class="text-center">'+tallerText+'</td>'
-	                        +'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
-	                        +'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
 							+'<td class="text-center">'+transporteText+'</td>'
 							+'<td class="text-center success">'+cantidadAsignada+'</td>'
 							+'<td style="display:none;" class="text-center">'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtAsignacion" id="txtAsignacion" value="'+idAsignacion+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPesoSolicitado" id="txtPesoSolicitado" value="'+pesoSolicitado+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPesoRecibido" id="txtPesoRecibido" value="'+pesoRecibido+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtDetalleSuministro" id="txtDetalleSuministro" value="'+idDetalleSuiministro+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPeso" id="txtPeso" value="'+pesoSolicitado+'" />'
+								+'<input type="text" disabled readonly class="dataAsignacion" name="txtCantidad" id="txtCantidad" value="'+pesoRecibido+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtFuncion" id="txtIdFuncion" value="'+funcion+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtTaller" id="txtTaller" value="'+taller+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtTransporte" id="txtTransporte" value="'+transporte+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtCantidadAsignada" id="txtCantidadAsignada" value="'+cantidadAsignada+'" />'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPrograma" id="txtPrograma" value="'+programa+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtEtapaPertenece" id="txtEtapaPertenece" value="'+etapaPertenece+'" />'
 							+'</td>'
 						+'</tr>';
 			$("#tablaSuministroAsignado").append(tabla);

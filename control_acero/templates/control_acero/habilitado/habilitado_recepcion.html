@@ -20,12 +20,11 @@
 					<thead>
 						<tr>
 							<th class="text-center">Programa de Suministro</th>
-							<th class="text-center">Peso Solicitado</th>
-							<th class="text-center">Peso Recibido</th>
-							<th class="text-center">Cantidad Asignada</th>
+							<th class="text-center">Material</th>
+							<th class="text-center">Peso</th>
+							<th class="text-center">Cantidad</th>
+							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Taller Asignado</th>
-							<th class="text-center">Certificado</th>
-							<th class="text-center">Remision</th>
 							<th class="text-center">Transporte</th>
 							<th class="text-center">Seleccionar</th>
 						</tr>
@@ -43,14 +42,12 @@
 					<thead>
 						<tr>
 							<th class="text-center">Programa de Suministro</th>
-							<th class="text-center">Peso Solicitado</th>
-							<th class="text-center">Peso Recibido</th>
-							<th class="text-center">Cantidad Asignada</th>
+							<th class="text-center">Material</th>
+							<th class="text-center">Peso</th>
+							<th class="text-center">Cantidad</th>
+							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Taller Asignado</th>
-							<th class="text-center">Certificado</th>
-							<th class="text-center">Remision</th>
 							<th class="text-center">Transporte</th>
-							<th class="text-center">Seleccionar</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -72,9 +69,10 @@
 					var value = this.value;
 					var idEtapa = $("#txtId"+value).val();
 					var suministro = $("#txtIdSuministro"+value).val();
+					var nombre = $("#txtNombreMaterial"+value).val();
 					var funcion = $("#txtIdFuncion"+value).val();
-					var solicitado = $("#txtPesoSolicitado"+value).val();
-					var recibido = $("#txtPesoRecibido"+value).val();
+					var peso = $("#txtPeso"+value).val();
+					var cantidad = $("#txtCantidad"+value).val();
 					var cantidadAsignada = $("#txtCantidadAsignada"+value).val();
 					var taller = $("#txtTaller"+value).val();
 					var tallerTexto = $("#txtTallerTexto"+value).val();
@@ -82,12 +80,11 @@
 					var transporteTexto = $("#txtTransporteTexto"+value).val();
 					tabla += '<tr>'
 								+'<td class="text-center">'+suministro+'</td>'
-								+'<td class="text-center">'+solicitado+'</td>'
-								+'<td class="text-center">'+recibido+'</td>'
+								+'<td class="text-center">'+nombre+'</td>'
+								+'<td class="text-center">'+peso+'</td>'
+								+'<td class="text-center">'+cantidad+'</td>'
 								+'<td class="text-center">'+cantidadAsignada+'</td>'
 								+'<td class="text-center">'+tallerTexto+'</td>'
-								+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
-								+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
 								+'<td class="text-center">'+transporteTexto+'</td>'
 								+'<td style="display:none;" class="text-center">'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+idEtapa+'" />'
@@ -202,20 +199,20 @@
 	                    $.each(datos.data, function (count, object) {
 	                        tabla += '<tr>'
 	                        			+'<td>'+object.programaSuministro+'</td>'
-	                        			+'<td>'+object.pesoSolicitado+'</td>'
-	                        			+'<td>'+object.pesoRecibido+'</td>'
+	                        			+'<td>'+object.nombreMaterial+'</td>'
+	                        			+'<td>'+object.peso+'</td>'
+	                        			+'<td>'+object.cantidad+'</td>'
 	                        			+'<td>'+object.cantidadAsignada+'</td>'
 	                        			+'<td>'+object.tallerNombre+'</td>'
-	                        			+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
-	                        			+'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
 	                        			+'<td>'+object.transportePlacas+'</td>'
 	                        			+'<td><input type="checkbox" name="seleccionados" value="'+count+'" /></span></td>'
 										+'<td style="display:none;" class="text-center">'
 											+'<input type="text" disabled readonly name="txtId'+count+'" id="txtId'+count+'" value="'+object.id+'" />'
 											+'<input type="text" disabled readonly name="txtIdSuministro'+count+'" id="txtIdSuministro'+count+'" value="'+object.programaSuministro+'" />'
+											+'<input type="text" disabled readonly name="txtNombreMaterial'+count+'" id="txtNombreMaterial'+count+'" value="'+object.nombreMaterial+'" />'
 											+'<input type="text" disabled readonly name="txtIdFuncion'+count+'" id="txtIdFuncion'+count+'" value="'+funcion+'" />'
-											+'<input type="text" disabled readonly name="txtPesoSolicitado'+count+'" id="txtPesoSolicitado'+count+'" value="'+object.pesoSolicitado+'" />'
-											+'<input type="text" disabled readonly name="txtPesoRecibido'+count+'" id="txtPesoRecibido'+count+'" value="'+object.pesoRecibido+'" />'
+											+'<input type="text" disabled readonly name="txtPeso'+count+'" id="txtPeso'+count+'" value="'+object.peso+'" />'
+											+'<input type="text" disabled readonly name="txtCantidad'+count+'" id="txtCantidad'+count+'" value="'+object.cantidad+'" />'
 											+'<input type="text" disabled readonly name="txtCantidadAsignada'+count+'" id="txtCantidadAsignada'+count+'" value="'+object.cantidadAsignada+'" />'
 											+'<input type="text" disabled readonly name="txtTaller'+count+'" id="txtTaller'+count+'" value="'+object.tallerId+'" />'
 											+'<input type="text" disabled readonly name="txtTallerTexto'+count+'" id="txtTallerTexto'+count+'" value="'+object.tallerNombre+'" />'
