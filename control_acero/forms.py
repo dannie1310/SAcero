@@ -10,13 +10,13 @@ class ApoyoForm(forms.ModelForm):
 class ElementoForm(forms.ModelForm):
 	class Meta:
 		model = Elemento
-		fields = ['nombre', 'tipo','estatus', 'peso']
+		fields = ['nombre', 'tipo','estatus', 'peso','despiece','material']
 		exclude = ['estatus']
 
 class DespieceForm(forms.ModelForm):
 	class Meta:
 		model = Despiece
-		fields = ['nomenclatura', 'estatus', 'longitud','cantidad','figura','peso']
+		fields = ['nomenclatura', 'estatus', 'longitud','cantidad','figura','peso','material']
 		exclude = ['estatus']
 
 class MaterialForm(forms.ModelForm):
