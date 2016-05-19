@@ -15,10 +15,17 @@
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
-			<div class="form-group col-md-12">
+			<div class="form-group col-md-6">
 				<label  class="control-label" for="cmbElemento">Elige un Elemento:</label>
 				<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
 				</select>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="txtNumber">Indica una Cantidad:</label>
+				<input type="number" class="form-control" name="txtNumber" id="txtNumber" min="1" value="1">
+			</div>
+			<div class="form-group text-center col-md-12">
+				<button type="button" class="btn btn-info" name="btnAgregar" id="btnAgregar">Agregar</button>
 			</div>
 			<div class="col-md-12 table-responsive">
 				<table id="tablaSuministro" class="table table-hover">
@@ -86,6 +93,23 @@
 			var funcionSelect = $("#cmbFuncionSeleccionada").val();
 			var taller = $("#cmbTaller").val();
 			var transporte = $("#cmbTransporte").val();
+			var cantidad = $("#txtNumber").val();
+			var datos = [];
+			var datosAsignacion = [];
+			var datosAsignacionDetalle = [];
+			$("input.dataIdEtapa[type=text]").each(function(index, element) {
+				datos.push({"dataIdEtapa": this.value});
+			});
+			$("input.dataAsignacion[type=text]").each(function(index, element) {
+				datosAsignacion.push({"dataAsignacion": this.value});
+			});
+			$("input.dataAsignacionDetalle[type=text]").each(function(index, element) {
+				datosAsignacionDetalle.push({"dataAsignacionDetalle": this.value});
+			});
+			var json = JSON.stringify(datos);
+			var jsonAsignacion = JSON.stringify(datosAsignacion);
+			var jsonAsignacionDetalle = JSON.stringify(datosAsignacionDetalle);
+
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/habilitado/asignar/save/",
@@ -97,7 +121,11 @@
 		        		elemento: elemento,
 		        		funcionSelect: funcionSelect,
 		        		taller: taller,
-		        		transporte: transporte
+		        		transporte: transporte,
+		        		cantidad:cantidad,
+		        		json: json,
+		        		jsonAsignacion: jsonAsignacion,
+		        		jsonAsignacionDetalle: jsonAsignacionDetalle
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -284,12 +312,13 @@
 		$( "#cmbFuncion" ).change(function() {
 			comboElemento();
 		});
-		$( "#cmbElemento" ).change(function() {
+		$( "#btnAgregar" ).click(function() {
 			$("#tablaSuministro tbody").empty();
 			var tabla = '';
 			var programa = $("#cmbPrograma").val();
 			var funcion = $("#cmbFuncion").val();
-			var elemento = this.value;
+			var elemento =$("#cmbElemento").val();
+			var cantidad =$("#txtNumber").val();
 			var count = 0;
 			var idTabla = 1;
 			var total = 0;
@@ -300,6 +329,7 @@
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
+		        		cantidad: cantidad,
 		        		programa: programa,
 		        		funcion: funcion,
 		        		elemento: elemento
@@ -327,6 +357,7 @@
 	                    		tabla += '<td>'+object.despieceLongitud+'</td>'
 	                    		tabla += '<td>'+object.despieceCantidad+'</td>'
 	                    		tabla += '<td>'+object.despiecePeso+'</td>'
+	                    		tabla += '<td><input type="text" class="dataAsignacionDetalle" readonly disabled value="'+object.despieceId+'|'+object.despiecePeso+'|'+object.materialId+'" /></td>';
 	                    	tabla += '</tr>';
 	                    	total = object.materialId;
 	                    	totalDespiecePeso += parseFloat(object.despiecePeso);
@@ -340,6 +371,16 @@
 	                    			tabla += '<td><b>'+totalDespiecePeso.toFixed(4)+'</b></td>';
 	                    		tabla += '</tr>';
 	                    	}
+	                    });
+	                    $.each(datos.dataTotales, function (countTotales, objectTotales) {
+	                    	tabla += '<tr>';
+	                    		tabla += '<td>'+objectTotales.nombre+'</td>';
+	                    		tabla += '<td>Despiece Total Peso: '+objectTotales.despiecePeso+'</td>';
+	                    		tabla += '<td>Peso Recibido: '+objectTotales.pesoRecibido+'</td>';
+	                    		tabla += '<td>Peso Restante: '+objectTotales.pesoAsignado+'</td>';
+	                    		tabla += '<td><input type="text" class="dataIdEtapa" readonly disabled value="'+objectTotales.idEtapa+'" /></td>';
+	                    		tabla += '<td><input type="text" class="dataAsignacion" readonly disabled value="'+objectTotales.despiecePeso+'|'+objectTotales.pesoRecibido+'|'+objectTotales.pesoAsignado+'|'+objectTotales.idMaterial+'" /></td>';
+	                    	tabla += '</tr>';
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
@@ -383,17 +424,6 @@
 	                        +'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
 							+'<td class="text-center">'+transporteText+'</td>'
 							+'<td class="text-center success">'+cantidadAsignada+'</td>'
-							+'<td style="display:none;" class="text-center">'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtAsignacion" id="txtAsignacion" value="'+idAsignacion+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPesoSolicitado" id="txtPesoSolicitado" value="'+pesoSolicitado+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPesoRecibido" id="txtPesoRecibido" value="'+pesoRecibido+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtFuncion" id="txtIdFuncion" value="'+funcion+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtTaller" id="txtTaller" value="'+taller+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtTransporte" id="txtTransporte" value="'+transporte+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtCantidadAsignada" id="txtCantidadAsignada" value="'+cantidadAsignada+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtPrograma" id="txtPrograma" value="'+programa+'" />'
-								+'<input type="text" disabled readonly class="dataAsignacion" name="txtEtapaPertenece" id="txtEtapaPertenece" value="'+etapaPertenece+'" />'
-							+'</td>'
 						+'</tr>';
 			$("#tablaSuministroAsignado").append(tabla);
 		}

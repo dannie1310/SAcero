@@ -255,7 +255,10 @@ class EtapaAsignacion(models.Model):
 	transporte = models.ForeignKey(Transporte, null=True)
 	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	idEtapaPertenece = models.IntegerField(null=True)
-	despiece = models.ForeignKey(Despiece, null=True)
+	EtapaAsignacionDespiece = models.ManyToManyField(
+		'EtapaAsignacionDespiece',
+		blank=True,
+	)
 	estatusEtapa = models.IntegerField()
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
@@ -274,6 +277,40 @@ class EtapaAsignacion(models.Model):
 	    (1, 'Total'),
 	)
 	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class EtapaAsignacionDespiece(models.Model):
+	despieceTotal = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	pesoRecibido = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	pesoRestante = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	material = models.ForeignKey(Material)
+	elemento = models.ForeignKey(Elemento)
+	cantidad = models.IntegerField(null=True)
+	EtapaAsignacionDespieceDetalle = models.ManyToManyField(
+		'EtapaAsignacionDespieceDetalle',
+		blank=True,
+	)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class EtapaAsignacionDespieceDetalle(models.Model):
+	despiece = models.ForeignKey(Despiece)
+	despiecePeso = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
