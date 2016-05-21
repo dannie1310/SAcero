@@ -22,7 +22,7 @@ class DespieceForm(forms.ModelForm):
 class MaterialForm(forms.ModelForm):
 	class Meta:
 		model = Material
-		fields = ['nombre', 'estatus', 'diametro','peso','longitud','proveedor','tipo','numero', 'factor']
+		fields = ['nombre', 'estatus', 'diametro','peso','longitud','proveedor','tipo','numero', 'imagen', 'factor']
 		exclude = ['estatus']
 		widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),

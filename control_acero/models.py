@@ -59,6 +59,7 @@ class Material(models.Model):
 	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	longitud = models.IntegerField(null=True)
 	factor = models.ForeignKey(Factor, null=True)
+	imagen = models.FileField(upload_to='materiales', null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -244,7 +245,7 @@ class ControlAsignacion(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.idOrden
 
-class EtapaAsignacion(models.Model):
+class Etapa(models.Model):
 	peso = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	cantidad = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	tiempoEntrega = models.IntegerField(null=True)
@@ -255,8 +256,8 @@ class EtapaAsignacion(models.Model):
 	transporte = models.ForeignKey(Transporte, null=True)
 	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	idEtapaPertenece = models.IntegerField(null=True)
-	EtapaAsignacionDespiece = models.ManyToManyField(
-		'EtapaAsignacionDespiece',
+	EtapaDespiece = models.ManyToManyField(
+		'EtapaDespiece',
 		blank=True,
 	)
 	estatusEtapa = models.IntegerField()
@@ -282,15 +283,15 @@ class EtapaAsignacion(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
-class EtapaAsignacionDespiece(models.Model):
+class EtapaDespiece(models.Model):
 	despieceTotal = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	pesoRecibido = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	pesoRestante = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	material = models.ForeignKey(Material)
 	elemento = models.ForeignKey(Elemento)
 	cantidad = models.IntegerField(null=True)
-	EtapaAsignacionDespieceDetalle = models.ManyToManyField(
-		'EtapaAsignacionDespieceDetalle',
+	EtapaDespieceDetalle = models.ManyToManyField(
+		'EtapaDespieceDetalle',
 		blank=True,
 	)
 	ESTATUSTABLE = (
@@ -303,7 +304,7 @@ class EtapaAsignacionDespiece(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
-class EtapaAsignacionDespieceDetalle(models.Model):
+class EtapaDespieceDetalle(models.Model):
 	despiece = models.ForeignKey(Despiece)
 	despiecePeso = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	ESTATUSTABLE = (
@@ -318,7 +319,7 @@ class EtapaAsignacionDespieceDetalle(models.Model):
 
 class Archivo(models.Model):
 	archivo = models.BinaryField()
-	etapaAsignacion = models.ForeignKey(EtapaAsignacion, null=True)
+	etapa = models.ForeignKey(Etapa, null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

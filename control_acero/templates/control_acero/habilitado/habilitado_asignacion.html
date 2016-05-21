@@ -357,7 +357,7 @@
 	                    		tabla += '<td>'+object.despieceLongitud+'</td>'
 	                    		tabla += '<td>'+object.despieceCantidad+'</td>'
 	                    		tabla += '<td>'+object.despiecePeso+'</td>'
-	                    		tabla += '<td><input type="text" class="dataAsignacionDetalle" readonly disabled value="'+object.despieceId+'|'+object.despiecePeso+'|'+object.materialId+'" /></td>';
+	                    		tabla += '<td style="display:none";><input type="text" class="dataAsignacionDetalle" readonly disabled value="'+object.despieceId+'|'+object.despiecePeso+'|'+object.materialId+'" /></td>';
 	                    	tabla += '</tr>';
 	                    	total = object.materialId;
 	                    	totalDespiecePeso += parseFloat(object.despiecePeso);
@@ -378,8 +378,8 @@
 	                    		tabla += '<td>Despiece Total Peso: '+objectTotales.despiecePeso+'</td>';
 	                    		tabla += '<td>Peso Recibido: '+objectTotales.pesoRecibido+'</td>';
 	                    		tabla += '<td>Peso Restante: '+objectTotales.pesoAsignado+'</td>';
-	                    		tabla += '<td><input type="text" class="dataIdEtapa" readonly disabled value="'+objectTotales.idEtapa+'" /></td>';
-	                    		tabla += '<td><input type="text" class="dataAsignacion" readonly disabled value="'+objectTotales.despiecePeso+'|'+objectTotales.pesoRecibido+'|'+objectTotales.pesoAsignado+'|'+objectTotales.idMaterial+'" /></td>';
+	                    		tabla += '<td style="display:none;"><input type="text" class="dataIdEtapa" readonly disabled value="'+objectTotales.idEtapa+'" /></td>';
+	                    		tabla += '<td style="display:none;"><input type="text" class="dataAsignacion" readonly disabled value="'+objectTotales.despiecePeso+'|'+objectTotales.pesoRecibido+'|'+objectTotales.pesoAsignado+'|'+objectTotales.idMaterial+'" /></td>';
 	                    	tabla += '</tr>';
 	                    });
 		            } catch (e) {

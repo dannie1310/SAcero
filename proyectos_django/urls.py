@@ -20,4 +20,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^control_acero/', include('control_acero.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 ]

@@ -24,16 +24,10 @@
 				<table id="tablaSuministro" class="table table-hover">
 					<thead>
 						<tr>
-							<th class="text-center">Apoyo</th>
-							<th class="text-center">Elemento</th>
-							<th class="text-center">Cantidad</th>
-							<th class="text-center">Calibre</th>
-							<th class="text-center">Longitud</th>
-							<th class="text-center">Nomenclatura</th>
-							<th class="text-center">Kilogramo</th>
-							<th class="text-center">Figura</th>
+							<th class="text-center">Material</th>
+							<th class="text-center">Despiece Total Peso</th>
 							<th class="text-center">Peso Recibido</th>
-							<th class="text-center">Piezas Recibidas</th>
+							<th class="text-center">Peso Recepcionado</th>
 							<th class="text-center">Seleccionar</th>
 						</tr>
 					</thead>
@@ -52,17 +46,10 @@
 							<th colspan="11" class="text-center">Detalle de la Asignación</th>
 						</tr>
 						<tr>
-							<th class="text-center">Apoyo</th>
-							<th class="text-center">Elemento</th>
-							<th class="text-center">Cantidad</th>
-							<th class="text-center">Calibre</th>
-							<th class="text-center">Longitud</th>
-							<th class="text-center">Nomenclatura</th>
-							<th class="text-center">Kilogramo</th>
-							<th class="text-center">Figura</th>
+							<th class="text-center">Material</th>
+							<th class="text-center">Despiece Total Peso</th>
 							<th class="text-center">Peso Recibido</th>
-							<th class="text-center">Piezas Recibidas</th>
-							<th class="text-center">Acciones</th>
+							<th class="text-center">Peso Recepcionado</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -316,28 +303,19 @@
 		            try {
 	                    $.each(datos.data, function (count, object) {
 	                    	tabla += '<tr>';
-	                    		tabla += '<td>'+object.apoyo+'</td>';
-	                    		tabla += '<td>'+object.elemento+'</td>';
-	                    		tabla += '<td>'+object.despieceCantidad+'</td>';
-	                    		tabla += '<td>'+object.despieceMaterial+'</td>';
-	                    		tabla += '<td>'+object.despieceLongitud+'</td>';
-	                    		tabla += '<td>'+object.despieceNomenclatura+'</td>';
-	                    		tabla += '<td>'+object.despiecePeso+'</td>';
-	                    		tabla += '<td>'+object.despieceFigura+'</td>';
-	                    		tabla += '<td> <input class="form-control" name="txtPesoRecibido'+count+'" id="txtPesoRecibido'+count+'" /> </td>';
-	                    		tabla += '<td> <input class="form-control" name="txtPiezas'+count+'" id="txtPiezas'+count+'" /> </td>';
-	                    		tabla += '<td> <input class="form-control" type="checkbox" name="seleccionados" value="'+count+'" /> </td>';
+	                    		tabla += '<td>'+object.materialNombre+'</td>';
+	                    		tabla += '<td>'+object.despieceTotal+'</td>';
+	                    		tabla += '<td>'+object.despieceRecibido+'</td>';
+	                    		tabla += '<td>';
+				                	tabla += '<img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.materialImagen+'" alt="" class="img-responsive">';
+				                tabla += '</td>';
+	                    		tabla += '<td> <input type="number" min="0" class="form-control" name="txtPesoRecibido'+count+'" id="txtPesoRecibido'+count+'" /> </td>';
+	                    		tabla += '<td> <input type="checkbox" name="seleccionados" value="'+count+'" /> </td>';
 	                    		tabla += '<td style="display:none;">';
 	                    			tabla += '<input name="txtIdEtapa'+count+'" id="txtIdEtapa'+count+'" value="'+object.id+'" />';
-	                    			tabla += '<input name="txtApoyo'+count+'" id="txtApoyo'+count+'" value="'+object.apoyo+'" />';
-	                    			tabla += '<input name="txtElemento'+count+'" id="txtElemento'+count+'" value="'+object.elemento+'" />';
-	                    			tabla += '<input name="txtDespieceCantidad'+count+'" id="txtDespieceCantidad'+count+'" value="'+object.despieceCantidad+'" />';
-	                    			tabla += '<input name="txtDespieceMaterial'+count+'" id="txtDespieceMaterial'+count+'" value="'+object.despieceMaterial+'" />';
-	                    			tabla += '<input name="txtDespieceLongitud'+count+'" id="txtDespieceLongitud'+count+'" value="'+object.despieceLongitud+'" />';
-	                    			tabla += '<input name="txtDespieceNomenclatura'+count+'" id="txtDespieceNomenclatura'+count+'" value="'+object.despieceNomenclatura+'" />';
-	                    			tabla += '<input name="txtDespiecePeso'+count+'" id="txtDespiecePeso'+count+'" value="'+object.despiecePeso+'" />';
-	                    			tabla += '<input name="txtDespieceFigura'+count+'" id="txtDespieceFigura'+count+'" value="'+object.despieceFigura+'" />';
-	                    			tabla += '<input name="txtDespieceId'+count+'" id="txtDespieceId'+count+'" value="'+object.despieceId+'" />';
+	                    			tabla += '<input name="txtMaterial'+count+'" id="txtMaterial'+count+'" value="'+object.materialNombre+'" />';
+	                    			tabla += '<input name="txtDespieceTotal'+count+'" id="txtDespieceTotal'+count+'" value="'+object.despieceTotal+'" />';
+	                    			tabla += '<input name="txtDespieceRecibido'+count+'" id="txtDespieceRecibido'+count+'" value="'+object.despieceRecibido+'" />';
 	                    		tabla += '</td>';
 	                    	tabla += '</tr>';
 	                    });
@@ -350,9 +328,6 @@
 		        }
 		    });
 		    $("#tablaSuministro tbody").append(tabla);
-		    //comboTipoFuncion();
-		   	//comboTaller();
-		   	//comboTransporte();
 		});
 		$( "#cmbTipoFuncion" ).change(function() {
 			var value = this.value;
@@ -364,34 +339,19 @@
 			$("input[name='seleccionados']").each( function () {
 				if($(this).is(":checked")){
 					var value = this.value;
-					var id = $("#txtIdEtapa"+value).val();
-					var apoyo = $("#txtApoyo"+value).val();
-					var elemento = $("#txtElemento"+value).val();
-					var cantidad = $("#txtDespieceCantidad"+value).val();
-					var calibre = $("#txtDespieceMaterial"+value).val();
-					var longitud = $("#txtDespieceLongitud"+value).val();
-					var nomenclatura = $("#txtDespieceNomenclatura"+value).val();
-					var kilogramos = $("#txtDespiecePeso"+value).val();
-					var figura = $("#txtDespieceFigura"+value).val();
-					var pesoRecibido = $("#txtPesoRecibido"+value).val();
-					var piezasRecibidas = $("#txtPiezas"+value).val();
-					var despieceId = $("#txtDespieceId"+value).val();
+					var idEtapa = $("#txtIdEtapa"+value).val();
+					var material = $("#txtMaterial"+value).val();
+					var despieceTotal = $("#txtDespieceTotal"+value).val();
+					var despieceRecibido = $("#txtDespieceRecibido"+value).val();
+					var recepcionado = $("#txtPesoRecibido"+value).val();
 					tabla += '<tr>'
-								+'<td class="text-center">'+apoyo+'</td>'
-								+'<td class="text-center">'+elemento+'</td>'
-								+'<td class="text-center">'+cantidad+'</td>'
-								+'<td class="text-center">'+calibre+'</td>'
-								+'<td class="text-center">'+longitud+'</td>'
-								+'<td class="text-center">'+nomenclatura+'</td>'
-								+'<td class="text-center">'+kilogramos+'</td>'
-								+'<td class="text-center">'+figura+'</td>'
-								+'<td class="text-center">'+pesoRecibido+'</td>'
-								+'<td class="text-center">'+piezasRecibidas+'</td>'
+								+'<td class="text-center">'+material+'</td>'
+								+'<td class="text-center">'+despieceTotal+'</td>'
+								+'<td class="text-center">'+despieceRecibido+'</td>'
+								+'<td class="text-center">'+recepcionado+'</td>'
 								+'<td style="display:none;" class="text-center">'
-									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+id+'" />'
-									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPesoRecibido" id="dataPesoRecibido" value="'+pesoRecibido+'" />'
-									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPiezasRecibidas" id="dataPiezasRecibidas" value="'+piezasRecibidas+'" />'
-									+'<input type="text" disabled readonly class="dataAsignacion" name="dataDespieceId" id="dataDespieceId" value="'+despieceId+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+idEtapa+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPesoRecibido" id="dataPesoRecibido" value="'+recepcionado+'" />'
 								+'</td>'
 							+'</tr>';
 				}

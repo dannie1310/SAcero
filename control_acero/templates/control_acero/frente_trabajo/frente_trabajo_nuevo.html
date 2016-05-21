@@ -36,7 +36,7 @@
 				<input type="text" class="form-control" name="remision" id="remision"></input>
 			</div>
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFrente">Elegir Frente de trabajo:</label>
+				<label  class="control-label" for="cmbFrente">Seleccionar Frente de trabajo:</label>
 				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 				</select>
 			</div>
@@ -97,8 +97,8 @@
 				<thead>
 					<tr>
 						<th class="text-center">Material</th>
+						<th class="text-center">Piezas</th>
 						<th class="text-center">Peso Total</th>
-						<th class="text-center">Número de Piezas</th>
 						<th class="text-center">Longitud</th>
 						<th class="text-center">Eliminar</th>
 					</tr>
@@ -287,16 +287,29 @@
 	                    	conversionInicial = (object.conversion)*(object.materialLongitud);
 	                    	html +=	'<div class="form-group col-md-6">'
 										+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
-										+ '<label class="control-label" for="count'+object.idMaterial+'"></label>'
-										+ '<input class="form-control currency" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="number" min="1" value="1" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
-										+ '<label class="control-label" for="txt'+object.idMaterial+'">Piezas por Peso</label>'
-										+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="'+object.conversion+'"></input>'
-										+ '<label class="control-label" for="txt'+object.idMaterial+'">Peso por Varilla</label>'
-										+ '<input type="text" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
-										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
-										+ '<label class="control-label" for="txt'+object.idMaterial+'">Longitud</label>'
-										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
+										+ '<div class="input-group">'
+											+ '<input class="form-control currency" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="number" min="1" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
+											+ '<div class="input-group-addon">Kilogramos</div>'
+										+ '</div>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
+										+ '<div class="input-group">'
+											+ '<input type="text" readonly disabled class="form-control" name="txt'+object.idMaterial+'Volumetrico" id="txt'+object.idMaterial+'Volumetrico" value="'+object.conversion+'"></input>'
+											+ '<div class="input-group-addon">Kg/Metro Lineal</div>'
+										+ '</div>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'Longitud">Longitud</label>'
+										+ '<div class="input-group">'
+											+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
+											+ '<div class="input-group-addon">Metros</div>'
+										+ '</div>'
 										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
+										+ '<label class="control-label" for="txt'+object.idMaterial+'">Piezas de Varilla</label>'
+										+ '<div class="input-group">'
+											+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="0"></input>'
+											+ '<div class="input-group-addon">Pieza(s)</div>'
+										+ '</div>'
+										//+ '<label class="control-label" for="txt'+object.idMaterial+'">Peso por Varilla</label>'
+										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
+										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
 										+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
 									+ '</div>';
 	                    });
@@ -377,7 +390,7 @@
 			var pesoMaterial = 0;
 			var material = '';
 			var cantidadMaterial = 0;
-			var colors = ["primary", "success", "info", "warning", "default", "danger"];
+			var colors = ["info"];
 			var randomColor = Math.floor(Math.random()*colors.length);
 			var color = colors[randomColor];
 			var apoyo = 1;
@@ -389,24 +402,27 @@
 				cantidadMaterial = $("#count"+idMaterial).val();
 				longitud = $("#txt"+idMaterial+"Longitud").val();
 				pesoMaterial = this.value;
-				pesoTotal += parseFloat(pesoMaterial);
+				pesoTotal += parseFloat(cantidadMaterial);
 				material = $(this).attr("attrMaterial");
-				tabla += '<tr class="'+color+'">'
-							+'<td class="text-center">'+material+'</td>'
-							+'<td class="text-center">'+pesoMaterial+'</td>'
-							+'<td class="text-center">'+cantidadMaterial+'</td>'
-							+'<td class="text-center">'+longitud+'</td>'
-							//+'<td class="text-center">'+parseFloat(total).toFixed(4)+'</td>'
-							+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span</td>'
-							+'<td style="display:none" class="text-center">'
-								+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
-							+'</td>'
-						+'<tr>';
+				if(cantidadMaterial != 0){
+					tabla += '<tr class="'+color+'">'
+								+'<td class="text-center">'+material+'</td>'
+								+'<td class="text-center">'+pesoMaterial+'</td>'
+								+'<td class="text-center">'+cantidadMaterial+'</td>'
+								+'<td class="text-center">'+longitud+'</td>'
+								//+'<td class="text-center">'+parseFloat(total).toFixed(4)+'</td>'
+								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span</td>'
+								+'<td style="display:none" class="text-center">'
+									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
+								+'</td>'
+							+'<tr>';
+					$("#count"+idMaterial).val(0);
+					$("#txt"+idMaterial).val(0);
+				}
 			});
 			$("#tablaApoyoElemento").append(tabla);
-			$("#cmbElemento").val(0);
-			$("#divPesoTotal").append(pesoTotal);
-			$("#txtPesoTotal").val(pesoTotal);
+			$("#divPesoTotal").append(pesoTotal.toFixed(4));
+			$("#txtPesoTotal").val(pesoTotal.toFixed(4));
 		});
 		$( "#btnSolicitar" ).click(function() {
 			var orden = $("#cmbOrden").val();
@@ -474,7 +490,7 @@
 		    $("#tablaApoyoElemento tbody").empty();
 		});
 		function cantidadMaterial (id){
-			var value = $("#count"+id).val();
+			var value = parseFloat($("#count"+id).val());
 			var original = parseFloat($("#txt"+id+"Original").val());
 			var conversion = parseFloat($("#txt"+id+"Conversion").val());
 			var longitud = parseFloat($("#txt"+id+"Longitud").val());
