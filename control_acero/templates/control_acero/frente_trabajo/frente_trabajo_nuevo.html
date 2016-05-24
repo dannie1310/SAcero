@@ -36,13 +36,18 @@
 				<input type="text" class="form-control" name="remision" id="remision"></input>
 			</div>
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFrente">Seleccionar Frente de trabajo:</label>
+				<label  class="control-label" for="cmbFrente">Seleccionar Destino:</label>
 				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 				</select>
 			</div>
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+				<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor de Acero (Fabricante):</label>
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbFuncionHabilitado">Seleccionar Proveedor de Habilitado:</label>
+				<select name="cmbFuncion" id="cmbFuncionHabilitado" class="cmbFuncionHabilitado form-control">
 				</select>
 			</div>
 			<div class="form-group col-md-6">
@@ -98,8 +103,8 @@
 					<tr>
 						<th class="text-center">Material</th>
 						<th class="text-center">Piezas</th>
-						<th class="text-center">Peso Total</th>
-						<th class="text-center">Longitud</th>
+						<th class="text-center">Peso Total Kg</th>
+						<th class="text-center">Longitud Mts</th>
 						<th class="text-center">Eliminar</th>
 					</tr>
 				</thead>
@@ -108,15 +113,15 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<th>Peso Neto</th>
+						<th>Peso del Material</th>
 						<th><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
 					</tr>
 					<tr>
-						<th>Peso Tara</th>
+						<th>Peso del Camion</th>
 						<th><input class="form-control" type="number" name="txtTara" oninput="calculaPeso()" id="txtTara" /></th>
 					</tr>
 					<tr>
-						<th>Peso Bruto</th>
+						<th>Peso Total</th>
 						<th><div id="divPesoBruto"></div><input type="hidden" name="txtPesoBruto" id="txtPesoBruto" /></th>
 					</tr>
 				</tfoot>
@@ -146,7 +151,7 @@
 		        success: function (datos) {
 		            try {
 		                $('.cmbFrente').empty();
-		                $('.cmbFrente').append('<option value="0">Selecciona un Frente de Trabajo</option>');
+		                $('.cmbFrente').append('<option value="0">Selecciona Destino</option>');
 	                    $.each(datos.data, function (count, object) {
 	                        $('.cmbFrente').append('<option value="' + object.idFrente + '">' + object.nombre + '</option>');
 	                    });
@@ -289,17 +294,17 @@
 										+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 										+ '<div class="input-group">'
 											+ '<input class="form-control currency" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="number" min="1" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
-											+ '<div class="input-group-addon">Kilogramos</div>'
+											+ '<div class="input-group-addon">Kg</div>'
 										+ '</div>'
 										+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
 										+ '<div class="input-group">'
 											+ '<input type="text" readonly disabled class="form-control" name="txt'+object.idMaterial+'Volumetrico" id="txt'+object.idMaterial+'Volumetrico" value="'+object.conversion+'"></input>'
-											+ '<div class="input-group-addon">Kg/Metro Lineal</div>'
+											+ '<div class="input-group-addon">Kg/ml</div>'
 										+ '</div>'
 										+ '<label class="control-label" for="txt'+object.idMaterial+'Longitud">Longitud</label>'
 										+ '<div class="input-group">'
 											+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
-											+ '<div class="input-group-addon">Metros</div>'
+											+ '<div class="input-group-addon">Mts</div>'
 										+ '</div>'
 										+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
 										+ '<label class="control-label" for="txt'+object.idMaterial+'">Piezas de Varilla</label>'
@@ -396,6 +401,7 @@
 			var apoyo = 1;
 			var elemento = 1;
 			var pesoTotal = 0;
+			var pesoTotalReal = 0;
 
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
@@ -403,12 +409,13 @@
 				longitud = $("#txt"+idMaterial+"Longitud").val();
 				pesoMaterial = this.value;
 				pesoTotal += parseFloat(cantidadMaterial);
+				pesoTotalReal = parseFloat(cantidadMaterial);
 				material = $(this).attr("attrMaterial");
 				if(cantidadMaterial != 0){
 					tabla += '<tr class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
-								+'<td class="text-center">'+pesoMaterial+'</td>'
-								+'<td class="text-center">'+cantidadMaterial+'</td>'
+								+'<td class="text-center">'+parseInt(pesoMaterial)+'</td>'
+								+'<td class="text-center">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
 								//+'<td class="text-center">'+parseFloat(total).toFixed(4)+'</td>'
 								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span</td>'
@@ -418,6 +425,7 @@
 							+'<tr>';
 					$("#count"+idMaterial).val(0);
 					$("#txt"+idMaterial).val(0);
+					pesoTotalReal = 0;
 				}
 			});
 			$("#tablaApoyoElemento").append(tabla);
@@ -500,7 +508,7 @@
 		}
 		$( "#btnImprimir" ).click(function() {
 			var folio = $("#txtFolio").val();
-			var href = "http://localhost:8000/ProgramaSuministro/"+folio;
+			var href = "http://localhost:8000/RecepcionMaterial/"+folio;
 			$("#framePdf").attr("src", href);
 		});
 		function calculaPeso(){
@@ -528,7 +536,7 @@
 		        success: function (datos) {
 		            try {
 		                $('#cmbFuncion').empty();
-		                $('#cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+		                $('#cmbFuncion').append('<option value="0">Seleccionar Proveedor de Acero (Fabricante)</option>');
 	                    $.each(datos.data, function (count, object) {
 	                        $('#cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
 	                    });

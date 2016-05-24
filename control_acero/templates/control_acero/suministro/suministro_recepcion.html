@@ -43,13 +43,13 @@
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
-			<div class="form-group col-md-12">
+			<!--<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
 				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
 				</select>
-			</div>
+			</div>-->
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+				<label  class="control-label" for="cmbFuncion">Elige un Proveedor de Acero (Fabricante):</label>
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
@@ -250,7 +250,7 @@
 		        success: function (datos) {
 		            try {
 		                $('.cmbFuncion').empty();
-		                $('.cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+		                $('.cmbFuncion').append('<option value="0">Elige un Proveedor de Acero (Fabricante)</option>');
 	                    $.each(datos.data, function (count, object) {
 	                        $('.cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
 	                    });

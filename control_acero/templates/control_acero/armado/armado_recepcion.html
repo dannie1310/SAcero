@@ -25,8 +25,8 @@
 					<thead>
 						<tr>
 							<th class="text-center">Material</th>
-							<th class="text-center">Despiece Total Peso</th>
-							<th class="text-center">Peso Recibido</th>
+							<th class="text-center">Nomenclatura</th>
+							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Peso Recepcionado</th>
 							<th class="text-center">Seleccionar</th>
 						</tr>
@@ -47,8 +47,8 @@
 						</tr>
 						<tr>
 							<th class="text-center">Material</th>
-							<th class="text-center">Despiece Total Peso</th>
-							<th class="text-center">Peso Recibido</th>
+							<th class="text-center">Nomenclatura</th>
+							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Peso Recepcionado</th>
 						</tr>
 					</thead>
@@ -72,12 +72,6 @@
 					datosString += this.value+"|";
 				}
 				if(this.name == "dataPesoRecibido"){
-					datosString += this.value+"|";
-				}
-				if(this.name == "dataPiezasRecibidas"){
-					datosString += this.value+"|";
-				}
-				if(this.name == "dataDespieceId"){
 					datosString += this.value;
 					datos.push({"data": datosString});
 					datosString = '';
@@ -301,7 +295,22 @@
 		        },
 		        success: function (datos) {
 		            try {
-	                    $.each(datos.data, function (count, object) {
+		            	$.each(datos.dataEtapaDetalle, function (count, object) {
+		            		tabla += '<tr>';
+		            			tabla += '<td>'+object.materialNombre+'</td>';
+		            			tabla += '<td>'+object.despieceNomenclatura+'</td>';
+		            			tabla += '<td>'+object.despiecePeso+'</td>';
+	                    		tabla += '<td> <input type="number" min="0" class="form-control" name="txtPesoRecibido'+count+'" id="txtPesoRecibido'+count+'" /> </td>';
+	                    		tabla += '<td> <input type="checkbox" name="seleccionados" value="'+count+'" /> </td>';
+	                    		tabla += '<td style="display:none;">';
+	                    			tabla += '<input name="txtIdDespieceDetalle'+count+'" id="txtIdDespieceDetalle'+count+'" value="'+object.idDespieceDetalle+'" />';
+	                    			tabla += '<input name="txtMaterial'+count+'" id="txtMaterial'+count+'" value="'+object.materialNombre+'" />';
+	                    			tabla += '<input name="txtDespieceNomenclatura'+count+'" id="txtDespieceNomenclatura'+count+'" value="'+object.despieceNomenclatura+'" />';
+	                    			tabla += '<input name="txtDespiecePeso'+count+'" id="txtDespiecePeso'+count+'" value="'+object.despiecePeso+'" />';
+	                    		tabla += '</td>';
+		            		tabla += '</tr>';
+		            	});
+	                    /*$.each(datos.data, function (count, object) {
 	                    	tabla += '<tr>';
 	                    		tabla += '<td>'+object.materialNombre+'</td>';
 	                    		tabla += '<td>'+object.despieceTotal+'</td>';
@@ -318,7 +327,7 @@
 	                    			tabla += '<input name="txtDespieceRecibido'+count+'" id="txtDespieceRecibido'+count+'" value="'+object.despieceRecibido+'" />';
 	                    		tabla += '</td>';
 	                    	tabla += '</tr>';
-	                    });
+	                    });*/
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
 		            }
@@ -339,18 +348,18 @@
 			$("input[name='seleccionados']").each( function () {
 				if($(this).is(":checked")){
 					var value = this.value;
-					var idEtapa = $("#txtIdEtapa"+value).val();
+					var idDespieceDetalle = $("#txtIdDespieceDetalle"+value).val();
 					var material = $("#txtMaterial"+value).val();
-					var despieceTotal = $("#txtDespieceTotal"+value).val();
-					var despieceRecibido = $("#txtDespieceRecibido"+value).val();
+					var despieceNomenclatura = $("#txtDespieceNomenclatura"+value).val();
+					var despiecePeso = $("#txtDespiecePeso"+value).val();
 					var recepcionado = $("#txtPesoRecibido"+value).val();
 					tabla += '<tr>'
 								+'<td class="text-center">'+material+'</td>'
-								+'<td class="text-center">'+despieceTotal+'</td>'
-								+'<td class="text-center">'+despieceRecibido+'</td>'
+								+'<td class="text-center">'+despieceNomenclatura+'</td>'
+								+'<td class="text-center">'+despiecePeso+'</td>'
 								+'<td class="text-center">'+recepcionado+'</td>'
 								+'<td style="display:none;" class="text-center">'
-									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+idEtapa+'" />'
+									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+idDespieceDetalle+'" />'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataPesoRecibido" id="dataPesoRecibido" value="'+recepcionado+'" />'
 								+'</td>'
 							+'</tr>';

@@ -2,6 +2,25 @@
 {% block title_module %}
 	HABILITADO ASIGNACIÓN
 {% endblock %}
+{% block modals %}
+<!-- Modal Pdf -->
+<div class="modal fade" id="modalPdf" tabindex="-1" role="dialog" aria-labelledby="modalPdfLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalPdfLabel">Impresion PDF</h4>
+			</div>
+			<div class="modal-body">
+				<iframe class="col-lg-12 col-md-12 col-sm-12" height="600" name="framePdf" id="framePdf"></iframe>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
@@ -32,11 +51,9 @@
 					<thead>
 						<tr>
 							<th class="text-center">Material Nombre</th>
-							<th class="text-center">Despiece Nomenclatura</th>
-							<th class="text-center">Despiece Figura</th>
-							<th class="text-center">Despiece Longitud</th>
-							<th class="text-center">Despiece Cantidad</th>
-							<th class="text-center">Despiece Peso</th>
+							<th class="text-center">Peso Total Kg</th>
+							<th class="text-center">Peso Recibido Kg</th>
+							<th class="text-center">Peso Restante Kg</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -81,6 +98,9 @@
 			</div>
 			<div class="col-md-12">
 				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Asignacion</button>
+			</div>
+			<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
+				<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
 			</div>
 		</div>
 	</div>
@@ -132,6 +152,7 @@
 		        success: function (datos) {
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            	$("#divImpresion").show('slide');
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
 		            }
@@ -313,11 +334,12 @@
 			comboElemento();
 		});
 		$( "#btnAgregar" ).click(function() {
-			$("#tablaSuministro tbody").empty();
+			//$("#tablaSuministro tbody").empty();
 			var tabla = '';
 			var programa = $("#cmbPrograma").val();
 			var funcion = $("#cmbFuncion").val();
 			var elemento =$("#cmbElemento").val();
+			var elementoText = $("#cmbElemento option[value='"+elemento+"']").text();
 			var cantidad =$("#txtNumber").val();
 			var count = 0;
 			var idTabla = 1;
@@ -340,7 +362,7 @@
 		            try {
 	                    $.each(datos.data, function (count, object) {
 	                    	if(total != object.materialId && total != 0){
-	                    		tabla += '<tr class="info">';
+	                    		tabla += '<tr style="display:none;" class="info">';
 	                    			tabla += '<td><b>Totales</b></td>';
 	                    			tabla += '<td></td>';
 	                    			tabla += '<td></td>';
@@ -350,7 +372,7 @@
 	                    		tabla += '</tr>';
 	                    		totalDespiecePeso = 0;
 	                    	}
-	                    	tabla += '<tr>';
+	                    	tabla += '<tr style="display:none;">';
 	                    		tabla += '<td>'+object.materialNombre+'</td>'
 	                    		tabla += '<td>'+object.despieceNomenclatura+'</td>'
 	                    		tabla += '<td>'+object.despieceFigura+'</td>'
@@ -362,7 +384,7 @@
 	                    	total = object.materialId;
 	                    	totalDespiecePeso += parseFloat(object.despiecePeso);
 	                    	if(count == datos.data.length-1){
-	                    		tabla += '<tr class="info">';
+	                    		tabla += '<tr style="display:none;" class="info">';
 	                    			tabla += '<td><b>Totales</b></td>';
 	                    			tabla += '<td></td>';
 	                    			tabla += '<td></td>';
@@ -372,12 +394,15 @@
 	                    		tabla += '</tr>';
 	                    	}
 	                    });
+	                    	tabla += '<tr>';
+	                    		tabla += '<td class="text-center" colspan="4">'+elementoText+'</td>';
+	                    	tabla += '</tr>';
 	                    $.each(datos.dataTotales, function (countTotales, objectTotales) {
 	                    	tabla += '<tr>';
 	                    		tabla += '<td>'+objectTotales.nombre+'</td>';
-	                    		tabla += '<td>Despiece Total Peso: '+objectTotales.despiecePeso+'</td>';
-	                    		tabla += '<td>Peso Recibido: '+objectTotales.pesoRecibido+'</td>';
-	                    		tabla += '<td>Peso Restante: '+objectTotales.pesoAsignado+'</td>';
+	                    		tabla += '<td>'+objectTotales.despiecePeso+'</td>';
+	                    		tabla += '<td>'+objectTotales.pesoRecibido+'</td>';
+	                    		tabla += '<td>'+objectTotales.pesoAsignado+'</td>';
 	                    		tabla += '<td style="display:none;"><input type="text" class="dataIdEtapa" readonly disabled value="'+objectTotales.idEtapa+'" /></td>';
 	                    		tabla += '<td style="display:none;"><input type="text" class="dataAsignacion" readonly disabled value="'+objectTotales.despiecePeso+'|'+objectTotales.pesoRecibido+'|'+objectTotales.pesoAsignado+'|'+objectTotales.idMaterial+'" /></td>';
 	                    	tabla += '</tr>';
@@ -427,6 +452,11 @@
 						+'</tr>';
 			$("#tablaSuministroAsignado").append(tabla);
 		}
+		$( "#btnImprimir" ).click(function() {
+			var folio = $("#cmbPrograma").val();
+			var href = "http://localhost:8000/AsignarHabilitado/"+folio;
+			$("#framePdf").attr("src", href);
+		});
 	    $(function () {
 	    	comboPrograma();
 	    	comboTipoFuncion();

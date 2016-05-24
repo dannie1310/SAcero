@@ -2,6 +2,25 @@
 {% block title_module %}
 	HABILITADO RECEPCIÓN
 {% endblock %}
+{% block modals %}
+<!-- Modal Pdf -->
+<div class="modal fade" id="modalPdf" tabindex="-1" role="dialog" aria-labelledby="modalPdfLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalPdfLabel">Impresion PDF</h4>
+			</div>
+			<div class="modal-body">
+				<iframe class="col-lg-12 col-md-12 col-sm-12" height="600" name="framePdf" id="framePdf"></iframe>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
@@ -27,6 +46,8 @@
 							<th class="text-center">Taller Asignado</th>
 							<th class="text-center">Transporte</th>
 							<th class="text-center">Seleccionar</th>
+							<th class="text-center">Existencia</th>
+							<th class="text-center">Existencia Total</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -56,6 +77,9 @@
 			</div>
 			<div class="col-md-12">
 				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Recepción</button>
+			</div>
+			<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
+				<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
 			</div>
 		</div>
 	</div>
@@ -116,6 +140,7 @@
 		        success: function (datos) {
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            	$("#divImpresion").show('slide');
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
 		            }
@@ -231,6 +256,12 @@
 		        }
 		    });
 		    $("#tablaSuministro tbody").append(tabla);
+		});
+		$( "#btnImprimir" ).click(function() {
+			var folio = $("#cmbPrograma").val();
+			var funcion = $("#cmbFuncion").val();
+			var href = "http://localhost:8000/RecepcionHabilitado/"+folio+"/"+funcion+"/";
+			$("#framePdf").attr("src", href);
 		});
 	    $(function () {
 	    	comboPrograma();

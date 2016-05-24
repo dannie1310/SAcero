@@ -37,17 +37,34 @@
 		</div>
 	</div>
 </div>
+<!-- Modal Pdf -->
+<div class="modal fade" id="modalPdf" tabindex="-1" role="dialog" aria-labelledby="modalPdfLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalPdfLabel">Impresion PDF</h4>
+			</div>
+			<div class="modal-body">
+				<iframe class="col-lg-12 col-md-12 col-sm-12" height="600" name="framePdf" id="framePdf"></iframe>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
-			<div class="form-group col-md-12">
+			<!--<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
 				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
 				</select>
-			</div>
+			</div>-->
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+				<label  class="control-label" for="cmbFuncion">Elige Proveedor de Acero (Fabricante):</label>
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
@@ -57,9 +74,9 @@
 						<tr>
 							<th class="text-center">No</th>
 							<th class="text-center">Nombre Material</th>
-							<th class="text-center">Peso</th>
-							<th class="text-center">Cantidad</th>
-							<th class="text-center">Proveedores Funciones</th>
+							<th class="text-center">Peso Kg</th>
+							<th class="text-center">Piezas</th>
+							<th class="text-center">Función por Proveedor</th>
 							<th class="text-center">Elige Proveedor</th>
 							<th class="text-center">Asignar Taller</th>
 							<th class="text-center">Transporte</th>
@@ -80,8 +97,8 @@
 						</tr>
 						<tr>
 							<th class="text-center">Pertenece al Registro</th>
-							<th class="text-center">Peso</th>
-							<th class="text-center">Cantidad</th>
+							<th class="text-center">Peso Kg</th>
+							<th class="text-center">Piezas</th>
 							<th class="text-center">Proveedor Asignado</th>
 							<th class="text-center">Taller Asignado</th>
 							<th class="text-center">Transporte Asignado</th>
@@ -94,6 +111,9 @@
 			</div>
 			<div class="col-md-12">
 				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Asignaciones</button>
+			</div>
+			<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
+				<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
 			</div>
 		</div>
 	</div>
@@ -144,6 +164,7 @@
 		        success: function (datos) {
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            	$("#divImpresion").show('slide');
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
 		            }
@@ -192,7 +213,7 @@
 		        success: function (datos) {
 		            try {
 		                $('.cmbFuncion').empty();
-		                $('.cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
+		                $('.cmbFuncion').append('<option value="0">Elige Proveedor de Acero (Fabricante)</option>');
 	                    $.each(datos.data, function (count, object) {
 	                        $('.cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
 	                    });
@@ -319,7 +340,7 @@
 	                        		tabla +='<td>'+idTabla+'</td>';
 	                        		tabla +='<td>'+object.materialNombre+'</td>';
 	                        		tabla +='<td class="warning"><div id="faltante_'+count+'">'+object.peso+'</div></td>';
-	                        		tabla +='<td>'+object.cantidad+'</td>';
+	                        		tabla +='<td>'+parseInt(object.cantidad)+'</td>';
 	                        		tabla +='<td>';
 	                        			tabla +='<select name="cmbTipoFuncion'+count+'" count="'+count+'" id="cmbTipoFuncion'+count+'" class="cmbTipoFuncion form-control">';
 										tabla +='</select>';
@@ -477,6 +498,11 @@
 				html += '</table>';
 			html += '</div>';
 			$(".archivosRemision").append(html);
+		});
+		$( "#btnImprimir" ).click(function() {
+			var folio = $("#cmbPrograma").val();
+			var href = "http://localhost:8000/AsignarMaterial/"+folio;
+			$("#framePdf").attr("src", href);
 		});
 	    $(function () {
 	    	comboPrograma();
