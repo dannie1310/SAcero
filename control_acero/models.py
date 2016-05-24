@@ -128,20 +128,6 @@ class Transporte(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.placas
 
-class Taller(models.Model):
-	nombre = models.CharField(max_length=100)
-	responsable = models.CharField(max_length=100, default=0)
-	proveedor = models.CharField(default=0, max_length=20)
-	ubicacion = models.CharField(max_length=100)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.nombre
-
 class Funcion(models.Model):
 	TIPOFUNCION = (
 	    (1, 'Suministrador'),
@@ -160,6 +146,21 @@ class Funcion(models.Model):
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.proveedor
+
+class Taller(models.Model):
+	nombre = models.CharField(max_length=100)
+	responsable = models.CharField(max_length=100, null=True)
+	proveedor = models.CharField(max_length=20, null=True)
+	ubicacion = models.CharField(max_length=100)
+	funcion = models.ForeignKey(Funcion, null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.nombre
 
 class Frente(models.Model):
 	nombre = models.CharField(max_length=100)
@@ -194,6 +195,7 @@ class ProgramaSuministro(models.Model):
 	idOrden = models.IntegerField()
 	remision = models.IntegerField(null=True)
 	funcion = models.ForeignKey(Funcion, null=True)
+	funcionHabilitado = models.ForeignKey(Funcion, null=True, related_name='funcionHabilitado')
 	pesoTara = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	pesoBruto = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	pesoNeto = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)

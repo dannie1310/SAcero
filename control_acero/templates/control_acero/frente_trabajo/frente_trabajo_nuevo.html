@@ -36,18 +36,18 @@
 				<input type="text" class="form-control" name="remision" id="remision"></input>
 			</div>
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFrente">Seleccionar Destino:</label>
-				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
-				</select>
-			</div>
-			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor de Acero (Fabricante):</label>
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
 			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbFrente">Seleccionar Destino:</label>
+				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbFuncionHabilitado">Seleccionar Proveedor de Habilitado:</label>
-				<select name="cmbFuncion" id="cmbFuncionHabilitado" class="cmbFuncionHabilitado form-control">
+				<select name="cmbFuncionHabilitado" id="cmbFuncionHabilitado" class="cmbFuncionHabilitado form-control">
 				</select>
 			</div>
 			<div class="form-group col-md-6">
@@ -95,7 +95,7 @@
 		</div>
 		<div style="display:none;" id="divCantidadesBotones" class="col-md-12">
 			<button type="button" class="btn btn-info" name="btnAgregaVarilla" id="btnAgregaVarilla">Agregar</button>
-			<button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button>
+			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
 		</div>
 		<div style="display:none;" id="divDetalle" class="col-md-12 table-responsive">
 			<table id="tablaApoyoElemento" class="table table-hover">
@@ -113,22 +113,28 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<th>Peso del Material</th>
-						<th><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
+						<th class="col-md-2">Peso del Material</th>
+						<th class="col-md-4"><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
+						<th class="col-md-4"><div id="divPesoTonelada"></div></th>
 					</tr>
 					<tr>
-						<th>Peso del Camion</th>
-						<th><input class="form-control" type="number" name="txtTara" oninput="calculaPeso()" id="txtTara" /></th>
+						<th class="col-md-2">Peso del Camion</th>
+						<th class="col-md-4">
+							<div class="input-group">
+								<input class="form-control" type="number" name="txtTara" oninput="calculaPeso()" id="txtTara" />
+								<div class="input-group-addon">Kg</div>
+							</div>
+						</th>
 					</tr>
 					<tr>
-						<th>Peso Total</th>
-						<th><div id="divPesoBruto"></div><input type="hidden" name="txtPesoBruto" id="txtPesoBruto" /></th>
+						<th class="col-md-2">Peso Total</th>
+						<th class="col-md-4"><div id="divPesoBruto"></div><input type="hidden" name="txtPesoBruto" id="txtPesoBruto" /></th>
 					</tr>
 				</tfoot>
 			</table>
 		</div>
 		<div style="display:none;" id="divDetalleSolicita" class="col-md-6 text-center">
-			<button type="button" class="btn btn-success" name="btnSolicitar" id="btnSolicitar">Solicitar</button>
+			<button type="button" class="btn btn-success" name="btnSolicitar" id="btnSolicitar">Guardar</button>
 		</div>
 		<div style="display:none;" id="divDetalleCancelar" class="col-md-6 text-center">
 			<button type="button" class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
@@ -402,6 +408,9 @@
 			var elemento = 1;
 			var pesoTotal = 0;
 			var pesoTotalReal = 0;
+			var ton = 0;
+			var tonHtml = '';
+			var pesoTd = 0;
 
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
@@ -415,7 +424,7 @@
 					tabla += '<tr class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
 								+'<td class="text-center">'+parseInt(pesoMaterial)+'</td>'
-								+'<td class="text-center">'+pesoTotalReal.toFixed(2)+'</td>'
+								+'<td class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
 								//+'<td class="text-center">'+parseFloat(total).toFixed(4)+'</td>'
 								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span</td>'
@@ -429,7 +438,16 @@
 				}
 			});
 			$("#tablaApoyoElemento").append(tabla);
-			$("#divPesoTotal").append(pesoTotal.toFixed(4));
+
+			$('.pesoTotal').each(function(i, obj) {
+				pesoTd += parseFloat($(this).text());
+			});
+			if(pesoTotal >= 1000){
+				ton = pesoTd / 1000;
+				tonHtml += ton.toFixed(2);
+			}
+			$("#divPesoTotal").append(pesoTd.toFixed(2)+" Kg");
+			$("#divPesoTonelada").append(tonHtml+" Ton");
 			$("#txtPesoTotal").val(pesoTotal.toFixed(4));
 		});
 		$( "#btnSolicitar" ).click(function() {
@@ -437,6 +455,7 @@
 			var remision = $("#remision").val();
 			var frente = $("#cmbFrente").val();
 			var funcion = $("#cmbFuncion").val();
+			var funcionHabilitado = $("#cmbFuncionHabilitado").val();
 			var fechaInicial = $("#fechaInicial").val();
 			var fechaFinal = $("#fechaFinal").val();
 			var pesoTara = $("#txtTara").val();
@@ -457,6 +476,7 @@
 		        		idOrden: orden,
 		        		idFrente: frente,
 		        		funcion: funcion,
+		        		funcionHabilitado: funcionHabilitado,
 		        		fechaInicial: fechaInicial,
 		        		fechaFinal: fechaFinal,
 		        		pesoTara: pesoTara,
@@ -517,8 +537,8 @@
 			var tara = $("#txtTara").val();
 			var total = $("#txtPesoTotal").val();
 			var bruto = parseFloat(tara)+parseFloat(total);
-			var brutoDecimal = bruto.toFixed(3);
-			$("#divPesoBruto").append(brutoDecimal);
+			var brutoDecimal = bruto.toFixed(2);
+			$("#divPesoBruto").append(brutoDecimal+" Kg");
 			$("#txtPesoBruto").val(brutoDecimal);
 		}
 		comboFuncion = function () {
@@ -549,10 +569,67 @@
 		        }
 		    });
 		};
+		comboFuncion = function () {
+			var tipo = 1;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asignar/comboFuncionElegido/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		tipo: tipo
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('#cmbFuncion').empty();
+		                $('#cmbFuncion').append('<option value="0">Seleccionar Proveedor de Acero (Fabricante)</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('#cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		comboFuncionHabilitado = function () {
+			var tipo = 2;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asignar/comboFuncionElegido/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		tipo: tipo
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('#cmbFuncionHabilitado').empty();
+		                $('#cmbFuncionHabilitado').append('<option value="0">Seleccionar Proveedor de Acero (Fabricante)</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('#cmbFuncionHabilitado').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
 	    $(function () {
 	    	comboFrente();
 	    	comboApoyo();
 	    	comboFuncion();
+	    	comboFuncionHabilitado();
 	    });
 	</script>
 {% endblock %}

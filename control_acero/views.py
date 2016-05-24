@@ -285,31 +285,18 @@ def suministroAsignarCantidades(request):
 	mensaje = {}
 	data = []
 	dataFiles = []
-	idPrograma = request.POST.get('programa', 0)
 	idFuncion = request.POST.get('funcion', 0)
-	ps = ProgramaSuministroDetalle.objects.values('id', 'material__nombre')\
-											.filter(programaSuministro__funcion__id=idFuncion) \
-											.annotate(pesoMaterial = Sum('peso')) \
-											.annotate(cantidadMaterial = Sum('cantidad')) \
-											.order_by('material_id')
+	ps = ProgramaSuministroDetalle.objects\
+									.values('material_id', 'material__nombre')\
+									.filter(programaSuministro__funcion__id=idFuncion) \
+									.annotate(pesoMaterial = Sum('peso')) \
+									.annotate(cantidadMaterial = Sum('cantidad')) \
+									.order_by('material_id')
 
-	etapa = Etapa.objects.values('id', 'programaSuministroDetalle__id')\
-											.filter(estatusEtapa=1) \
-											.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
-											.order_by('programaSuministroDetalle__material_id')
 	for p in ps:
-		idsd = p["id"]
-		peso = p["pesoMaterial"]
-
-		for e in etapa:
-			idsde = e["programaSuministroDetalle__id"]
-
-			if idsd == idsde:
-				peso = peso-e["cantidadAsignada"]
-
-		resultado = {"id":p["id"],
+		resultado = {"id":p["material_id"],
 						"materialNombre":p["material__nombre"],
-						"peso":peso,
+						"peso":p["pesoMaterial"],
 						"cantidad":p["cantidadMaterial"]
 					}
 		data.append(resultado)
@@ -1173,6 +1160,7 @@ def programaSave(request):
 	idOrden = request.POST.get('idOrden', 0)
 	idFrente = request.POST.get('idFrente', 0)
 	funcion = request.POST.get('funcion', 0)
+	funcionHabilitado = request.POST.get('funcionHabilitado', 0)
 	fechaInicial = request.POST.get('fechaInicial', 0)
 	fechaFinal = request.POST.get('fechaFinal', 0)
 	remision = request.POST.get('remision', 0)
@@ -1184,6 +1172,7 @@ def programaSave(request):
 	p = ProgramaSuministro(idOrden=idOrden,
 							remision=remision,
 							funcion_id=funcion,
+							funcionHabilitado_id=funcionHabilitado,
 							pesoBruto=pesoBruto,
 							pesoTara=pesoTara,
 							pesoNeto=pesoTotal,

@@ -3,40 +3,6 @@
 	SUMINISTRO ASIGNACIÓN
 {% endblock %}
 {% block modals %}
-<!-- Modal Certificados-->
-<div class="modal fade" id="modalCertificado" tabindex="-1" role="dialog" aria-labelledby="modalCertificadoLabel">
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h3 class="modal-title" id="modalCertificadoLabel">Visualizar Certificados</h3>
-			</div>
-			<!-- <div class="modal-body"> -->
-				<div class="archivos"></div>
-			<!-- </div> -->
-			<div class="modal-footer">
-				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- Modal Remisiones-->
-<div class="modal fade" id="modalRemision" tabindex="-1" role="dialog" aria-labelledby="modalRemisionLabel">
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h3 class="modal-title" id="modalRemisionLabel">Visualizar Remisiones</h3>
-			</div>
-			<!-- <div class="modal-body"> -->
-				<div class="archivosRemision"></div>
-			<!-- </div> -->
-			<div class="modal-footer">
-				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div>
 <!-- Modal Pdf -->
 <div class="modal fade" id="modalPdf" tabindex="-1" role="dialog" aria-labelledby="modalPdfLabel">
 	<div class="modal-dialog modal-lg" role="document">
@@ -58,11 +24,6 @@
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
-			<!--<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
-				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
-				</select>
-			</div>-->
 			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbFuncion">Elige Proveedor de Acero (Fabricante):</label>
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
@@ -79,7 +40,6 @@
 							<th class="text-center">Función por Proveedor</th>
 							<th class="text-center">Elige Proveedor</th>
 							<th class="text-center">Asignar Taller</th>
-							<th class="text-center">Transporte</th>
 							<th class="text-center">Asignar Cantidad</th>
 							<th class="text-center">Asignar</th>
 						</tr>
@@ -351,10 +311,6 @@
 	                        		tabla +='</td>';
 	                        		tabla +='<td>';
 	                        			tabla +='<select name="cmbTaller'+count+'" id="cmbTaller'+count+'" class="cmbTaller form-control">';
-										tabla +='</select>';
-	                        		tabla +='</td>';
-	                        		tabla +='<td>';
-	                        			tabla +='<select name="cmbTransporte'+count+'" id="cmbTransporte'+count+'" class="cmbTransporte form-control">';
 										tabla +='</select>';
 	                        		tabla +='</td>';
 	                        		tabla +='<td><input type="number" step="0.0001" class="form-control currency" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value="0" /></td>';
