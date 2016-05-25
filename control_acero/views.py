@@ -1658,10 +1658,7 @@ def suministroAsignarSave(request):
 	json_object = json.loads(respuesta)
 	cantidadRestante = 0
 	cantidadAsignadaDecimal = 0
-	pesoDetalleDecimal = 0
-	pesoTotalDetalle = 0
-	bandera = 0
-	cantidadRestanteReal = 0
+	cantidadAsignadaUpdate = 0
 	for data in json_object:
 		datos = data["data"]
 		splitData = datos.split("|")
@@ -1672,6 +1669,7 @@ def suministroAsignarSave(request):
 		idTaller = splitData[4]
 		cantidadAsignada = splitData[5]
 		cantidadAsignadaDecimal = Decimal(splitData[5])
+		cantidadAsignadaDecimalUpdate = Decimal(splitData[5])
 		idPrograma = splitData[6]
 		funcion = Funcion.objects.filter(id=idFuncion)
 		for f in funcion:
@@ -1693,32 +1691,57 @@ def suministroAsignarSave(request):
 								.filter(programaSuministro__funcion_id=funcionMaterial,
 										material_id=idDetalleSuministro)\
 								.order_by("id")
-
+		pesoDetalleDecimal = 0
+		pesoTotalDetalle = 0
+		bandera = 0
+		banderaUpdate = 0
+		cantidadRestanteReal = 0
+		cantidadRestanteUpdate = 0
+		cantidadRestante = 0
 		for p in programaSuministroDetalle:
 			busquedaEtapa = EtapaDescuento.objects.filter(remision=p["id"])
-			
-			pesoDetalleDecimal = Decimal(p["peso"])
-			if bandera == 0:
-				cantidadRestante += pesoDetalleDecimal - cantidadAsignadaDecimal
+			if busquedaEtapa.exists():
+				if busquedaEtapa[0].remision == p["id"]:
+					if busquedaEtapa[0].cantidadAsignada < p["peso"]:
+						cantidadRestanteUpdate = busquedaEtapa[0].cantidadRestante - cantidadAsignadaDecimalUpdate
+						print busquedaEtapa[0].cantidadRestante
+						print cantidadAsignadaDecimalUpdate
+						print cantidadRestanteUpdate
+						if cantidadRestanteUpdate < 0:
+							cantidadAsignadaUpdate = p["peso"]
+						else:
+							cantidadAsignadaUpdate = cantidadRestanteUpdate
+							banderaUpdate = 1
+
+						EtapaDescuento.objects.filter(id=busquedaEtapa[0].id)\
+												.update(cantidadRestante = cantidadRestanteUpdate,
+														cantidadAsignada = cantidadAsignadaUpdate)
+
+						if banderaUpdate == 1:
+							break
 			else:
+				pesoDetalleDecimal = Decimal(p["peso"])
+				if bandera == 0:
+					cantidadRestante += pesoDetalleDecimal - cantidadAsignadaDecimal
+				else:
+					if cantidadRestante < 0:
+						cantidadRestanteReal = cantidadRestante
+						cantidadRestante = pesoDetalleDecimal - abs(cantidadRestante)
+						cantidadAsignadaDecimal = abs(cantidadRestanteReal)
 				if cantidadRestante < 0:
-					cantidadRestanteReal = cantidadRestante
-					cantidadRestante = pesoDetalleDecimal - abs(cantidadRestante)
-					cantidadAsignadaDecimal = abs(cantidadRestanteReal)
-			if cantidadRestante < 0:
-				cantidadAsignadaDecimal = pesoDetalleDecimal
-				bandera = 1
-			ed = EtapaDescuento.objects.create(peso=peso,
-												cantidad=cantidad,
-												remision=p["id"],
-												cantidadRemision = p["peso"],
-												cantidadAsignada = cantidadAsignadaDecimal,
-												cantidadRestante = cantidadRestante,
-												etapa_id = e.pk,
-												estatusEtapa = 1
-											)
-			if cantidadRestante >= 0:
-				break
+					cantidadAsignadaDecimal = pesoDetalleDecimal
+					bandera = 1
+				ed = EtapaDescuento.objects.create(peso=peso,
+													cantidad=cantidad,
+													remision=p["id"],
+													cantidadRemision = p["peso"],
+													cantidadAsignada = cantidadAsignadaDecimal,
+													cantidadRestante = cantidadRestante,
+													etapa_id = e.pk,
+													estatusEtapa = 1
+												)
+				if cantidadRestante >= 0:
+					break
 
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la Asignación de Material correctamente."}
 	array = mensaje
