@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from control_acero.report.models_auth import Empresa, Usuario
-from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, ProgramaSuministro, ProgramaSuministroDetalle, Etapa, EtapaDespiece, EtapaDespieceDetalle, Taller, Transporte, Archivo
+from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, ProgramaSuministro, ProgramaSuministroDetalle, Etapa, EtapaDescuento,  EtapaDespiece, EtapaDespieceDetalle, Taller, Transporte, Archivo
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
@@ -1653,8 +1653,15 @@ def leeArchivo(archivo):
 def suministroAsignarSave(request):
 	array = {}
 	mensaje = {}
+	funcionMaterial = request.POST.get('funcionMaterial')
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
+	cantidadRestante = 0
+	cantidadAsignadaDecimal = 0
+	pesoDetalleDecimal = 0
+	pesoTotalDetalle = 0
+	bandera = 0
+	cantidadRestanteReal = 0
 	for data in json_object:
 		datos = data["data"]
 		splitData = datos.split("|")
@@ -1663,9 +1670,9 @@ def suministroAsignarSave(request):
 		cantidad = splitData[2]
 		idFuncion = splitData[3]
 		idTaller = splitData[4]
-		idTransporte = splitData[5]
-		cantidadAsignada = splitData[6]
-		idPrograma = splitData[7]
+		cantidadAsignada = splitData[5]
+		cantidadAsignadaDecimal = Decimal(splitData[5])
+		idPrograma = splitData[6]
 		funcion = Funcion.objects.filter(id=idFuncion)
 		for f in funcion:
 			if f.tipo == 2:
@@ -1674,17 +1681,46 @@ def suministroAsignarSave(request):
 				etapa = 3
 			if f.tipo == 4:
 				etapa = 4
-		e = Etapa(
-								peso=peso,
-								cantidad=cantidad,
-								estatusEtapa=etapa,
-								estatus=1,
-								funcion_id=idFuncion,
-								taller_id=idTaller,
-								transporte_id=idTransporte,
-								cantidadAsignada=cantidadAsignada)
-		e.save();
-	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignación de Suministro correctamente."}
+		e = Etapa.objects.create(peso=peso,
+									cantidad=cantidad,
+									estatusEtapa=etapa,
+									estatus=1,
+									funcion_id=idFuncion,
+									taller_id=idTaller,
+									cantidadAsignada=cantidadAsignada)
+		programaSuministroDetalle = ProgramaSuministroDetalle.objects\
+								.values("id", "peso")\
+								.filter(programaSuministro__funcion_id=funcionMaterial,
+										material_id=idDetalleSuministro)\
+								.order_by("id")
+
+		for p in programaSuministroDetalle:
+			busquedaEtapa = EtapaDescuento.objects.filter(remision=p["id"])
+			
+			pesoDetalleDecimal = Decimal(p["peso"])
+			if bandera == 0:
+				cantidadRestante += pesoDetalleDecimal - cantidadAsignadaDecimal
+			else:
+				if cantidadRestante < 0:
+					cantidadRestanteReal = cantidadRestante
+					cantidadRestante = pesoDetalleDecimal - abs(cantidadRestante)
+					cantidadAsignadaDecimal = abs(cantidadRestanteReal)
+			if cantidadRestante < 0:
+				cantidadAsignadaDecimal = pesoDetalleDecimal
+				bandera = 1
+			ed = EtapaDescuento.objects.create(peso=peso,
+												cantidad=cantidad,
+												remision=p["id"],
+												cantidadRemision = p["peso"],
+												cantidadAsignada = cantidadAsignadaDecimal,
+												cantidadRestante = cantidadRestante,
+												etapa_id = e.pk,
+												estatusEtapa = 1
+											)
+			if cantidadRestante >= 0:
+				break
+
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la Asignación de Material correctamente."}
 	array = mensaje
 	return JsonResponse(array)
 

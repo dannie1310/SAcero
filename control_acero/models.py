@@ -285,6 +285,30 @@ class Etapa(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
+class EtapaDescuento(models.Model):
+	peso = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	cantidad = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	remision = models.IntegerField()
+	cantidadRemision = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	cantidadRestante = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
+	etapa = models.ForeignKey(Etapa)
+	estatusEtapa = models.IntegerField()
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	TIPORECEPCION = (
+	    (0, 'Parcial'),
+	    (1, 'Total'),
+	)
+	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
 class EtapaDespiece(models.Model):
 	despieceTotal = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	pesoRecibido = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)

@@ -1,6 +1,6 @@
 {% extends 'control_acero/layout.html' %}
 {% block title_module %}
-	SUMINISTRO ASIGNACIÓN
+	ASIGNACIÓN MATERIAL
 {% endblock %}
 {% block modals %}
 <!-- Modal Pdf -->
@@ -61,7 +61,6 @@
 							<th class="text-center">Piezas</th>
 							<th class="text-center">Proveedor Asignado</th>
 							<th class="text-center">Taller Asignado</th>
-							<th class="text-center">Transporte Asignado</th>
 							<th class="text-center">Cantidad Asignada</th>
 						</tr>
 					</thead>
@@ -82,6 +81,7 @@
 		$( "#btnGuardar" ).click(function() {
 			var datos = [];
 			var datosString = '';
+			var funcionMaterial = $("#cmbFuncion").val();
 			$("input.dataAsignacion[type=text]").each(function(index, element) {
 				if(this.name == "txtDetalleSuministro"){
 					datosString += this.value+"|";
@@ -96,9 +96,6 @@
 					datosString += this.value+"|";
 				}
 				if(this.name == "txtTaller"){
-					datosString += this.value+"|";
-				}
-				if(this.name == "txtTransporte"){
 					datosString += this.value+"|";
 				}
 				if(this.name == "txtCantidadAsignada"){
@@ -117,6 +114,7 @@
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
+		        		funcionMaterial:funcionMaterial,
 		        		json: json
 						},
 		        beforeSend: function (objeto) {
@@ -396,7 +394,6 @@
 							+'<td class="text-center">'+pesoRecibido+'</td>'
 							+'<td class="text-center">'+funcionText+'</td>'
 							+'<td class="text-center">'+tallerText+'</td>'
-							+'<td class="text-center">'+transporteText+'</td>'
 							+'<td class="text-center success">'+cantidadAsignada+'</td>'
 							+'<td style="display:none;" class="text-center">'
 								+'<input type="text" disabled readonly class="dataAsignacion" name="txtDetalleSuministro" id="txtDetalleSuministro" value="'+idDetalleSuiministro+'" />'
