@@ -453,15 +453,9 @@
 			$(".archivosRemision").append(html);
 		});
 		$( "#btnImprimir" ).click(function() {
-<<<<<<< HEAD
-			var folio = $("#cmbPrograma").val();
-			var proveedor = $("#cmbFuncion").val();
-			var href = "http://localhost:8000/AsignarMaterial/"+proveedor;
-=======
 			var folio = $("#cmbFuncion").val();
 			console.log(folio);
 			var href = "http://localhost:8000/AsignarMaterial/"+folio;
->>>>>>> e843a44ac0980684362c5041efa97cba1a59ccc8
 			$("#framePdf").attr("src", href);
 		});
 	    $(function () {

@@ -2278,6 +2278,8 @@ def ordenTrabajoMaterialShow(request):
 							 "programaSuministroDetalle__material__nombre",
 							 "programaSuministroDetalle__longitud").filter(funcion__id=idFuncion)
 
+	print d.query
+
 	for f in d:
 			resultado = {"cantidad":f["cantidadAsignada"],
 						"nombre": f["funcion__proveedor"],
