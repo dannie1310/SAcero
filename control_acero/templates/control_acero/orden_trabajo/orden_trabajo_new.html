@@ -1,0 +1,327 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	ORDEN DE TRABAJO
+{% endblock %}
+{% block modals %}
+<!-- Modal -->
+<div class="modal fade" id="modalPdf" tabindex="-1" role="dialog" aria-labelledby="modalPdfLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalPdfLabel">Impresion PDF</h4>
+			</div>
+			<div class="modal-body">
+				<iframe class="col-lg-12 col-md-12 col-sm-12" height="600" name="framePdf" id="framePdf"></iframe>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="col-md-12">
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor de Habilitado :</label>
+				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+				</select>
+			</div>
+			
+		</div>
+		<div class="col-md-12">
+			<button type="button" class="btn btn-success" name="seleccionarFuncion" id="seleccionarFuncion">Seleccionar</button>
+		</div>
+
+		<div style="display:none;" id="divDetalle" class="col-md-12 table-responsive">
+			<table id="tablaDetalle" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Varilla</th>
+						<th class="text-center">Longitud</th>
+						<th class="text-center">Peso Total</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="divDetalle">Seleccione que requiere asignar : </label>
+			</div>
+		</div>
+		
+		<div style="display:none;" id="divXElemento"  class="col-md-6">
+			<button type="button" class="btn btn-success" name="XElemento" id="XElemento">Elemento</button>
+		</div>
+
+		<div style="display:none;" id="divXDespiece"  class="col-md-6">
+			<button type="button" class="btn btn-success" name="XDespiece" id="XDespiece">Despiece</button>
+		</div>
+
+		<div style="display:none;" id="divAsignarDespiece" class="form-group col-md-12">
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="divAsignarDespiece">Agregar por Despiece : </label>
+			</div>
+			<div class="form-group col-md-4">
+				<label  class="control-label" for="cmbElemento">Elegir Elemento:</label>
+				<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-4">
+				<label  class="control-label" for="cmbDespiece">Elegir Despiece:</label>
+				<select name="cmbElemento" id="cmbDespiece" class="cmbDespiece form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-4">
+				<label  class="control-label" for="cantidad">Cantidad :</label>
+				<input type="number" name="cmbCantidad" id="cmbCantidad" class="cmbCantidad form-control">
+				</input>
+			</div>
+		</div>
+
+		<div style="display:none;" id="divAsignarElemento" class="form-group col-md-12">
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="divAsignarElemento">Agregar por elemento : </label>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="cmbElemento">Elegir Elemento:</label>
+				<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="cantidad">Cantidad :</label>
+				<input type="number" name="cmbCantidad" id="cmbCantidad" class="cmbCantidad form-control"></input>
+			</div>
+		</div>
+
+		<div style="display:none;" id="divAgregarE"  class="col-md-12">
+			<button type="button" class="btn btn-success" name="agregarE" id="agregarE">Asignar</button>
+		</div>
+		<div style="display:none;" id="divAgregarD"  class="col-md-12">
+			<button type="button" class="btn btn-success" name="agregarD" id="agregarD">Asignar</button>
+		</div>
+		<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
+			<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		comboFuncion = function () {
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/ordenTrabajo/comboFuncion/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+
+		            	console.log(datos);
+		                $('#cmbFuncion').empty();
+		                
+		                $('#cmbFuncion').append('<option value="0">Seleccionar Proveedor Habilitador</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('#cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+		
+		comboElemento = function () {
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/elemento/combo/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	console.log(datos);
+		                $('.cmbElemento').empty();
+		                $('.cmbElemento').append('<option value="0">Selecciona un Elemento</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbElemento').append('<option value="' + object.idElemento + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el elemento:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+		comboDespiece = function (elemento) {
+			var elemento = elemento;
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/ordenTrabajo/comboDespiece/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		elemento : elemento
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbDespiece').empty();
+		                $('.cmbDespiece').append('<option value="0">Selecciona un Despiece</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbDespiece').append('<option value="' + object.idDespiece + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el Despiece:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+
+		$( "#seleccionarFuncion" ).click(function() {
+			$("#tablaDetalle tbody").empty();
+			var funcion = $("#cmbFuncion").val();
+
+			if(funcion == 0){
+				mensajeWarning("<b>Debes elegir un Proveedor.</b>");
+				return false;
+			}
+			
+			var tabla = '';
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/ordenTrabajo/MaterialShow/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		funcion: funcion
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+	                    $.each(datos.data, function (count, object) {
+	                    	//tabla += '<tr>'+object.nombre+'</tr>';
+	                        tabla += '<tr>'
+	                        			+'<td>'+object.varilla+'</td>'
+	                        			+'<td>'+object.longitud+'</td>'
+	                        			+'<td>'+object.cantidad+'</td>'
+	                        		+'</tr>';
+
+
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion del Frente:\n\n" + otroobj);
+		        }
+		    });
+		    $("#divDetalle").show('slide');
+		   	$("#tablaDetalle").append(tabla); 
+		   	$("#divXElemento").show('slide');
+		   	$("#divXDespiece").show('slide');
+
+		});
+
+$( "#divXDespiece" ).click(function() {
+			
+		    $("#divDetalle").show('slide');
+		   	$("#divAsignarDespiece").show('slide');
+		   	$("#divAgregarD").show('slide');
+		   	//$("#divAsignarElemento").empty();
+});		
+
+		$( "#cmbElemento" ).change(function() {
+			var value = this.value;
+			comboDespiece(value);
+});
+	
+$( "#divXElemento" ).click(function() {
+			
+		    $("#divDetalle").show('slide');
+		   	$("#divAsignarElemento").show('slide');
+		   	$("#divAgregarE").show('slide');
+		   	//$("#divAsignarDespiece").empty();
+});		
+
+$("#divAgregarE").click(function(){
+		var funcion = $("#cmbFuncion").val();
+		var elemento = $("#cmbElemento").val();
+		var cantidad = $("#cmbCantidad").val();
+
+		if(elemento == 0){
+				mensajeWarning("<b>Debes elegir un Elemento.</b>");
+				return false;
+		}
+		if(cantidad == 0){
+				mensajeWarning("<b>Debes elegir un Cantidad.</b>");
+				return false;
+		}
+
+		// var tabla = '';
+		//     $.ajax({
+		//         type: "POST",
+		//         url: "/control_acero/ordenTrabajo/asignarElemento/",
+		//         async: false,
+		//         dataType: "json",
+		//         data: {csrfmiddlewaretoken: csrftoken,
+		//         		funcion : funcion,
+		//         		elemento : elemento,
+		//         		cantidad : cantidad 
+		// 				},
+
+
+		//         beforeSend: function (objeto) {
+		//         },
+		//         success: function (datos) {
+		//             try {
+		// //console.log("cantidad");
+		//  } catch (e) {
+		//                 alert("Error al cargar El Frente:" + e);
+		//             }
+		//         },
+		//         error: function (objeto, quepaso, otroobj) {
+		//             alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		//         }
+		   
+
+});
+
+		$( "#cmbElemento" ).change(function() {
+			var value = this.value;
+			comboDespiece(value);
+		});
+
+	
+		
+	    $(function () {
+	    	comboFuncion();
+	    	comboElemento();
+
+
+	    });
+	</script>
+{% endblock %}

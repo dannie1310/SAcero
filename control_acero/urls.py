@@ -20,6 +20,16 @@ urlpatterns = [
     #url(r'^armado/$', views.ArmadoView.as_view(), name='armado'),
     #url(r'^colocado/$', views.ColocadoView.as_view(), name='colocado'),
     #"""------------------------------------------"""
+    #""" RUTAS RELACIONADAS CON ORDEN DE TRABAJO """
+    #"""------------------------------------------"""
+    url(r'^ordenTrabajo/nuevo/$', views.ordenTrabajoNuevoView, name='ordenTrabajoNuevoView'),
+    url(r'^ordenTrabajo/comboFuncion/$', views.ordenTrabajoComboFuncion, name='ordenTrabajoComboFuncion'),
+    url(r'^ordenTrabajo/comboDespiece/$', views.ordenTrabajoComboDespiece, name='ordenTrabajoComboDespiece'),
+    url(r'^ordenTrabajo/MaterialShow/$',views.ordenTrabajoMaterialShow, name='ordenTrabajoMaterialShow'),
+    #url(r'^ordenTrabajo/ElementoDetalle/$', views.ordenTrabajoElementoDetalle, name='ordenTrabajoElementoDetalle'),
+    #url(r'^ordenTrabajo/AsignarElemento/$',views.ordenTrabajoAsignarElemento, name='ordenTrabajoAsignarElemento'),
+
+    #"""------------------------------------------"""
     #""" RUTAS RELACIONADAS CON FRENTE DE TRABAJO """
     #"""------------------------------------------"""
     url(r'^frenteTrabajo/$', views.frenteTrabajoView, name='frenteTrabajoView'),
