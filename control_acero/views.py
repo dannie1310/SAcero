@@ -284,15 +284,23 @@ def suministroAsignarCantidades(request):
 	array = {}
 	mensaje = {}
 	data = []
-	dataFiles = []
-	idFuncion = request.POST.get('funcion', 0)
+	dataDetalle = []
+	idFuncion = request.POST.get('funcion', 1)
 	ps = ProgramaSuministroDetalle.objects\
-									.values('material_id', 'material__nombre')\
+									.values('material_id',
+											'material__nombre')\
 									.filter(programaSuministro__funcion__id=idFuncion) \
 									.annotate(pesoMaterial = Sum('peso')) \
 									.annotate(cantidadMaterial = Sum('cantidad')) \
 									.order_by('material_id')
 
+	psd = ProgramaSuministroDetalle.objects\
+									.values('id',
+											'material__id',
+											'material__nombre',
+											'peso')\
+									.filter(programaSuministro__funcion__id=idFuncion)\
+									.order_by('id')
 	for p in ps:
 		resultado = {"id":p["material_id"],
 						"materialNombre":p["material__nombre"],
@@ -300,7 +308,18 @@ def suministroAsignarCantidades(request):
 						"cantidad":p["cantidadMaterial"]
 					}
 		data.append(resultado)
+
+
+	for ps in psd:
+		resultado = {"idDetalle":ps["id"],
+						"idMaterial":ps["material__id"],
+						"materialNombre":ps["material__nombre"],
+						"peso":ps["peso"]
+					}
+		dataDetalle.append(resultado)
+
 	array["data"]=data
+	array["dataDetalle"]=dataDetalle
 	return JsonResponse(array)
 
 def extensiones(extension):
@@ -1656,9 +1675,8 @@ def suministroAsignarSave(request):
 	funcionMaterial = request.POST.get('funcionMaterial')
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
-	cantidadRestante = 0
-	cantidadAsignadaDecimal = 0
-	cantidadAsignadaUpdate = 0
+	cantidadRestante = 0;
+	pesoDetalleDecimal = 0;
 	for data in json_object:
 		datos = data["data"]
 		splitData = datos.split("|")
@@ -1668,8 +1686,6 @@ def suministroAsignarSave(request):
 		idFuncion = splitData[3]
 		idTaller = splitData[4]
 		cantidadAsignada = splitData[5]
-		cantidadAsignadaDecimal = Decimal(splitData[5])
-		cantidadAsignadaDecimalUpdate = Decimal(splitData[5])
 		idPrograma = splitData[6]
 		funcion = Funcion.objects.filter(id=idFuncion)
 		for f in funcion:
@@ -1691,61 +1707,165 @@ def suministroAsignarSave(request):
 								.filter(programaSuministro__funcion_id=funcionMaterial,
 										material_id=idDetalleSuministro)\
 								.order_by("id")
-		pesoDetalleDecimal = 0
-		pesoTotalDetalle = 0
-		bandera = 0
-		banderaUpdate = 0
-		cantidadRestanteReal = 0
-		cantidadRestanteUpdate = 0
-		cantidadRestante = 0
+
+		restante=0
+		restanteVerifica = 0
+		cantidadRestanteU = 0
+		banderaValidaOtro = 0
 		for p in programaSuministroDetalle:
-			busquedaEtapa = EtapaDescuento.objects.filter(remision=p["id"])
-			if busquedaEtapa.exists():
-				if busquedaEtapa[0].remision == p["id"]:
-					if busquedaEtapa[0].cantidadAsignada < p["peso"]:
-						cantidadRestanteUpdate = busquedaEtapa[0].cantidadRestante - cantidadAsignadaDecimalUpdate
-						print busquedaEtapa[0].cantidadRestante
-						print cantidadAsignadaDecimalUpdate
-						print cantidadRestanteUpdate
-						if cantidadRestanteUpdate < 0:
-							cantidadAsignadaUpdate = p["peso"]
-						else:
-							cantidadAsignadaUpdate = cantidadRestanteUpdate
-							banderaUpdate = 1
-
-						EtapaDescuento.objects.filter(id=busquedaEtapa[0].id)\
-												.update(cantidadRestante = cantidadRestanteUpdate,
-														cantidadAsignada = cantidadAsignadaUpdate)
-
-						if banderaUpdate == 1:
-							break
+			etapaDescuento = EtapaDescuento.objects.filter(remision=p["id"])
+			if etapaDescuento.exists():
+				for etapaDesc in etapaDescuento:
+					if etapaDesc.remision == p["id"] and etapaDesc.estatusEtapa == 1:
+						cantidadRestanteU =  etapaDesc.cantidadRestante - Decimal(cantidadAsignada)
+						edu = EtapaDescuento.objects.create(peso=peso,
+															cantidad=cantidad,
+															remision=etapaDesc.remision,
+															cantidadRemision = etapaDesc.cantidadRemision,
+															cantidadAsignada = etapaDesc.cantidadRestante,
+															cantidadRestante = cantidadRestanteU,
+															etapa_id = e.pk,
+															estatusEtapa = 1
+														)
+						if cantidadRestanteU <= 0:
+							EtapaDescuento.objects.filter(id=etapaDesc.id).update(estatusEtapa=0)
+							EtapaDescuento.objects.filter(id=edu.id).update(estatusEtapa=0)
+							banderaValidaOtro = 1
+						if cantidadRestanteU > 0:
+							banderaValidaOtro = 2
+						
 			else:
-				pesoDetalleDecimal = Decimal(p["peso"])
-				if bandera == 0:
-					cantidadRestante += pesoDetalleDecimal - cantidadAsignadaDecimal
+				if banderaValidaOtro == 1:
+					break
+				if banderaValidaOtro == 2:
+					break
+				estatusEtapa = 1
+				if restante < 0:
+					restanteResta = abs(restante)
+					restante = Decimal(p["peso"]) - restanteResta
 				else:
-					if cantidadRestante < 0:
-						cantidadRestanteReal = cantidadRestante
-						cantidadRestante = pesoDetalleDecimal - abs(cantidadRestante)
-						cantidadAsignadaDecimal = abs(cantidadRestanteReal)
-				if cantidadRestante < 0:
-					cantidadAsignadaDecimal = pesoDetalleDecimal
-					bandera = 1
+					restanteVerifica = restante
+					restante = Decimal(p["peso"]) - Decimal(cantidadAsignada)
+					if restanteVerifica > 0:
+						restante = abs(restante)
+
+				if restante <= 0:
+					estatusEtapa = 0
 				ed = EtapaDescuento.objects.create(peso=peso,
 													cantidad=cantidad,
 													remision=p["id"],
 													cantidadRemision = p["peso"],
-													cantidadAsignada = cantidadAsignadaDecimal,
-													cantidadRestante = cantidadRestante,
+													cantidadAsignada = cantidadAsignada,
+													cantidadRestante = restante,
 													etapa_id = e.pk,
-													estatusEtapa = 1
+													estatusEtapa = estatusEtapa
 												)
-				if cantidadRestante >= 0:
+
+				if restante > 0:
 					break
 
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la Asignación de Material correctamente."}
 	array = mensaje
 	return JsonResponse(array)
+
+# def suministroAsignarSave(request):
+# 	array = {}
+# 	mensaje = {}
+# 	funcionMaterial = request.POST.get('funcionMaterial')
+# 	respuesta = request.POST.get('json')
+# 	json_object = json.loads(respuesta)
+# 	cantidadRestante = 0;
+# 	pesoDetalleDecimal = 0;
+# 	for data in json_object:
+# 		datos = data["data"]
+# 		splitData = datos.split("|")
+# 		idDetalleSuministro = splitData[0]
+# 		peso = splitData[1]
+# 		cantidad = splitData[2]
+# 		idFuncion = splitData[3]
+# 		idTaller = splitData[4]
+# 		cantidadAsignada = splitData[5]
+# 		idPrograma = splitData[6]
+# 		funcion = Funcion.objects.filter(id=idFuncion)
+# 		for f in funcion:
+# 			if f.tipo == 2:
+# 				etapa = 1
+# 			if f.tipo == 3:
+# 				etapa = 3
+# 			if f.tipo == 4:
+# 				etapa = 4
+# 		e = Etapa.objects.create(peso=peso,
+# 									cantidad=cantidad,
+# 									estatusEtapa=etapa,
+# 									estatus=1,
+# 									funcion_id=idFuncion,
+# 									taller_id=idTaller,
+# 									cantidadAsignada=cantidadAsignada)
+# 		programaSuministroDetalle = ProgramaSuministroDetalle.objects\
+# 								.values("id", "peso")\
+# 								.filter(programaSuministro__funcion_id=funcionMaterial,
+# 										material_id=idDetalleSuministro)\
+# 								.order_by("id")
+
+# 		restante=0
+# 		restanteVerifica = 0
+# 		cantidadRestanteU = 0
+# 		banderaValidaOtro = 0
+# 		for p in programaSuministroDetalle:
+# 			etapaDescuento = EtapaDescuento.objects.filter(remision=p["id"])
+# 			if etapaDescuento.exists():
+# 				for etapaDesc in etapaDescuento:
+# 					if etapaDesc.remision == p["id"] and etapaDesc.estatusEtapa == 1:
+# 						cantidadRestanteU =  etapaDesc.cantidadRestante - Decimal(cantidadAsignada)
+# 						edu = EtapaDescuento.objects.create(peso=peso,
+# 															cantidad=cantidad,
+# 															remision=etapaDesc.remision,
+# 															cantidadRemision = etapaDesc.cantidadRemision,
+# 															cantidadAsignada = etapaDesc.cantidadRestante,
+# 															cantidadRestante = cantidadRestanteU,
+# 															etapa_id = e.pk,
+# 															estatusEtapa = 1
+# 														)
+# 						if cantidadRestanteU <= 0:
+# 							EtapaDescuento.objects.filter(id=etapaDesc.id).update(estatusEtapa=0)
+# 							EtapaDescuento.objects.filter(id=edu.id).update(estatusEtapa=0)
+# 							banderaValidaOtro = 1
+# 						if cantidadRestanteU > 0:
+# 							banderaValidaOtro = 2
+						
+# 			else:
+# 				if banderaValidaOtro == 1:
+# 					break
+# 				if banderaValidaOtro == 2:
+# 					break
+# 				estatusEtapa = 1
+# 				if restante < 0:
+# 					restanteResta = abs(restante)
+# 					restante = Decimal(p["peso"]) - restanteResta
+# 				else:
+# 					restanteVerifica = restante
+# 					restante = Decimal(p["peso"]) - Decimal(cantidadAsignada)
+# 					if restanteVerifica > 0:
+# 						restante = abs(restante)
+
+# 				if restante < 0:
+# 					estatusEtapa = 0
+# 				ed = EtapaDescuento.objects.create(peso=peso,
+# 													cantidad=cantidad,
+# 													remision=p["id"],
+# 													cantidadRemision = p["peso"],
+# 													cantidadAsignada = cantidadAsignada,
+# 													cantidadRestante = restante,
+# 													etapa_id = e.pk,
+# 													estatusEtapa = estatusEtapa
+# 												)
+
+# 				if restante > 0:
+# 					break
+
+# 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la Asignación de Material correctamente."}
+# 	array = mensaje
+# 	return JsonResponse(array)
 
 def habilitadoRecepcionSave(request):
 	array = {}
