@@ -2082,3 +2082,67 @@ def fisicoBusquedaView(request):
 	#array["apoyo"]=dataApoyo
 	#array["detalle"]=dataDetalle
 	return JsonResponse(array)
+
+def ordenTrabajoNuevoView(request):
+	template = 'control_acero/orden_trabajo/orden_trabajo_new.html'
+	return render(request, template)
+
+
+def ordenTrabajoComboFuncion(request):
+	array = {}
+	mensaje = {}
+	data = []
+	funcion = Funcion.objects.filter(tipo=2, estatus=1)
+	for f in funcion:
+			resultado = {"idFuncion":f.id,"proveedor":f.proveedor}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+
+def ordenTrabajoComboDespiece(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idElemento = request.POST.get('elemento', 0)
+
+
+	d = Elemento.objects.values("despiece__id",
+								"despiece__nomenclatura").filter(id=idElemento)
+
+	for f in d:
+			resultado = {"idDespiece":f["despiece__id"],
+						"nombre": f["despiece__nomenclatura"]
+						}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+
+def ordenTrabajoMaterialShow(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idFuncion = request.POST.get('funcion', '6')
+
+
+	d = Etapa.objects.values("cantidadAsignada",
+							 "funcion__proveedor",
+							 "programaSuministroDetalle__material__nombre",
+							 "programaSuministroDetalle__longitud").filter(funcion__id=idFuncion)
+
+	for f in d:
+			resultado = {"cantidad":f["cantidadAsignada"],
+						"nombre": f["funcion__proveedor"],
+						"varilla" : f["programaSuministroDetalle__material__nombre"],
+						"longitud" : f["programaSuministroDetalle__longitud"]
+						}
+			data.append(resultado)
+	
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
