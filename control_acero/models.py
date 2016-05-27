@@ -251,13 +251,13 @@ class Etapa(models.Model):
 	peso = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	cantidad = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	tiempoEntrega = models.IntegerField(null=True)
-	programaSuministro = models.ForeignKey(ProgramaSuministro, null=True)
-	programaSuministroDetalle = models.ForeignKey(ProgramaSuministroDetalle, null=True)
 	funcion = models.ForeignKey(Funcion)
 	taller = models.ForeignKey(Taller, null=True)
+	material = models.ForeignKey(Material, null=True)
 	transporte = models.ForeignKey(Transporte, null=True)
 	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	idEtapaPertenece = models.IntegerField(null=True)
+	idOrdenTrabajo = models.IntegerField(null=True)
 	EtapaDespiece = models.ManyToManyField(
 		'EtapaDespiece',
 		blank=True,

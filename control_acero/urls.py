@@ -148,6 +148,7 @@ urlpatterns = [
     url(r'^habilitado/asignar/cantidades/$', views.habilitadoAsignarCantidades, name='habilitadoAsignarCantidades'),
     url(r'^habilitado/asignar/elemento/$', views.habilitadoAsignarElemento, name='habilitadoAsignarElemento'),
     url(r'^habilitado/asignar/save/$', views.habilitadoAsignarSave, name='habilitadoAsignarSave'),
+    url(r'^habilitado/asignar/despiece/save/$', views.habilitadoAsignarDespieceSave, name='habilitadoAsignarDespieceSave'),
     #"""------------------------------------------"""
     #""" RUTAS RELACIONADAS CON HABILITADO """
     #"""------------------------------------------"""
