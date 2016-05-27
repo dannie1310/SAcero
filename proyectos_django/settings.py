@@ -84,9 +84,9 @@ WSGI_APPLICATION = 'proyectos_django.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'control_acero',                 
+        'NAME': 'controlacero',                 
         'USER': 'root',                    
-        'PASSWORD': '12345',                
+        'PASSWORD': 'root',                
         'HOST': '127.0.0.1',                     
         'PORT': '3306',
         'OPTIONS': {
