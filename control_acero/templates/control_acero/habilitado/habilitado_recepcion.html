@@ -24,11 +24,11 @@
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
-			<div class="form-group col-md-12">
+			<!-- <div class="form-group col-md-12">
 				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
 				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
 				</select>
-			</div>
+			</div> -->
 			<div class="form-group col-md-12">
 				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
@@ -38,16 +38,14 @@
 				<table id="tablaSuministro" class="table table-hover">
 					<thead>
 						<tr>
-							<th class="text-center">Programa de Suministro</th>
+							
 							<th class="text-center">Material</th>
 							<th class="text-center">Peso</th>
 							<th class="text-center">Cantidad</th>
 							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Taller Asignado</th>
-							<th class="text-center">Transporte</th>
+							<th class="text-center">Orden de Trabajo</th>
 							<th class="text-center">Seleccionar</th>
-							<th class="text-center">Existencia</th>
-							<th class="text-center">Existencia Total</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -62,13 +60,11 @@
 				<table id="tablaHabilitadoAsignado" class="table table-hover">
 					<thead>
 						<tr>
-							<th class="text-center">Programa de Suministro</th>
 							<th class="text-center">Material</th>
 							<th class="text-center">Peso</th>
 							<th class="text-center">Cantidad</th>
 							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Taller Asignado</th>
-							<th class="text-center">Transporte</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -92,7 +88,6 @@
 				if($(this).is(":checked")){
 					var value = this.value;
 					var idEtapa = $("#txtId"+value).val();
-					var suministro = $("#txtIdSuministro"+value).val();
 					var nombre = $("#txtNombreMaterial"+value).val();
 					var funcion = $("#txtIdFuncion"+value).val();
 					var peso = $("#txtPeso"+value).val();
@@ -103,13 +98,11 @@
 					var transporte = $("#txtTransporte"+value).val();
 					var transporteTexto = $("#txtTransporteTexto"+value).val();
 					tabla += '<tr>'
-								+'<td class="text-center">'+suministro+'</td>'
 								+'<td class="text-center">'+nombre+'</td>'
 								+'<td class="text-center">'+peso+'</td>'
 								+'<td class="text-center">'+cantidad+'</td>'
 								+'<td class="text-center">'+cantidadAsignada+'</td>'
 								+'<td class="text-center">'+tallerTexto+'</td>'
-								+'<td class="text-center">'+transporteTexto+'</td>'
 								+'<td style="display:none;" class="text-center">'
 									+'<input type="text" disabled readonly class="dataAsignacion" name="dataId" id="dataId" value="'+idEtapa+'" />'
 								+'</td>'
@@ -140,6 +133,7 @@
 		        success: function (datos) {
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            	$("#btnGuardar").hide('explode');
 		            	$("#divImpresion").show('slide');
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
@@ -150,32 +144,6 @@
 		        }
 		    });
 		});
-		comboPrograma = function () {
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/habilitado/asigna/comboPrograma/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
-						},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
-		            try {
-		                $('.cmbPrograma').empty();
-		                $('.cmbPrograma').append('<option value="0">Selecciona un Programa de Suministro</option>');
-	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbPrograma').append('<option value="' + object.idPrograma + '">Folio --->>> ' + object.idPrograma + '</option>');
-	                    });
-		            } catch (e) {
-		                alert("Error al cargar Combo Funcion:" + e);
-		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
-		        }
-		    });
-		};
 		comboFuncion = function () {
 		    $.ajax({
 		        type: "POST",
@@ -208,6 +176,7 @@
 			var programa = $("#cmbPrograma").val();
 			var funcion = this.value;
 			var count = 0;
+			var disabledOrden = 0;
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/habilitado/recepcion/habilitado/",
@@ -222,18 +191,17 @@
 		        success: function (datos) {
 		            try {
 	                    $.each(datos.data, function (count, object) {
+                			disabledOrden = (object.idOrdenTrabajo==0) ? 'disabled' : '';
 	                        tabla += '<tr>'
-	                        			+'<td>'+object.programaSuministro+'</td>'
 	                        			+'<td>'+object.nombreMaterial+'</td>'
 	                        			+'<td>'+object.peso+'</td>'
 	                        			+'<td>'+object.cantidad+'</td>'
 	                        			+'<td>'+object.cantidadAsignada+'</td>'
 	                        			+'<td>'+object.tallerNombre+'</td>'
-	                        			+'<td>'+object.transportePlacas+'</td>'
-	                        			+'<td><input type="checkbox" name="seleccionados" value="'+count+'" /></span></td>'
+	                        			+'<td>'+object.idOrdenTrabajo+'</td>'
+	                        			+'<td><input type="checkbox" '+disabledOrden+' name="seleccionados" value="'+count+'" /></span></td>'
 										+'<td style="display:none;" class="text-center">'
 											+'<input type="text" disabled readonly name="txtId'+count+'" id="txtId'+count+'" value="'+object.id+'" />'
-											+'<input type="text" disabled readonly name="txtIdSuministro'+count+'" id="txtIdSuministro'+count+'" value="'+object.programaSuministro+'" />'
 											+'<input type="text" disabled readonly name="txtNombreMaterial'+count+'" id="txtNombreMaterial'+count+'" value="'+object.nombreMaterial+'" />'
 											+'<input type="text" disabled readonly name="txtIdFuncion'+count+'" id="txtIdFuncion'+count+'" value="'+funcion+'" />'
 											+'<input type="text" disabled readonly name="txtPeso'+count+'" id="txtPeso'+count+'" value="'+object.peso+'" />'
@@ -264,7 +232,6 @@
 			$("#framePdf").attr("src", href);
 		});
 	    $(function () {
-	    	comboPrograma();
 	    	comboFuncion();
 	    });
 	</script>

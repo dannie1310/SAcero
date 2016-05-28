@@ -22,174 +22,177 @@
 </div>
 {% endblock %}
 {% block content %}
-<ul class="nav nav-tabs">
-	<li class="active"><a data-toggle="tab" href="#tabElemento">Orden por Elemento</a></li>
- 	<li><a data-toggle="tab" href="#tabDespiece">Orden por Despiece</a></li>
-</ul>
-<div class="tab-content">
-	<div id="tabElemento" class="tab-pane fade in active">
-		<div class="col-xs-12">
-			<div class="col-md-12">
-				<div class="form-group col-md-12">
-					<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
-					<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
-					</select>
-				</div>
-				<div class="form-group col-md-6">
-					<label  class="control-label" for="cmbElemento">Elige un Elemento:</label>
-					<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
-					</select>
-				</div>
-				<div class="form-group col-md-6">
-					<label  class="control-label" for="txtNumber">Indica una Cantidad:</label>
-					<input type="number" class="form-control" name="txtNumber" id="txtNumber" min="1" value="1">
-				</div>
-				<div class="form-group text-center col-md-12">
-					<button type="button" class="btn btn-success" name="btnAgregar" id="btnAgregar">Agregar</button>
-					<button type="button" name="btnLimpiar" id="btnLimpiar" class="btn btn-info">Limpiar</button>
-				</div>
-				<div class="col-md-12 table-responsive">
-					<table id="tablaSuministro" class="table table-hover">
-						<thead>
-							<tr>
-								<th class="text-center">Material Nombre</th>
-								<th class="text-center">Peso Total Kg</th>
-								<th class="text-center">Peso Recibido Kg</th>
-								<th class="text-center">Peso Restante Kg</th>
-							</tr>
-						</thead>
-						<tbody>
-							<!--<td><input type="checkbox" name="test" value="0" /></td>-->
-						</tbody>
-					</table>
-				</div>
-				<!-- <div class="col-md-12 table-responsive">
-					<table id="tablaSuministroAsignado" class="table table-hover">
-						<thead>
-							<tr>
-								<th colspan="9" class="text-center">Detalle de la Asignación</th>
-							</tr>
-							<tr>
-								<th class="text-center">Proveedores Funciones</th>
-								<th class="text-center">Elige Proveedor</th>
-								<th class="text-center">Asignar Taller</th>
-								<th class="text-center">Transporte</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>
-		            				<select name="cmbTipoFuncion" id="cmbTipoFuncion" class="cmbTipoFuncion form-control">
-									</select>
-								</td>
-								<td>
-		            				<select name="cmbFuncionSeleccionada" id="cmbFuncionSeleccionada" class="cmbFuncionSeleccionada form-control">
-									</select>
-								</td>
-								<td>
-		            				<select name="cmbTaller" id="cmbTaller" class="cmbTaller form-control">
-									</select>
-								</td>
-								<td>
-		            				<select name="cmbTransporte" id="cmbTransporte" class="cmbTransporte form-control">
-									</select>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>-->
+<div class="col-md-12">
+	<ul class="nav nav-tabs">
+		<li class="active"><a data-toggle="tab" href="#tabElemento">Orden por Elemento</a></li>
+	 	<li><a data-toggle="tab" href="#tabDespiece">Orden por Despiece</a></li>
+	</ul>
+	<div class="tab-content">
+		<div id="tabElemento" class="tab-pane fade in active">
+			<div class="col-xs-12">
 				<div class="col-md-12">
-					<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Crear Orden</button>
-				</div>
-				<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
-					<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
+					<div class="form-group col-md-12">
+						<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+						<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+						</select>
+					</div>
+					<div class="form-group col-md-6">
+						<label  class="control-label" for="cmbElemento">Elige un Elemento:</label>
+						<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+						</select>
+					</div>
+					<div class="form-group col-md-6">
+						<label  class="control-label" for="txtNumber">Indica una Cantidad:</label>
+						<input type="number" class="form-control" name="txtNumber" id="txtNumber" min="1" value="1">
+					</div>
+					<div class="form-group text-center col-md-12">
+						<button type="button" class="btn btn-success" name="btnAgregar" id="btnAgregar">Agregar</button>
+						<button type="button" name="btnLimpiar" id="btnLimpiar" class="btn btn-info">Limpiar</button>
+					</div>
+					<div class="col-md-12 table-responsive">
+						<table id="tablaSuministro" class="table table-hover">
+							<thead>
+								<tr>
+									<th class="text-center">Material Nombre</th>
+									<th class="text-center">Peso Total Kg</th>
+									<th class="text-center">Peso Recibido Kg</th>
+									<th class="text-center">Peso Restante Kg</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!--<td><input type="checkbox" name="test" value="0" /></td>-->
+							</tbody>
+						</table>
+					</div>
+					<!-- <div class="col-md-12 table-responsive">
+						<table id="tablaSuministroAsignado" class="table table-hover">
+							<thead>
+								<tr>
+									<th colspan="9" class="text-center">Detalle de la Asignación</th>
+								</tr>
+								<tr>
+									<th class="text-center">Proveedores Funciones</th>
+									<th class="text-center">Elige Proveedor</th>
+									<th class="text-center">Asignar Taller</th>
+									<th class="text-center">Transporte</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+			            				<select name="cmbTipoFuncion" id="cmbTipoFuncion" class="cmbTipoFuncion form-control">
+										</select>
+									</td>
+									<td>
+			            				<select name="cmbFuncionSeleccionada" id="cmbFuncionSeleccionada" class="cmbFuncionSeleccionada form-control">
+										</select>
+									</td>
+									<td>
+			            				<select name="cmbTaller" id="cmbTaller" class="cmbTaller form-control">
+										</select>
+									</td>
+									<td>
+			            				<select name="cmbTransporte" id="cmbTransporte" class="cmbTransporte form-control">
+										</select>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>-->
+					<div class="col-md-12">
+						<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Crear Orden</button>
+					</div>
+					<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
+						<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
+					</div>
 				</div>
 			</div>
-		</div>
-  	</div>
-  	<div id="tabDespiece" class="tab-pane fade">
-		<div class="col-xs-12">
-			<div class="col-md-12">
-				<div class="form-group col-md-12">
-					<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
-					<select name="cmbFuncionDespiece" id="cmbFuncionDespiece" class="cmbFuncion form-control">
-					</select>
-				</div>
-				<div class="form-group col-md-6">
-					<label  class="control-label" for="cmbElementoDespiece">Elige un Elemento:</label>
-					<select name="cmbElementoDespiece" id="cmbElementoDespiece" class="cmbElemento form-control">
-					</select>
-				</div>
-				<div id="divDespiece" style="display:none" class="form-group col-md-6">
-					<label  class="control-label" for="txtNumber">Indica un Despiece:</label>
-					<select name="cmbDespiece" id="cmbDespiece" multiple="multiple" class="cmbDespiece form-control">
-					</select>
-				</div>
-				<div class="form-group text-center col-md-12">
-					<button type="button" class="btn btn-success" name="btnAgregarDespiece" id="btnAgregarDespiece">Agregar</button>
-					<button type="button" name="btnLimpiarDespiece" id="btnLimpiarDespiece" class="btn btn-info">Limpiar</button>
-				</div>
-				<div class="col-md-12 table-responsive">
-					<table id="tablaDespiece" class="table table-hover">
-						<thead>
-							<tr>
-								<th class="text-center">Elemento</th>
-								<th class="text-center">Nomenclatura</th>
-								<th class="text-center">Longitud</th>
-								<th class="text-center">Cantidad</th>
-							</tr>
-						</thead>
-						<tbody>
-							<!--<td><input type="checkbox" name="test" value="0" /></td>-->
-						</tbody>
-					</table>
-				</div>
-				<!-- <div class="col-md-12 table-responsive">
-					<table id="tablaSuministroAsignado" class="table table-hover">
-						<thead>
-							<tr>
-								<th colspan="9" class="text-center">Detalle de la Asignación</th>
-							</tr>
-							<tr>
-								<th class="text-center">Proveedores Funciones</th>
-								<th class="text-center">Elige Proveedor</th>
-								<th class="text-center">Asignar Taller</th>
-								<th class="text-center">Transporte</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>
-		            				<select name="cmbTipoFuncion" id="cmbTipoFuncion" class="cmbTipoFuncion form-control">
-									</select>
-								</td>
-								<td>
-		            				<select name="cmbFuncionSeleccionada" id="cmbFuncionSeleccionada" class="cmbFuncionSeleccionada form-control">
-									</select>
-								</td>
-								<td>
-		            				<select name="cmbTaller" id="cmbTaller" class="cmbTaller form-control">
-									</select>
-								</td>
-								<td>
-		            				<select name="cmbTransporte" id="cmbTransporte" class="cmbTransporte form-control">
-									</select>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>-->
+	  	</div>
+	  	<div id="tabDespiece" class="tab-pane fade">
+			<div class="col-xs-12">
 				<div class="col-md-12">
-					<button type="button" name="btnGuardarDespiece" id="btnGuardarDespiece" class="btn btn-primary">Crear Orden</button>
-				</div>
-				<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
-					<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
+					<div class="form-group col-md-12">
+						<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
+						<select name="cmbFuncionDespiece" id="cmbFuncionDespiece" class="cmbFuncion form-control">
+						</select>
+					</div>
+					<div class="form-group col-md-6">
+						<label  class="control-label" for="cmbElementoDespiece">Elige un Elemento:</label>
+						<select name="cmbElementoDespiece" id="cmbElementoDespiece" class="cmbElemento form-control">
+						</select>
+					</div>
+					<div id="divDespiece" style="display:none" class="form-group col-md-6">
+						<label  class="control-label" for="txtNumber">Indica un Despiece:</label>
+						<select name="cmbDespiece" id="cmbDespiece" multiple="multiple" class="cmbDespiece form-control">
+						</select>
+					</div>
+					<div class="form-group text-center col-md-12">
+						<button type="button" class="btn btn-success" name="btnAgregarDespiece" id="btnAgregarDespiece">Agregar</button>
+						<button type="button" name="btnLimpiarDespiece" id="btnLimpiarDespiece" class="btn btn-info">Limpiar</button>
+					</div>
+					<div class="col-md-12 table-responsive">
+						<table id="tablaDespiece" class="table table-hover">
+							<thead>
+								<tr>
+									<th class="text-center">Elemento</th>
+									<th class="text-center">Nomenclatura</th>
+									<th class="text-center">Longitud</th>
+									<th class="text-center">Cantidad</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!--<td><input type="checkbox" name="test" value="0" /></td>-->
+							</tbody>
+						</table>
+					</div>
+					<!-- <div class="col-md-12 table-responsive">
+						<table id="tablaSuministroAsignado" class="table table-hover">
+							<thead>
+								<tr>
+									<th colspan="9" class="text-center">Detalle de la Asignación</th>
+								</tr>
+								<tr>
+									<th class="text-center">Proveedores Funciones</th>
+									<th class="text-center">Elige Proveedor</th>
+									<th class="text-center">Asignar Taller</th>
+									<th class="text-center">Transporte</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+			            				<select name="cmbTipoFuncion" id="cmbTipoFuncion" class="cmbTipoFuncion form-control">
+										</select>
+									</td>
+									<td>
+			            				<select name="cmbFuncionSeleccionada" id="cmbFuncionSeleccionada" class="cmbFuncionSeleccionada form-control">
+										</select>
+									</td>
+									<td>
+			            				<select name="cmbTaller" id="cmbTaller" class="cmbTaller form-control">
+										</select>
+									</td>
+									<td>
+			            				<select name="cmbTransporte" id="cmbTransporte" class="cmbTransporte form-control">
+										</select>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>-->
+					<div class="col-md-12">
+						<button type="button" name="btnGuardarDespiece" id="btnGuardarDespiece" class="btn btn-primary">Crear Orden</button>
+					</div>
+					<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
+						<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
+					</div>
 				</div>
 			</div>
-		</div>
-  	</div>
+	  	</div>
+	</div>
 </div>
-
+<div class="clearfix"></div>
+<div style="display:none;" class="alert-success col-md-6 col-md-offset-3" id="ordenCreada"></div>
 	<script type="text/javascript">
 		$( "#btnLimpiar" ).click(function() {
 			$("#tablaSuministro tbody").empty();
@@ -234,6 +237,9 @@
 		        success: function (datos) {
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            	$("#ordenCreada").append("<b>Se creo la Orden con el Folio: "+datos.idOrden+"</b>");
+		            	$("#ordenCreada").show('slide');
+		            	$("#btnGuardar").hide('slide');
 		            	$("#divImpresion").show('slide');
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
@@ -275,6 +281,9 @@
 		        success: function (datos) {
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            	$("#ordenCreada").append("<b>Se creo la Orden con el Folio: "+datos.idOrden+"</b>");
+		            	$("#ordenCreada").show('slide');
+		            	$("#btnGuardarDespiece").hide('slide');
 		            	//$("#divImpresion").show('slide');
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);

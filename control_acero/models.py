@@ -75,6 +75,7 @@ class Despiece(models.Model):
 	longitud = models.FloatField(default=0)
 	peso = models.DecimalField(max_digits=20,decimal_places=4,default=Decimal('0.0000'), null=True)
 	figura = models.CharField(default=1, max_length=20)
+	imagen = models.FileField(upload_to='despieces', null=True)
 	material = models.ManyToManyField(
 		'material',
 		blank=True,
@@ -252,6 +253,7 @@ class Etapa(models.Model):
 	cantidad = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	tiempoEntrega = models.IntegerField(null=True)
 	funcion = models.ForeignKey(Funcion)
+	funcionAnterior = models.ForeignKey(Funcion, null=True, related_name='funcionAnterior')
 	taller = models.ForeignKey(Taller, null=True)
 	material = models.ForeignKey(Material, null=True)
 	transporte = models.ForeignKey(Transporte, null=True)

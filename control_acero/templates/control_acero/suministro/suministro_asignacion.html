@@ -454,7 +454,7 @@
 		});
 		$( "#btnImprimir" ).click(function() {
 			var folio = $("#cmbFuncion").val();
-			console.log(folio);
+			//console.log(folio);
 			var href = "http://localhost:8000/AsignarMaterial/"+folio;
 			$("#framePdf").attr("src", href);
 		});

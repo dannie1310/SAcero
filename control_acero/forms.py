@@ -16,7 +16,7 @@ class ElementoForm(forms.ModelForm):
 class DespieceForm(forms.ModelForm):
 	class Meta:
 		model = Despiece
-		fields = ['nomenclatura', 'estatus', 'longitud','cantidad','figura','peso','material']
+		fields = ['nomenclatura', 'estatus', 'longitud','cantidad','figura','peso','material','imagen']
 		exclude = ['estatus']
 
 class MaterialForm(forms.ModelForm):

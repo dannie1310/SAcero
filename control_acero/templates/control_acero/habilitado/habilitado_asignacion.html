@@ -25,35 +25,20 @@
 	<div class="col-xs-12">
 		<div class="col-md-12">
 			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbPrograma">Elige un Programa de Suministro:</label>
-				<select name="cmbPrograma" id="cmbPrograma" class="cmbPrograma form-control">
+				<label  class="control-label" for="cmbOrden">Elige una Orden de Trabajo:</label>
+				<select name="cmbOrden" id="cmbOrden" class="cmbOrden form-control">
 				</select>
-			</div>
-			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbFuncion">Elige un Proveedor:</label>
-				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
-				</select>
-			</div>
-			<div class="form-group col-md-6">
-				<label  class="control-label" for="cmbElemento">Elige un Elemento:</label>
-				<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
-				</select>
-			</div>
-			<div class="form-group col-md-6">
-				<label  class="control-label" for="txtNumber">Indica una Cantidad:</label>
-				<input type="number" class="form-control" name="txtNumber" id="txtNumber" min="1" value="1">
-			</div>
-			<div class="form-group text-center col-md-12">
-				<button type="button" class="btn btn-info" name="btnAgregar" id="btnAgregar">Agregar</button>
 			</div>
 			<div class="col-md-12 table-responsive">
-				<table id="tablaSuministro" class="table table-hover">
+				<table id="tablaDespiece" class="table table-hover">
 					<thead>
 						<tr>
-							<th class="text-center">Material Nombre</th>
-							<th class="text-center">Peso Total Kg</th>
-							<th class="text-center">Peso Recibido Kg</th>
-							<th class="text-center">Peso Restante Kg</th>
+							<!--<th class="text-center">Despiece Total</th>
+							<th class="text-center">Peso Recibido</th>-->
+							<th class="text-center">Peso del Despiece</th>
+							<th class="text-center">Nomenclaruta</th>
+							<th class="text-center">Longitud del Despiece</th>
+							<th class="text-center">Asignar Cantidad</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -106,53 +91,38 @@
 	</div>
 
 	<script type="text/javascript">
-		$( "#btnGuardar" ).click(function() {
-			var programa = $("#cmbPrograma").val();
-			var funcion = $("#cmbFuncion").val();
-			var elemento = $("#cmbElemento").val();
-			var funcionSelect = $("#cmbFuncionSeleccionada").val();
-			var taller = $("#cmbTaller").val();
-			var transporte = $("#cmbTransporte").val();
-			var cantidad = $("#txtNumber").val();
-			var datos = [];
-			var datosAsignacion = [];
-			var datosAsignacionDetalle = [];
-			$("input.dataIdEtapa[type=text]").each(function(index, element) {
-				datos.push({"dataIdEtapa": this.value});
-			});
-			$("input.dataAsignacion[type=text]").each(function(index, element) {
-				datosAsignacion.push({"dataAsignacion": this.value});
-			});
-			$("input.dataAsignacionDetalle[type=text]").each(function(index, element) {
-				datosAsignacionDetalle.push({"dataAsignacionDetalle": this.value});
-			});
-			var json = JSON.stringify(datos);
-			var jsonAsignacion = JSON.stringify(datosAsignacion);
-			var jsonAsignacionDetalle = JSON.stringify(datosAsignacionDetalle);
 
+		$( "#cmbOrden" ).change(function() {
+			$("#tablaDespiece tbody").empty();
+			var orden = this.value;
+			var tabla = '';
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/habilitado/asignar/save/",
+		        url: "/control_acero/habilitado/asignar/armado/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
-		        		programa: programa,
-		        		funcion: funcion,
-		        		elemento: elemento,
-		        		funcionSelect: funcionSelect,
-		        		taller: taller,
-		        		transporte: transporte,
-		        		cantidad:cantidad,
-		        		json: json,
-		        		jsonAsignacion: jsonAsignacion,
-		        		jsonAsignacionDetalle: jsonAsignacionDetalle
+		        			orden: orden
 						},
 		        beforeSend: function (objeto) {
 		        },
 		        success: function (datos) {
 		            try {
-		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
-		            	$("#divImpresion").show('slide');
+	                    $.each(datos.data, function (count, object) {
+			            	tabla += '<tr>';
+			            		//tabla +='<td>'+object.despieceTotal+'</td>';
+			            		//tabla +='<td>'+object.pesoRecibido+'</td>';
+			            		tabla +='<td>'+object.despiecePeso+'</td>';
+			            		tabla +='<td>'+object.despieceNomenclatura+'</td>';
+			            		tabla +='<td>'+object.despieceLongitud+'</td>';
+			            		tabla +='<td><input class="form-control dataDespiece"  type="number" data-iddespiece="'+object.id+'" /></td>';
+	                    		tabla += '<td>';
+	                    			tabla += '<a target="_blank" href="../../../media/'+object.despieceImagen+'">';
+				                		tabla += '<img width="100" class="img-responsive img-circle" src="../../../media/'+object.despieceImagen+'" alt="" class="img-responsive">';
+				                	tabla += '</a>';
+				                tabla += '</td>';
+			            	tabla +='</tr>';
+	                    });
 		            } catch (e) {
 		                alert("Error al cargar El Frente:" + e);
 		            }
@@ -161,79 +131,42 @@
 		            alert("Error en la peticion del Frente:\n\n" + otroobj);
 		        }
 		    });
+		    $("#tablaDespiece tbody").append(tabla);
 		});
-		comboPrograma = function () {
+		$( "#btnGuardar" ).click(function() {
+			var idDespiece = 0;
+			var cantidadAsignada = 0;
+			var idOrden = $("#cmbOrden").val();
+			var funcion = $("#cmbFuncionSeleccionada").val();
+			var taller = $("#cmbTaller").val();
+			var transporte = $("#cmbTransporte").val();
+			var array = [];
+			$("input.dataDespiece[type=number]").each(function(index, element) {
+				idDespiece = $(this).data("iddespiece");
+				cantidadAsignada = this.value;
+				array.push({"idDespiece":idDespiece,"cantidadAsignada":cantidadAsignada});
+			});
+			var json = JSON.stringify(array);
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/habilitado/asignar/comboPrograma/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
-						},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
-		            try {
-		                $('.cmbPrograma').empty();
-		                $('.cmbPrograma').append('<option value="0">Selecciona un Programa de Suministro</option>');
-	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbPrograma').append('<option value="' + object.idPrograma + '">Folio --->>> ' + object.idPrograma + '</option>');
-	                    });
-		            } catch (e) {
-		                alert("Error al cargar Combo Funcion:" + e);
-		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
-		        }
-		    });
-		};
-		comboFuncion = function () {
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/habilitado/asignar/comboFuncion/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken
-						},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
-		            try {
-		                $('.cmbFuncion').empty();
-		                $('.cmbFuncion').append('<option value="0">Selecciona un Proveedor</option>');
-	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbFuncion').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
-	                    });
-		            } catch (e) {
-		                alert("Error al cargar Combo Funcion:" + e);
-		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
-		        }
-		    });
-		};
-		comboElemento = function () {
-			var programa = $("#cmbPrograma").val();
-			var funcion = $("#cmbFuncion").val();
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/habilitado/asignar/comboElemento/",
+		        url: "/control_acero/armado/asigna/save/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
-		        		programa: programa,
-		        		funcion: funcion
+		        		idOrden: idOrden,
+		        		funcion: funcion,
+		        		taller: taller,
+		        		transporte: transporte,
+		        		json:json
 						},
 		        beforeSend: function (objeto) {
 		        },
 		        success: function (datos) {
 		            try {
-		                $('.cmbElemento').empty();
-		                $('.cmbElemento').append('<option value="0">Selecciona un Proveedor</option>');
+		                $('#cmbFuncionSeleccionada').empty();
+		                $('#cmbFuncionSeleccionada').append('<option value="0">Selecciona un Proveedor</option>');
 	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbElemento').append('<option value="' + object.idElemento + '">' + object.nombre + '</option>');
+	                        $('#cmbFuncionSeleccionada').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar Combo Funcion:" + e);
@@ -243,7 +176,7 @@
 		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
 		        }
 		    });
-		};
+		});
 		comboTipoFuncion = function () {
 	        $('.cmbTipoFuncion').empty();
 	        $('.cmbTipoFuncion').append('<option value="0">Selecciona un Tipo de Proveedor</option>');
@@ -334,135 +267,47 @@
 			comboElemento();
 		});
 		$( "#btnAgregar" ).click(function() {
-			//$("#tablaSuministro tbody").empty();
-			var tabla = '';
-			var programa = $("#cmbPrograma").val();
-			var funcion = $("#cmbFuncion").val();
-			var elemento =$("#cmbElemento").val();
-			var elementoText = $("#cmbElemento option[value='"+elemento+"']").text();
-			var cantidad =$("#txtNumber").val();
-			var count = 0;
-			var idTabla = 1;
-			var total = 0;
-			var totalDespiecePeso = 0;
+		});
+		$( "#cmbTipoFuncion" ).change(function() {
+			var value = this.value;
+			comboFuncionElegido(value);
+		});
+		$( "#btnImprimir" ).click(function() {
+			var folio = $("#cmbPrograma").val();
+			var href = "http://localhost:8000/AsignarHabilitado/"+folio;
+			$("#framePdf").attr("src", href);
+		});
+		comboOrden = function () {
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/habilitado/asignar/elemento/",
+		        url: "/control_acero/habilitado/recepcion/comboOrden/",
 		        async: false,
 		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken,
-		        		cantidad: cantidad,
-		        		programa: programa,
-		        		funcion: funcion,
-		        		elemento: elemento
+		        data: {csrfmiddlewaretoken: csrftoken
 						},
 		        beforeSend: function (objeto) {
 		        },
 		        success: function (datos) {
 		            try {
+		                $('.cmbOrden').empty();
+		                $('.cmbOrden').append('<option value="0">Selecciona una Orden de Trabajo</option>');
 	                    $.each(datos.data, function (count, object) {
-	                    	if(total != object.materialId && total != 0){
-	                    		tabla += '<tr style="display:none;" class="info">';
-	                    			tabla += '<td><b>Totales</b></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td><b>'+totalDespiecePeso.toFixed(4)+'</b></td>';
-	                    		tabla += '</tr>';
-	                    		totalDespiecePeso = 0;
-	                    	}
-	                    	tabla += '<tr style="display:none;">';
-	                    		tabla += '<td>'+object.materialNombre+'</td>'
-	                    		tabla += '<td>'+object.despieceNomenclatura+'</td>'
-	                    		tabla += '<td>'+object.despieceFigura+'</td>'
-	                    		tabla += '<td>'+object.despieceLongitud+'</td>'
-	                    		tabla += '<td>'+object.despieceCantidad+'</td>'
-	                    		tabla += '<td>'+object.despiecePeso+'</td>'
-	                    		tabla += '<td style="display:none";><input type="text" class="dataAsignacionDetalle" readonly disabled value="'+object.despieceId+'|'+object.despiecePeso+'|'+object.materialId+'" /></td>';
-	                    	tabla += '</tr>';
-	                    	total = object.materialId;
-	                    	totalDespiecePeso += parseFloat(object.despiecePeso);
-	                    	if(count == datos.data.length-1){
-	                    		tabla += '<tr style="display:none;" class="info">';
-	                    			tabla += '<td><b>Totales</b></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td></td>';
-	                    			tabla += '<td><b>'+totalDespiecePeso.toFixed(4)+'</b></td>';
-	                    		tabla += '</tr>';
-	                    	}
-	                    });
-	                    	tabla += '<tr>';
-	                    		tabla += '<td class="text-center" colspan="4">'+elementoText+'</td>';
-	                    	tabla += '</tr>';
-	                    $.each(datos.dataTotales, function (countTotales, objectTotales) {
-	                    	tabla += '<tr>';
-	                    		tabla += '<td>'+objectTotales.nombre+'</td>';
-	                    		tabla += '<td>'+objectTotales.despiecePeso+'</td>';
-	                    		tabla += '<td>'+objectTotales.pesoRecibido+'</td>';
-	                    		tabla += '<td>'+objectTotales.pesoAsignado+'</td>';
-	                    		tabla += '<td style="display:none;"><input type="text" class="dataIdEtapa" readonly disabled value="'+objectTotales.idEtapa+'" /></td>';
-	                    		tabla += '<td style="display:none;"><input type="text" class="dataAsignacion" readonly disabled value="'+objectTotales.despiecePeso+'|'+objectTotales.pesoRecibido+'|'+objectTotales.pesoAsignado+'|'+objectTotales.idMaterial+'" /></td>';
-	                    	tabla += '</tr>';
+	                        $('.cmbOrden').append('<option value="' + object.idOrdenTrabajo + '">Orden de Trabajo --->>> ' + object.idOrdenTrabajo + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar El Frente:" + e);
+		                alert("Error al cargar Combo Funcion:" + e);
 		            }
 		        },
 		        error: function (objeto, quepaso, otroobj) {
 		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
 		        }
 		    });
-		    $("#tablaSuministro tbody").append(tabla);
-		    //comboTipoFuncion();
-		   	//comboTaller();
-		   	//comboTransporte();
-		});
-		$( "#cmbTipoFuncion" ).change(function() {
-			var value = this.value;
-			comboFuncionElegido(value);
-		});
-		function agregaAsignacion (posicion){
-			var programa = $("#cmbPrograma").val();
-			var idTabla = $("#idTabla"+posicion).val();
-			var idAsignacion = $("#idAsignacion"+posicion).val();
-			var pesoSolicitado = $("#pesoSolicitado"+posicion).val();
-			var pesoRecibido = $("#pesoRecibido"+posicion).val();
-			var funcion = $("#cmbFuncionSeleccionada"+posicion).val();
-			var funcionText = $("#cmbFuncionSeleccionada"+posicion+" option[value='"+funcion+"']").text();
-			var taller = $("#cmbTaller"+posicion).val();
-			var tallerText = $("#cmbTaller"+posicion+" option[value='"+taller+"']").text();
-			var transporte = $("#cmbTransporte"+posicion).val();
-			var transporteText = $("#cmbTransporte"+posicion+" option[value='"+transporte+"']").text();
-			var cantidadAsignada = $("#cantidadAsignada"+posicion).val();
-			var etapaPertenece = $("#etapaPertenece"+posicion).val();
-			var tabla = '';
-				tabla += '<tr>'
-							+'<td class="text-center">'+idTabla+'</td>'
-							+'<td class="text-center">'+pesoSolicitado+'</td>'
-							+'<td class="text-center">'+pesoRecibido+'</td>'
-							+'<td class="text-center">'+funcionText+'</td>'
-							+'<td class="text-center">'+tallerText+'</td>'
-	                        +'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
-	                        +'<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>'
-							+'<td class="text-center">'+transporteText+'</td>'
-							+'<td class="text-center success">'+cantidadAsignada+'</td>'
-						+'</tr>';
-			$("#tablaSuministroAsignado").append(tabla);
-		}
-		$( "#btnImprimir" ).click(function() {
-			var folio = $("#cmbPrograma").val();
-			var href = "http://localhost:8000/AsignarHabilitado/"+folio;
-			$("#framePdf").attr("src", href);
-		});
+		};
 	    $(function () {
-	    	comboPrograma();
 	    	comboTipoFuncion();
-	    	comboFuncion();
 	    	comboTaller();
 	    	comboTransporte();
+	    	comboOrden();
 	    });
 	</script>
 {% endblock %}

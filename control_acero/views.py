@@ -286,6 +286,7 @@ def suministroAsignarCantidades(request):
 	data = []
 	dataDetalle = []
 	idFuncion = request.POST.get('funcion', 1)
+	cantidadReal = 0
 	ps = ProgramaSuministroDetalle.objects\
 									.values('material_id',
 											'material__nombre')\
@@ -301,10 +302,20 @@ def suministroAsignarCantidades(request):
 											'peso')\
 									.filter(programaSuministro__funcion__id=idFuncion)\
 									.order_by('id')
+
+	etapas = Etapa.objects\
+					.values('material_id')\
+					.filter(funcionAnterior_id=idFuncion) \
+					.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
+					.order_by('material_id')
 	for p in ps:
+		cantidadReal = p["pesoMaterial"]
+		for etapa in etapas:
+			if p["material_id"] == etapa["material_id"]:
+				cantidadReal = Decimal(p["pesoMaterial"]) - Decimal(etapa["cantidadAsignada"])
 		resultado = {"id":p["material_id"],
 						"materialNombre":p["material__nombre"],
-						"peso":p["pesoMaterial"],
+						"peso":cantidadReal,
 						"cantidad":p["cantidadMaterial"]
 					}
 		data.append(resultado)
@@ -364,22 +375,29 @@ def habilitadoRecepcionHabilitado(request):
 	data = []
 	idPrograma = request.POST.get('programa', 0)
 	idFuncion = request.POST.get('funcion', 0)
+	idOrdenTrabajo = 0
 	etapa = Etapa.objects.values('id',
-											'programaSuministroDetalle__material__nombre',
-											'peso',
-											'cantidad',
-											'cantidadAsignada',
-											'taller__id',
-											'taller__nombre',
-											'transporte__id',
-											'transporte__placas',
-											'programaSuministro_id')\
-									.filter(
-											funcion_id=idFuncion,
-											estatusEtapa=1)
+									'material__nombre',
+									'peso',
+									'cantidad',
+									'cantidadAsignada',
+									'taller__id',
+									'taller__nombre',
+									'transporte__id',
+									'transporte__placas',
+									'idOrdenTrabajo')\
+							.filter(
+									funcion_id=idFuncion,
+									estatusEtapa=1,
+									tipoRecepcion=1)
 	for e in etapa:
+		idOrdenTrabajo = e["idOrdenTrabajo"]
+		if e["idOrdenTrabajo"] is None:
+			idOrdenTrabajo = 0
+		idOrdenTrabajo = idOrdenTrabajo
+
 		resultado = {"id":e["id"],
-						"nombreMaterial":e["programaSuministroDetalle__material__nombre"],
+						"nombreMaterial":e["material__nombre"],
 						"peso":e["peso"],
 						"cantidad":e["cantidad"],
 						"cantidadAsignada":e["cantidadAsignada"],
@@ -387,7 +405,7 @@ def habilitadoRecepcionHabilitado(request):
 						"tallerNombre":e["taller__nombre"],
 						"transporteId":e["transporte__id"],
 						"transportePlacas":e["transporte__placas"],
-						"programaSuministro":e["programaSuministro_id"]
+						"idOrdenTrabajo":idOrdenTrabajo
 					}
 		data.append(resultado)
 	array = mensaje
@@ -458,10 +476,10 @@ def habilitadoAsignarElemento(request):
 	data = []
 	dataTotales = []
 	dataEtapa = []
-	programa = request.POST.get('programa', 1)
-	funcion = request.POST.get('funcion', 5)
-	elemento = request.POST.get('elemento', 2)
-	cantidad = request.POST.get('cantidad', 1)
+	programa = request.POST.get('programa', 0)
+	funcion = request.POST.get('funcion', 0)
+	elemento = request.POST.get('elemento', 0)
+	cantidad = request.POST.get('cantidad', 0)
 	pesoRecibido = 0;
 	pesoAsignado = 0;
 	etapaRegistro = 0;
@@ -514,9 +532,8 @@ def habilitadoAsignarElemento(request):
 		despiecePeso = Decimal(et["despiecePeso"])*Decimal(cantidad);
 		for etp in etapa:
 			if et["despiece__material__id"] == etp["material_id"]:
-				print "entre"
 				etapaRegistro = etp["id"]
-				pesoRecibido = etp["cantidadAsignada"];
+				pesoRecibido += etp["cantidadAsignada"]
 				pesoAsignado =  etp["cantidadAsignada"] - despiecePeso
 		resultadoTotales = {"idEtapa":etapaRegistro, 
 						"idMaterial":et["despiece__material__id"], 
@@ -1404,7 +1421,7 @@ def despiecesView(request):
 
 def despiecesNewView(request):
 	if request.method == "POST":
-		form = DespieceForm(request.POST)
+		form = DespieceForm(request.POST, request.FILES)
 		if(form.is_valid()):
 			despiece = form.save(commit=False)
 			despiece.save()
@@ -1417,7 +1434,7 @@ def despiecesNewView(request):
 def despiecesEditView(request, pk):
 	despiece = get_object_or_404(Despiece, pk=pk)
 	if request.method == "POST":
-		form = DespieceForm(request.POST, instance=despiece)
+		form = DespieceForm(request.POST, request.FILES, instance=despiece)
 		if(form.is_valid()):
 			despiece = form.save(commit=False)
 			despiece.save()
@@ -1706,7 +1723,8 @@ def suministroAsignarSave(request):
 									funcion_id=idFuncion,
 									taller_id=idTaller,
 									cantidadAsignada=cantidadAsignada,
-									material_id=idDetalleSuministro)
+									material_id=idDetalleSuministro,
+									funcionAnterior_id=funcionMaterial)
 		programaSuministroDetalle = ProgramaSuministroDetalle.objects\
 								.values("id", "peso")\
 								.filter(programaSuministro__funcion_id=funcionMaterial,
@@ -1773,105 +1791,6 @@ def suministroAsignarSave(request):
 	array = mensaje
 	return JsonResponse(array)
 
-# def suministroAsignarSave(request):
-# 	array = {}
-# 	mensaje = {}
-# 	funcionMaterial = request.POST.get('funcionMaterial')
-# 	respuesta = request.POST.get('json')
-# 	json_object = json.loads(respuesta)
-# 	cantidadRestante = 0;
-# 	pesoDetalleDecimal = 0;
-# 	for data in json_object:
-# 		datos = data["data"]
-# 		splitData = datos.split("|")
-# 		idDetalleSuministro = splitData[0]
-# 		peso = splitData[1]
-# 		cantidad = splitData[2]
-# 		idFuncion = splitData[3]
-# 		idTaller = splitData[4]
-# 		cantidadAsignada = splitData[5]
-# 		idPrograma = splitData[6]
-# 		funcion = Funcion.objects.filter(id=idFuncion)
-# 		for f in funcion:
-# 			if f.tipo == 2:
-# 				etapa = 1
-# 			if f.tipo == 3:
-# 				etapa = 3
-# 			if f.tipo == 4:
-# 				etapa = 4
-# 		e = Etapa.objects.create(peso=peso,
-# 									cantidad=cantidad,
-# 									estatusEtapa=etapa,
-# 									estatus=1,
-# 									funcion_id=idFuncion,
-# 									taller_id=idTaller,
-# 									cantidadAsignada=cantidadAsignada)
-# 		programaSuministroDetalle = ProgramaSuministroDetalle.objects\
-# 								.values("id", "peso")\
-# 								.filter(programaSuministro__funcion_id=funcionMaterial,
-# 										material_id=idDetalleSuministro)\
-# 								.order_by("id")
-
-# 		restante=0
-# 		restanteVerifica = 0
-# 		cantidadRestanteU = 0
-# 		banderaValidaOtro = 0
-# 		for p in programaSuministroDetalle:
-# 			etapaDescuento = EtapaDescuento.objects.filter(remision=p["id"])
-# 			if etapaDescuento.exists():
-# 				for etapaDesc in etapaDescuento:
-# 					if etapaDesc.remision == p["id"] and etapaDesc.estatusEtapa == 1:
-# 						cantidadRestanteU =  etapaDesc.cantidadRestante - Decimal(cantidadAsignada)
-# 						edu = EtapaDescuento.objects.create(peso=peso,
-# 															cantidad=cantidad,
-# 															remision=etapaDesc.remision,
-# 															cantidadRemision = etapaDesc.cantidadRemision,
-# 															cantidadAsignada = etapaDesc.cantidadRestante,
-# 															cantidadRestante = cantidadRestanteU,
-# 															etapa_id = e.pk,
-# 															estatusEtapa = 1
-# 														)
-# 						if cantidadRestanteU <= 0:
-# 							EtapaDescuento.objects.filter(id=etapaDesc.id).update(estatusEtapa=0)
-# 							EtapaDescuento.objects.filter(id=edu.id).update(estatusEtapa=0)
-# 							banderaValidaOtro = 1
-# 						if cantidadRestanteU > 0:
-# 							banderaValidaOtro = 2
-						
-# 			else:
-# 				if banderaValidaOtro == 1:
-# 					break
-# 				if banderaValidaOtro == 2:
-# 					break
-# 				estatusEtapa = 1
-# 				if restante < 0:
-# 					restanteResta = abs(restante)
-# 					restante = Decimal(p["peso"]) - restanteResta
-# 				else:
-# 					restanteVerifica = restante
-# 					restante = Decimal(p["peso"]) - Decimal(cantidadAsignada)
-# 					if restanteVerifica > 0:
-# 						restante = abs(restante)
-
-# 				if restante < 0:
-# 					estatusEtapa = 0
-# 				ed = EtapaDescuento.objects.create(peso=peso,
-# 													cantidad=cantidad,
-# 													remision=p["id"],
-# 													cantidadRemision = p["peso"],
-# 													cantidadAsignada = cantidadAsignada,
-# 													cantidadRestante = restante,
-# 													etapa_id = e.pk,
-# 													estatusEtapa = estatusEtapa
-# 												)
-
-# 				if restante > 0:
-# 					break
-
-# 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la Asignación de Material correctamente."}
-# 	array = mensaje
-# 	return JsonResponse(array)
-
 def habilitadoRecepcionSave(request):
 	array = {}
 	mensaje = {}
@@ -1879,19 +1798,11 @@ def habilitadoRecepcionSave(request):
 	json_object = json.loads(respuesta)
 	for data in json_object:
 		idEtapa = data["data"]
-		etapaConsulta = Etapa.objects.filter(id=idEtapa)
+		#print idEtapa
+		etapaConsulta = Etapa.objects.all().filter(id=idEtapa)
 		for ec in etapaConsulta:
-			e = Etapa(peso=ec.peso,
-								cantidad=ec.cantidad,
-								cantidadAsignada=ec.cantidadAsignada,
-								estatusEtapa=2,
-								estatus=1,
-								funcion_id=ec.funcion_id,
-								taller_id=ec.taller_id,
-								transporte_id=ec.transporte_id,
-								programaSuministro_id=ec.programaSuministro_id,
-								programaSuministroDetalle_id=ec.programaSuministroDetalle_id)
-			e.save();
+			Etapa.objects.filter(id=ec.id).update(tipoRecepcion=2)
+
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de suministro correctamente."}
 	array = mensaje
 	return JsonResponse(array)
@@ -1923,23 +1834,26 @@ def habilitadoAsignarSave(request):
 
 	for data in json_object:
 		idEtapa = data["dataIdEtapa"]
-		etapaConsulta = Etapa.objects.values("cantidad",
-														"peso",
-														"cantidadAsignada",
-														"material_id",
-														"idOrdenTrabajo")\
-												.filter(id=idEtapa)
+		etapaConsulta = Etapa.objects.values(	"id",
+												"cantidad",
+												"peso",
+												"cantidadAsignada",
+												"material_id",
+												"idOrdenTrabajo")\
+										.filter(id=idEtapa)
 		for ec in etapaConsulta:
+			Etapa.objects.filter(id=idEtapa).update(idOrdenTrabajo=ordenTrabajoId)
 			idMaterialEtapa = ec["material_id"]
 
-			ea = Etapa.objects.create(estatusEtapa=3,
-												estatus=1,
-												funcion_id=funcion,
-												cantidad=ec["cantidad"],
-												peso=ec["peso"],
-												cantidadAsignada=ec["cantidadAsignada"],
-												idOrdenTrabajo=ordenTrabajoId
-												)
+			ea = Etapa.objects.create(estatusEtapa=2,
+										estatus=1,
+										funcion_id=funcion,
+										cantidad=ec["cantidad"],
+										idEtapaPertenece=ec["id"],
+										peso=ec["peso"],
+										cantidadAsignada=ec["cantidadAsignada"],
+										idOrdenTrabajo=ordenTrabajoId
+										)
 			for dataA in json_objectAsignacion:
 				dataAsignacion = dataA["dataAsignacion"]
 				splitData = dataAsignacion.split("|")
@@ -1949,11 +1863,11 @@ def habilitadoAsignarSave(request):
 				idMaterialDespiece = splitData[3]
 				if int(idMaterialEtapa) == int(idMaterialDespiece):
 					ead = EtapaDespiece.objects.create(despieceTotal=despiecePeso,
-																	pesoRecibido=pesoRecibido,
-																	pesoRestante=pesoAsignado,
-																	material_id=idMaterialDespiece,
-																	cantidad=cantidad,
-																	elemento_id=elemento)
+														pesoRecibido=pesoRecibido,
+														pesoRestante=pesoAsignado,
+														material_id=idMaterialDespiece,
+														cantidad=cantidad,
+														elemento_id=elemento)
 					ea.EtapaDespiece.add(ead)
 					for dataAD in json_objectAsignacionDetalle:
 						dataAsignacionDetalle = dataAD["dataAsignacionDetalle"]
@@ -1963,12 +1877,12 @@ def habilitadoAsignarSave(request):
 						idMaterialDetalle = splitDataDetalle[2]
 						if int(idMaterialDespiece) == int(idMaterialDetalle):
 							eadet = EtapaDespieceDetalle.objects.create(despiece_id=idDespiece,
-																					despiecePeso=despiecePesoDetalle)
+																			despiecePeso=despiecePesoDetalle)
 							ead.EtapaDespieceDetalle.add(eadet)
 							despiecePeso = 0
 							pesoRecibido = 0
 							pesoAsignado = 0
-	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Habilitado."}
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Habilitado.", "idOrden":ordenTrabajoId}
 	array = mensaje
 	return JsonResponse(array)
 
@@ -1979,14 +1893,20 @@ def habilitadoAsignarDespieceSave(request):
 	elemento = request.POST.get('elemento',0)
 	respuesta = request.POST.get('json',0)
 	json_object = json.loads(respuesta)
-
+	ordenTrabajoId = 0;
+	ordenTrabajo = Etapa.objects.all().values_list('idOrdenTrabajo', flat=True).distinct().order_by("-idOrdenTrabajo")[:1]
+	ordenTrabajoId = ordenTrabajo[0]
+	if ordenTrabajoId is None:
+		ordenTrabajoId = 0
+	ordenTrabajoId = ordenTrabajoId+1
 	for data in json_object:
 		idDespiece = data["idDespiece"]
 		idMaterial = data["material"]
 		cantidadAsignada = data["cantidadAsignada"]
-		ea = Etapa.objects.create(estatusEtapa=3,
+		ea = Etapa.objects.create(estatusEtapa=2,
 									estatus=1,
-									funcion_id=funcion
+									funcion_id=funcion,
+									idOrdenTrabajo=ordenTrabajoId
 									)
 		ead = EtapaDespiece.objects.create(cantidad=cantidadAsignada,
 											material_id=idMaterial,
@@ -1994,63 +1914,108 @@ def habilitadoAsignarDespieceSave(request):
 		ea.EtapaDespiece.add(ead)
 		eadet = EtapaDespieceDetalle.objects.create(despiece_id=idDespiece)
 		ead.EtapaDespieceDetalle.add(eadet)
-	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Habilitado."}
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Habilitado.", "idOrden":ordenTrabajoId}
 	array = mensaje
+	return JsonResponse(array)
+
+def habilitadoRecepcionComboOrden(request):
+	array = {}
+	mensaje = {}
+	data = []
+	ordenTrabajo = Etapa.objects.all().values_list('idOrdenTrabajo', flat=True).distinct().order_by("idOrdenTrabajo")
+	for o in ordenTrabajo:
+		if o is not None:
+			resultado = {"idOrdenTrabajo":o}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def habilitadoAsignarArmado(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idOrdenTrabajo = request.POST.get('idOrden',1)
+	etapas = Etapa.objects.all().filter(idOrdenTrabajo=idOrdenTrabajo,
+											tipoRecepcion=2)
+	
+	for etapa in etapas:
+		detalles = Etapa.objects.values("id",
+											"EtapaDespiece__despieceTotal",
+											"EtapaDespiece__pesoRecibido",
+											"EtapaDespiece__EtapaDespieceDetalle__despiecePeso",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece_id",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__longitud",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen").filter(idEtapaPertenece=etapa.id)
+		for detalle in detalles:
+			resultado = {
+							"id":detalle["id"],
+							"despieceTotal":detalle["EtapaDespiece__despieceTotal"],
+							"pesoRecibido":detalle["EtapaDespiece__pesoRecibido"],
+							"despiecePeso":detalle["EtapaDespiece__EtapaDespieceDetalle__despiecePeso"],
+							"despieceId":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece_id"],
+							"despieceNomenclatura":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura"],
+							"despieceLongitud":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__longitud"],
+							"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"]
+						}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
 	return JsonResponse(array)
 
 def armadoAsignaSave(request):
 	array = {}
 	mensaje = {}
+	idOrdenTrabajo = request.POST.get('idOrden')
+	funcion = request.POST.get('funcion')
+	taller = request.POST.get('taller')
+	transporte = request.POST.get('transporte')
 	respuesta = request.POST.get('json')
-	json_object = json.loads(respuesta)
-	for data in json_object:
-		datos = data["data"]
-		splitData = datos.split("|")
-		idEtapaDetalle = splitData[0]
-		pesoRecibido = splitData[1]
-		etapa = Etapa.objects.values("id",
-										"peso",
-										"cantidad",
-										"cantidadAsignada",
-										"funcion_id",
-										"programaSuministro_id",
-										"programaSuministroDetalle_id",
-										"taller_id",
-										"transporte_id")\
-								.filter(EtapaDespiece__EtapaDespieceDetalle__id=idEtapaDetalle)
-		etapaDespiece = Etapa.objects.values("EtapaDespiece__despieceTotal",
+	etapas = Etapa.objects.all().filter(idOrdenTrabajo=idOrdenTrabajo,
+											tipoRecepcion=2)
+	for etapa in etapas:
+		e = Etapa.objects.create(peso=etapa.peso,
+										cantidad=etapa.cantidad,
+										cantidadAsignada=etapa.cantidadAsignada,
+										idEtapaPertenece=etapa.idEtapaPertenece,
+										estatusEtapa=3,
+										estatus=1,
+										tipoEstatus=etapa.tipoEstatus,
+										tipoRecepcion=1,
+										funcion_id=funcion,
+										taller_id=taller,
+										transporte_id=transporte,
+										material_id=etapa.material_id,
+										idOrdenTrabajo=idOrdenTrabajo
+										)
+		etapaDespieces = Etapa.objects.values("EtapaDespiece__despieceTotal",
 										"EtapaDespiece__pesoRecibido",
 										"EtapaDespiece__pesoRestante",
 										"EtapaDespiece__cantidad",
 										"EtapaDespiece__elemento__id",
-										"EtapaDespiece__material__id")\
-								.filter(EtapaDespiece__EtapaDespieceDetalle__id=idEtapaDetalle)
-		etapaDetalle = EtapaDespieceDetalle.objects.values("despiece_id")\
-								.filter(id=idEtapaDetalle)
-		for e in etapa:
-			e = Etapa.objects.create(peso=e["peso"],
-						cantidad=e["cantidad"],
-						cantidadAsignada=e["cantidadAsignada"],
-						estatusEtapa=4,
-						estatus=1,
-						funcion_id=e["funcion_id"],
-						programaSuministro_id=e["programaSuministro_id"],
-						programaSuministroDetalle_id=e["programaSuministroDetalle_id"],
-						taller_id=e["taller_id"],
-						transporte_id=e["transporte_id"])
-
-		for edes in etapaDespiece:
-			edes = EtapaDespiece.objects.create(despieceTotal=edes["EtapaDespiece__despieceTotal"],
-												pesoRecibido=edes["EtapaDespiece__pesoRecibido"],
-												pesoRestante=edes["EtapaDespiece__pesoRestante"],
-												cantidad=edes["EtapaDespiece__cantidad"],
-												elemento_id=edes["EtapaDespiece__elemento__id"],
-												material_id=edes["EtapaDespiece__material__id"])
-			e.EtapaDespiece.add(edes)
-		for ed in etapaDetalle:
-			eds = EtapaDespieceDetalle.objects.create(despiece_id=ed["despiece_id"],
-						despiecePeso=pesoRecibido)
-			edes.EtapaDespieceDetalle.add(eds)
+										"EtapaDespiece__material__id"
+										)\
+								.filter(idEtapaPertenece=etapa.id)
+		for etapaDespiece in etapaDespieces:
+			ed = EtapaDespiece.objects.create(despieceTotal=etapaDespiece["EtapaDespiece__despieceTotal"],
+											pesoRecibido=etapaDespiece["EtapaDespiece__pesoRecibido"],
+											pesoRestante=etapaDespiece["EtapaDespiece__pesoRestante"],
+											cantidad=etapaDespiece["EtapaDespiece__cantidad"],
+											estatus=1,
+											elemento_id =etapaDespiece["EtapaDespiece__elemento__id"],
+											material_id =etapaDespiece["EtapaDespiece__material__id"]
+											)
+			e.EtapaDespiece.add(ed)
+	json_object = json.loads(respuesta)
+	for data in json_object:
+		idDespiece = data["idDespiece"]
+		cantidadAsignadaDespiece = data["cantidadAsignada"]
+		edd = EtapaDespieceDetalle.objects.create(despiece_id=idDespiece,
+									despiecePeso=cantidadAsignadaDespiece)
+		ed.EtapaDespieceDetalle.add(edd)
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de Armado correctamente."}
 	array = mensaje
 	return JsonResponse(array)
