@@ -497,6 +497,7 @@ def habilitadoAsignarElemento(request):
 										.filter(id=elemento,
 												estatus=1)\
 										.order_by("despiece__material__id");
+	print elementoRelacion.query
 	for e in elementoRelacion:
 		despiecePeso = Decimal(e["despiece__peso"])*Decimal(cantidad);
 		resultadoDespiece = {"id":e["id"], 
@@ -527,7 +528,6 @@ def habilitadoAsignarElemento(request):
 									funcion_id=funcion,
 									estatusEtapa=1,
 									estatus=1)
-	print etapa.query
 	for et in elementoTotales:
 		despiecePeso = Decimal(et["despiecePeso"])*Decimal(cantidad);
 		for etp in etapa:
@@ -1807,6 +1807,11 @@ def habilitadoRecepcionSave(request):
 	array = mensaje
 	return JsonResponse(array)
 
+def arrayUnico(array):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in array if not (x in seen or seen_add(x))]
+
 def habilitadoAsignarSave(request):
 	array = {}
 	mensaje = {}
@@ -1819,7 +1824,9 @@ def habilitadoAsignarSave(request):
 	cantidad = request.POST.get('cantidad')
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
-	ordenTrabajoId = 0;
+	ordenTrabajoId = 0
+	bandera = 0
+	arrayIdEtapa = []
 
 	respuestaAsignacion = request.POST.get('jsonAsignacion')
 	json_objectAsignacion = json.loads(respuestaAsignacion)
@@ -1834,6 +1841,12 @@ def habilitadoAsignarSave(request):
 
 	for data in json_object:
 		idEtapa = data["dataIdEtapa"]
+		arrayIdEtapa.append(idEtapa)
+
+	etapas = arrayUnico(arrayIdEtapa)
+
+	for etapa in etapas:
+		idEtapa = etapa
 		etapaConsulta = Etapa.objects.values(	"id",
 												"cantidad",
 												"peso",
@@ -1841,6 +1854,7 @@ def habilitadoAsignarSave(request):
 												"material_id",
 												"idOrdenTrabajo")\
 										.filter(id=idEtapa)
+
 		for ec in etapaConsulta:
 			Etapa.objects.filter(id=idEtapa).update(idOrdenTrabajo=ordenTrabajoId)
 			idMaterialEtapa = ec["material_id"]
@@ -1966,6 +1980,55 @@ def habilitadoAsignarArmado(request):
 	array["data"]=data
 	return JsonResponse(array)
 
+def armadoRecepcionArmado(request):
+	array = {}
+	mensaje = {}
+	data = []
+	frente = request.POST.get('frente',0)
+	idOrdenTrabajo = request.POST.get('idOrden',0)
+	detalles = Etapa.objects.values("id",
+										"EtapaDespiece__despieceTotal",
+										"EtapaDespiece__pesoRecibido",
+										"EtapaDespiece__EtapaDespieceDetalle__despiecePeso",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece_id",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__longitud",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen").filter(estatusEtapa=3, frente_id=frente, idOrdenTrabajo=idOrdenTrabajo)
+	print detalles.query
+	for detalle in detalles:
+		resultado = {
+						"id":detalle["id"],
+						"despieceTotal":detalle["EtapaDespiece__despieceTotal"],
+						"pesoRecibido":detalle["EtapaDespiece__pesoRecibido"],
+						"despiecePeso":detalle["EtapaDespiece__EtapaDespieceDetalle__despiecePeso"],
+						"despieceId":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece_id"],
+						"despieceNomenclatura":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura"],
+						"despieceLongitud":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__longitud"],
+						"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"]
+					}
+		data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+
+def armadoRecepcionComboFrente(request):
+	array = {}
+	mensaje = {}
+	data = []
+	frenteTrabajoEtapas = Etapa.objects.values().values_list('frente_id', flat=True).filter(estatusEtapa=3).distinct().order_by("frente_id")
+	for frenteTrabajoEtapa in frenteTrabajoEtapas:
+		if frenteTrabajoEtapa is not None:
+			frentes = Frente.objects.all().filter(id=frenteTrabajoEtapa)
+			for frente in frentes:
+				resultado = {"idFrente":frente.id, "nombre":frente.nombre}
+				data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
 def armadoAsignaSave(request):
 	array = {}
 	mensaje = {}
@@ -1973,6 +2036,7 @@ def armadoAsignaSave(request):
 	funcion = request.POST.get('funcion')
 	taller = request.POST.get('taller')
 	transporte = request.POST.get('transporte')
+	frente = request.POST.get('frente')
 	respuesta = request.POST.get('json')
 	etapas = Etapa.objects.all().filter(idOrdenTrabajo=idOrdenTrabajo,
 											tipoRecepcion=2)
@@ -1989,7 +2053,8 @@ def armadoAsignaSave(request):
 										taller_id=taller,
 										transporte_id=transporte,
 										material_id=etapa.material_id,
-										idOrdenTrabajo=idOrdenTrabajo
+										idOrdenTrabajo=idOrdenTrabajo,
+										frente_id=frente
 										)
 		etapaDespieces = Etapa.objects.values("EtapaDespiece__despieceTotal",
 										"EtapaDespiece__pesoRecibido",
@@ -2014,7 +2079,7 @@ def armadoAsignaSave(request):
 		idDespiece = data["idDespiece"]
 		cantidadAsignadaDespiece = data["cantidadAsignada"]
 		edd = EtapaDespieceDetalle.objects.create(despiece_id=idDespiece,
-									despiecePeso=cantidadAsignadaDespiece)
+													despiecePeso=cantidadAsignadaDespiece)
 		ed.EtapaDespieceDetalle.add(edd)
 	mensaje = {"estatus":"ok", "mensaje":"Se realizo la recepcion de Armado correctamente."}
 	array = mensaje

@@ -155,6 +155,7 @@ urlpatterns = [
     #""" RUTAS RELACIONADAS CON HABILITADO """
     #"""------------------------------------------"""
     url(r'^armado/recepcion/$', views.armadoRecepcionView, name='armadoRecepcionView'),
+    url(r'^armado/recepcion/comboFrente/$', views.armadoRecepcionComboFrente, name='armadoRecepcionComboFrente'),
     url(r'^armado/asignacion/$', views.armadoAsignacionView, name='armadoAsignacionView'),
     url(r'^armado/asignar/comboPrograma/$', views.armadoAsignarComboPrograma, name='armadoAsignarComboPrograma'),
     url(r'^armado/asignar/comboFuncion/$', views.armadoAsignarComboFuncion, name='armadoAsignarComboFuncion'),
@@ -166,6 +167,7 @@ urlpatterns = [
     url(r'^armado/asignacion/comboElemento/$', views.armadoAsignacionComboElemento, name='armadoAsignacionComboElemento'),
     url(r'^armado/asignacion/elemento/$', views.armadoAsignacionElemento, name='armadoAsignacionElemento'),
     url(r'^armado/asignacion/save/$', views.armadoAsignacionSave, name='armadoAsignacionSave'),
+    url(r'^armado/recepcion/armado/$', views.armadoRecepcionArmado, name='armadoRecepcionArmado'),
     #"""------------------------------------------"""
     #""" RUTAS RELACIONADAS CON COLOCADO """
     #"""------------------------------------------"""

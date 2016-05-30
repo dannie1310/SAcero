@@ -38,7 +38,7 @@
 							<th class="text-center">Peso del Despiece</th>
 							<th class="text-center">Nomenclaruta</th>
 							<th class="text-center">Longitud del Despiece</th>
-							<th class="text-center">Asignar Cantidad</th>
+							<th class="text-center">Seleccionar</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -53,6 +53,7 @@
 							<th colspan="9" class="text-center">Detalle de la Asignación</th>
 						</tr>
 						<tr>
+							<th class="text-center">Frente de Trabajo</th>
 							<th class="text-center">Proveedores Funciones</th>
 							<th class="text-center">Elige Proveedor</th>
 							<th class="text-center">Asignar Taller</th>
@@ -61,6 +62,10 @@
 					</thead>
 					<tbody>
 						<tr>
+							<td>
+	            				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+								</select>
+							</td>
 							<td>
 	            				<select name="cmbTipoFuncion" id="cmbTipoFuncion" class="cmbTipoFuncion form-control">
 								</select>
@@ -115,7 +120,8 @@
 			            		tabla +='<td>'+object.despiecePeso+'</td>';
 			            		tabla +='<td>'+object.despieceNomenclatura+'</td>';
 			            		tabla +='<td>'+object.despieceLongitud+'</td>';
-			            		tabla +='<td><input class="form-control dataDespiece"  type="number" data-iddespiece="'+object.id+'" /></td>';
+			            		tabla +='<td><input type="checkbox" name="seleccionados" data-iddespiece="'+object.id+'" data-peso="'+object.despiecePeso+'" value="'+count+'" /></span></td>';
+			            		//tabla +='<td><input class="form-control dataDespiece"  type="number" data-iddespiece="'+object.id+'" /></td>';
 	                    		tabla += '<td>';
 	                    			tabla += '<a target="_blank" href="../../../media/'+object.despieceImagen+'">';
 				                		tabla += '<img width="100" class="img-responsive img-circle" src="../../../media/'+object.despieceImagen+'" alt="" class="img-responsive">';
@@ -136,16 +142,24 @@
 		$( "#btnGuardar" ).click(function() {
 			var idDespiece = 0;
 			var cantidadAsignada = 0;
+			var frente = $("#cmbFrente").val();
 			var idOrden = $("#cmbOrden").val();
 			var funcion = $("#cmbFuncionSeleccionada").val();
 			var taller = $("#cmbTaller").val();
 			var transporte = $("#cmbTransporte").val();
 			var array = [];
-			$("input.dataDespiece[type=number]").each(function(index, element) {
+			$("input[name='seleccionados']").each( function () {
+				if($(this).is(":checked")){
+					idDespiece = $(this).data("iddespiece");
+					cantidadAsignada = $(this).data("peso");
+					array.push({"idDespiece":idDespiece,"cantidadAsignada":cantidadAsignada});
+				}
+			});
+			/*$("input.dataDespiece[type=number]").each(function(index, element) {
 				idDespiece = $(this).data("iddespiece");
 				cantidadAsignada = this.value;
 				array.push({"idDespiece":idDespiece,"cantidadAsignada":cantidadAsignada});
-			});
+			});*/
 			var json = JSON.stringify(array);
 		    $.ajax({
 		        type: "POST",
@@ -153,6 +167,7 @@
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
+		        		frente: frente,
 		        		idOrden: idOrden,
 		        		funcion: funcion,
 		        		taller: taller,
@@ -168,6 +183,7 @@
 	                    $.each(datos.data, function (count, object) {
 	                        $('#cmbFuncionSeleccionada').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
 	                    });
+	                    mensajeSuccess("<b>"+datos.mensaje+"</b>");
 		            } catch (e) {
 		                alert("Error al cargar Combo Funcion:" + e);
 		            }
@@ -303,11 +319,38 @@
 		        }
 		    });
 		};
+		comboFrente = function () {
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/frente/combofiltrado/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbFrente').empty();
+		                $('.cmbFrente').append('<option value="0">Selecciona Destino</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbFrente').append('<option value="' + object.idFrente + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Frente:\n\n" + otroobj);
+		        }
+		    });
+		};
 	    $(function () {
 	    	comboTipoFuncion();
 	    	comboTaller();
 	    	comboTransporte();
 	    	comboOrden();
+	    	comboFrente();
 	    });
 	</script>
 {% endblock %}

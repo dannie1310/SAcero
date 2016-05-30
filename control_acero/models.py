@@ -260,6 +260,7 @@ class Etapa(models.Model):
 	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=3,default=Decimal('0.000'), null=True)
 	idEtapaPertenece = models.IntegerField(null=True)
 	idOrdenTrabajo = models.IntegerField(null=True)
+	frente = models.ForeignKey(Frente, null=True)
 	EtapaDespiece = models.ManyToManyField(
 		'EtapaDespiece',
 		blank=True,
