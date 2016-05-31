@@ -73,7 +73,6 @@
 			</div>
 			<div style="display:none;" id="divImpresion" class="col-md-12 text-center">
 				<button type="button" class="btn btn-success btn-lg" name="btnImprimir" id="btnImprimir" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
-				<button type="button" class="btn btn-success btn-lg" name="btnImprimirResguardo" id="btnImprimirResguardo" data-toggle="modal" data-target="#modalPdf">ImprimirResguardo</button>
 			</div>
 		</div>
 	</div>
@@ -189,8 +188,8 @@
 	        $('.cmbTipoFuncion').empty();
 	        $('.cmbTipoFuncion').append('<option value="0">Selecciona un Tipo de Proveedor</option>');
 	        $('.cmbTipoFuncion').append('<option value="2">Habilitador</option>');
-	        // $('.cmbTipoFuncion').append('<option value="3">Armador</option>');
-	        // $('.cmbTipoFuncion').append('<option value="4">Colocador</option>');
+	        $('.cmbTipoFuncion').append('<option value="3">Armador</option>');
+	        $('.cmbTipoFuncion').append('<option value="4">Colocador</option>');
 		};
 		comboFuncionElegido = function (posicion, value) {
 			var tipo = value;
@@ -457,13 +456,6 @@
 			var folio = $("#cmbFuncion").val();
 			//console.log(folio);
 			var href = "http://localhost:8000/AsignarMaterial/"+folio;
-			$("#framePdf").attr("src", href);
-		});
-
-		$( "#btnImprimirResguardo" ).click(function() {
-			var folio = $("#cmbFuncion").val();
-			//console.log(folio);
-			var href = "http://localhost:8000/ProveedorFabricante/"+folio;
 			$("#framePdf").attr("src", href);
 		});
 	    $(function () {

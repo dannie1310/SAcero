@@ -94,7 +94,6 @@ class Elemento(models.Model):
 	nombre = models.CharField(max_length=100)
 	tipo = models.CharField(max_length=10)
 	peso = models.FloatField(default=0)
-	imagen = models.FileField(upload_to='imagen', null=True)
 	material = models.ManyToManyField(
 		'material',
 		blank=True,
@@ -191,7 +190,7 @@ class Apoyo(models.Model):
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return unicode(self.estatus)
+		return self.numero
 
 class ProgramaSuministro(models.Model):
 	idOrden = models.IntegerField()
@@ -367,24 +366,3 @@ class Archivo(models.Model):
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
-
-class InventarioFisico(models.Model):
-	
-	despiece = models.IntegerField()
-	elemento = models.IntegerField()
-	apoyo = models.IntegerField()
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	proveedor = models.ForeignKey(Funcion)
-	frente = models.ForeignKey(Frente)
-	cantidadFisica = models.IntegerField()
-	longitudFisica = models.IntegerField()
-	fechaActualizacion = models.DateTimeField(auto_now=True)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-
-	def __init__(self, arg):
-		return unicode(self.estatus)
-		

@@ -41,9 +41,16 @@ urlpatterns = [
     #"""--------------------------------------------"""
     url(r'^inventario/movimientos/$', views.movimientosView, name='movimientosView'),
     url(r'^inventario/movimientos/show/$', views.movimientosShow, name='movimientosShow'),
-    url(r'^inventario/fisico/$', views.fisicoView, name='fisicoView'),
+    #url(r'^inventario/cierre/$', views.cierresView, name='cierresView'),
     url(r'^inventario/fisico/busqueda/$', views.fisicoBusquedaView, name='fisicoBusquedaView'),
-
+    url(r'^inventario/inventarioFisico/$', views.inventarioFisicoView, name='inventarioFisicoView'),
+    url(r'^inventario/elemento/busqueda/$', views.elementoBusquedaView, name='elementoBusquedaView'),
+    url(r'^inventario/material/busqueda/$', views.materialBusquedaView, name='materialBusquedaView'),
+    url(r'^material/combo/$', views.materialCombo, name='materialCombo'),
+    url(r'^inventario/despiece/busqueda/$', views.despieceBusquedaView, name='despieceBusquedaView'),
+    url(r'^inventario/frente/combo/busqueda/$', views.frenteComboBusquedaViews, name='frenteComboBusquedaViews'),
+    url(r'^inventario/apoyo/busqueda/$', views.apoyoBusquedaView, name='apoyoBusquedaView'),
+    url(r'^inventario/save/$', views.inventarioSave, name='inventarioSave'),
     #"""------------------------------------------"""
     #"""        RUTAS RELACIONADAS CON APOYO      """
     #"""------------------------------------------"""

@@ -54,9 +54,9 @@
 							<thead>
 								<tr>
 									<th class="text-center">Material Nombre</th>
-									<th class="text-center">Peso Min Requerido en Kg</th>
+									<th class="text-center">Peso Total Kg</th>
 									<th class="text-center">Peso Recibido Kg</th>
-									<th class="text-center">Peso Faltante en Kg</th>
+									<th class="text-center">Peso Restante Kg</th>
 								</tr>
 							</thead>
 							<tbody>

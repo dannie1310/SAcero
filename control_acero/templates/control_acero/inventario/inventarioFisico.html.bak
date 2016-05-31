@@ -1,0 +1,787 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	INVENTARIO FISICO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="col-md-12 text-center">
+			<h3>Elige Tipo de Inventario Fisico</h3>
+		</div>
+		<div id="radios">
+			<div class="col-md-3 text-center">
+				<input type="radio" name="criterio" value="1"> Apoyo
+			</div>
+			<div class="col-md-3 text-center">
+				<input type="radio" name="criterio" value="2"> Elemento
+			</div>
+			<div class="col-md-3 text-center">
+				<input type="radio" name="criterio" value="3"> Despiece
+			</div>
+			<div class="col-md-3 text-center">
+				<input type="radio" name="criterio" value="4"> Material
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<div style="display:none" id="busquedaApoyo">
+				<div class="form-group col-md-12">
+					<label  class="control-label" for="cmbApoyo">Elegir Apoyo:</label>
+					<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<div style="display:none" id="busquedaElemento">
+				<div class="form-group col-md-12">
+					<label  class="control-label" for="cmbElemento">Elegir Elemento:</label>
+					<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<div style="display:none" id="busquedaMaterial">
+				<div class="form-group col-md-12">
+					<label  class="control-label" for="cmbMaterial">Elegir Material:</label>
+					<select name="cmbMaterial" id="cmbMaterial" class="cmbMaterial form-control">
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<div style="display:none" id="busquedaDespiece">
+				<div class="form-group col-md-6">
+					<label  class="control-label" for="cmbElementoD">Elegir Elemento:</label>
+					<select name="cmbElementoD" id="cmbElementoD" class="cmbElementoD form-control">
+					</select>
+				</div>
+				<div class="form-group col-md-6">
+					<label  class="control-label" for="cmbDespiece">Elegir Despiece:</label>
+					<select name="cmbDespiece" id="cmbDespiece" class="cmbDespiece form-control">
+					</select>
+				</div>
+			</div>
+		</div>
+
+		
+		<div style="display: none" id="tablaApoyo" class="col-md-12 table-responsive">
+			<table id="tablaApoyo" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Apoyo</th>
+						<th class="text-center">Elemento</th>
+						<th class="text-center">Cantidad de Piezas Fisicas</th>
+						<th class="text-center">Imagen Despiece</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+
+		<div style="display: none" id="tablaElemento" class="col-md-12 table-responsive">
+			<table id="tablaElemento" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Elemento</th>
+						<th class="text-center">Nomenclatura Despiece</th>
+						<th class="text-center">Cantidad de Piezas Fisicas</th>
+						<th class="text-center">Imagen Despiece</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+
+		<div style="display: none" id="tablaMaterial" class="col-md-12 table-responsive">
+			<table id="tablaMaterial" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Varilla</th>
+						<th class="text-center">Longitud mts</th>
+						<th class="text-center">Cantidad de Piezas Fisicas</th>
+						<th class="text-center">Imagen</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+
+		<div style="display: none" id="tablaDespiece" class="col-md-12 table-responsive">
+			<table id="tablaDespiece" class="table table-hover">
+				<thead>
+					<tr>
+						
+						<th class="text-center">Nomenclatura Despiece</th>
+						
+						<th class="text-center">Material</th>
+						<th class="text-center">Peso</th>
+						<th class="text-center">Longitud Mts</th>
+						<th class="text-center">Longitud Fisica Mts</th>
+						<th class="text-center">Cantidad de Piezas Fisicas</th>
+						<th class="text-center">Imagen</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+
+		<div class="col-md-12">
+			<div style="display:none" id="busquedaProveedor">
+				
+				<div class="form-group col-md-12">
+					<label  class="control-label" for="cmbProveedor">Elegir el Proveedor:</label>
+					<select name="cmbProveedor" id="cmbProveedor" class="cmbProveedor form-control">
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<div style="display:none" id="busquedaFrente">
+				
+				<div class="form-group col-md-12">
+					<label  class="control-label" for="cmbFrente">Elegir el viaducto:</label>
+					<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div style="display: none" id="tablaUbicacion" class="col-md-12 table-responsive">
+			<table id="tablaUbicacion" class="table table-hover">
+				<thead>
+					<tr>
+						
+						<th class="text-center">Viaducto</th>
+						<th class="text-center">Identificación</th>
+						<th class="text-center">Ubicación</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+
+		<div style="display: none" id="asignar" class="col-md-12">
+				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar</button>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+
+		$( "#btnGuardar" ).click(function() {
+			var elemento = $("#cmbElemento").val();
+			var despiece = $("#cmbDespiece").val();
+			var frente = $("#cmbFrente").val();
+			var funcion = $("#cmbFuncion").val();
+			var apoyo = $("#cmbApoyo").val();
+			var cantidadFisica = $("#cantidadFisica").val();
+			var longitudFisica = $("#longitudFisica").val();
+        	console.log(apoyo,elemento, despiece, frente,funcion,cantidadFisica,longitudFisica);
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/inventario/save/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		elemento:elemento,
+		        		despiece:despiece,
+		        		funcion:funcion,
+		        		frente:frente,
+		        		apoyo:apoyo,
+		        		cantidadFisica:cantidadFisica,
+		        		longitudFisica:longitudFisica
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
+		            	
+		            } catch (e) {
+		                alert("Error al cargar El Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion del Frente:\n\n" + otroobj);
+		        }
+		    });
+		});
+
+		$('#radios input').on('change', function() {
+			ocultaBusqueda();
+			ocultaTablas();
+			var val = $('input[name="criterio"]:checked', '#radios').val();
+			if(val == 1){
+				comboFuncion(4);
+				$("#busquedaApoyo").show();
+			}
+			if(val == 2){
+				comboFuncion(3);
+				$("#busquedaElemento").show();
+			}
+			if(val == 3){
+				
+				comboFuncion(2);
+				$("#busquedaDespiece").show();
+			}
+			if(val == 4){
+				comboFuncion(1);
+				$("#busquedaMaterial").show();
+			}
+		});
+
+		comboApoyo = function () {
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/apoyo/combofiltrado/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	console.log(datos);
+		                $('.cmbApoyo').empty();
+		                $('.cmbApoyo').append('<option value="0">Selecciona un Apoyo</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbApoyo').append('<option value="' + object.idApoyo + '">' + object.numero + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el Apoyo:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Apoyo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+		comboElemento = function () {
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/elemento/combo/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	console.log(datos);
+		                $('.cmbElemento').empty();
+		                $('.cmbElemento').append('<option value="0">Selecciona un Elemento</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbElemento').append('<option value="' + object.idElemento + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el elemento:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+		comboElementoD = function () {
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/elemento/combo/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	console.log(datos);
+		                $('.cmbElementoD').empty();
+		                $('.cmbElementoD').append('<option value="0">Selecciona un Elemento</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbElementoD').append('<option value="' + object.idElemento + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el elemento:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+		comboMaterial = function () {
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/material/combo/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		            	
+		                $('.cmbMaterial').empty();
+		                $('.cmbMaterial').append('<option value="0">Selecciona un Material</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbMaterial').append('<option value="' + object.idMaterial + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el Material:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+
+
+		comboDespiece = function (elemento) {
+			var elemento = elemento;
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/ordenTrabajo/comboDespiece/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		elemento : elemento
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbDespiece').empty();
+		                $('.cmbDespiece').append('<option value="0">Selecciona un Despiece</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbDespiece').append('<option value="' + object.idDespiece + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el Despiece:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+		$( "#cmbElementoD" ).change(function() {
+			var value = this.value;
+
+			comboDespiece(value);
+		});
+
+		comboFrente = function () {
+			
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/frente/combo/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		
+		        		},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('.cmbFrente').empty();
+		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('.cmbFrente').append('<option value="' + object.idFrente + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar el Frente:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+		comboFuncion = function (value) {
+			var tipo = value;
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/suministro/asignar/comboFuncionElegido/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		tipo: tipo
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+		                $('#cmbProveedor').empty();
+		                $('#cmbProveedor').append('<option value="0">Selecciona un Proveedor</option>');
+	                    $.each(datos.data, function (count, object) {
+	                        $('#cmbProveedor').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo Funcion:" + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
+		        }
+		    });
+		};
+
+		// $( "#cmbProveedor" ).change(function() {
+		// 	var value = this.value;
+
+		// 	comboDespiece(value);
+		// });
+
+		function ocultaBusqueda (){
+			$("#busquedaElemento").hide();
+			$("#busquedaApoyo").hide();
+			$("#busquedaMaterial").hide();
+			$("#busquedaDespiece").hide();
+			$("#busquedaFrente").hide();
+			$("#busquedaProveedor").hide();
+		}
+
+		function ocultaTablas (){
+			$("#tablaElemento").hide();
+			$("#tablaMaterial").hide();
+			$("#tablaDespiece").hide();
+			$("#tablaUbicacion").hide();
+			$("#tablaApoyo").hide();
+		}
+		$( "#cmbElemento" ).change(function() {
+			ocultaTablas();
+			//comboElemento();
+			$("#tablaElemento").show();
+		});
+		$( "#cmbMaterial" ).change(function() {
+			ocultaTablas();
+			$("#tablaMaterial").show();
+		});
+
+		$( "#cmbDespiece" ).change(function() {
+			ocultaTablas();
+			$("#tablaDespiece").show();
+		});
+		$( "#cmbApoyo" ).change(function() {
+			ocultaTablas();
+			$("#tablaApoyo").show();
+
+		});
+		
+		$( "#cmbFrente" ).change(function() {
+			//ocultaTablas();
+			$("#tablaUbicacion").show();
+
+		});
+
+	    $( "#cmbElemento" ).click(function() {
+			$("#tablaElemento tbody").empty();
+			
+			 var elemento = $("#cmbElemento").val();
+			
+			if(elemento == 0){
+				mensajeWarning("<b>Debes elegir un elemento.</b>");
+				return false;
+			}
+			
+			var tabla = '';
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/inventario/elemento/busqueda/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		elemento:elemento
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+	                    $.each(datos.data, function (count, object) {
+	                    	tabla += '<tr>'
+
+
+	                    	tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagenElem+'" alt="" class="img-responsive"/></td>';
+	                    	
+		                    tabla +='<td>'+object.nombre+'</td>'
+		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value=" " /></td>';		
+		                    tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagen+'" alt="" class="img-responsive"/></td>';                        			
+
+		                    tabla += '</tr>'
+	                    		                    	
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar: " + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion:\n\n" + otroobj);
+		        }
+
+
+		    });   	
+		    $("#tablaElemento tbody").append(tabla);
+		    $("#busquedaFrente").show();	
+		    $("#busquedaProveedor").show();
+	    	$("#asignar").show();
+	    });
+		
+
+	    $( "#cmbMaterial" ).click(function() {
+			$("#tablaMaterial tbody").empty();
+			
+			 var material = $("#cmbMaterial").val();
+			
+			if(material == 0){
+				mensajeWarning("<b>Debes elegir un Material.</b>");
+				return false;
+			}
+			//console.log(material);
+			var tabla = '';
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/inventario/material/busqueda/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		material:material
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try {
+	                    $.each(datos.data, function (count, object) {
+	                    	tabla += '<tr>'
+	                    	
+		                    tabla +='<td>'+object.nombre+'</td>'
+		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="longitudFisica'+count+'" id="longitudFisica'+count+'" value=" " /></td>';
+		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="cantidadFisica'+count+'" id="cantidadFisica'+count+'" value=" " /></td>';		                        			
+		                    tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagen+'" alt="" class="img-responsive"/></td>';
+		                    tabla += '</tr>'
+	                    		                    	
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar: " + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion:\n\n" + otroobj);
+		        }
+
+
+		    });   	
+		    $("#tablaMaterial tbody").append(tabla);
+		    $("#busquedaFrente").show();	
+		    $("#busquedaProveedor").show();
+	    	$("#asignar").show();
+	    });
+
+
+	     $( "#cmbDespiece" ).click(function() {
+			$("#tablaDespiece tbody").empty();
+			var elemento = $("#cmbElementoD").val();
+			var despiece = $("#cmbDespiece").val();
+			
+			if(elemento == 0){
+				mensajeWarning("<b>Debes elegir un Elemento.</b>");
+				return false;
+			}
+
+			if(despiece == 0){
+				mensajeWarning("<b>Debes elegir un Despiece.</b>");
+				return false;
+			}
+			
+			var tabla = '';
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/inventario/despiece/busqueda/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		elemento:elemento,
+		        		despiece:despiece
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try { 
+	                    $.each(datos.data, function (count, object) {
+	                    	tabla += '<tr>'
+	                    	
+		                    tabla +='<td>'+object.nombre+'</td>';
+		                    
+		                    tabla +='<td>'+object.material+'</td>';
+		                    tabla += '<td>'+object.peso+'</td>';
+		                    tabla +='<td>'+object.longitud+'</td>';
+		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="longitudFisica'+count+'" id="longitudFisica'+count+'" value=" " /></td>';
+		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value=" " /></td>';	                 			
+		                    tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagen+'" alt="" class="img-responsive"></td>';	
+		                    tabla += '</tr>';
+	                    		                    	
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar: " + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion:\n\n" + otroobj);
+		        }
+
+
+		    });   	
+		    $("#tablaDespiece tbody").append(tabla);
+		     $("#busquedaProveedor").show();
+		    $("#busquedaFrente").show();	
+	    	$("#asignar").show();
+	    });
+
+	     $( "#cmbApoyo" ).click(function() {
+			$("#tablaApoyo tbody").empty();
+			var Apoyo = $("#cmbApoyo").val();
+			
+			
+			if(Apoyo == 0){
+				mensajeWarning("<b>Debes elegir un Apoyo.</b>");
+				return false;
+			}
+			
+			var tabla = '';
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/inventario/apoyo/busqueda/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		Apoyo:Apoyo
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try { 
+	                    $.each(datos.data, function (count, object) {
+	                    	tabla += '<tr>'
+	                    	
+		                    tabla +='<td>'+object.nombre+'</td>';
+		                    
+		                    tabla +='<td>'+object.elemento+'</td>';
+		                   
+		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value=" " /></td>';	                 			
+		                    tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagen+'" alt="" class="img-responsive"></td>';	
+		                    tabla += '</tr>';
+	                    		                    	
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar: " + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion:\n\n" + otroobj);
+		        }
+
+
+		    });   	
+		    $("#tablaApoyo tbody").append(tabla);
+		     $("#busquedaProveedor").show();
+		    $("#busquedaFrente").show();	
+	    	$("#asignar").show();
+	    });
+
+
+
+	     $( "#cmbFrente" ).click(function() {
+			$("#tablaFrente tbody").empty();
+			
+			var frente = $("#cmbFrente").val();
+			
+			
+			if(frente == 0){
+				mensajeWarning("<b>Debes elegir un Frente.</b>");
+				return false;
+			}
+			
+			var tabla = '';
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/inventario/frente/combo/busqueda/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		frente:frente
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try { 
+		            	$('.cmbFrente').empty();
+	                    $.each(datos.data, function (count, object) {
+	                    	tabla += '<tr>'
+	                    	
+		                    tabla +='<td>'+object.nombre+'</td>';
+		                    tabla +='<td>'+object.identificacion+'</td>';
+		                    tabla +='<td>'+object.ubicacion+'</td>';
+		                   
+		                    tabla += '</tr>'
+	                    		                    	
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar: " + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion:\n\n" + otroobj);
+		        }
+
+
+		    });   	
+		    $("#tablaUbicacion tbody").append(tabla);	
+		    $("#busquedaFrente").show();
+		    $("#busquedaProveedor").show();
+	    	$("#asignar").show();
+	    });
+
+
+
+	     $(function () {
+	     	comboApoyo();
+	    	comboElemento();
+	    	comboElementoD();
+	    	comboMaterial();
+	    	comboDespiece();
+	    	comboFrente();
+	    	comboFuncion();
+	    	
+	    });
+
+	</script>
+{% endblock %}

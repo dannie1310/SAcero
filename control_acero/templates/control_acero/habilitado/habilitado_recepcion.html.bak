@@ -40,8 +40,8 @@
 						<tr>
 							
 							<th class="text-center">Material</th>
-							<!-- <th class="text-center">Peso</th>
-							<th class="text-center">Cantidad</th> -->
+							<th class="text-center">Peso</th>
+							<th class="text-center">Cantidad</th>
 							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Taller Asignado</th>
 							<th class="text-center">Orden de Trabajo</th>
@@ -61,8 +61,8 @@
 					<thead>
 						<tr>
 							<th class="text-center">Material</th>
-							<!-- <th class="text-center">Peso</th>
-							<th class="text-center">Cantidad</th> -->
+							<th class="text-center">Peso</th>
+							<th class="text-center">Cantidad</th>
 							<th class="text-center">Peso Asignado</th>
 							<th class="text-center">Taller Asignado</th>
 						</tr>
@@ -99,8 +99,8 @@
 					var transporteTexto = $("#txtTransporteTexto"+value).val();
 					tabla += '<tr>'
 								+'<td class="text-center">'+nombre+'</td>'
-								// +'<td class="text-center">'+peso+'</td>'
-								// +'<td class="text-center">'+cantidad+'</td>'
+								+'<td class="text-center">'+peso+'</td>'
+								+'<td class="text-center">'+cantidad+'</td>'
 								+'<td class="text-center">'+cantidadAsignada+'</td>'
 								+'<td class="text-center">'+tallerTexto+'</td>'
 								+'<td style="display:none;" class="text-center">'
@@ -194,8 +194,8 @@
                 			disabledOrden = (object.idOrdenTrabajo==0) ? 'disabled' : '';
 	                        tabla += '<tr>'
 	                        			+'<td>'+object.nombreMaterial+'</td>'
-	                        			// +'<td>'+object.peso+'</td>'
-	                        			// +'<td>'+object.cantidad+'</td>'
+	                        			+'<td>'+object.peso+'</td>'
+	                        			+'<td>'+object.cantidad+'</td>'
 	                        			+'<td>'+object.cantidadAsignada+'</td>'
 	                        			+'<td>'+object.tallerNombre+'</td>'
 	                        			+'<td>'+object.idOrdenTrabajo+'</td>'

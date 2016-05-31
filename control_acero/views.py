@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from control_acero.report.models_auth import Empresa, Usuario
-from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, ProgramaSuministro, ProgramaSuministroDetalle, Etapa, EtapaDescuento,  EtapaDespiece, EtapaDespieceDetalle, Taller, Transporte, Archivo
+from .models import Apoyo, Elemento, Despiece, Material, Frente, Funcion, ControlAsignacion, ProgramaSuministro, ProgramaSuministroDetalle, Etapa, EtapaDescuento, InventarioFisico,  EtapaDespiece, EtapaDespieceDetalle, Taller, Transporte, Archivo
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
@@ -390,6 +390,7 @@ def habilitadoRecepcionHabilitado(request):
 									funcion_id=idFuncion,
 									estatusEtapa=1,
 									tipoRecepcion=1)
+	print etapa.query
 	for e in etapa:
 		idOrdenTrabajo = e["idOrdenTrabajo"]
 		if e["idOrdenTrabajo"] is None:
@@ -534,7 +535,7 @@ def habilitadoAsignarElemento(request):
 			if et["despiece__material__id"] == etp["material_id"]:
 				etapaRegistro = etp["id"]
 				pesoRecibido += etp["cantidadAsignada"]
-				pesoAsignado =  etp["cantidadAsignada"] - despiecePeso
+				pesoAsignado =  pesoRecibido - despiecePeso
 		resultadoTotales = {"idEtapa":etapaRegistro, 
 						"idMaterial":et["despiece__material__id"], 
 						"nombre":et["despiece__material__nombre"],
@@ -1212,7 +1213,7 @@ def programaSave(request):
 	p = ProgramaSuministro(idOrden=idOrden,
 							remision=remision,
 							funcion_id=funcion,
-							funcionHabilitado_id=funcionHabilitado,
+							#funcionHabilitado_id=funcionHabilitado,
 							pesoBruto=pesoBruto,
 							pesoTara=pesoTara,
 							pesoNeto=pesoTotal,
@@ -1239,7 +1240,7 @@ def programaSave(request):
 										longitud=longitud
 										)
 		pd.save();
-	mensaje = {"estatus":"ok", "mensaje":"Se creo el Programa de Suministro exitosamente.", "folio":p.id}
+	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso.", "folio":p.id}
 	array = mensaje
 	return JsonResponse(array)
 
@@ -2350,7 +2351,7 @@ def ordenTrabajoMaterialShow(request):
 							 "programaSuministroDetalle__material__nombre",
 							 "programaSuministroDetalle__longitud").filter(funcion__id=idFuncion)
 
-	print d.query
+	#print d.query
 
 	for f in d:
 			resultado = {"cantidad":f["cantidadAsignada"],
@@ -2362,4 +2363,189 @@ def ordenTrabajoMaterialShow(request):
 	
 	array = mensaje
 	array["data"]=data
+	return JsonResponse(array)
+
+
+# cambioos mios 
+
+
+
+def inventarioFisicoView(request):
+	template = 'control_acero/inventario/inventarioFisico.html'
+
+	return render(request, template)
+
+
+
+
+
+def elementoBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idElemento = request.POST.get('elemento', 0)
+
+
+	d = Elemento.objects.values("id",
+								"despiece__id",
+								"despiece__nomenclatura",
+								"imagen",
+								"despiece__imagen").filter(id=idElemento)
+	
+	for f in d:
+			resultado = { "id":f["id"],
+						"idDespiece":f["despiece__id"],
+						"nombre": f["despiece__nomenclatura"],
+						"imagenElem" : f["imagen"],
+						"imagen":f["despiece__imagen"]
+						}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def materialCombo(request):
+	array = {}
+	mensaje = {}
+	data = []
+	material = Material.objects.all()
+	for e in material:
+			resultado = {"idMaterial":e.id,"nombre":e.nombre}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def materialBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idMaterial = request.POST.get('material', 1)
+
+
+	d = Material.objects.values("id",
+								"nombre",
+								"imagen").filter(id=idMaterial)
+	#print d.query
+	for f in d:
+			resultado = {"id":f["id"],
+						"nombre": f["nombre"],
+						"imagen":f["imagen"]
+						}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def despieceBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idElemento = request.POST.get('elemento', 2)
+	idDespiece = request.POST.get('despiece', 1)
+
+	d = Despiece.objects.values("id", 
+								"nomenclatura",
+								"longitud",
+								"peso",
+								"imagen",
+								"material__nombre").filter(id=idDespiece)
+	#print d.query
+
+
+	for f in d:
+			resultado = {"idDespiece":f["id"],
+						"nombre": f["nomenclatura"],
+						"longitud":f["longitud"],
+						"peso":f["peso"],
+						"imagen":f["imagen"],
+						"material":f["material__nombre"]
+						}
+			data.append(resultado)
+    
+	array = mensaje
+	array["data"]=data
+
+	return JsonResponse(array)
+
+
+def frenteComboBusquedaViews(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idFrente= request.POST.get('frente',1)
+	frente = Frente.objects.filter(id= idFrente)
+	for e in frente:
+			resultado = {"idfrente":e.id,"nombre":e.nombre,"identificacion":e.identificacion, "ubicacion":e.ubicacion}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def inventarioSave(request):
+	array = {}
+	mensaje = {}
+	despiece = request.POST.get('despiece', 1)
+	elemento = request.POST.get('elemento', 1)
+	apoyo = request.POST.get('apoyo', 1)
+	cantidadFisica = request.POST.get('cantidadFisica', 1)
+	longitudFisica = request.POST.get('longitudFisica', 1)
+	funcion = request.POST.get('funcion', 1)
+	frente = request.POST.get('frente', 1)
+	
+	e = InventarioFisico.objects.create(despiece = despiece,
+										elemento=elemento,
+										apoyo = apoyo,
+										cantidadFisica = cantidadFisica,
+										longitudFisica = longitudFisica, 
+										proveedor_id = funcion,
+										frente_id = frente,
+										estatus=1)
+
+	print e.query
+				
+	for data in json_object:
+		datos = data["data"]
+		splitData = datos.split("|")
+		despiece = splitData[0]
+		elemento = splitData[1]
+		apoyo = splitData[2]
+		idFuncion = splitData[3]
+		idFrente = splitData[4]
+		longitudFisica = splitData[5]
+		cantidadFisica = splitData[6]
+	mensaje = {"estatus":"ok", "mensaje":"Se guardo correctamente."}
+	array = mensaje
+	return JsonResponse(array)
+	
+def apoyoBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idApoyo = request.POST.get('Apoyo', 1)
+
+	d = Apoyo.objects.values("id", 
+								"numero",
+								"elemento__nombre",
+								"elemento__id",
+								"elemento__imagen").filter(id=idApoyo)
+	#print d.query
+
+
+	for f in d:
+			resultado = {"idApoyo":f["id"],
+						"nombre": f["numero"],
+						"elemento":f["elemento__nombre"],
+						"idE":f["elemento__id"],
+						"imagen":f["elemento__imagen"]
+						}
+			data.append(resultado)
+    
+	array = mensaje
+	array["data"]=data
+
 	return JsonResponse(array)
