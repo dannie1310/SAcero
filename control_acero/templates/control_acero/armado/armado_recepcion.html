@@ -26,10 +26,12 @@
 						<tr>
 							<!--<th class="text-center">Despiece Total</th>
 							<th class="text-center">Peso Recibido</th>-->
-							<th class="text-center">Peso del Despiece</th>
 							<th class="text-center">Nomenclaruta</th>
+							<th class="text-center">Varilla #</th>
+							<th class="text-center">Piezas Recibidas</th>
+							<th class="text-center">Peso del Despiece Kg</th>
 							<th class="text-center">Longitud del Despiece</th>
-							<th class="text-center">Cantidad Recibida</th>
+							<th class="text-center">Cantidad Recibida en Piezas</th>
 							<th class="text-center">Seleccionar</th>
 						</tr>
 					</thead>
@@ -38,7 +40,7 @@
 					</tbody>
 				</table>
 			</div>
-			<div class="col-md-12 table-responsive">
+			<!--<div class="col-md-12 table-responsive">
 				<table id="tablaSuministroAsignado" class="table table-hover">
 					<thead>
 						<tr>
@@ -77,7 +79,7 @@
 						</tr>
 					</tbody>
 				</table>
-			</div>
+			</div>-->
 			<div class="col-md-12">
 				<button type="button" name="btnGuardar" id="btnGuardar" class="btn btn-primary">Guardar Asignacion</button>
 			</div>
@@ -100,7 +102,8 @@
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
 		        			frente: frente,
-		        			idOrden: orden
+		        			idOrden: orden,
+		        			etapa: 3
 						},
 		        beforeSend: function (objeto) {
 		        },
@@ -108,14 +111,13 @@
 		            try {
 	                    $.each(datos.data, function (count, object) {
 			            	tabla += '<tr>';
-			            		//tabla +='<td>'+object.despieceTotal+'</td>';
-			            		//tabla +='<td>'+object.pesoRecibido+'</td>';
-			            		tabla +='<td>'+object.despiecePeso+'</td>';
 			            		tabla +='<td>'+object.despieceNomenclatura+'</td>';
+			            		tabla +='<td>'+object.idMaterial+'</td>';
+			            		tabla +='<td>'+object.piezas+'</td>';
+			            		tabla +='<td>'+object.despiecePeso+'</td>';
 			            		tabla +='<td>'+object.despieceLongitud+'</td>';
-			            		tabla +='<td><input class="form-control dataDespiece"  type="number" data-iddespiece="'+object.id+'" /></td>';
-			            		tabla +='<td><input type="checkbox" name="seleccionados" data-iddespiece="'+object.id+'" data-peso="'+object.despiecePeso+'" value="'+count+'" /></span></td>';
-			            		//tabla +='<td><input class="form-control dataDespiece"  type="number" data-iddespiece="'+object.id+'" /></td>';
+			            		tabla +='<td><input class="form-control dataDespiece'+count+'"  type="number" data-idetapa="'+object.id+'" data-iddespiece="'+object.despieceId+'" data-idetapadespiece="'+object.etapaDespieceId+'" data-idetapadespiecedetalle="'+object.etapaDespieceDetalleId+'" value="'+object.piezas+'" /></td>';
+			            		tabla +='<td><input type="checkbox" checked name="seleccionados" data-iddespiece="'+object.id+'" data-peso="'+object.despiecePeso+'" value="'+count+'" /></span></td>';
 	                    		tabla += '<td>';
 	                    			tabla += '<a target="_blank" href="../../../media/'+object.despieceImagen+'">';
 				                		tabla += '<img width="100" class="img-responsive img-circle" src="../../../media/'+object.despieceImagen+'" alt="" class="img-responsive">';
@@ -134,28 +136,38 @@
 		    $("#tablaDespiece tbody").append(tabla);
 		});
 		$( "#btnGuardar" ).click(function() {
-			var datos = [];
-			var datosString = '';
-			$("input.dataAsignacion[type=text]").each(function(index, element) {
-				console.log(this.name);
-				if(this.name == "dataId"){
-					datosString += this.value+"|";
-				}
-				if(this.name == "dataPesoRecibido"){
-					datosString += this.value;
-					datos.push({"data": datosString});
-					datosString = '';
+			var frente = $("#cmbFrente").val();
+			var orden = $("#cmbOrden").val();
+			var checado = 0;
+			var recibido = 0;
+			var idEtapa = 0;
+			var idDespiece = 0;
+			var idEtapaDespiece = 0;
+			var idEtapaDespieceDetalle = 0;
+			var array = [];
+			$("input[name='seleccionados']").each( function () {
+				if($(this).is(":checked")){
+					checado = this.value;
+					$("input.dataDespiece"+checado+"[type=number]").each(function(index, element) {
+						recibido = this.value;
+						idEtapa = $(this).data("idetapa");
+						idDespiece = $(this).data("iddespiece");
+						idEtapaDespiece = $(this).data("idetapadespiece");
+						idEtapaDespieceDetalle = $(this).data("idetapadespiecedetalle");
+						array.push({"idEtapa":idEtapa, "idDespiece":idDespiece, "idEtapaDespiece":idEtapaDespiece, "idEtapaDespieceDetalle":idEtapaDespieceDetalle, "recibido": recibido});
+					});
 				}
 			});
-
-			var json = JSON.stringify(datos);
+			var json = JSON.stringify(array);
 
 		    $.ajax({
 		        type: "POST",
-		        url: "/control_acero/armado/asigna/save/",
+		        url: "/control_acero/armado/recepcion/save/",
 		        async: false,
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
+		        		frente: frente,
+		        		orden: orden,
 		        		json: json
 						},
 		        beforeSend: function (objeto) {

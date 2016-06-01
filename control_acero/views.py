@@ -789,7 +789,7 @@ def colocadoRecepcionComboFuncion(request):
 	array = {}
 	mensaje = {}
 	data = []
-	etapaFuncion = Etapa.objects.filter(estatusEtapa=6).values_list('funcion_id', flat=True).distinct()
+	etapaFuncion = Etapa.objects.filter(estatusEtapa=5).values_list('funcion_id', flat=True).distinct()
 	for e in etapaFuncion:
 		funcion = Funcion.objects.filter(id=e)
 		for f in funcion:
@@ -803,11 +803,11 @@ def colocadoRecepcionComboApoyo(request):
 	array = {}
 	mensaje = {}
 	data = []
-	idPrograma = request.POST.get('programa', 0)
+	orden = request.POST.get('orden', 0)
 	idFuncion = request.POST.get('funcion', 0)
-	etapa = Etapa.objects.values("controlAsignacion__programaSuministroDetalle__apoyo__id",
-											"controlAsignacion__programaSuministroDetalle__apoyo__numero"
-											).filter(estatusEtapa=6, funcion_id=idFuncion, programaSuministro_id=idPrograma).values_list('controlAsignacion__programaSuministroDetalle__apoyo__id', flat=True).distinct()
+	etapa = Etapa.objects.values("apoyo__id",
+											"apoyo__numero"
+											).filter(estatusEtapa=5, funcion_id=idFuncion, idOrdenTrabajo=orden).values_list('apoyo_id', flat=True).distinct()
 	print etapa
 	for e in etapa:
 		apoyo = Apoyo.objects.filter(id=e)
@@ -1963,7 +1963,9 @@ def habilitadoAsignarArmado(request):
 											"EtapaDespiece__EtapaDespieceDetalle__despiece_id",
 											"EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura",
 											"EtapaDespiece__EtapaDespieceDetalle__despiece__longitud",
-											"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen").filter(idEtapaPertenece=etapa.id)
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__material__id",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad").filter(idEtapaPertenece=etapa.id)
 		for detalle in detalles:
 			resultado = {
 							"id":detalle["id"],
@@ -1973,7 +1975,9 @@ def habilitadoAsignarArmado(request):
 							"despieceId":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece_id"],
 							"despieceNomenclatura":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura"],
 							"despieceLongitud":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__longitud"],
-							"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"]
+							"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"],
+							"idMaterial":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__material__id"],
+							"piezas":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad"]
 						}
 			data.append(resultado)
 
@@ -1987,25 +1991,33 @@ def armadoRecepcionArmado(request):
 	data = []
 	frente = request.POST.get('frente',0)
 	idOrdenTrabajo = request.POST.get('idOrden',0)
+	etapa = request.POST.get('etapa',0)
 	detalles = Etapa.objects.values("id",
+										"EtapaDespiece__id",
 										"EtapaDespiece__despieceTotal",
 										"EtapaDespiece__pesoRecibido",
+										"EtapaDespiece__EtapaDespieceDetalle__id",
 										"EtapaDespiece__EtapaDespieceDetalle__despiecePeso",
 										"EtapaDespiece__EtapaDespieceDetalle__despiece_id",
 										"EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura",
 										"EtapaDespiece__EtapaDespieceDetalle__despiece__longitud",
-										"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen").filter(estatusEtapa=3, frente_id=frente, idOrdenTrabajo=idOrdenTrabajo)
-	print detalles.query
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__material__id",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad").filter(estatusEtapa=etapa, frente_id=frente, idOrdenTrabajo=idOrdenTrabajo)
 	for detalle in detalles:
 		resultado = {
 						"id":detalle["id"],
+						"etapaDespieceId":detalle["EtapaDespiece__id"],
+						"etapaDespieceDetalleId":detalle["EtapaDespiece__EtapaDespieceDetalle__id"],
 						"despieceTotal":detalle["EtapaDespiece__despieceTotal"],
 						"pesoRecibido":detalle["EtapaDespiece__pesoRecibido"],
 						"despiecePeso":detalle["EtapaDespiece__EtapaDespieceDetalle__despiecePeso"],
 						"despieceId":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece_id"],
 						"despieceNomenclatura":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura"],
 						"despieceLongitud":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__longitud"],
-						"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"]
+						"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"],
+						"idMaterial":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__material__id"],
+						"piezas":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad"]
 					}
 		data.append(resultado)
 
@@ -2041,40 +2053,40 @@ def armadoAsignaSave(request):
 	respuesta = request.POST.get('json')
 	etapas = Etapa.objects.all().filter(idOrdenTrabajo=idOrdenTrabajo,
 											tipoRecepcion=2)
-	for etapa in etapas:
-		e = Etapa.objects.create(peso=etapa.peso,
-										cantidad=etapa.cantidad,
-										cantidadAsignada=etapa.cantidadAsignada,
-										idEtapaPertenece=etapa.idEtapaPertenece,
-										estatusEtapa=3,
-										estatus=1,
-										tipoEstatus=etapa.tipoEstatus,
-										tipoRecepcion=1,
-										funcion_id=funcion,
-										taller_id=taller,
-										transporte_id=transporte,
-										material_id=etapa.material_id,
-										idOrdenTrabajo=idOrdenTrabajo,
-										frente_id=frente
-										)
-		etapaDespieces = Etapa.objects.values("EtapaDespiece__despieceTotal",
-										"EtapaDespiece__pesoRecibido",
-										"EtapaDespiece__pesoRestante",
-										"EtapaDespiece__cantidad",
-										"EtapaDespiece__elemento__id",
-										"EtapaDespiece__material__id"
-										)\
-								.filter(idEtapaPertenece=etapa.id)
-		for etapaDespiece in etapaDespieces:
-			ed = EtapaDespiece.objects.create(despieceTotal=etapaDespiece["EtapaDespiece__despieceTotal"],
-											pesoRecibido=etapaDespiece["EtapaDespiece__pesoRecibido"],
-											pesoRestante=etapaDespiece["EtapaDespiece__pesoRestante"],
-											cantidad=etapaDespiece["EtapaDespiece__cantidad"],
-											estatus=1,
-											elemento_id =etapaDespiece["EtapaDespiece__elemento__id"],
-											material_id =etapaDespiece["EtapaDespiece__material__id"]
-											)
-			e.EtapaDespiece.add(ed)
+	#for etapa in etapas:
+	e = Etapa.objects.create(#peso=etapa.peso,
+									#cantidad=etapa.cantidad,
+									#cantidadAsignada=etapa.cantidadAsignada,
+									#idEtapaPertenece=etapa.idEtapaPertenece,
+									estatusEtapa=3,
+									estatus=1,
+									#tipoEstatus=etapa.tipoEstatus,
+									tipoRecepcion=1,
+									funcion_id=funcion,
+									taller_id=taller,
+									transporte_id=transporte,
+									#material_id=etapa.material_id,
+									idOrdenTrabajo=idOrdenTrabajo,
+									frente_id=frente
+									)
+	# etapaDespieces = Etapa.objects.values("EtapaDespiece__despieceTotal",
+	# 								"EtapaDespiece__pesoRecibido",
+	# 								"EtapaDespiece__pesoRestante",
+	# 								"EtapaDespiece__cantidad",
+	# 								"EtapaDespiece__elemento__id",
+	# 								"EtapaDespiece__material__id"
+	# 								)\
+	# 						.filter(idEtapaPertenece=etapa.id)
+	#for etapaDespiece in etapaDespieces:
+	ed = EtapaDespiece.objects.create(#despieceTotal=0,
+									#pesoRecibido=0,
+									#pesoRestante=0,
+									#cantidad=0,
+									estatus=1
+									#elemento_id =1;
+									#material_id =1;
+									)
+	e.EtapaDespiece.add(ed)
 	json_object = json.loads(respuesta)
 	for data in json_object:
 		idDespiece = data["idDespiece"]
@@ -2134,81 +2146,142 @@ def armadoAsignacionSave(request):
 	array = mensaje
 	return JsonResponse(array)
 
+def armadoRecepcionSave(request):
+	array = {}
+	mensaje = {}
+	frente = request.POST.get('frente')
+	orden = request.POST.get('orden')
+	respuesta = request.POST.get('json')
+	json_object = json.loads(respuesta)
+
+	e = Etapa.objects.create(
+								estatusEtapa=4,
+								estatus=1,
+								tipoRecepcion=1,
+								idOrdenTrabajo=orden,
+								frente_id=frente
+								)
+	ed = EtapaDespiece.objects.create(estatus=1
+									)
+	e.EtapaDespiece.add(ed)
+	json_object = json.loads(respuesta)
+	for data in json_object:
+		idDespiece = data["idDespiece"]
+		cantidadAsignadaDespiece = data["recibido"]
+		edd = EtapaDespieceDetalle.objects.create(despiece_id=idDespiece,
+													despiecePeso=cantidadAsignadaDespiece)
+		ed.EtapaDespieceDetalle.add(edd)
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion de Colocado correctamente."}
+	array = mensaje
+	return JsonResponse(array)
+
+def armadoAsignacionColocadoSave(request):
+	array = {}
+	mensaje = {}
+	frente = request.POST.get('frente')
+	orden = request.POST.get('orden')
+	apoyo = request.POST.get('apoyo')
+	funcion = request.POST.get('funcion')
+	respuesta = request.POST.get('json')
+	json_object = json.loads(respuesta)
+	e = Etapa.objects.create(
+								funcion_id=funcion,
+								estatusEtapa=5,
+								estatus=1,
+								tipoRecepcion=1,
+								idOrdenTrabajo=orden,
+								frente_id=frente,
+								apoyo_id=apoyo
+								)
+	ed = EtapaDespiece.objects.create(estatus=1
+									)
+	e.EtapaDespiece.add(ed)
+	json_object = json.loads(respuesta)
+	for data in json_object:
+		idDespiece = data["idDespiece"]
+		cantidadAsignadaDespiece = data["recibido"]
+		edd = EtapaDespieceDetalle.objects.create(despiece_id=idDespiece,
+													despiecePeso=cantidadAsignadaDespiece)
+		ed.EtapaDespieceDetalle.add(edd)
+	mensaje = {"estatus":"ok", "mensaje":"Se realizo la asignacion a Colocado correctamente."}
+	array = mensaje
+	return JsonResponse(array)
+
 def colocadoRecepcionDetalle(request):
 	array = {}
 	mensaje = {}
 	data = []
-	dataFrente = []
-	dataApoyo = []
-	dataDetalle = []
-	programa = request.POST.get('programa', 0)
-	funcion = request.POST.get('funcion', 0)
-	apoyo = request.POST.get('apoyo', 0)
-	etapa = Etapa.objects.values("id",
-											"controlAsignacion__frente__id",
-											"controlAsignacion__frente__nombre",
-											"controlAsignacion__frente__identificacion",
-											"controlAsignacion__frente__ubicacion",
-											"controlAsignacion__frente__kilometros"
-											).filter(estatusEtapa = 6,
-														funcion_id = funcion,
-														programaSuministro_id = programa,
-														controlAsignacion__programaSuministroDetalle__apoyo__id = apoyo)[:1]
-	for e in etapa:
-		resultado = {"idFrente":e["controlAsignacion__frente__id"],
-						"frenteNombre":e["controlAsignacion__frente__nombre"],
-						"frenteIdentificacion":e["controlAsignacion__frente__identificacion"],
-						"frenteUbicacion":e["controlAsignacion__frente__ubicacion"],
-						"frenteKilometro":e["controlAsignacion__frente__kilometros"]
-						}
-		dataFrente.append(resultado)
+	dataDespieceElemento = []
+	dataColocado = []
+	orden = request.POST.get('orden', 1)
+	funcion = request.POST.get('funcion', 21)
+	apoyo = request.POST.get('apoyo', 1)
 
-	etapa = Etapa.objects.values("controlAsignacion__programaSuministroDetalle__apoyo__id",
-									"controlAsignacion__programaSuministroDetalle__apoyo__numero",
-									"controlAsignacion__programaSuministroDetalle__elemento__id",
-									"controlAsignacion__programaSuministroDetalle__elemento__nombre"
-									).filter(estatusEtapa = 1,
-												programaSuministro_id = programa)
-	for e in etapa:
-		resultado = {"apoyoId":e["controlAsignacion__programaSuministroDetalle__apoyo__id"],
-						"apoyoNumero":e["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
-						"elementoId":e["controlAsignacion__programaSuministroDetalle__elemento__id"],
-						"elementoNombre":e["controlAsignacion__programaSuministroDetalle__elemento__nombre"]
+	despiecesElementos = Etapa.objects.all().filter(idOrdenTrabajo=orden,
+											tipoRecepcion=2)
+	
+	for despieceElemento in despiecesElementos:
+		detalles = Etapa.objects.values("id",
+											"EtapaDespiece__despieceTotal",
+											"EtapaDespiece__pesoRecibido",
+											"EtapaDespiece__EtapaDespieceDetalle__despiecePeso",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece_id",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__longitud",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__material__id",
+											"EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad")\
+								.filter(idEtapaPertenece=despieceElemento.id)
+		for detalle in detalles:
+			resultado = {
+							"id":detalle["id"],
+							"despieceTotal":detalle["EtapaDespiece__despieceTotal"],
+							"pesoRecibido":detalle["EtapaDespiece__pesoRecibido"],
+							"despiecePeso":detalle["EtapaDespiece__EtapaDespieceDetalle__despiecePeso"],
+							"despieceId":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece_id"],
+							"despieceNomenclatura":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura"],
+							"despieceLongitud":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__longitud"],
+							"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"],
+							"idMaterial":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__material__id"],
+							"piezas":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad"]
 						}
-		dataApoyo.append(resultado)
+			dataDespieceElemento.append(resultado)
+	detalles = Etapa.objects.values("id",
+										"EtapaDespiece__id",
+										"EtapaDespiece__despieceTotal",
+										"EtapaDespiece__pesoRecibido",
+										"EtapaDespiece__EtapaDespieceDetalle__id",
+										"EtapaDespiece__EtapaDespieceDetalle__despiecePeso",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece_id",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__longitud",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__imagen",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__material__id",
+										"EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad")\
+							.filter(idOrdenTrabajo=orden,
+									funcion_id=funcion,
+									apoyo_id=apoyo,
+									estatusEtapa=5)
+	for detalle in detalles:
+		resultado = {
+						"id":detalle["id"],
+						"etapaDespieceId":detalle["EtapaDespiece__id"],
+						"etapaDespieceDetalleId":detalle["EtapaDespiece__EtapaDespieceDetalle__id"],
+						"despieceTotal":detalle["EtapaDespiece__despieceTotal"],
+						"pesoRecibido":detalle["EtapaDespiece__pesoRecibido"],
+						"despiecePeso":detalle["EtapaDespiece__EtapaDespieceDetalle__despiecePeso"],
+						"despieceId":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece_id"],
+						"despieceNomenclatura":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__nomenclatura"],
+						"despieceLongitud":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__longitud"],
+						"despieceImagen":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__imagen"],
+						"idMaterial":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__material__id"],
+						"piezas":detalle["EtapaDespiece__EtapaDespieceDetalle__despiece__cantidad"]
+					}
+		dataColocado.append(resultado)
 
-	etapaDetalle = Etapa.objects.values("id",
-											"pesoRecibido",
-											"piezasRecibidas",
-											"controlAsignacion__programaSuministroDetalle__apoyo__numero", 
-											"controlAsignacion__programaSuministroDetalle__elemento__nombre",
-											"despiece__nomenclatura",
-											"despiece__cantidad",
-											"despiece__longitud",
-											"despiece__peso",
-											"despiece__figura",
-											"despiece__material__nombre"
-											).filter(estatusEtapa=6,
-														programaSuministro_id=programa,
-														controlAsignacion__programaSuministroDetalle__apoyo__id=apoyo)
-	for ed in etapaDetalle:
-		resultado = {"id":ed["id"],
-						"pesoRecibido":ed["pesoRecibido"],
-						"piezasRecibidas":ed["piezasRecibidas"],
-						"apoyo":ed["controlAsignacion__programaSuministroDetalle__apoyo__numero"],
-						"elemento":ed["controlAsignacion__programaSuministroDetalle__elemento__nombre"],
-						"despieceNomenclatura":ed["despiece__nomenclatura"],
-						"despieceCantidad":ed["despiece__cantidad"],
-						"despieceLongitud":ed["despiece__longitud"],
-						"despiecePeso":ed["despiece__peso"],
-						"despieceFigura":ed["despiece__figura"],
-						"despieceMaterial":ed["despiece__material__nombre"]
-						}
-		dataDetalle.append(resultado)
 	array = mensaje
-	array["frente"]=dataFrente
-	array["apoyo"]=dataApoyo
-	array["detalle"]=dataDetalle
+	array["despieceElemento"]=dataDespieceElemento
+	array["colocado"]=dataColocado
 	return JsonResponse(array)
 
 def colocadoRecepcionSave(request):

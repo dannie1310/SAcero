@@ -175,6 +175,8 @@ urlpatterns = [
     url(r'^armado/asignacion/elemento/$', views.armadoAsignacionElemento, name='armadoAsignacionElemento'),
     url(r'^armado/asignacion/save/$', views.armadoAsignacionSave, name='armadoAsignacionSave'),
     url(r'^armado/recepcion/armado/$', views.armadoRecepcionArmado, name='armadoRecepcionArmado'),
+    url(r'^armado/recepcion/save/$', views.armadoRecepcionSave, name='armadoRecepcionSave'),
+    url(r'^armado/asignacion/colocado/save/$', views.armadoAsignacionColocadoSave, name='armadoAsignacionColocadoSave'),
     #"""------------------------------------------"""
     #""" RUTAS RELACIONADAS CON COLOCADO """
     #"""------------------------------------------"""

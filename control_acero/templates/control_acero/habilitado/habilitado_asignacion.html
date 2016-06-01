@@ -35,8 +35,10 @@
 						<tr>
 							<!--<th class="text-center">Despiece Total</th>
 							<th class="text-center">Peso Recibido</th>-->
-							<th class="text-center">Peso del Despiece</th>
 							<th class="text-center">Nomenclaruta</th>
+							<th class="text-center">Varilla #</th>
+							<th class="text-center">Piezas</th>
+							<th class="text-center">Peso del Despiece Kg</th>
 							<th class="text-center">Longitud del Despiece</th>
 							<th class="text-center">Seleccionar</th>
 						</tr>
@@ -50,13 +52,13 @@
 				<table id="tablaSuministroAsignado" class="table table-hover">
 					<thead>
 						<tr>
-							<th colspan="9" class="text-center">Detalle de la Asignación</th>
+							<th colspan="9" class="text-center">Detalle de la Asignación al Armador</th>
 						</tr>
 						<tr>
 							<th class="text-center">Frente de Trabajo</th>
 							<th class="text-center">Proveedores Funciones</th>
 							<th class="text-center">Elige Proveedor</th>
-							<th class="text-center">Asignar Taller</th>
+							<th class="text-center">Asignar Sitio de Entrega</th>
 							<th class="text-center">Transporte</th>
 						</tr>
 					</thead>
@@ -117,10 +119,12 @@
 			            	tabla += '<tr>';
 			            		//tabla +='<td>'+object.despieceTotal+'</td>';
 			            		//tabla +='<td>'+object.pesoRecibido+'</td>';
-			            		tabla +='<td>'+object.despiecePeso+'</td>';
 			            		tabla +='<td>'+object.despieceNomenclatura+'</td>';
+			            		tabla +='<td>'+object.idMaterial+'</td>';
+			            		tabla +='<td>'+object.piezas+'</td>';
+			            		tabla +='<td>'+object.despiecePeso+'</td>';
 			            		tabla +='<td>'+object.despieceLongitud+'</td>';
-			            		tabla +='<td><input type="checkbox" name="seleccionados" data-iddespiece="'+object.id+'" data-peso="'+object.despiecePeso+'" value="'+count+'" /></span></td>';
+			            		tabla +='<td><input type="checkbox" checked name="seleccionados" data-iddespiece="'+object.despieceId+'" data-peso="'+object.despiecePeso+'" value="'+count+'" /></span></td>';
 			            		//tabla +='<td><input class="form-control dataDespiece"  type="number" data-iddespiece="'+object.id+'" /></td>';
 	                    		tabla += '<td>';
 	                    			tabla += '<a target="_blank" href="../../../media/'+object.despieceImagen+'">';
@@ -196,6 +200,7 @@
 		comboTipoFuncion = function () {
 	        $('.cmbTipoFuncion').empty();
 	        $('.cmbTipoFuncion').append('<option value="0">Selecciona un Tipo de Proveedor</option>');
+	        $('.cmbTipoFuncion').append('<option value="3">Armador-Colocador</option>');
 	        $('.cmbTipoFuncion').append('<option value="3">Armador</option>');
 	        $('.cmbTipoFuncion').append('<option value="4">Colocador</option>');
 		};
