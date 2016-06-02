@@ -1,5 +1,15 @@
 from django import forms
 from .models import Apoyo, Elemento, Despiece,Material,Funcion, Frente, Taller, Transporte
+from django.contrib.auth.models import User, Group, Permission
+
+class UserForm(forms.ModelForm):
+    group = forms.ModelChoiceField(queryset=Group.objects.all(),
+                                   required=True)
+    permission = forms.ModelChoiceField(queryset=Permission.objects.all(),
+                                   required=True)
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'group', 'permission', 'is_active', 'is_superuser')
 
 class ApoyoForm(forms.ModelForm):
 	class Meta:

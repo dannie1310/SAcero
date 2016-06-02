@@ -294,7 +294,7 @@
 			comboFuncionElegido(value);
 		});
 		$( "#btnImprimir" ).click(function() {
-			var folio = $("#cmbPrograma").val();
+			var folio = $("#cmbOrden").val();
 			var href = "http://localhost:8000/AsignarHabilitado/"+folio;
 			$("#framePdf").attr("src", href);
 		});

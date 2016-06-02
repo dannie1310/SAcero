@@ -45,7 +45,7 @@
 				<table id="tablaColocado" class="table table-hover">
 					<thead>
 						<tr>
-							<th colspan="5" class="text-center">Detalle Despiece Armado</th>
+							<th colspan="6" class="text-center">Detalle Despiece Armado</th>
 						</tr>
 						<tr>
 							<th class="text-center">Nomenclaruta</th>
@@ -220,7 +220,7 @@
 			            		tablaColocado +='<td>'+object.despieceNomenclatura+'</td>';
 			            		tablaColocado +='<td>'+object.idMaterial+'</td>';
 			            		tablaColocado +='<td>'+object.piezas+'</td>';
-			            		tablaColocado +='<td>'+object.despiecePeso+'</td>';
+			            		tablaColocado +='<td>'+Math.round(object.despiecePeso)+'</td>';
 			            		tablaColocado +='<td>'+object.despieceLongitud+'</td>';
 			            		//tablaColocado +='<td><input class="form-control dataDespiece'+count+'"  type="number" data-idetapa="'+object.id+'" data-iddespiece="'+object.despieceId+'" data-idetapadespiece="'+object.etapaDespieceId+'" data-idetapadespiecedetalle="'+object.etapaDespieceDetalleId+'" value="'+object.despiecePeso+'" /></td>';
 			            		//tablaColocado +='<td><input type="checkbox" name="seleccionados" data-iddespiece="'+object.id+'" data-peso="'+object.despiecePeso+'" value="'+count+'" /></span></td>';

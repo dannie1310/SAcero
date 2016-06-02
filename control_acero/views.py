@@ -20,7 +20,7 @@ from django.contrib.auth.decorators import login_required
 import md5
 from django.contrib import messages
 from django.db import connections
-from .forms import ApoyoForm, ElementoForm, DespieceForm, MaterialForm, FrenteForm, FuncionForm, TallerForm, TransporteForm
+from .forms import UserForm, ApoyoForm, ElementoForm, DespieceForm, MaterialForm, FrenteForm, FuncionForm, TallerForm, TransporteForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render_to_response
 from django.db import connection
@@ -994,7 +994,6 @@ class HomeView(generic.ListView):
 def loginUsuario(request):
 	usuario = request.POST['usuario']
 	clave = request.POST['clave']
-	cursor = connections['modulos_db'].cursor()
 	if (usuario == ""):
 		resultado = {"estatus":"error","mensaje":"El campo usuario esta vacio"}
 		return JsonResponse(resultado)
@@ -1314,6 +1313,16 @@ def frenteActualizaestatus(request):
 
 
 	#catalogos#
+def usuariosNewView(request):
+	if request.method == "POST":
+		form = UserForm(request.POST)
+		if(form.is_valid()):
+			new_user = User.objects.create_user(**form.cleaned_data)
+			login(new_user)
+			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
+	else:
+		form = UserForm()
+	return render(request, 'control_acero/catalogos/usuarios/usuario_new.html', {'form': form})
 
 def apoyosView(request):
 	apoyo_list = Apoyo.objects.filter(estatus=1)

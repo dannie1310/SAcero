@@ -193,6 +193,7 @@
 </div>
 <div class="clearfix"></div>
 <div style="display:none;" class="alert-success col-md-6 col-md-offset-3" id="ordenCreada"></div>
+<input type="hidden" name="txtFolio" id="txtFolio"></input>
 	<script type="text/javascript">
 		$( "#btnLimpiar" ).click(function() {
 			$("#tablaSuministro tbody").empty();
@@ -238,6 +239,7 @@
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
 		            	$("#ordenCreada").append("<b>Se creo la Orden con el Folio: "+datos.idOrden+"</b>");
+		            	$("#txtFolio").val(datos.idOrden);
 		            	$("#ordenCreada").show('slide');
 		            	$("#btnGuardar").hide('slide');
 		            	$("#divImpresion").show('slide');
@@ -282,6 +284,7 @@
 		            try {
 		            	mensajeSuccess("<b>"+datos.mensaje+"</b>");
 		            	$("#ordenCreada").append("<b>Se creo la Orden con el Folio: "+datos.idOrden+"</b>");
+		            	$("#txtFolio").val(datos.idOrden);
 		            	$("#ordenCreada").show('slide');
 		            	$("#btnGuardarDespiece").hide('slide');
 		            	//$("#divImpresion").show('slide');
@@ -622,8 +625,8 @@
 			$("#tablaSuministroAsignado").append(tabla);
 		}
 		$( "#btnImprimir" ).click(function() {
-			var folio = $("#cmbPrograma").val();
-			var href = "http://localhost:8000/AsignarHabilitado/"+folio;
+			var folio = $("#txtFolio").val();
+			var href = "http://localhost:8000/OrdenTrabajo/"+folio;
 			$("#framePdf").attr("src", href);
 		});
 		$( "#cmbElementoDespiece" ).change(function() {

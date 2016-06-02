@@ -69,6 +69,10 @@ urlpatterns = [
     #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CATALOGO DE APOYOS  """
     #"""------------------------------------------"""
+    url(r'^catalogos/usuarios/new/$', views.usuariosNewView, name='usuariosNewView'),
+
+
+
     url(r'^catalogos/apoyos/$', views.apoyosView, name='apoyosView'),
     url(r'^catalogos/apoyos/new/$', views.apoyosNewView, name='apoyosNewView'),
     url(r'^catalogos/apoyos/(?P<pk>[0-9]+)/edit/$', views.apoyosEditView, name='apoyosEditView'),
