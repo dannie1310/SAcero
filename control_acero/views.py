@@ -841,6 +841,7 @@ def frenteTrabajoNuevoView(request):
 	template = 'control_acero/frente_trabajo/frente_trabajo_nuevo.html'
 	return render(request, template)
 
+
 def frenteTrabajoShow(request):
 	array = {}
 	data = []
@@ -1676,3 +1677,134 @@ class HomeView(generic.ListView):
 	#context_object_name = 'ultimos_cinco_productos'
 	#producto = get_object_or_404(Producto, pk=producto_id)
 	#return render(request, template_name)
+
+def reporteView(request):
+	template = 'control_acero/reportes/reporte.html'
+	return render(request, template)
+
+def comboFuncionGeneral(request):
+	array = {}
+	mensaje = {}
+	data = []
+
+	funciones = Funcion.objects.all()\
+								.filter(
+										estatus = 1
+										)\
+								.order_by("tipo")
+	for funcion in funciones:
+		resultado = {
+						"id":funcion.id,
+						"proveedor":funcion.proveedor
+					}
+		data.append(resultado)
+	array["data"]=data
+	return JsonResponse(array)
+
+def comboTaller(request):
+	array = {}
+	mensaje = {}
+	data = []
+
+	f = request.POST.get('funcion', 0)
+	print f
+	talleres = Taller.objects.all()\
+								.filter(
+										funcion_id = f,
+										funcion__tipo=2,
+										estatus = 1
+										)\
+								.order_by("funcion_id")
+	#print talleres.query
+	for taller in talleres:
+		resultado = {
+						"id":taller.id,
+						"nombre":taller.nombre
+					}
+		data.append(resultado)
+	array["data"]=data
+	return JsonResponse(array)	
+
+def reporteConsulta(request):
+	array = {}
+	mensaje = {}
+	data = []
+
+	idFuncion = request.POST.get('idFuncion', 0)
+	idTaller = request.POST.get('idTaller', 0)
+	idFrente = request.POST.get('idFrente', 0)
+	fechaini = request.POST.get('fechai', 0)
+	fechafin = request.POST.get('fechaf', 0)
+	
+	if(idTaller == 0):
+
+		print "aqui"
+	
+		elemento = Material.objects.values(
+											'id',
+											'nombre',
+											'numero',
+											'peso',
+											'diametro',
+											'proveedor',
+											'longitud',
+											'factor__pva',
+											'factor__factorPulgada',
+											'factor__pi').filter()
+		#print elemento.query
+		for e in elemento:
+			diametro = e['diametro']
+			pva = e['factor__pva']
+			factorPulgada = e['factor__factorPulgada']
+			pi = e['factor__pi']
+			diametroMetro = diametro / 1000
+			factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
+			factorCalculadoDecimal = "%.4f" % factorCalculado
+			resultado = {
+							"idMaterial":e['id'],
+							"nombreMaterial":e['nombre'],
+							"materialNumero":e['numero'],
+							"materialPeso":e['peso'],
+							"materialProveedor":e['proveedor'],
+							"materialLongitud":e['longitud'],
+							"conversion":factorCalculadoDecimal
+						}
+			data.append(resultado)
+		array["data"]=data
+		return JsonResponse(array)
+		
+	else:
+		print "else"
+		elemento = Material.objects.values(
+											'id',
+											'nombre',
+											'numero',
+											'peso',
+											'diametro',
+											'proveedor',
+											'longitud',
+											'factor__pva',
+											'factor__factorPulgada',
+											'factor__pi').filter()
+		#print elemento.query
+		for e in elemento:
+			diametro = e['diametro']
+			pva = e['factor__pva']
+			factorPulgada = e['factor__factorPulgada']
+			pi = e['factor__pi']
+			diametroMetro = diametro / 1000
+			factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
+			factorCalculadoDecimal = "%.4f" % factorCalculado
+			resultado = {
+							"idMaterial":e['id'],
+							"nombreMaterial":e['nombre'],
+							"materialNumero":e['numero'],
+							"materialPeso":e['peso'],
+							"materialProveedor":e['proveedor'],
+							"materialLongitud":e['longitud'],
+							"conversion":factorCalculadoDecimal
+						}
+			data.append(resultado)
+
+		array["data"]=data
+		return JsonResponse(array)

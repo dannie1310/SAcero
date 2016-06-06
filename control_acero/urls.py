@@ -28,7 +28,16 @@ urlpatterns = [
 
     url(r'^elemento/elementomaterial/$', views.elementoMaterial, name='elementoMaterial'),
 
+<<<<<<< HEAD
     url(r'^recepcion/material/save/$', views.recepcionMaterialSave, name='recepcionMaterialSave'),
+=======
+    url(r'^reportes/reporte/$', views.reporteView, name='reporteView'),
+    url(r'^reportes/reporteConsulta/$', views.reporteConsulta, name='reporteConsulta'),
+
+    
+
+    url(r'^programa/save/$', views.programaSave, name='programaSave'),
+>>>>>>> ff4c851a8234b80b2423fffdc80c2a05ceae572f
 
     #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CON COMBOS          """
@@ -37,6 +46,9 @@ urlpatterns = [
     url(r'^combo/frente/$', views.comboFrente, name='comboFrente'),
     url(r'^combo/apoyo/$', views.comboApoyo, name='comboApoyo'),
     url(r'^combo/elemento/$', views.comboElemento, name='comboElemento'),
+    url(r'^combo/funciongeneral/$', views.comboFuncionGeneral, name='comboFuncionGeneral'),
+    url(r'^combo/taller/$', views.comboTaller, name='comboTaller'),
+
 
     #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CATALOGO DE APOYOS  """
