@@ -85,6 +85,7 @@
                 return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
             }
             $.ajaxSetup({
+                async:false,
                 beforeSend: function(xhr, settings) {
                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -174,7 +175,9 @@
                     </div>
                 </div>
                 <!--/.navbar-header -->
-
+{% if perms.control_acero.add_apoyo %}
+    test
+{% endif %}
                 <div class="navbar-collapse collapse" id="navigation">
 
                     <ul class="nav navbar-nav navbar-left">
@@ -220,60 +223,27 @@
                                             <div class="col-sm-3">
                                                 <h5>SUMINISTRO</h5>
                                                 <ul>
-                                                    <li><a href="{% url 'frenteTrabajoNuevoView' %}">Recepción del Material del Fabricante</a>
+                                                    <li><a href="{% url 'recepcionMaterialView' %}">Recepción del Material del Fabricante</a>
                                                     </li>
                                                 </ul>
                                                 <ul>
-                                                    <li><a href="{% url 'suministroAsignacionView' %}">Asignación de Material para Habilitar</a>
+                                                    <li><a href="{% url 'salidaHabilitadoView' %}">Salida Habilitado</a>
                                                     </li>
                                                 </ul>
                                                 <h5>ORDEN DE TRABAJO</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'ordenTrabajoNuevoView' %}">Crear Orden de Trabajo para Habilitar</a>
-                                                    </li>
-                                                </ul>
                                             </div>
                                             <div class="col-sm-3">
-                                                <h5>HABILITADO</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'habilitadoRecepcionView' %}">Recepción de Material y Orden de Trabajo</a>
-                                                    </li>
-                                                </ul>
-                                                <ul>
-                                                    <li><a href="{% url 'habilitadoAsignacionView' %}">Asignación de Despiece a Armado</a>
-                                                    </li>
-                                                </ul>
                                                 <h5>ARMADO</h5>
                                                 <ul>
-                                                    <li><a href="{% url 'armadoRecepcionView' %}">Recepción de Despiece para Armar</a>
-                                                    </li>
-                                                </ul>
-                                                <ul>
-                                                    <li><a href="{% url 'armadoAsignacionView' %}">Asignación de Armado</a>
+                                                    <li><a href="{% url 'entradaArmadoView' %}">Armado Recepción</a>
                                                     </li>
                                                 </ul>
                                             </div>
                                             <div class="col-sm-3">
                                                 <h5>COLOCADO</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'colocadoRecepcionView' %}">Colocado del Armado</a>
-                                                    </li>
-                                                </ul>
                                             </div>
                                             <div class="col-sm-3">
                                                 <h5>INVENTARIO</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'inventarioFisicoView' %}">Inventario Físico</a>
-                                                    </li>
-                                                </ul>
-                                               <!--  <ul>
-                                                    <li><a href="#">Cierres de Inventario</a>
-                                                    </li>
-                                                </ul> -->
-                                                <!-- <ul>
-                                                    <li><a href="#">Control Incidencias</a>
-                                                    </li>
-                                                </ul> -->
                                             </div>
                                         </div>
                                     </div>

@@ -11,6 +11,13 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ('username', 'email', 'password', 'group', 'permission', 'is_active', 'is_superuser')
 
+class GroupForm(forms.ModelForm):
+    permission = forms.ModelChoiceField(queryset=Permission.objects.all(),
+                                   		required=True)
+    class Meta:
+        model = Group
+        fields = ('name','permission')
+
 class ApoyoForm(forms.ModelForm):
 	class Meta:
 		model = Apoyo

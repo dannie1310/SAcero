@@ -1,0 +1,166 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	SALIDA DEL HABILITADO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="form-group col-md-6 text-left">
+			<h4> Folio: <label id="folio"></label><input type="hidden" readonly disabled name="txtFolio" id="txtFolio" /></h4>
+		</div>
+			<h4> Taller de Habilitado:</h4>
+		</div>
+		<div class="form-group col-md-6">
+			<label  class="control-label" for="cmbFrente">Selecciona un Frente:</label>
+			<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+			</select>
+		</div>
+		<div class="form-group col-md-6">
+			<label  class="control-label" for="cmbApoyo">Selecciona un Apoyo:</label>
+			<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
+			</select>
+		</div>
+		<div class="form-group col-md-offset-3 col-md-6">
+			<label  class="control-label" for="cmbElemento">Selecciona Elemento:</label>
+			<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+			</select>
+		</div>
+		<div class="col-md-12 table-responsive">
+			<table id="tablaMaterial" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">No</th>
+						<th class="text-center">Nombre Material</th>
+						<th class="text-center">Peso Kg</th>
+						<th class="text-center">Cantidad en Piezas</th>
+						<th class="text-center">Asignar Cantidad</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--<td><input type="checkbox" name="test" value="0" /></td>-->
+				</tbody>
+			</table>
+		</div>
+		<div class="col-md-12">
+			<button class="btn btn-success" name="btnGuardar" id="btnGuardar">Generar Salida</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		comboApoyo = function(){
+			$.post( "{% url 'comboApoyo' %}",{
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbApoyo').empty();
+		                $('.cmbApoyo').append('<option value="0">Selecciona un Apoyo</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbApoyo').append('<option value="' + object.id + '">' + object.numero + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Apoyo:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Apoyo" );
+			});
+		}
+		comboElemento = function(){
+			$.post( "{% url 'comboElemento' %}",{
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbElemento').empty();
+		                $('.cmbElemento').append('<option value="0">Selecciona un Elemento</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbElemento').append('<option value="' + object.id + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Elemento:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Elemento" );
+			});
+		}
+		materialRecepcionado = function(){
+			$("#tablaMaterial tbody").empty();
+			var tabla = '';
+			var idTabla = 1;
+			$.post( "{% url 'salidaHabilitadoMaterial' %}",{
+			},
+			function(data, status) {
+	            try {
+	                $.each(data.data, function (count, object) {
+	                    tabla += '<tr>'
+	                		tabla +='<td>'+idTabla+'</td>';
+	                		tabla +='<td>'+object.materialNombre+'</td>';
+	                		tabla +='<td class="info">'+object.peso+'</td>';
+	                		tabla +='<td>'+parseInt(object.cantidad)+'</td>';
+	                		tabla +='<td><input type="number" step="0.01" class="form-control dataAsignacion" data-idmaterial="'+object.id+'" data-cantidadreal="'+object.peso+'" min="0" value="'+object.peso+'" /></td>';
+	                    tabla +='</tr>';
+	                	count++;
+	                	idTabla++;
+	                });
+	            } catch (e) {
+	                alert("Error al cargar el Material Recepcionado:" + e);
+	            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Material Recepcionado" );
+			});
+			$("#tablaMaterial tbody").append(tabla);
+		}
+		comboFrente = function(){
+			$.post( "{% url 'comboFrente' %}",{
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbFrente').empty();
+		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Frente:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Frente" );
+			});
+		}
+		$( "#btnGuardar" ).click(function() {
+			var array = [];
+			var apoyo = $("#cmbApoyo").val();
+			var elemento = $("#cmbElemento").val();
+			var frente = $("#cmbFrente").val();
+			$("input.dataAsignacion[type=number]").each(function(index, element) {
+				var material = $(this).data("idmaterial");
+				var cantidadReal = $(this).data("cantidadreal");
+				var cantidadAsignada = this.value;
+				array.push({"material": material, "cantidadReal": cantidadReal, "cantidadAsignada": cantidadAsignada});
+			});
+			var json = JSON.stringify(array);
+			$.post( "{% url 'salidaHabilitadoSave' %}",{
+				apoyo: apoyo,
+				elemento: elemento,
+				frente: frente,
+				json: json
+			},
+			function(data, status) {
+		            try {
+		            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+		            } catch (e) {
+		                alert("Error al cargar Guardar la información:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición Guardar la información" );
+			});
+		});
+	    $(function () {
+	    	comboApoyo();
+	    	comboElemento();
+	    	comboFrente();
+	    	materialRecepcionado();
+	    });
+	</script>
+{% endblock %}

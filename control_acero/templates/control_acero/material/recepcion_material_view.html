@@ -1,0 +1,371 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	RECEPCIÓN DEL MATERIAL DEL FABRICANTE
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="col-md-12">
+			<div class="form-group col-md-6 text-left">
+				<h4> Folio: <label id="folio"></label><input type="hidden" readonly disabled name="txtFolio" id="txtFolio" /></h4>
+			</div>
+			<div class="form-group col-md-6 text-left">
+				<h4> Taller de Habilitado: </h4>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="cmbOrden">Digitar Orden de Compra:</label>
+				<input type="number" name="cmbOrden" id="cmbOrden" class="cmbOrden form-control"/>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="remision">Agregar Remisión:</label>
+				<input type="text" class="form-control" name="remision" id="remision"></input>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor de Acero (Fabricante):</label>
+				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+				</select>
+			</div>
+			<!--<div class="form-group col-md-6">
+				<label  class="control-label" for="cmbFrente">Seleccionar Destino:</label>
+				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+				</select>
+			</div>-->
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
+				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision"></input>
+			</div>
+		</div>
+		<div class="col-md-12">
+			<button type="button" class="btn btn-success" name="agregarVarillas" id="agregarVarillas">Seleccionar</button>
+		</div>
+		<div style="display:none;" id="divFrente" class="col-md-12 table-responsive">
+			<table id="tablaFrente" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Remisión</th>
+						<th class="text-center">Nombre del Frente</th>
+						<th class="text-center">Identificación del Tramo</th>
+						<th class="text-center">Ubicación</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		<div style="display:none;" id="divApoyo" class="col-md-12">
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbApoyo">Elegir Apoyo:</label>
+				<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
+				</select>
+			</div>
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="cmbElemento">Elegir Elemento:</label>
+				<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+				</select>
+			</div>
+		</div>
+		<div id="divVarillasCheck" class="col-md-12">
+		</div>
+		<div class="col-md-12">
+			<h4>Cantidades de Varilla</h4>
+		</div>
+		<div id="divCantidades" class="col-md-12">
+		</div>
+		<div style="display:none;" id="divCantidadesBotones" class="col-md-12">
+			<button type="button" class="btn btn-info" name="btnAgregaVarilla" id="btnAgregaVarilla">Agregar</button>
+			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
+		</div>
+		<div style="display:none;" id="divDetalle" class="col-md-12 table-responsive">
+			<table id="tablaApoyoElemento" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Material</th>
+						<th class="text-center">Piezas</th>
+						<th class="text-center">Peso Total Kg</th>
+						<th class="text-center">Longitud Mts</th>
+						<th class="text-center">Eliminar</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+				<tfoot>
+					<tr>
+						<th class="col-md-2">Peso Total</th>
+						<th class="col-md-4"><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
+						<th class="col-md-4"><div id="divPesoTonelada"></div></th>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+		<div style="display:none;" id="divDetalleSolicita" class="col-md-6 text-center">
+			<button type="button" class="btn btn-success" name="btnSolicitar" id="btnSolicitar">Guardar</button>
+		</div>
+		<div style="display:none;" id="divDetalleCancelar" class="col-md-6 text-center">
+			<button type="button" class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		comboFuncion = function(){
+			var tipo = 1;
+			$.post( "{% url 'comboFuncion' %}",{
+				tipo: tipo
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbFuncion').empty();
+		                $('.cmbFuncion').append('<option value="0">Selecciona Proveedor de Acero (Fabricante)</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbFuncion').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Fabricante:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Fabricante" );
+			});
+		}
+		comboFrente = function(){
+			$.post( "{% url 'comboFrente' %}",{
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbFrente').empty();
+		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Frente:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Frente" );
+			});
+		}
+		$( "#agregarVarillas" ).click(function() {
+			$("#tablaFrente tbody").empty();
+			var orden = $("#cmbOrden").val();
+			var remision = $("#remision").val();
+			var frente = $("#cmbFrente").val();
+			var fechaInicial = $("#fechaInicial").val();
+			var fechaFinal = $("#fechaFinal").val();
+			var tabla = '';
+		    $("#divFrente").show("slide");
+			$("#divCantidades").empty();
+			var tabla = '';
+			var html = '';
+			var checks = '';
+			var conversionInicial = 0;
+			$.post( "{% url 'elementoMaterial' %}",{
+			},
+			function(data, status) {
+	            try {
+	                $.each(data.data, function (count, object) {
+	                	conversionInicial = (object.conversion)*(object.materialLongitud);
+	                	checks += '<div class="col-md-3"><input onclick="muestraVarillas('+object.idMaterial+');" name="chk_'+object.idMaterial+'" id="chk_'+object.idMaterial+'" value="'+object.idMaterial+'" type="checkbox"> '+object.nombreMaterial+'</div>';
+	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
+									+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
+									+ '<div class="input-group">'
+										+ '<input class="form-control currency" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="number" min="1" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
+										+ '<div class="input-group-addon">Kg</div>'
+									+ '</div>'
+									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
+									+ '<div class="input-group">'
+										+ '<input type="text" readonly disabled class="form-control" name="txt'+object.idMaterial+'Volumetrico" id="txt'+object.idMaterial+'Volumetrico" value="'+object.conversion+'"></input>'
+										+ '<div class="input-group-addon">Kg/ml</div>'
+									+ '</div>'
+									+ '<label class="control-label" for="txt'+object.idMaterial+'Longitud">Longitud</label>'
+									+ '<div class="input-group">'
+										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
+										+ '<div class="input-group-addon">Mts</div>'
+									+ '</div>'
+									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
+									+ '<label class="control-label" for="txt'+object.idMaterial+'">Piezas de Varilla</label>'
+									+ '<div class="input-group">'
+										+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="0"></input>'
+										+ '<div class="input-group-addon">Pieza(s)</div>'
+									+ '</div>'
+									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
+									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
+									+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
+								+ '</div>';
+	                });
+	            } catch (e) {
+	                mensajeWarning("Error al cargar Varillas :" + e);
+	            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición carga Varillas" );
+			});
+		    $("#tablaInformacionVarillas tbody").append(tabla);
+		    $("#divCantidades").append(html);
+		    $("#divVarillasCheck").append(checks);
+		    $("#divCantidadesBotones").show('slide');
+		    $("#divDetalle").show('slide');
+		    $("#divDetalleSolicita").show('slide');
+		    $("#divDetalleCancelar").show('slide');
+		});
+		$( "#btnAgregaVarilla" ).click(function() {
+			$("#divPesoTotal").empty();
+			$("#divPesoTonelada").empty();
+			$("#txtPesoTotal").empty();
+			var tabla = '';
+			var idMaterial = 0;
+			var pesoMaterial = 0;
+			var material = '';
+			var cantidadMaterial = 0;
+			var colors = ["info"];
+			var randomColor = Math.floor(Math.random()*colors.length);
+			var color = colors[randomColor];
+			var apoyo = 1;
+			var elemento = 1;
+			var pesoTotal = 0;
+			var pesoTotalReal = 0;
+			var ton = 0;
+			var tonHtml = '';
+			var pesoTd = 0;
+
+			$("input.cantidadTotal[type=text]").each(function(index, element) {
+				idMaterial = $(this).attr("attrIdMaterial");
+				cantidadMaterial = $("#count"+idMaterial).val();
+				longitud = $("#txt"+idMaterial+"Longitud").val();
+				pesoMaterial = this.value;
+				pesoTotal += parseFloat(cantidadMaterial);
+				pesoTotalReal = parseFloat(cantidadMaterial);
+				material = $(this).attr("attrMaterial");
+				if(cantidadMaterial != 0){
+					tabla += '<tr class="'+color+'">'
+								+'<td class="text-center">'+material+'</td>'
+								+'<td class="text-center">'+parseInt(pesoMaterial)+'</td>'
+								+'<td class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
+								+'<td class="text-center">'+longitud+'</td>'
+								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove eliminar" onClick="eliminar();" data-eliminar="0"></span</td>'
+								+'<td style="display:none" class="text-center">'
+									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
+								+'</td>'
+							+'<tr>';
+					$("#count"+idMaterial).val(0);
+					$("#txt"+idMaterial).val(0);
+					pesoTotalReal = 0;
+				}
+			});
+			$("#tablaApoyoElemento").append(tabla);
+
+			$('.pesoTotal').each(function(i, obj) {
+				pesoTd += parseFloat($(this).text());
+			});
+			if(pesoTotal >= 1000){
+				ton = pesoTd / 1000;
+				tonHtml += ton.toFixed(2);
+			}
+			$("#divPesoTotal").append(pesoTd.toFixed(2)+" Kg");
+			$("#divPesoTonelada").append(tonHtml+" Ton");
+			$("#txtPesoTotal").val(pesoTotal.toFixed(4));
+			asignaEliminar();
+		});
+		$( "#btnSolicitar" ).click(function() {
+			var orden = $("#cmbOrden").val();
+			var remision = $("#remision").val();
+			//var frente = $("#cmbFrente").val();
+			var funcion = $("#cmbFuncion").val();
+			var funcionHabilitado = $("#cmbFuncionHabilitado").val();
+			var fechaRemision = $("#fechaRemision").val();
+			var pesoTara = $("#txtTara").val();
+			var pesoBruto = $("#txtPesoBruto").val();
+			var pesoTotal = $("#txtPesoTotal").val();
+        	var datos = [];
+			$(":input[class=dataVarilla]").each(function(index, element) {
+				datos.push({"data": this.value});
+			});
+			var json = JSON.stringify(datos);
+
+			$.post( "{% url 'programaSave' %}",{
+			        		remision: remision,
+			        		idOrden: orden,
+			        		//idFrente: frente,
+			        		funcion: funcion,
+			        		funcionHabilitado: funcionHabilitado,
+			        		fechaRemision: fechaRemision,
+			        		pesoTara: pesoTara,
+			        		pesoBruto: pesoBruto,
+			        		pesoTotal: pesoTotal,
+			        		json: json
+						},
+			function(data, status) {
+		            try {
+		            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+		            	$("#folio").html(data.folio);
+		            	$("#txtFolio").val(data.folio);
+		            	$("#divImpresion").show('slide');
+		            } catch (e) {
+		                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+			});
+		});
+		$( "#btnCancelar" ).click(function() {
+			$("#cmbOrden").val(0);
+			$("#cmbFrente").val(0);
+			$("#fechaInicial").val('');
+			$("#fechaFinal").val('');
+			$("#cmbApoyo").val(0);
+			$("#cmbElemento").val(0);
+			$("#divFrente").hide('slide');
+			$("#divApoyo").hide('slide');
+		    $("#divCantidadesBotones").hide('slide');
+		    $("#divDetalle").hide('slide');
+		    $("#divDetalleSolicita").hide('slide');
+		    $("#divDetalleCancelar").hide('slide');
+		    $("#tablaFrente tbody").empty();
+		    $("#tablaApoyoElemento tbody").empty();
+		});
+		function cantidadMaterial (id){
+			var value = parseFloat($("#count"+id).val());
+			var original = parseFloat($("#txt"+id+"Original").val());
+			var conversion = parseFloat($("#txt"+id+"Conversion").val());
+			var longitud = parseFloat($("#txt"+id+"Longitud").val());
+			var val = conversion * longitud;
+			var total = value / val;
+			$("#txt"+id).val(parseFloat(total).toFixed(4));
+		}
+		function calculaPeso(){
+			$("#divPesoBruto").empty();
+			$("#txtPesoBruto").val('');
+			var tara = $("#txtTara").val();
+			var total = $("#txtPesoTotal").val();
+			var bruto = parseFloat(tara)+parseFloat(total);
+			var brutoDecimal = bruto.toFixed(2);
+			$("#divPesoBruto").append(brutoDecimal+" Kg");
+			$("#txtPesoBruto").val(brutoDecimal);
+		}
+		function muestraVarillas(valor){
+			var checkbox = $("#chk_"+valor).val();
+			if ($("#chk_"+valor).is(':checked')) {
+				$("#divVarilla_"+valor).show("slide");
+			} else {
+				$("#divVarilla_"+valor).hide("slide");
+			}
+		}
+		function asignaEliminar (){
+			var count = 0;
+			$(".eliminar").each(function() {
+				$(this).attr('data-eliminar', count);
+				$(this).attr('onClick', 'eliminar('+count+');');
+			    count ++;
+			});
+		}
+		function eliminar (valor){
+			var length = $("#tablaApoyoElemento > tbody").length;
+			asignaEliminar();
+			$("#tablaApoyoElemento > tbody > tr:eq("+valor+")").remove();
+			asignaEliminar();
+		}
+	    $(function () {
+	    	comboFuncion();
+	    	comboFrente();
+	    });
+	</script>
+{% endblock %}
