@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^usuario/logout/$', views.logout_view, name='logout'),
 
     url(r'^recepcion/material/$', views.recepcionMaterialView, name='recepcionMaterialView'),
+    
+    url(r'^folios/mostrar/$', views.foliosMostrar, name='foliosMostrar'),
+
     url(r'^salida/habilitado/$', views.salidaHabilitadoView, name='salidaHabilitadoView'),
     url(r'^salida/habilitado/material/$', views.salidaHabilitadoMaterial, name='salidaHabilitadoMaterial'),
     url(r'^salida/habilitado/save/$', views.salidaHabilitadoSave, name='salidaHabilitadoSave'),
@@ -25,7 +28,7 @@ urlpatterns = [
 
     url(r'^elemento/elementomaterial/$', views.elementoMaterial, name='elementoMaterial'),
 
-    url(r'^programa/save/$', views.programaSave, name='programaSave'),
+    url(r'^recepcion/material/save/$', views.recepcionMaterialSave, name='recepcionMaterialSave'),
 
     #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CON COMBOS          """

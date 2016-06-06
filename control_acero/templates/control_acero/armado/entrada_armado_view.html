@@ -4,8 +4,8 @@
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
-		<div class="form-group col-md-12 text-left">
-			<h4> Folio: <label id="folio"></label><input type="hidden" readonly disabled name="txtFolio" id="txtFolio" /></h4>
+		<div class="form-group col-md-12 text-left alert-info">
+			<h3> Folio: <span id="folio"></span></h3>
 		</div>
 		<div class="form-group col-md-6">
 			<label  class="control-label" for="remision">Agregar Remisión:</label>
@@ -46,11 +46,41 @@
 				</tbody>
 			</table>
 		</div>
+		<div class="col-md-12 table-responsive">
+			<table id="tablaMaterialDetalle" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Nombre Material</th>
+						<th class="text-center">Cantidad Asignada</th>
+						<th class="text-center">Peso Kg</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--<td><input type="checkbox" name="test" value="0" /></td>-->
+				</tbody>
+			</table>
+		</div>
 		<div class="col-md-12">
 			<button class="btn btn-success" name="btnGuardar" id="btnGuardar">Generar Salida</button>
 		</div>
 	</div>
 	<script type="text/javascript">
+		mostrarFolio = function(){
+			var modulo = 3;
+			$.post( "{% url 'foliosMostrar' %}",{
+				modulo: modulo
+			},
+			function(data, status) {
+		            try {
+						$("#folio").html(data.folio);
+		            } catch (e) {
+		                alert("Error al cargar Combo del Fabricante:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Fabricante" );
+			});
+		}
 		comboApoyo = function(){
 			$.post( "{% url 'entradaArmadoComboApoyo' %}",{
 			},
@@ -100,9 +130,15 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info">'+object.cantidadAsignada+'</td>';
-	                		tabla +='<td><input type="number" step="0.01" class="form-control dataAsignacion" data-idmaterial="'+object.id+'" data-cantidadreal="'+object.cantidadAsignada+'" min="0" value="'+object.cantidadAsignada+'" /></td>';
+	                		tabla +='<td><input type="number" step="0.01" class="form-control dataAsignacion" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" min="0" value="'+object.cantidadAsignada+'" /></td>';
+	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" class="form-control" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
+	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
+	                		tabla +='<td style="display:none;" id="piezas_'+count+'"><input type="number" step="0.01" class="form-control" min="0" name="txtPiezas_'+count+'" id="txtPiezas_'+count+'" placeholder="Piezas" /></td>';
+	                		tabla +='<td style="display:none;"><input type="text" class="form-control" name="txtBandera_'+count+'" id="txtBandera_'+count+'" value="0"/></td>';
+	                		tabla += '<td><button type="button" class="btn btn-info" onClick="agregarAsignacion('+count+');">Asignar</td>';
+	                		tabla += '<td id="btnDiferencia_'+count+'"><button type="button" class="btn btn-danger" name="addDiferencia_'+count+'" id="addDiferencia_'+count+'" onClick="agregarDiferencia('+count+');">Diferencia</td>';
+	                		tabla += '<td id="btnCancelarDif_'+count+'" style="display:none;"><button type="button" class="btn btn-warning" name="removeDiferencia_'+count+'" id="removeDiferencia_'+count+'" onClick="cancelarDiferencia('+count+');">Cancelar</td>';
 	                    tabla +='</tr>';
-	                	count++;
 	                	idTabla++;
 	                });
 	            } catch (e) {
@@ -152,17 +188,67 @@
 				mensajeWarning( "Error en la petición del Fabricante" );
 			});
 		}
+		agregarAsignacion = function(posicion){
+			var cantidadAsignada = $("#row_"+posicion).val();
+			var cantidadReal = $("#row_"+posicion).data("cantidadreal");
+			var idMaterial = $("#row_"+posicion).data("idmaterial");
+			var materialNombre = $("#row_"+posicion).data("materialnombre");
+			var bandera = $("#txtBandera_"+posicion).val();
+			var nomenclatura = $("#txtNomenclatura_"+posicion).val();
+			var longitud = $("#txtLongitud_"+posicion).val();
+			var piezas = $("#txtPiezas_"+posicion).val();
+			var tabla = '';
+				tabla += '<tr>';
+					tabla += '<td>'+materialNombre+'</td>';
+					tabla += '<td class="success">'+cantidadAsignada+'</td>';
+					tabla += '<td>'+cantidadReal+'</td>';
+					tabla += '<td style="display:none;"><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
+					if(bandera == 1){
+						tabla += '<td>Nomenclatura: '+nomenclatura+'</td>';
+						tabla += '<td>Longitud: '+longitud+'</td>';
+						tabla += '<td>Piezas: '+piezas+'</td>';
+					}
+				tabla += '</tr>';
+			$("#tablaMaterialDetalle").append(tabla);
+		}
+		agregarDiferencia = function(posicion){
+			$("#longitud_"+posicion).show('slide');
+			$("#piezas_"+posicion).show('slide');
+			$("#nomenclatura_"+posicion).show('slide');
+			$("#btnDiferencia_"+posicion).hide('slide');
+			$("#btnCancelarDif_"+posicion).show('slide');
+			$("#txtBandera_"+posicion).val(1);
+		}
+		cancelarDiferencia = function(posicion){
+			$("#longitud_"+posicion).hide('slide');
+			$("#piezas_"+posicion).hide('slide');
+			$("#nomenclatura_"+posicion).hide('slide');
+			$("#btnDiferencia_"+posicion).show('slide');
+			$("#btnCancelarDif_"+posicion).hide('slide');
+			$("#txtBandera_"+posicion).val(0);
+		}
 		$( "#btnGuardar" ).click(function() {
 			var array = [];
 			var remision = $("#remision").val();
 			var apoyo = $("#cmbApoyo").val();
 			var elemento = $("#cmbElemento").val();
 			var funcion = $("#cmbFuncion").val();
-			$("input.dataAsignacion[type=number]").each(function(index, element) {
-				var material = $(this).data("idmaterial");
-				var cantidadReal = $(this).data("cantidadreal");
-				var cantidadAsignada = this.value;
-				array.push({"material": material, "cantidadReal": cantidadReal, "cantidadAsignada": cantidadAsignada});
+			$("input.datos[type=hidden]").each(function(index, element) {
+				var material = $(this).data("datosidmaterial");
+				var cantidadReal = $(this).data("datoscantidadreal");
+				var cantidadAsignada = $(this).data("datoscantidadasignada");
+				var nomenclatura = $(this).data("datosnomenclatura");
+				var longitud = $(this).data("datoslongitud");
+				var piezas = $(this).data("datospiezas");
+				var bandera = $(this).data("datosbandera");
+				array.push({"material": material,
+							"cantidadReal": cantidadReal,
+							"cantidadAsignada": cantidadAsignada,
+							"nomenclatura": nomenclatura,
+							"longitud": longitud,
+							"piezas": piezas,
+							"bandera": bandera
+						});
 			});
 			var json = JSON.stringify(array);
 			$.post( "{% url 'entradaArmadoSave' %}",{
@@ -175,6 +261,7 @@
 			function(data, status) {
 		            try {
 		            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+		            	$("#folio").html(data.folio);
 		            } catch (e) {
 		                alert("Error al cargar Guardar la información:" + e);
 		            }
@@ -184,6 +271,7 @@
 			});
 		});
 	    $(function () {
+	    	mostrarFolio();
 	    	comboApoyo();
 	    	comboElemento();
 	    	comboFrente();

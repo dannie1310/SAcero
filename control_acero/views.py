@@ -492,10 +492,11 @@ def comboElemento(request):
 	array["data"]=data
 	return JsonResponse(array)
 
-def programaSave(request):
+def recepcionMaterialSave(request):
 	array = {}
 	mensaje = {}
 	idOrden = request.POST.get('idOrden', 0)
+	numFolio = 0
 	#idFrente = request.POST.get('idFrente', 0)
 	funcion = request.POST.get('funcion', 0)
 	fechaRemision = request.POST.get('fechaRemision', 0)
@@ -516,6 +517,12 @@ def programaSave(request):
 						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
 						estatus=1
 						)
+	folio = RemisionDetalle.objects.all().order_by("-numFolio")[:1]
+	if folio.exists():
+		numFolio = folio[0].numFolio
+	numFolioInt = int(numFolio)+1
+	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "RMH-"+numFolio
 	for data in json_object:
 		datos = data["data"]
 		splitData = datos.split("|")
@@ -533,10 +540,11 @@ def programaSave(request):
 									elemento_id=elemento,
 									peso=pesoMaterial,
 									cantidad=cantidadMaterial,
-									longitud=longitud
+									longitud=longitud,
+									folio = numFolio,
+									numFolio = numFolioInt
 									)
-		pd.save();
-	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso.", "folio":p.id}
+	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)
 
@@ -611,9 +619,16 @@ def salidaHabilitadoSave(request):
 	frente = request.POST.get('frente', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
+	numFolio = 0
 	array = {}
 	mensaje = {}
 	data = []
+	folio = Salida.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+	if folio.exists():
+		numFolio = folio[0].numFolio
+	numFolioInt = int(numFolio)+1
+	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "SMH-"+numFolio
 	for jsonData in jsonDataInfo:
 		material = jsonData["material"]
 		cantidadReal = jsonData["cantidadReal"]
@@ -625,9 +640,12 @@ def salidaHabilitadoSave(request):
 								material_id = material,
 								frente_id = frente,
 								cantidadReal = cantidadReal,
-								cantidadAsignada = cantidadAsignada
+								cantidadAsignada = cantidadAsignada,
+								estatusEtapa = 1,
+								folio = numFolio,
+								numFolio = numFolioInt
 								)
-	mensaje = {"estatus":"ok", "mensaje":"Salida de Material Exitosa.", "folio":salida.id}
+	mensaje = {"estatus":"ok", "mensaje":"Salida de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)
 
@@ -695,9 +713,16 @@ def entradaArmadoSave(request):
 	funcion = request.POST.get('funcion', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
+	numFolio = 0
 	array = {}
 	mensaje = {}
 	data = []
+	folio = Entrada.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+	if folio.exists():
+		numFolio = folio[0].numFolio
+	numFolioInt = int(numFolio)+1
+	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "EMA-"+numFolio
 	for jsonData in jsonDataInfo:
 		material = jsonData["material"]
 		cantidadReal = jsonData["cantidadReal"]
@@ -709,9 +734,42 @@ def entradaArmadoSave(request):
 								material_id = material,
 								funcion_id = funcion,
 								cantidadReal = cantidadReal,
-								cantidadAsignada = cantidadAsignada
+								cantidadAsignada = cantidadAsignada,
+								folio = numFolio,
+								numFolio = numFolioInt
 								)
-	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa.", "folio":entrada.id}
+	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
+	array = mensaje
+	return JsonResponse(array)
+
+def foliosMostrar(request):
+	modulo = request.POST.get('modulo', 0)
+	numFolio = 0
+	array = {}
+	mensaje = {}
+	data = []
+	if int(modulo) == 1:
+		folio = RemisionDetalle.objects.all().order_by("-numFolio")[:1]
+		if folio.exists():
+			numFolio = folio[0].numFolio
+		numFolioInt = int(numFolio)+1
+		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "RMH-"+numFolio
+	if int(modulo) == 2:
+		folio = Salida.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+		if folio.exists():
+			numFolio = folio[0].numFolio
+		numFolioInt = int(numFolio)+1
+		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "SMH-"+numFolio
+	if int(modulo) == 3:
+		folio = Entrada.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+		if folio.exists():
+			numFolio = folio[0].numFolio
+		numFolioInt = int(numFolio)+1
+		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "EMA-"+numFolio
+	mensaje = {"estatus":"ok", "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)
 

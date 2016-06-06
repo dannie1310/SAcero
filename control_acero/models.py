@@ -174,7 +174,7 @@ class Remision(models.Model):
 	pesoTara = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoBruto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoNeto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	frente = models.ForeignKey(Frente)
+	frente = models.ForeignKey(Frente, null=True)
 	fechaRemision = models.DateField()
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
@@ -194,6 +194,8 @@ class RemisionDetalle(models.Model):
 	apoyo = models.ForeignKey(Apoyo)
 	elemento = models.ForeignKey(Elemento)
 	longitud = models.IntegerField(null=True)
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -221,6 +223,8 @@ class Entrada(models.Model):
 	remision = models.IntegerField(null=True)
 	frente = models.ForeignKey(Frente, null=True)
 	estatusEtapa = models.IntegerField(default=1)
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -242,6 +246,12 @@ class Entrada(models.Model):
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
+	class Meta:
+	        permissions = (
+	            ("add_salida_habilitado", "Puede ver y agregar Habilitado"),
+	            ("change_salida_habilitado", "Puede cambiar Habilitado"),
+	            ("delete_salida_habilitado", "Puede Borrar Habilitado"),
+	        )		
 
 class Salida(models.Model):
 	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
@@ -260,6 +270,8 @@ class Salida(models.Model):
 	remision = models.IntegerField(null=True)
 	frente = models.ForeignKey(Frente, null=True)
 	estatusEtapa = models.IntegerField(default=1)
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

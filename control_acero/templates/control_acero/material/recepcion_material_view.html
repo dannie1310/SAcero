@@ -5,11 +5,11 @@
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
-			<div class="form-group col-md-6 text-left">
-				<h4> Folio: <label id="folio"></label><input type="hidden" readonly disabled name="txtFolio" id="txtFolio" /></h4>
+			<div class="form-group col-md-6 text-left alert-info">
+				<h3> Folio: <span id="folio"></span></h3>
 			</div>
-			<div class="form-group col-md-6 text-left">
-				<h4> Taller de Habilitado: </h4>
+			<div class="form-group col-md-6 text-left alert-info">
+				<h3> Taller de Habilitado: {{ user.get_username }}</h3>
 			</div>
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="cmbOrden">Digitar Orden de Compra:</label>
@@ -105,6 +105,22 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		mostrarFolio = function(){
+			var modulo = 1;
+			$.post( "{% url 'foliosMostrar' %}",{
+				modulo: modulo
+			},
+			function(data, status) {
+		            try {
+						$("#folio").html(data.folio);
+		            } catch (e) {
+		                alert("Error al cargar Combo del Fabricante:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Fabricante" );
+			});
+		}
 		comboFuncion = function(){
 			var tipo = 1;
 			$.post( "{% url 'comboFuncion' %}",{
@@ -280,7 +296,7 @@
 			});
 			var json = JSON.stringify(datos);
 
-			$.post( "{% url 'programaSave' %}",{
+			$.post( "{% url 'recepcionMaterialSave' %}",{
 			        		remision: remision,
 			        		idOrden: orden,
 			        		//idFrente: frente,
@@ -296,8 +312,6 @@
 		            try {
 		            	mensajeSuccess("<b>"+data.mensaje+"</b>");
 		            	$("#folio").html(data.folio);
-		            	$("#txtFolio").val(data.folio);
-		            	$("#divImpresion").show('slide');
 		            } catch (e) {
 		                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
 		            }
@@ -364,6 +378,7 @@
 			asignaEliminar();
 		}
 	    $(function () {
+	    	mostrarFolio();
 	    	comboFuncion();
 	    	comboFrente();
 	    });

@@ -145,7 +145,7 @@
             <div class="container">
                 <div class="col-md-6" data-animate="fadeInDown">
                     <ul class="menu">
-                        <li><a href="#">Bienvenido</a>
+                        <li><a href="#">Bienvenido {{ user.get_username }}</a>
                         </li>
                         <li><a href="{% url 'logout' %}">Salir</a>
                         </li>
@@ -175,9 +175,6 @@
                     </div>
                 </div>
                 <!--/.navbar-header -->
-{% if perms.control_acero.add_apoyo %}
-    test
-{% endif %}
                 <div class="navbar-collapse collapse" id="navigation">
 
                     <ul class="nav navbar-nav navbar-left">
