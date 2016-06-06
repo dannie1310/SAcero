@@ -4,12 +4,15 @@
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
-		<div class="form-group col-md-12 text-left alert-info">
+		<div class="form-group col-md-6 text-left alert-info">
 			<h3> Folio: <span id="folio"></span></h3>
+		</div>
+		<div class="form-group col-md-6 text-left alert-info">
+			<h3> Reponsable: {{ user.get_username }}</h3>
 		</div>
 		<div class="form-group col-md-6">
 			<label  class="control-label" for="remision">Agregar Remisión:</label>
-			<input type="text" class="form-control" name="remision" id="remision"></input>
+			<input type="text" data-toggle="tooltip" data-placement="bottom" title="Agrega Remisión" class="form-control" name="remision" id="remision"></input>
 		</div>
 		<div class="form-group col-md-6">
 			<label  class="control-label" for="cmbApoyo">Selecciona un Apoyo:</label>
@@ -31,7 +34,30 @@
 			<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 			</select>
 		</div>
+		<div class="clearfix"></div>
+		<div class="col-md-2">
+			<div class="alert-info">&nbsp;</div>
+		</div>
+		<div class="col-md-4 text-left">
+			<div class="alert-default"><b>Peso Original de Recepción</b></div>
+		</div>
+		<div class="clearfix"></div>
+		<div class="col-md-2">
+			<div class="alert-success">&nbsp;</div>
+		</div>
+		<div class="col-md-4 text-left">
+			<div class="alert-default"><b>Cantidad Asignada en la Partida</b></div>
+		</div>
+		<div class="clearfix"></div>
+		<div class="col-md-2">
+			<div class="alert-warning">&nbsp;</div>
+		</div>
+		<div class="clear-fix"></div>
+		<div class="col-md-4 text-left">
+			<div class="alert-default"><b>Detalle de la Diferencia de la Partida</b></div>
+		</div>
 		<div class="col-md-12 table-responsive">
+			<div class="text-center"><h3>Recepción del Material</h3></div>
 			<table id="tablaMaterial" class="table table-hover">
 				<thead>
 					<tr>
@@ -42,11 +68,12 @@
 					</tr>
 				</thead>
 				<tbody>
-					<!--<td><input type="checkbox" name="test" value="0" /></td>-->
 				</tbody>
 			</table>
 		</div>
+		<hr>
 		<div class="col-md-12 table-responsive">
+			<div class="text-center"><h3>Detalle Asignación</h3></div>
 			<table id="tablaMaterialDetalle" class="table table-hover">
 				<thead>
 					<tr>
@@ -56,7 +83,6 @@
 					</tr>
 				</thead>
 				<tbody>
-					<!--<td><input type="checkbox" name="test" value="0" /></td>-->
 				</tbody>
 			</table>
 		</div>
@@ -130,10 +156,10 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info">'+object.cantidadAsignada+'</td>';
-	                		tabla +='<td><input type="number" step="0.01" class="form-control dataAsignacion" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" min="0" value="'+object.cantidadAsignada+'" /></td>';
-	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" class="form-control" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
-	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
-	                		tabla +='<td style="display:none;" id="piezas_'+count+'"><input type="number" step="0.01" class="form-control" min="0" name="txtPiezas_'+count+'" id="txtPiezas_'+count+'" placeholder="Piezas" /></td>';
+	                		tabla +='<td><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Cantidad a Asignar" step="0.01" class="form-control dataAsignacion" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" min="0" value="'+object.cantidadAsignada+'" /></td>';
+	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Digita la Nomenclatura" title="Nomenclatura" class="form-control" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
+	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Longitud" title="Longitud" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
+	                		tabla +='<td style="display:none;" id="piezas_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Piezas" title="Piezas" step="0.01" class="form-control" min="0" name="txtPiezas_'+count+'" id="txtPiezas_'+count+'" placeholder="Piezas" /></td>';
 	                		tabla +='<td style="display:none;"><input type="text" class="form-control" name="txtBandera_'+count+'" id="txtBandera_'+count+'" value="0"/></td>';
 	                		tabla += '<td><button type="button" class="btn btn-info" onClick="agregarAsignacion('+count+');">Asignar</td>';
 	                		tabla += '<td id="btnDiferencia_'+count+'"><button type="button" class="btn btn-danger" name="addDiferencia_'+count+'" id="addDiferencia_'+count+'" onClick="agregarDiferencia('+count+');">Diferencia</td>';
@@ -149,6 +175,7 @@
 				mensajeWarning( "Error en la petición del Material Recepcionado" );
 			});
 			$("#tablaMaterial tbody").append(tabla);
+			$('[data-toggle="toolinfo"]').tooltip();
 		}
 		comboFrente = function(){
 			$.post( "{% url 'comboFrente' %}",{
@@ -204,9 +231,9 @@
 					tabla += '<td>'+cantidadReal+'</td>';
 					tabla += '<td style="display:none;"><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
 					if(bandera == 1){
-						tabla += '<td>Nomenclatura: '+nomenclatura+'</td>';
-						tabla += '<td>Longitud: '+longitud+'</td>';
-						tabla += '<td>Piezas: '+piezas+'</td>';
+						tabla += '<td class="warning"><b>Nomenclatura:</b> '+nomenclatura+'</td>';
+						tabla += '<td class="warning"><b>Longitud:</b> '+longitud+'</td>';
+						tabla += '<td class="warning"><b>Piezas:</b> '+piezas+'</td>';
 					}
 				tabla += '</tr>';
 			$("#tablaMaterialDetalle").append(tabla);
@@ -225,6 +252,9 @@
 			$("#nomenclatura_"+posicion).hide('slide');
 			$("#btnDiferencia_"+posicion).show('slide');
 			$("#btnCancelarDif_"+posicion).hide('slide');
+			$("#txtNomenclatura_"+posicion).val('');
+			$("#txtLongitud_"+posicion).val('');
+			$("#txtPiezas_"+posicion).val('');
 			$("#txtBandera_"+posicion).val(0);
 		}
 		$( "#btnGuardar" ).click(function() {

@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from decimal import Decimal
 import datetime
+from django.contrib.auth.models import User
 
 class Factor(models.Model):
 	pva = models.IntegerField()
@@ -132,6 +133,7 @@ class Taller(models.Model):
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
 	)
+	usuario = models.ForeignKey(User, null=True)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
@@ -251,7 +253,22 @@ class Entrada(models.Model):
 	            ("add_salida_habilitado", "Puede ver y agregar Habilitado"),
 	            ("change_salida_habilitado", "Puede cambiar Habilitado"),
 	            ("delete_salida_habilitado", "Puede Borrar Habilitado"),
-	        )		
+	        )
+
+class EntradaDetalle(models.Model):
+	nomenclatura = models.CharField(max_length=20,null=True)
+	longitud = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	piezas = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	entrada = models.ForeignKey(Entrada, null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.nomenclatura
 
 class Salida(models.Model):
 	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)

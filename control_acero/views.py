@@ -33,6 +33,29 @@ from decimal import *
 from django.conf import settings
 from django.contrib.auth.models import Permission, User
 
+# def loginUsuario(request):
+# 	logout(request)
+# 	username = password = ''
+# 	if request.POST:
+# 		username = request.POST['usuario']
+# 		password = request.POST['clave']
+#         userIGH = Usuario.objects.using('auth_db').filter(usuario=username, clave=md5.new(password).hexdigest()).first()
+#         if userIGH:
+#             try:
+#                 user = User.objects.get(username=userIGH.usuario)
+#             except User.DoesNotExist:
+#                 user = User(username=userIGH.usuario, password=userIGH.clave, email=userIGH.correo, first_name=userIGH.nombre, last_name=userIGH.apaterno + ' ' + userIGH.amaterno)
+#                 user.save()
+#             user = authenticate(username=username, password=password)
+#             if user is not None:
+#                 if user.is_active:
+#                     login(request, user)
+#                     url = '/control_acero/principal/'
+#                     return HttpResponseRedirect(url)
+# 	template_name = '/control_acero'
+#  	messages.error(request, 'Usuario y/o Password invalidos')
+#  	return HttpResponseRedirect(template_name)
+ 	
 def loginUsuario(request):
 	logout(request)
 	username = password = ''
@@ -691,7 +714,8 @@ def entradaArmadoMaterial(request):
 	remisionDetalles = Salida.objects\
 						.values(
 								'material_id',
-								'material__nombre'
+								'material__nombre',
+								'material__diametro'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
 						.order_by('material_id')
@@ -699,6 +723,7 @@ def entradaArmadoMaterial(request):
 		resultado = {
 						"id":remisionDetalle["material_id"],
 						"materialNombre":remisionDetalle["material__nombre"],
+						"materialDiametro":remisionDetalle["material__diametro"],
 						"cantidadAsignada":remisionDetalle["cantidadAsignada"]
 					}
 		data.append(resultado)
@@ -727,6 +752,10 @@ def entradaArmadoSave(request):
 		material = jsonData["material"]
 		cantidadReal = jsonData["cantidadReal"]
 		cantidadAsignada = jsonData["cantidadAsignada"]
+		bandera = jsonData["bandera"]
+		nomenclatura = jsonData["nomenclatura"]
+		longitud = jsonData["longitud"]
+		piezas = jsonData["piezas"]
 		entrada = Entrada.objects\
 						.create(
 								remision = remision,
@@ -738,6 +767,14 @@ def entradaArmadoSave(request):
 								folio = numFolio,
 								numFolio = numFolioInt
 								)
+		if bandera == 1:
+			entradaDetalle = EntradaDetalle.objects\
+							.create(
+									nomenclatura = nomenclatura,
+									longitud = longitud,
+									piezas = piezas,
+									entrada_id = entrada.id
+									)
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)
