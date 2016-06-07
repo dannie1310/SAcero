@@ -1,0 +1,208 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CREACIÓN DE REPORTE
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="col-md-12">
+			
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor:</label>
+				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+				</select>
+			</div>
+			<div style="display:none;" id="taller" class="form-group col-md-6">
+				<label  class="control-label" for="cmbTaller">Seleccionar Talleres:</label>
+				<select name="cmbTaller" id="cmbTaller" class="cmbTaller form-control">
+				</select>
+			</div>
+			<div style="display:none;" id="frente" class="form-group col-md-6">
+				<label  class="control-label" for="cmbFrente">Seleccionar Frente:</label>
+				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
+				</select>
+			</div>
+
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="fechaInicial">Fecha Inicial:</label>
+				<input type="text" class="calendario form-control" name="fechaInicial" id="fechaInicial"></input>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="fechaFinal">Fecha Final:</label>
+				<input type="text" class="calendario form-control" name="fechaFinal" id="fechaFinal"></input>
+			</div>
+		</div>
+		<div class="col-md-12">
+			<button type="button" class="btn btn-success" name="solicitarConsulta" id="solicitarConsulta">Seleccionar</button>
+		</div>
+		<div style="display:none;" id="divSolicita" class="col-md-12 table-responsive">
+			<table id="tablaSolicita" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Remisión</th>
+						<th class="text-center">Nombre del Frente</th>
+						<th class="text-center">Identificación del Tramo</th>
+						<th class="text-center">Ubicación</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		
+	</div>
+	<script type="text/javascript">
+		comboFuncion = function(){
+			
+			$.post( "{% url 'comboFuncionGeneral' %}",{
+				
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbFuncion').empty();
+		                $('.cmbFuncion').append('<option value="0">Selecciona Proveedor</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbFuncion').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Fabricante:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Fabricante" );
+			});
+		}
+		comboFrente = function(){
+			$.post( "{% url 'comboFrente' %}",{
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbFrente').empty();
+		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Frente:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Frente" );
+			});
+		}
+
+		comboTaller = function(value){
+			var funcion = value;
+
+			$.post( "{% url 'comboTaller' %}",{
+				funcion:funcion
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbTaller').empty();
+		                $('.cmbTaller').append('<option value="0">Selecciona un Taller</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbTaller').append('<option value="' + object.id + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Taller:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Taller" );
+			});
+		}
+		
+		$( "#cmbFuncion" ).change(function() {
+			var value = this.value;
+
+			if(value>=5 && value<=9){ //Validacion para habilitadores
+				comboTaller(value);
+				$("#taller").show();
+				$("#frente").show();
+			}
+			else{
+				$("#taller").hide();
+				comboTaller(value);
+				if(value>=1&&value<=4||value==10){ //validacion para fabricantes
+					
+					$("#frente").hide();
+				}
+				else{
+					$("#frente").show();
+				}	
+			}
+		});
+
+		$( "#solicitarConsulta" ).click(function() {
+			$("#tablaSolicita tbody").empty();
+			var funcion = $("#cmbFuncion").val();
+			var taller = $("#cmbTaller").val();
+			var frente = $("#cmbFrente").val();
+			var fechai = $("#fechaInicial").val();
+			var fechaf = $("#fechaFinal").val();
+			
+			
+			if(funcion == 0){
+				mensajeWarning("<b>Debes elegir un Funcion.</b>");
+				return false;
+			}
+			
+			if(fechai == 0){
+				mensajeWarning("<b>Debes elegir un Fecha Inicial.</b>");
+				return false;
+			}
+			if(fechaf == 0){
+				mensajeWarning("<b>Debes elegir un Fecha Final.</b>");
+				return false;
+			}
+
+			console.log(funcion+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
+			
+			var tabla = '';
+		    $.ajax({
+		        type: "POST",
+		        url: "/control_acero/reportes/reporteConsulta/",
+		        async: false,
+		        dataType: "json",
+		        data: {csrfmiddlewaretoken: csrftoken,
+		        		funcion:funcion,
+		        		taller:taller,
+		        		frente:frente,
+		        		fechai:fechai,
+		        		fechaf:fechaf
+						},
+		        beforeSend: function (objeto) {
+		        },
+		        success: function (datos) {
+		            try { 
+	                    $.each(datos.data, function (count, object) {
+	                    	console.log(object);
+	                    	tabla += '<tr>'
+	                    	
+		                   	
+		                    tabla += '</tr>';
+	                    		                    	
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar: " + e);
+		            }
+		        },
+		        error: function (objeto, quepaso, otroobj) {
+		            alert("Error en la peticion:\n\n" + otroobj);
+		        }
+
+
+		    });   	
+		    $("#tablaDespiece tbody").append(tabla);
+		     $("#busquedaProveedor").show();
+		    $("#busquedaFrente").show();	
+	    	$("#asignar").show();
+	    });
+		
+	    $(function () {
+	    	comboFuncion();
+	    	comboFrente();
+	    	
+	    });
+	</script>
+{% endblock %}
