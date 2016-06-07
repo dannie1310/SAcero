@@ -28,17 +28,9 @@ urlpatterns = [
 
     url(r'^elemento/elementomaterial/$', views.elementoMaterial, name='elementoMaterial'),
 
-<<<<<<< HEAD
     url(r'^recepcion/material/save/$', views.recepcionMaterialSave, name='recepcionMaterialSave'),
-=======
     url(r'^reportes/reporte/$', views.reporteView, name='reporteView'),
     url(r'^reportes/reporteConsulta/$', views.reporteConsulta, name='reporteConsulta'),
-
-    
-
-    url(r'^programa/save/$', views.programaSave, name='programaSave'),
->>>>>>> ff4c851a8234b80b2423fffdc80c2a05ceae572f
-
     #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CON COMBOS          """
     #"""------------------------------------------"""
@@ -54,6 +46,7 @@ urlpatterns = [
     #"""   RUTAS RELACIONADAS CATALOGO DE APOYOS  """
     #"""------------------------------------------"""
     url(r'^catalogos/usuarios/new/$', views.usuariosNewView, name='usuariosNewView'),
+    url(r'^catalogos/usuarios/(?P<pk>[0-9]+)/edit/$', views.usuariosEditView, name='usuariosEditView'),
     url(r'^catalogos/grupos/new/$', views.gruposNewView, name='gruposNewView'),
 
     url(r'^catalogos/apoyos/$', views.apoyosView, name='apoyosView'),

@@ -172,7 +172,7 @@ class Remision(models.Model):
 	idOrden = models.IntegerField()
 	remision = models.IntegerField(null=True)
 	funcion = models.ForeignKey(Funcion, null=True)
-	funcionHabilitado = models.ForeignKey(Funcion, null=True, related_name='funcionHabilitado')
+	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignado')
 	pesoTara = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoBruto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoNeto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)

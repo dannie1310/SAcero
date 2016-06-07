@@ -31,7 +31,7 @@ import os
 from django.utils.crypto import get_random_string
 from decimal import *
 from django.conf import settings
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import User, Permission, Group
 
 # def loginUsuario(request):
 # 	logout(request)
@@ -67,11 +67,29 @@ def loginUsuario(request):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
+				current_user = request.user
+				user_id = current_user.id
+				getTallerAsignado(request, user_id)
 				url = '/control_acero/principal/'
 				return HttpResponseRedirect(url)
 	template_name = '/control_acero'
  	messages.error(request, 'Usuario y/o Password invalidos')
  	return HttpResponseRedirect(template_name)
+
+def getTallerAsignado(request, user_id):
+	taller = Taller.objects.filter(usuario_id = user_id)
+	if taller.exists():
+		request.session['idTaller'] = taller[0].id
+		request.session['nombreTaller'] = taller[0].nombre
+		request.session['proveedorTaller'] = taller[0].proveedor
+		request.session['ubicacionTaller'] = taller[0].ubicacion
+		request.session['responsableTaller'] = taller[0].responsable
+	else:
+		request.session['idTaller'] = 0
+		request.session['nombreTaller'] = 0
+		request.session['proveedorTaller'] = 0
+		request.session['ubicacionTaller'] = 0
+		request.session['responsableTaller'] = 0
 
 # def loginUsuario(request):
 # 	usuario = request.POST['usuario']
@@ -94,6 +112,11 @@ def loginUsuario(request):
 # 	return HttpResponseRedirect(template_name)
 
 def logout_view(request):
+	del request.session['idTaller']
+	del	request.session['nombreTaller']
+	del	request.session['proveedorTaller']
+	del	request.session['ubicacionTaller']
+	del	request.session['responsableTaller']
 	logout(request)
     	template_name = '/control_acero'
     	return HttpResponseRedirect(template_name)
@@ -110,6 +133,22 @@ def usuariosNewView(request):
 	else:
 		form = UserForm()
 	return render(request, 'control_acero/catalogos/usuarios/usuario_new.html', {'form': form})
+
+def usuariosEditView(request, pk):
+	usuario = get_object_or_404(User, pk=pk)
+	if request.method == "POST":
+		# for key in request.POST:
+		#     print(key)
+		#     value = request.POST[key]
+		#     print(value)
+		form = UserForm(request.POST, instance=usuario)
+		if(form.is_valid()):
+			user = form.save(commit=False)
+			user.save()
+			#user.groups.add(Group.objects.get(name=user))
+	else:
+		form = UserForm(instance=usuario)
+	return render(request, 'control_acero/catalogos/usuarios/usuario_edit.html', {'form': form})
 
 def gruposNewView(request):
 	if request.method == "POST":
@@ -338,6 +377,7 @@ def funcionesView(request):
 def funcionesNewView(request):
 	if request.method == "POST":
 		form = FuncionForm(request.POST)
+		print form
 		if(form.is_valid()):
 			funcion = form.save(commit=False)
 			funcion.save()
@@ -538,9 +578,10 @@ def recepcionMaterialSave(request):
 						pesoTara=pesoTara,
 						pesoNeto=pesoTotal,
 						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
-						estatus=1
+						estatus=1,
+						tallerAsignado_id=request.session['idTaller']
 						)
-	folio = RemisionDetalle.objects.all().order_by("-numFolio")[:1]
+	folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id=request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
@@ -786,7 +827,7 @@ def foliosMostrar(request):
 	mensaje = {}
 	data = []
 	if int(modulo) == 1:
-		folio = RemisionDetalle.objects.all().order_by("-numFolio")[:1]
+		folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id=request.session["idTaller"]).order_by("-numFolio")[:1]
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1

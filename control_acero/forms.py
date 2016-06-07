@@ -3,20 +3,14 @@ from .models import Apoyo, Elemento, Despiece,Material,Funcion, Frente, Taller, 
 from django.contrib.auth.models import User, Group, Permission
 
 class UserForm(forms.ModelForm):
-    group = forms.ModelChoiceField(queryset=Group.objects.all(),
-                                   required=True)
-    permission = forms.ModelChoiceField(queryset=Permission.objects.all(),
-                                   required=True)
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'group', 'permission', 'is_active', 'is_superuser')
+        fields = ['username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser']
 
 class GroupForm(forms.ModelForm):
-    permission = forms.ModelChoiceField(queryset=Permission.objects.all(),
-                                   		required=True)
     class Meta:
         model = Group
-        fields = ('name','permission')
+        fields = ('name',)
 
 class ApoyoForm(forms.ModelForm):
 	class Meta:
@@ -67,7 +61,7 @@ class FuncionForm(forms.ModelForm):
 class TallerForm(forms.ModelForm):
 	class Meta:
 		model = Taller
-		fields = ['nombre', 'estatus', 'proveedor','ubicacion','responsable' ,'funcion']
+		fields = ['nombre', 'estatus', 'proveedor','ubicacion','responsable' ,'funcion', 'usuario']
 		exclude = ['estatus']
 
 class TransporteForm(forms.ModelForm):
