@@ -69,7 +69,7 @@ def loginUsuario(request):
 				login(request, user)
 				current_user = request.user
 				user_id = current_user.id
-				getTallerAsignado(request, user_id)
+				#getTallerAsignado(request, user_id)
 				url = '/control_acero/principal/'
 				return HttpResponseRedirect(url)
 	template_name = '/control_acero'
@@ -418,6 +418,7 @@ def talleresNewView(request):
 		if(form.is_valid()):
 			funcion = form.save(commit=False)
 			funcion.save()
+			form.save_m2m()
 			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
 	else:
 		form = TallerForm()
@@ -431,6 +432,7 @@ def talleresEditView(request, pk):
 		if(form.is_valid()):
 			taller = form.save(commit=False)
 			taller.save()
+			form.save_m2m()
 			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
 	else:
 		form = TallerForm(instance=taller)
@@ -662,8 +664,9 @@ def salidaHabilitadoMaterial(request):
 								'material_id',
 								'material__nombre'
 								)\
-						.annotate(pesoMaterial = Sum('peso')) \
-						.annotate(cantidadMaterial = Sum('cantidad')) \
+						.annotate(pesoMaterial = Sum('peso'))\
+						.annotate(cantidadMaterial = Sum('cantidad'))\
+						.filter(remision__tallerAsignado_id = request.session["idTaller"])\
 						.order_by('material_id')
 	for remisionDetalle in remisionDetalles:
 		resultado = {
@@ -687,7 +690,7 @@ def salidaHabilitadoSave(request):
 	array = {}
 	mensaje = {}
 	data = []
-	folio = Salida.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+	folio = Salida.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
@@ -707,7 +710,8 @@ def salidaHabilitadoSave(request):
 								cantidadAsignada = cantidadAsignada,
 								estatusEtapa = 1,
 								folio = numFolio,
-								numFolio = numFolioInt
+								numFolio = numFolioInt,
+								tallerAsignado_id = request.session["idTaller"]
 								)
 	mensaje = {"estatus":"ok", "mensaje":"Salida de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
@@ -752,13 +756,14 @@ def entradaArmadoMaterial(request):
 	dataDetalle = []
 	idFuncion = request.POST.get('funcion', 1)
 	cantidadReal = 0
-	remisionDetalles = Salida.objects\
+	remisionDetalles = Salida.objects \
 						.values(
 								'material_id',
 								'material__nombre',
 								'material__diametro'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
+						.filter(tallerAsignado_id = request.session["idTaller"]) \
 						.order_by('material_id')
 	for remisionDetalle in remisionDetalles:
 		resultado = {
@@ -783,7 +788,7 @@ def entradaArmadoSave(request):
 	array = {}
 	mensaje = {}
 	data = []
-	folio = Entrada.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+	folio = Entrada.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
@@ -806,7 +811,8 @@ def entradaArmadoSave(request):
 								cantidadReal = cantidadReal,
 								cantidadAsignada = cantidadAsignada,
 								folio = numFolio,
-								numFolio = numFolioInt
+								numFolio = numFolioInt,
+								tallerAsignado_id = request.session["idTaller"]
 								)
 		if bandera == 1:
 			entradaDetalle = EntradaDetalle.objects\
@@ -827,21 +833,21 @@ def foliosMostrar(request):
 	mensaje = {}
 	data = []
 	if int(modulo) == 1:
-		folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id=request.session["idTaller"]).order_by("-numFolio")[:1]
+		folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
 		numFolio = "%04d" % (numFolioInt,)
 		numFolio = "RMH-"+numFolio
 	if int(modulo) == 2:
-		folio = Salida.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+		folio = Salida.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
 		numFolio = "%04d" % (numFolioInt,)
 		numFolio = "SMH-"+numFolio
 	if int(modulo) == 3:
-		folio = Entrada.objects.all().filter(estatusEtapa = 1).order_by("-numFolio")[:1]
+		folio = Entrada.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1

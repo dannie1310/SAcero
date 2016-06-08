@@ -156,12 +156,12 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info">'+object.cantidadAsignada+'</td>';
-	                		tabla +='<td><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Cantidad a Asignar" step="0.01" class="form-control dataAsignacion" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" min="0" value="'+object.cantidadAsignada+'" /></td>';
+	                		tabla +='<td><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Cantidad a Recibir" step="0.01" class="form-control dataAsignacion" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" min="0" value="'+object.cantidadAsignada+'" /></td>';
 	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Digita la Nomenclatura" title="Nomenclatura" class="form-control" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
 	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Longitud" title="Longitud" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
 	                		tabla +='<td style="display:none;" id="piezas_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Piezas" title="Piezas" step="0.01" class="form-control" min="0" name="txtPiezas_'+count+'" id="txtPiezas_'+count+'" placeholder="Piezas" /></td>';
 	                		tabla +='<td style="display:none;"><input type="text" class="form-control" name="txtBandera_'+count+'" id="txtBandera_'+count+'" value="0"/></td>';
-	                		tabla += '<td><button type="button" class="btn btn-info" onClick="agregarAsignacion('+count+');">Asignar</td>';
+	                		tabla += '<td><button type="button" class="btn btn-info" onClick="agregarAsignacion('+count+');">Recibir</td>';
 	                		tabla += '<td id="btnDiferencia_'+count+'"><button type="button" class="btn btn-danger" name="addDiferencia_'+count+'" id="addDiferencia_'+count+'" onClick="agregarDiferencia('+count+');">Diferencia</td>';
 	                		tabla += '<td id="btnCancelarDif_'+count+'" style="display:none;"><button type="button" class="btn btn-warning" name="removeDiferencia_'+count+'" id="removeDiferencia_'+count+'" onClick="cancelarDiferencia('+count+');">Cancelar</td>';
 	                    tabla +='</tr>';

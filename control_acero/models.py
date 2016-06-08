@@ -133,7 +133,10 @@ class Taller(models.Model):
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
 	)
-	usuario = models.ForeignKey(User, null=True)
+	user = models.ManyToManyField(
+		User,
+		blank=True,
+	)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
@@ -227,6 +230,7 @@ class Entrada(models.Model):
 	estatusEtapa = models.IntegerField(default=1)
 	numFolio = models.IntegerField(null=True)
 	folio = models.CharField(max_length=20,null=True)
+	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoEntrada')
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -289,6 +293,7 @@ class Salida(models.Model):
 	estatusEtapa = models.IntegerField(default=1)
 	numFolio = models.IntegerField(null=True)
 	folio = models.CharField(max_length=20,null=True)
+	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoSalida')
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
