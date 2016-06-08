@@ -8,16 +8,13 @@
 			<h3>Elige Tipo de Inventario Fisico</h3>
 		</div>
 		<div id="radios">
-			<div class="col-md-3 text-center">
+			<div class="col-md-4 text-center">
 				<input type="radio" name="criterio" value="1"> Apoyo
 			</div>
-			<div class="col-md-3 text-center">
+			<div class="col-md-4 text-center">
 				<input type="radio" name="criterio" value="2"> Elemento
 			</div>
-			<div class="col-md-3 text-center">
-				<input type="radio" name="criterio" value="3"> Despiece
-			</div>
-			<div class="col-md-3 text-center">
+			<div class="col-md-4 text-center">
 				<input type="radio" name="criterio" value="4"> Material
 			</div>
 		</div>
@@ -52,20 +49,7 @@
 			</div>
 		</div>
 
-		<div class="col-md-12">
-			<div style="display:none" id="busquedaDespiece">
-				<div class="form-group col-md-6">
-					<label  class="control-label" for="cmbElementoD">Elegir Elemento:</label>
-					<select name="cmbElementoD" id="cmbElementoD" class="cmbElementoD form-control">
-					</select>
-				</div>
-				<div class="form-group col-md-6">
-					<label  class="control-label" for="cmbDespiece">Elegir Despiece:</label>
-					<select name="cmbDespiece" id="cmbDespiece" class="cmbDespiece form-control">
-					</select>
-				</div>
-			</div>
-		</div>
+		
 
 		
 		<div style="display: none" id="tablaApoyo" class="col-md-12 table-responsive">
@@ -89,9 +73,10 @@
 				<thead>
 					<tr>
 						<th class="text-center">Elemento</th>
-						<th class="text-center">Nomenclatura Despiece</th>
+						<th class="text-center">Varilla</th>
+						<th class="text-center">Longitud</th>
 						<th class="text-center">Cantidad de Piezas Fisicas</th>
-						<th class="text-center">Imagen Despiece</th>
+						
 					</tr>
 				</thead>
 				<tbody>
@@ -116,27 +101,7 @@
 			</table>
 		</div>
 
-		<div style="display: none" id="tablaDespiece" class="col-md-12 table-responsive">
-			<table id="tablaDespiece" class="table table-hover">
-				<thead>
-					<tr>
-						
-						<th class="text-center">Nomenclatura Despiece</th>
-						
-						<th class="text-center">Material</th>
-						<th class="text-center">Peso</th>
-						<th class="text-center">Longitud Mts</th>
-						<th class="text-center">Longitud Fisica Mts</th>
-						<th class="text-center">Cantidad de Piezas Fisicas</th>
-						<th class="text-center">Imagen</th>
-					</tr>
-				</thead>
-				<tbody>
-					
-				</tbody>
-			</table>
-		</div>
-
+		
 		<div class="col-md-12">
 			<div style="display:none" id="busquedaProveedor">
 				
@@ -184,13 +149,12 @@
 
 		$( "#btnGuardar" ).click(function() {
 			var elemento = $("#cmbElemento").val();
-			var despiece = $("#cmbDespiece").val();
-			var frente = $("cmbFrente").val();
+			var frente = $("#cmbFrente").val();
 			var funcion = $("#cmbFuncion").val();
 			var apoyo = $("#cmbApoyo").val();
 			var material = $("#cmbMaterial").val();
-
-        	console.log(apoyo,material,elemento, despiece, frente,funcion);
+			
+        	console.log(apoyo,material,elemento, frente,funcion,cantidadFisica,longitudFisica);
 		    $.ajax({
 		        type: "POST",
 		        url: "/control_acero/inventario/save/",
@@ -198,7 +162,6 @@
 		        dataType: "json",
 		        data: {csrfmiddlewaretoken: csrftoken,
 		        		elemento:elemento,
-		        		despiece:despiece,
 		        		funcion:funcion,
 		        		frente:frente,
 		        		apoyo:apoyo,
@@ -233,11 +196,7 @@
 				comboFuncion(3);
 				$("#busquedaElemento").show();
 			}
-			if(val == 3){
-				
-				comboFuncion(2);
-				$("#busquedaDespiece").show();
-			}
+			
 			if(val == 4){
 				comboFuncion(1);
 				$("#busquedaMaterial").show();
@@ -286,11 +245,11 @@
 		        },
 		        success: function (datos) {
 		            try {
-		            	console.log(datos);
+		            	
 		                $('.cmbElemento').empty();
 		                $('.cmbElemento').append('<option value="0">Selecciona un Elemento</option>');
 	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbElemento').append('<option value="' + object.idElemento + '">' + object.nombre + '</option>');
+	                        $('.cmbElemento').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar el elemento:" + e);
@@ -302,34 +261,7 @@
 		    });
 		};
 
-		comboElementoD = function () {
-			
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/elemento/combo/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken,
-		        		},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
-		            try {
-		            	console.log(datos);
-		                $('.cmbElementoD').empty();
-		                $('.cmbElementoD').append('<option value="0">Selecciona un Elemento</option>');
-	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbElementoD').append('<option value="' + object.idElemento + '">' + object.nombre + '</option>');
-	                    });
-		            } catch (e) {
-		                alert("Error al cargar el elemento:" + e);
-		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo:\n\n" + otroobj);
-		        }
-		    });
-		};
+		
 
 		comboMaterial = function () {
 			
@@ -361,43 +293,6 @@
 		};
 
 
-
-		comboDespiece = function (elemento) {
-			var elemento = elemento;
-			
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/ordenTrabajo/comboDespiece/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken,
-		        		elemento : elemento
-		        		},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
-		            try {
-		                $('.cmbDespiece').empty();
-		                $('.cmbDespiece').append('<option value="0">Selecciona un Despiece</option>');
-	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbDespiece').append('<option value="' + object.idDespiece + '">' + object.nombre + '</option>');
-	                    });
-		            } catch (e) {
-		                alert("Error al cargar el Despiece:" + e);
-		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo:\n\n" + otroobj);
-		        }
-		    });
-		};
-
-		$( "#cmbElementoD" ).change(function() {
-			var value = this.value;
-
-			comboDespiece(value);
-		});
-
 		comboFrente = function () {
 			
 		    $.ajax({
@@ -415,7 +310,7 @@
 		                $('.cmbFrente').empty();
 		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
 	                    $.each(datos.data, function (count, object) {
-	                        $('.cmbFrente').append('<option value="' + object.idFrente + '">' + object.nombre + '</option>');
+	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar el Frente:" + e);
@@ -427,46 +322,33 @@
 		    });
 		};
 
-		comboFuncion = function (value) {
-			var tipo = value;
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/suministro/asignar/comboFuncionElegido/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken,
-		        		tipo: tipo
-						},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
+		comboFuncion = function(value){
+			tipo=value;
+			//console.log(tipo);
+			$.post( "{% url 'comboFuncion' %}",{
+				tipo:tipo
+			},
+			function(data, status) {
 		            try {
-		                $('#cmbProveedor').empty();
-		                $('#cmbProveedor').append('<option value="0">Selecciona un Proveedor</option>');
-	                    $.each(datos.data, function (count, object) {
-	                        $('#cmbProveedor').append('<option value="' + object.idFuncion + '">' + object.proveedor + '</option>');
+		                $('.cmbProveedor').empty();
+		                $('.cmbProveedor').append('<option value="0">Selecciona Proveedor</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbProveedor').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo Funcion:" + e);
+		                alert("Error al cargar Combo del Fabricante:" + e);
 		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion de Combo Funcion:\n\n" + otroobj);
-		        }
-		    });
-		};
-
-		// $( "#cmbProveedor" ).change(function() {
-		// 	var value = this.value;
-
-		// 	comboDespiece(value);
-		// });
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Fabricante" );
+			});
+		}
+		
 
 		function ocultaBusqueda (){
 			$("#busquedaElemento").hide();
 			$("#busquedaApoyo").hide();
 			$("#busquedaMaterial").hide();
-			$("#busquedaDespiece").hide();
 			$("#busquedaFrente").hide();
 			$("#busquedaProveedor").hide();
 		}
@@ -474,7 +356,6 @@
 		function ocultaTablas (){
 			$("#tablaElemento").hide();
 			$("#tablaMaterial").hide();
-			$("#tablaDespiece").hide();
 			$("#tablaUbicacion").hide();
 			$("#tablaApoyo").hide();
 		}
@@ -488,10 +369,6 @@
 			$("#tablaMaterial").show();
 		});
 
-		$( "#cmbDespiece" ).change(function() {
-			ocultaTablas();
-			$("#tablaDespiece").show();
-		});
 		$( "#cmbApoyo" ).change(function() {
 			ocultaTablas();
 			$("#tablaApoyo").show();
@@ -507,8 +384,8 @@
 	    $( "#cmbElemento" ).click(function() {
 			$("#tablaElemento tbody").empty();
 			
-			 var elemento = $("#cmbElemento").val();
-			
+			var elemento = $("#cmbElemento").val();
+			console.log(elemento);
 			if(elemento == 0){
 				mensajeWarning("<b>Debes elegir un elemento.</b>");
 				return false;
@@ -533,9 +410,10 @@
 
 	                    	tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagenElem+'" alt="" class="img-responsive"/></td>';
 	                    	
-		                    tabla +='<td>'+object.nombre+'</td>'
+		                    tabla +='<td>'+object.material+'</td>'
+		                    tabla +='<td>'+object.long+'</td>'
 		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value=" " /></td>';		
-		                    tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagen+'" alt="" class="img-responsive"/></td>';                        			
+		                                            			
 
 		                    tabla += '</tr>'
 	                    		                    	
@@ -607,64 +485,7 @@
 	    });
 
 
-	     $( "#cmbDespiece" ).click(function() {
-			$("#tablaDespiece tbody").empty();
-			var elemento = $("#cmbElementoD").val();
-			var despiece = $("#cmbDespiece").val();
-			
-			if(elemento == 0){
-				mensajeWarning("<b>Debes elegir un Elemento.</b>");
-				return false;
-			}
-
-			if(despiece == 0){
-				mensajeWarning("<b>Debes elegir un Despiece.</b>");
-				return false;
-			}
-			
-			var tabla = '';
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/inventario/despiece/busqueda/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken,
-		        		elemento:elemento,
-		        		despiece:despiece
-						},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
-		            try { 
-	                    $.each(datos.data, function (count, object) {
-	                    	tabla += '<tr>'
-	                    	
-		                    tabla +='<td>'+object.nombre+'</td>';
-		                    
-		                    tabla +='<td>'+object.material+'</td>';
-		                    tabla += '<td>'+object.peso+'</td>';
-		                    tabla +='<td>'+object.longitud+'</td>';
-		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="longitudFisica'+count+'" id="longitudFisica'+count+'" value=" " /></td>';
-		                    tabla +='<td><input type="number" step="0.0001" class="dataAsignacion" min="0" name="cantidadAsignada'+count+'" id="cantidadAsignada'+count+'" value=" " /></td>';	                 			
-		                    tabla+='<td><img height="42" width="142" class="img-responsive img-circle" src="../../../media/'+object.imagen+'" alt="" class="img-responsive"></td>';	
-		                    tabla += '</tr>';
-	                    		                    	
-	                    });
-		            } catch (e) {
-		                alert("Error al cargar: " + e);
-		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion:\n\n" + otroobj);
-		        }
-
-
-		    });   	
-		    $("#tablaDespiece tbody").append(tabla);
-		     $("#busquedaProveedor").show();
-		    $("#busquedaFrente").show();	
-	    	$("#asignar").show();
-	    });
+	    
 
 	     $( "#cmbApoyo" ).click(function() {
 			$("#tablaApoyo tbody").empty();
@@ -775,11 +596,9 @@
 	     $(function () {
 	     	comboApoyo();
 	    	comboElemento();
-	    	comboElementoD();
 	    	comboMaterial();
-	    	comboDespiece();
 	    	comboFrente();
-	    	comboFuncion();
+	    	comboFuncion(0);
 	    	
 	    });
 
