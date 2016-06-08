@@ -1600,6 +1600,7 @@ def comboFuncionGeneral(request):
 	for funcion in funciones:
 		resultado = {
 						"id":funcion.id,
+						"tipo":funcion.tipo,
 						"proveedor":funcion.proveedor
 					}
 		data.append(resultado)
@@ -1635,81 +1636,261 @@ def reporteConsulta(request):
 	mensaje = {}
 	data = []
 
-	idFuncion = request.POST.get('idFuncion', 0)
-	idTaller = request.POST.get('idTaller', 0)
-	idFrente = request.POST.get('idFrente', 0)
-	fechaini = request.POST.get('fechai', 0)
-	fechafin = request.POST.get('fechaf', 0)
+	idFuncion = request.POST.get('funcion', 2)
+	idTaller = request.POST.get('taller', 0)
+	idFrente = request.POST.get('frente', 6)
 	
-	if(idTaller == 0):
+	fechaInicial = request.POST.get('fechai', '17/05/2016')
+	fechaFinal = request.POST.get('fechaf', '07/06/2016')
+	fechaInicialFormat = datetime.strptime(fechaInicial+" 00:00:00", '%d/%m/%Y %H:%M:%S')
+	fechaFinalFormat = datetime.strptime(fechaFinal+" 23:59:59", '%d/%m/%Y %H:%M:%S')
 
-		print "aqui"
-	
-		elemento = Material.objects.values(
+	print "----------"
+	print idFuncion
+	print idTaller
+	print idFrente
+	print fechaInicial
+
+	if idTaller=='0' and idFrente=='0':
+
+		print "aqui Fabricante"
+		print idTaller
+		##here!!! :D
+		datos = Remision.objects.values(
 											'id',
-											'nombre',
-											'numero',
-											'peso',
-											'diametro',
-											'proveedor',
-											'longitud',
-											'factor__pva',
-											'factor__factorPulgada',
-											'factor__pi').filter()
-		#print elemento.query
-		for e in elemento:
-			diametro = e['diametro']
-			pva = e['factor__pva']
-			factorPulgada = e['factor__factorPulgada']
-			pi = e['factor__pi']
-			diametroMetro = diametro / 1000
-			factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
-			factorCalculadoDecimal = "%.4f" % factorCalculado
-			resultado = {
-							"idMaterial":e['id'],
-							"nombreMaterial":e['nombre'],
-							"materialNumero":e['numero'],
-							"materialPeso":e['peso'],
-							"materialProveedor":e['proveedor'],
-							"materialLongitud":e['longitud'],
-							"conversion":factorCalculadoDecimal
+											'idOrden',
+											'pesoNeto',
+											'fechaRemision',
+											'remision',
+											'funcion__proveedor',
+											'remisiondetalle__cantidad',
+											'remisiondetalle__peso',
+											'remisiondetalle__longitud',
+											'remisiondetalle__material__nombre').filter(fechaRegistro__gte=fechaInicialFormat,
+																		fechaRegistro__lte=fechaFinalFormat,
+																		funcion_id= idFuncion,
+																		estatus=1)
+		#print datos.query
+		for e in datos:
+			
+			resultado = {   "value": 1,
+							"id":e['id'],
+							"orden":e['idOrden'],
+							"pesoTotal":e['pesoNeto'],
+							"peso":e['remisiondetalle__peso'],
+							"fechaR":e['fechaRemision'],
+							"remision":e['remision'],
+							"proveedor":e['funcion__proveedor'],
+							"piezas":e['remisiondetalle__cantidad'],
+							"longitud":e['remisiondetalle__longitud'],
+							"material":e['remisiondetalle__material__nombre']
 						}
+
 			data.append(resultado)
 		array["data"]=data
 		return JsonResponse(array)
 		
-	else:
-		print "else"
-		elemento = Material.objects.values(
+	elif idFrente!='0' and idTaller=='0':
+		print "elif Armado"
+		habilitadores = Entrada.objects.values(
 											'id',
-											'nombre',
-											'numero',
-											'peso',
-											'diametro',
-											'proveedor',
-											'longitud',
-											'factor__pva',
-											'factor__factorPulgada',
-											'factor__pi').filter()
-		#print elemento.query
-		for e in elemento:
-			diametro = e['diametro']
-			pva = e['factor__pva']
-			factorPulgada = e['factor__factorPulgada']
-			pi = e['factor__pi']
-			diametroMetro = diametro / 1000
-			factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
-			factorCalculadoDecimal = "%.4f" % factorCalculado
-			resultado = {
-							"idMaterial":e['id'],
-							"nombreMaterial":e['nombre'],
-							"materialNumero":e['numero'],
-							"materialPeso":e['peso'],
-							"materialProveedor":e['proveedor'],
-							"materialLongitud":e['longitud'],
-							"conversion":factorCalculadoDecimal
+											'cantidadAsignada',
+											'funcion__proveedor',
+											'material__nombre',
+											'cantidadReal',
+											'elemento__nombre',
+											'remision').filter(funcion_id=idFuncion, 
+																fechaRegistro__gte=fechaInicialFormat,
+																fechaRegistro__lte=fechaFinalFormat,
+																estatus=1)
+		#print habilitadores.query
+		for e in habilitadores:
+			
+			resultado = {	"value": 2,
+							"id":e['id'],
+							"cantidad":e['cantidadAsignada'],
+							"proveedor":e['funcion__proveedor'],
+							"material":e['material__nombre'],
+							"cantidadReal":e['cantidadReal'],
+							"elemento":e['elemento__nombre']
 						}
 			data.append(resultado)
 
 		array["data"]=data
 		return JsonResponse(array)
+
+	elif idTaller!='0' and idFrente!='0':
+		print "else Habilitador"
+		habilitadores= Salida.objects.values(
+												'id',
+												'cantidadAsignada',
+												'apoyo__numero',
+												'frente__nombre',
+												'material__nombre',
+												'cantidadReal',
+												'elemento__nombre').filter(frente_id=idFrente,
+																			fechaRegistro__gte=fechaInicialFormat,
+																			fechaRegistro__lte=fechaFinalFormat,
+																			estatus=1)
+
+		for e in habilitadores:
+			resultado={	"value": 3,
+						"id":e['id'],
+						"cantidad":e['cantidadAsignada'],
+						"apoyo":e['apoyo__numero'],
+						"frente":e['frente__nombre'],
+						"material":e['material__nombre'],
+						"cantidadReal":e['cantidadReal'],
+						"elemento":e['elemento__nombre']
+
+			}
+
+			data.append(resultado)
+
+		array["data"]=data
+		return JsonResponse(array)
+
+
+def inventarioFisicoView(request):
+	template = 'control_acero/inventario/inventarioFisico.html'
+
+	return render(request, template)
+
+def elementoBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idElemento = request.POST.get('elemento', 1)
+
+
+	d = Elemento.objects.values("id",
+								"material__nombre",
+								"material__longitud",
+								"imagen").filter(id=idElemento)
+	
+	for f in d:
+			resultado = { "id":f["id"],
+						"material":f["material__nombre"],
+						"long": f["material__longitud"],
+						"imagenElem" : f["imagen"]
+						}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def materialCombo(request):
+	array = {}
+	mensaje = {}
+	data = []
+	material = Material.objects.all()
+	for e in material:
+			resultado = {"idMaterial":e.id,"nombre":e.nombre}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def materialBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idMaterial = request.POST.get('material', 1)
+
+
+	d = Material.objects.values("id",
+								"nombre",
+								"imagen").filter(id=idMaterial)
+	#print d.query
+	for f in d:
+			resultado = {"id":f["id"],
+						"nombre": f["nombre"],
+						"imagen":f["imagen"]
+						}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+
+
+def frenteComboBusquedaViews(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idFrente= request.POST.get('frente',1)
+	frente = Frente.objects.filter(id= idFrente)
+	for e in frente:
+			resultado = {"idfrente":e.id,"nombre":e.nombre,"identificacion":e.identificacion, "ubicacion":e.ubicacion}
+			data.append(resultado)
+
+	array = mensaje
+	array["data"]=data
+	return JsonResponse(array)
+
+def inventarioSave(request):
+	array = {}
+	mensaje = {}
+	# despiece = request.POST.get('despiece', 1)
+	# elemento = request.POST.get('elemento', 1)
+	# apoyo = request.POST.get('apoyo', 1)
+	# cantidadFisica = request.POST.get('cantidadFisica', 1)
+	# longitudFisica = request.POST.get('longitudFisica', 1)
+	# funcion = request.POST.get('funcion', 1)
+	# frente = request.POST.get('frente', 1)
+	
+	# e = InventarioFisico.objects.create(despiece = despiece,
+	# 									elemento=elemento,
+	# 									apoyo = apoyo,
+	# 									cantidadFisica = cantidadFisica,
+	# 									longitudFisica = longitudFisica, 
+	# 									proveedor_id = funcion,
+	# 									frente_id = frente,
+	# 									estatus=1)
+
+	# print e.query
+				
+		# 	for data in json_object:
+		# datos = data["data"]
+		# splitData = datos.split("|")
+		# despiece = splitData[0]
+		# elemento = splitData[1]
+		# apoyo = splitData[2]
+		# idFuncion = splitData[3]
+		# idFrente = splitData[4]
+		# longitudFisica = splitData[5]
+		# cantidadFisica = splitData[6]
+	mensaje = {"estatus":"ok", "mensaje":"Se guardo correctamente."}
+	array = mensaje
+	return JsonResponse(array)
+	
+def apoyoBusquedaView(request):
+	array = {}
+	mensaje = {}
+	data = []
+	idApoyo = request.POST.get('Apoyo', 1)
+
+	d = Apoyo.objects.values("id", 
+								"numero",
+								"elemento__nombre",
+								"elemento__id",
+								"elemento__imagen").filter(id=idApoyo)
+	#print d.query
+
+
+	for f in d:
+			resultado = {"idApoyo":f["id"],
+						"nombre": f["numero"],
+						"elemento":f["elemento__nombre"],
+						"idE":f["elemento__id"],
+						"imagen":f["elemento__imagen"]
+						}
+			data.append(resultado)
+    
+	array = mensaje
+	array["data"]=data
+
+	return JsonResponse(array)

@@ -33,6 +33,22 @@ urlpatterns = [
     url(r'^programa/save/$', views.programaSave, name='programaSave'),
 
     #"""------------------------------------------"""
+    #"""        RUTAS RELACIONADAS CON INVENTARIOS  """
+    #"""--------------------------------------------"""
+    #url(r'^inventario/cierre/$', views.cierresView, name='cierresView'),
+    #url(r'^inventario/fisico/busqueda/$', views.fisicoBusquedaView, name='fisicoBusquedaView'),
+    url(r'^inventario/inventarioFisico/$', views.inventarioFisicoView, name='inventarioFisicoView'),
+    url(r'^inventario/elemento/busqueda/$', views.elementoBusquedaView, name='elementoBusquedaView'),
+    url(r'^inventario/material/busqueda/$', views.materialBusquedaView, name='materialBusquedaView'),
+    url(r'^material/combo/$', views.materialCombo, name='materialCombo'),
+    url(r'^inventario/frente/combo/busqueda/$', views.frenteComboBusquedaViews, name='frenteComboBusquedaViews'),
+    url(r'^inventario/apoyo/busqueda/$', views.apoyoBusquedaView, name='apoyoBusquedaView'),
+    url(r'^inventario/save/$', views.inventarioSave, name='inventarioSave'),
+    url(r'^apoyo/combofiltrado/$', views.apoyoCombofiltrado, name='apoyoCombofiltrado'),
+    url(r'^elemento/combo/$', views.comboElemento, name='comboElemento'),
+    url(r'^frente/combo/$', views.comboFrente, name='comboFrente'),
+
+    #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CON COMBOS          """
     #"""------------------------------------------"""
     url(r'^combo/funcion/$', views.comboFuncion, name='comboFuncion'),

@@ -37,12 +37,7 @@
 		<div style="display:none;" id="divSolicita" class="col-md-12 table-responsive">
 			<table id="tablaSolicita" class="table table-hover">
 				<thead>
-					<tr>
-						<th class="text-center">Remisión</th>
-						<th class="text-center">Nombre del Frente</th>
-						<th class="text-center">Identificación del Tramo</th>
-						<th class="text-center">Ubicación</th>
-					</tr>
+					
 				</thead>
 				<tbody>
 				</tbody>
@@ -71,6 +66,8 @@
 				mensajeWarning( "Error en la petición del Fabricante" );
 			});
 		}
+
+		
 		comboFrente = function(){
 			$.post( "{% url 'comboFrente' %}",{
 			},
@@ -114,26 +111,30 @@
 		
 		$( "#cmbFuncion" ).change(function() {
 			var value = this.value;
-
+			
 			if(value>=5 && value<=9){ //Validacion para habilitadores
+				
 				comboTaller(value);
 				$("#taller").show();
+
 				$("#frente").show();
+				
 			}
-			else{
+			if(value>=1 && value<=4 && value==10){
 				$("#taller").hide();
+				$("#frente").hide();
 				comboTaller(value);
-				if(value>=1&&value<=4||value==10){ //validacion para fabricantes
-					
-					$("#frente").hide();
-				}
-				else{
-					$("#frente").show();
-				}	
+			}
+			if(value>10){
+				console.log("else whats");
+				$("#taller").hide();
+				
+				$("#frente").show();
 			}
 		});
 
 		$( "#solicitarConsulta" ).click(function() {
+			$("#tablaSolicita thead").empty();
 			$("#tablaSolicita tbody").empty();
 			var funcion = $("#cmbFuncion").val();
 			var taller = $("#cmbTaller").val();
@@ -141,67 +142,100 @@
 			var fechai = $("#fechaInicial").val();
 			var fechaf = $("#fechaFinal").val();
 			
-			
-			if(funcion == 0){
-				mensajeWarning("<b>Debes elegir un Funcion.</b>");
-				return false;
-			}
-			
-			if(fechai == 0){
-				mensajeWarning("<b>Debes elegir un Fecha Inicial.</b>");
-				return false;
-			}
-			if(fechaf == 0){
-				mensajeWarning("<b>Debes elegir un Fecha Final.</b>");
-				return false;
-			}
-
 			console.log(funcion+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
-			
 			var tabla = '';
-		    $.ajax({
-		        type: "POST",
-		        url: "/control_acero/reportes/reporteConsulta/",
-		        async: false,
-		        dataType: "json",
-		        data: {csrfmiddlewaretoken: csrftoken,
-		        		funcion:funcion,
+			var head='';
+			$.post( "{% url 'reporteConsulta' %}",{
+						funcion:funcion,
 		        		taller:taller,
 		        		frente:frente,
 		        		fechai:fechai,
 		        		fechaf:fechaf
-						},
-		        beforeSend: function (objeto) {
-		        },
-		        success: function (datos) {
-		            try { 
-	                    $.each(datos.data, function (count, object) {
-	                    	console.log(object);
-	                    	tabla += '<tr>'
-	                    	
-		                   	
-		                    tabla += '</tr>';
-	                    		                    	
-	                    });
-		            } catch (e) {
-		                alert("Error al cargar: " + e);
-		            }
-		        },
-		        error: function (objeto, quepaso, otroobj) {
-		            alert("Error en la peticion:\n\n" + otroobj);
-		        }
+			},
+			function(data, status) {
+	            try {
+	                $.each(data.data, function (count, object) {
+	                	//console.log(object);
 
+	                	if(object.value==1){
+	                			
+								head ='<tr>'
+								+'<th class="text-center"># Orden</th>'
+								+'<th class="text-center">Remisión</th>'	
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Piezas</th>'
+								+'<th class="text-center">Longitud</th>'
+								+'<th class="text-center">Peso</th>'
+								+'</tr>';
 
-		    });   	
-		    $("#tablaDespiece tbody").append(tabla);
-		     $("#busquedaProveedor").show();
-		    $("#busquedaFrente").show();	
-	    	$("#asignar").show();
-	    });
+	                        	tabla += '<tr>';
+	                        	tabla +='<td>'+object.orden+'</td>';
+								tabla +='<td>'+object.remision+'</td>';
+	                    		tabla +='<td>'+object.material+'</td>';
+	                    		tabla +='<td>'+object.piezas+'</td>';
+	                    		tabla +='<td>'+object.longitud+'</td>';
+	                    		tabla +='<td>'+object.peso+'</td>';
+								tabla += '</tr>';
+
+		                   }
+
+		                 if(object.value==2){
+		                 		head ='<tr>'
+		                 		+'<th class="text-center">Remisión</th>'
+		                 		+'<th class="text-center">Proveedor</th>'
+								+'<th class="text-center">Elemento</th>'	
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Cantidad Asignada</th>'
+								+'<th class="text-center">cantidad Real</th>'
+								
+								+'</tr>';
+
+	                        	tabla += '<tr>';
+	                        	tabla +='<td>'+object.remision+'</td>';
+								tabla +='<td>'+object.proveedor+'</td>';
+	                    		tabla +='<td>'+object.elemento+'</td>';
+	                    		tabla +='<td>'+object.material+'</td>';
+	                    		tabla +='<td>'+object.cantidad+'</td>';
+	                    		tabla +='<td>'+object.cantidadReal+'</td>';
+								tabla += '</tr>';
+		                 }
+
+		                 if(object.value==3){
+		                 		head ='<tr>'
+									
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Cantidad Asignada</th>'
+								+'<th class="text-center">Cantidad Total</th>'
+								+'<th class="text-center">Apoyo</th>'
+								+'<th class="text-center">Elemento</th>'
+								+'</tr>';
+
+	                        	tabla += '<tr>';
+	                        	
+	                    		tabla +='<td>'+object.material+'</td>';
+	                    		tabla +='<td>'+object.cantidad+'</td>';
+	                    		tabla +='<td>'+object.cantidadReal+'</td>';
+	                    		tabla +='<td>'+object.apoyo+'</td>';
+	                    		tabla +='<td>'+object.elemento+'</td>';
+								tabla += '</tr>';
+		                 }
+		                    });
+		        } catch (e) {
+	                mensajeWarning("Error al cargar Varillas :" + e);
+	            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición carga Varillas" );
+			});
+			$('#tablaSolicita thead').append(head);
+		    $("#tablaSolicita tbody").append(tabla);
+		    $("#divSolicita").show('slide');
+		});
 		
 	    $(function () {
 	    	comboFuncion();
 	    	comboFrente();
+	    	comboTaller(0);
 	    	
 	    });
 	</script>
