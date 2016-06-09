@@ -489,6 +489,7 @@ def comboFuncion(request):
 	mensaje = {}
 	data = []
 	tipo = request.POST.get('tipo', 0)
+	
 	funciones = Funcion.objects.all()\
 								.filter(
 										tipo = tipo,
@@ -572,6 +573,9 @@ def recepcionMaterialSave(request):
 	pesoTotal = request.POST.get('pesoTotal', 0)
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
+	print "***********"
+	print respuesta
+	print "***********"
 	p = Remision.objects\
 				.create(
 						idOrden=idOrden,
@@ -903,6 +907,11 @@ def foliosMostrar(request):
 	array = {}
 	mensaje = {}
 	data = []
+
+	# today = datetime.now()
+	# dateFormat = today.strftime("%d/%m/%Y")
+	# print dateFormat
+
 	if int(modulo) == 1:
 		folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 		if folio.exists():
@@ -924,6 +933,8 @@ def foliosMostrar(request):
 		numFolioInt = int(numFolio)+1
 		numFolio = "%04d" % (numFolioInt,)
 		numFolio = "EMA-"+numFolio
+
+	#mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
 	mensaje = {"estatus":"ok", "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)
@@ -2077,6 +2088,7 @@ def frenteComboBusquedaViews(request):
 def inventarioSave(request):
 	array = {}
 	mensaje = {}
+	
 	# despiece = request.POST.get('despiece', 1)
 	# elemento = request.POST.get('elemento', 1)
 	# apoyo = request.POST.get('apoyo', 1)
@@ -2137,3 +2149,4 @@ def apoyoBusquedaView(request):
 	array["data"]=data
 
 	return JsonResponse(array)
+

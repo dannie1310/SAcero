@@ -35,6 +35,7 @@
 				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 				</select>
 			</div>-->
+			
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
 				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision"></input>
@@ -43,37 +44,14 @@
 		<div class="col-md-12">
 			<button type="button" class="btn btn-success" name="agregarVarillas" id="agregarVarillas">Seleccionar</button>
 		</div>
-		<div style="display:none;" id="divFrente" class="col-md-12 table-responsive">
-			<table id="tablaFrente" class="table table-hover">
-				<thead>
-					<tr>
-						<th class="text-center">Remisión</th>
-						<th class="text-center">Nombre del Frente</th>
-						<th class="text-center">Identificación del Tramo</th>
-						<th class="text-center">Ubicación</th>
-					</tr>
-				</thead>
-				<tbody>
-				</tbody>
-			</table>
+		
+		<div style="display:none;" id="divTituloVarillas" class="col-md-12">
+				<h4>Cantidades de Varilla</h4>
 		</div>
-		<div style="display:none;" id="divApoyo" class="col-md-12">
-			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbApoyo">Elegir Apoyo:</label>
-				<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
-				</select>
-			</div>
-			<div class="form-group col-md-12">
-				<label  class="control-label" for="cmbElemento">Elegir Elemento:</label>
-				<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
-				</select>
-			</div>
+		<div style="display:none;" id="divVarillasCheck" class="col-md-12">
+			
 		</div>
-		<div id="divVarillasCheck" class="col-md-12">
-		</div>
-		<div class="col-md-12">
-			<h4>Cantidades de Varilla</h4>
-		</div>
+		
 		<div id="divCantidades" class="col-md-12">
 		</div>
 		<div style="display:none;" id="divCantidadesBotones" class="col-md-12">
@@ -119,12 +97,14 @@
 			function(data, status) {
 		            try {
 						$("#folio").html(data.folio);
+						
+						
 		            } catch (e) {
-		                alert("Error al cargar Combo del Fabricante:" + e);
+		                alert("Error al cargar el Folio:" + e);
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Fabricante" );
+				mensajeWarning( "Error en la petición del Folio" );
 			});
 		}
 		comboFuncion = function(){
@@ -138,7 +118,10 @@
 		                $('.cmbFuncion').append('<option value="0">Selecciona Proveedor de Acero (Fabricante)</option>');
 	                    $.each(data.data, function (count, object) {
 	                        $('.cmbFuncion').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
-	                    });
+
+	                          });
+	                        
+	                    
 		            } catch (e) {
 		                alert("Error al cargar Combo del Fabricante:" + e);
 		            }
@@ -166,16 +149,38 @@
 			});
 		}
 		$( "#agregarVarillas" ).click(function() {
-			$("#tablaFrente tbody").empty();
+			//$("#tablaFrente tbody").empty();
+			$("#divVarillasCheck").empty();
+			$("#divCantidades").empty();
 			var orden = $("#cmbOrden").val();
 			var remision = $("#remision").val();
 			//var frente = $("#cmbFrente").val();
-			var fechaInicial = $("#fechaInicial").val();
-			var fechaFinal = $("#fechaFinal").val();
+			//var fechaInicial = $("#fechaInicial").val();
+			var proveedor =$("#cmbFuncion").val();
+			var fechaRemision = $("#fechaRemision").val();
+			
+
+			if(orden == 0){
+				mensajeWarning("<strong>Debes elegir una Orden de Compra.</strong>");
+				return false;
+			}
+			if(remision == 0){
+				mensajeWarning("<strong>Debes elegir una Remisión.</strong>");
+				return false;
+			}
+			if(proveedor == 0){
+				mensajeWarning("<strong>Debes elegir un Proveedor de Acero.</strong>");
+				return false;
+			}
+			if(fechaRemision == 0){
+				mensajeWarning("<strong>Debes elegir una Fecha de Remisión.</strong>");
+				return false;
+			}
+
+		    //$("#divFrente").show("slide");
+			
 			var tabla = '';
-		    $("#divFrente").show("slide");
-			$("#divCantidades").empty();
-			var tabla = '';
+			
 			var html = '';
 			var checks = '';
 			var conversionInicial = 0;
@@ -185,7 +190,8 @@
 	            try {
 	                $.each(data.data, function (count, object) {
 	                	conversionInicial = (object.conversion)*(object.materialLongitud);
-	                	checks += '<div class="col-md-3"><input onclick="muestraVarillas('+object.idMaterial+');" name="chk_'+object.idMaterial+'" id="chk_'+object.idMaterial+'" value="'+object.idMaterial+'" type="checkbox"> '+object.nombreMaterial+'</div>';
+	                	
+	                	checks += '<div id="tablaVarillasCheck" class="col-md-3"><input onclick="muestraVarillas('+object.idMaterial+');" name="chk_'+object.idMaterial+'" id="chk_'+object.idMaterial+'" value="'+object.idMaterial+'" type="checkbox"> '+object.nombreMaterial+'</div>';
 	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 									+ '<div class="input-group">'
@@ -212,6 +218,7 @@
 									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
 									+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
 								+ '</div>';
+								
 	                });
 	            } catch (e) {
 	                mensajeWarning("Error al cargar Varillas :" + e);
@@ -220,9 +227,12 @@
 			.fail(function() {
 				mensajeWarning( "Error en la petición carga Varillas" );
 			});
+			$("#divTituloVarillas").show();
+			$("#divVarillasCheck").show();
 		    $("#tablaInformacionVarillas tbody").append(tabla);
 		    $("#divCantidades").append(html);
 		    $("#divVarillasCheck").append(checks);
+		    $("#divCantidades").show();
 		    $("#divCantidadesBotones").show('slide');
 		    $("#divDetalle").show('slide');
 		    $("#divDetalleSolicita").show('slide');
@@ -248,7 +258,6 @@
 			var ton = 0;
 			var tonHtml = '';
 			var pesoTd = 0;
-
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
@@ -260,7 +269,7 @@
 				pesoTotalReal = parseFloat(cantidadMaterial);
 				material = $(this).attr("attrMaterial");
 				if(cantidadMaterial != 0){
-					tabla += '<tr class="'+color+'">'
+					tabla += '<tr  class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
 								+'<td class="text-center">'+parseInt(pesoMaterial)+'</td>'
 								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
@@ -271,13 +280,16 @@
 									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
 								+'</td>'
 							+'<tr>';
+					
 					$("#count"+idMaterial).val(0);
 					$("#txt"+idMaterial).val(0);
 					pesoTotalReal = 0;
+							
 				}
 			});
 			$("#tablaApoyoElemento").append(tabla);
-
+			$("#divDetalleSolicita").show();
+		    $("#divDetalleCancelar").show();
 			$('.pesoTotal').each(function(i, obj) {
 				pesoTd += parseFloat($(this).text());
 			});
@@ -330,20 +342,27 @@
 			});
 		});
 		$( "#btnCancelar" ).click(function() {
-			$("#cmbOrden").val(0);
-			$("#cmbFrente").val(0);
-			$("#fechaInicial").val('');
-			$("#fechaFinal").val('');
-			$("#cmbApoyo").val(0);
-			$("#cmbElemento").val(0);
-			$("#divFrente").hide('slide');
-			$("#divApoyo").hide('slide');
-		    $("#divCantidadesBotones").hide('slide');
+			$("#cmbOrden").val(' ');
+			$("#cmbFuncion").val(0);
+			$("#remision").val(' ');
+			$("#fechaRemision").val(' ');
+			//$("#cmbFrente").val(0);
+			//$("#fechaInicial").val('');
+			//$("#fechaFinal").val('');
+			//$("#cmbApoyo").val(0);
+			//$("#cmbElemento").val(0);
+			//$("#divFrente").hide('slide');
+			//$("#divApoyo").hide('slide');
+
+			$("#tablaApoyoElemento tbody ").empty();
+			$("#tablaVarillasCheck tbody").empty();
+			$("#divVarillasCheck").hide();
+			$("#divTituloVarillas").hide();
+			$("#divCantidades").hide();
+		    $("#divCantidadesBotones").hide();
 		    $("#divDetalle").hide('slide');
-		    $("#divDetalleSolicita").hide('slide');
-		    $("#divDetalleCancelar").hide('slide');
-		    $("#tablaFrente tbody").empty();
-		    $("#tablaApoyoElemento tbody").empty();
+		    $("#divDetalleSolicita").hide();
+		    $("#divDetalleCancelar").hide();
 		});
 		function cantidadMaterial (id){
 			var value = $("#count"+id).val();
@@ -379,7 +398,7 @@
 	    $(function () {
 	    	mostrarFolio();
 	    	comboFuncion();
-	    	comboFrente();
+	    	//comboFrente();
 	    });
 	</script>
 {% endblock %}
