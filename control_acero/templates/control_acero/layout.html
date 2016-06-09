@@ -60,8 +60,11 @@
         <!-- PLUGIN UPLOAD FILE-->
         <script src="{% static 'uploadFile4.0.10/js/jquery.uploadfile.min.js' %}"></script>
 
-        <!-- ESTILOS MAGNIFIC POPUP -->
+        <!-- PLUGIN MAGNIFIC POPUP -->
         <script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+        <!-- PLUGIN MASK POPUP -->
+        <script src="{% static 'maskPlugin/jquery.mask.min.js' %}"></script>
 
         <script type="text/javascript">
             function getCookie(name) {
@@ -125,6 +128,11 @@
                 });
                 $('[data-toggle="tooltip"]').tooltip(); 
             });
+            $('.miles').mask("#,##0.00", {reverse: true});
+            function limpiaValor(valor){
+                var limpio = valor.replace(/,/g, '');
+                return limpio;
+            }
         </script>
         <style>
             .notificacion {

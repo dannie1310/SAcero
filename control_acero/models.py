@@ -211,6 +211,27 @@ class RemisionDetalle(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.remision
 
+class InventarioRemisionDetalle(models.Model):
+	remision = models.ForeignKey(Remision, null=True)
+	material = models.ForeignKey(Material, null=True)
+	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	cantidad = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	apoyo = models.ForeignKey(Apoyo)
+	elemento = models.ForeignKey(Elemento)
+	longitud = models.IntegerField(null=True)
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	estatusTotalizado = models.IntegerField(default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.remision
+
 class Entrada(models.Model):
 	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	cantidad = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
@@ -299,6 +320,49 @@ class Salida(models.Model):
 	    (1, 'Activo'),
 	)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	TIPOESTATUS = (
+	    (1, 'En proceso'),
+	    (2, 'Recepcionado'),
+	    (3, 'Enviado'),
+	    (4, 'Rechazado'),
+	)
+	tipoEstatus = models.IntegerField(choices=TIPOESTATUS, default=1)
+	TIPORECEPCION = (
+	    (0, 'Parcial'),
+	    (1, 'Total'),
+	)
+	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class InventarioSalida(models.Model):
+	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	cantidad = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	tiempoEntrega = models.IntegerField(null=True)
+	funcion = models.ForeignKey(Funcion, null=True)
+	taller = models.ForeignKey(Taller, null=True)
+	material = models.ForeignKey(Material, null=True)
+	transporte = models.ForeignKey(Transporte, null=True)
+	apoyo = models.ForeignKey(Apoyo, null=True)
+	elemento = models.ForeignKey(Elemento, null=True)
+	cantidadReal = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	idEtapaPertenece = models.IntegerField(null=True)
+	idOrdenTrabajo = models.IntegerField(null=True)
+	remision = models.IntegerField(null=True)
+	frente = models.ForeignKey(Frente, null=True)
+	estatusEtapa = models.IntegerField(default=1)
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
+	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoSalidaInventario')
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	estatusTotalizado = models.IntegerField(default=1)
 	TIPOESTATUS = (
 	    (1, 'En proceso'),
 	    (2, 'Recepcionado'),

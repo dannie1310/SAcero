@@ -8,12 +8,14 @@ urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^home/$', views.HomeView.as_view(), name='home'),
     url(r'^principal/$', views.principalView, name='principalView'),
+    url(r'^perfil/$', views.perfilView, name='perfilView'),
     url(r'^usuario/login/$', views.loginUsuario, name='loginUsuario'),
     url(r'^usuario/logout/$', views.logout_view, name='logout'),
 
     url(r'^recepcion/material/$', views.recepcionMaterialView, name='recepcionMaterialView'),
     
     url(r'^folios/mostrar/$', views.foliosMostrar, name='foliosMostrar'),
+    url(r'^folios/salida/habilitado/$', views.foliosSalidaHabilitado, name='foliosSalidaHabilitado'),
 
     url(r'^salida/habilitado/$', views.salidaHabilitadoView, name='salidaHabilitadoView'),
     url(r'^salida/habilitado/material/$', views.salidaHabilitadoMaterial, name='salidaHabilitadoMaterial'),

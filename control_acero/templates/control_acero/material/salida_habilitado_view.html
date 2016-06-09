@@ -116,9 +116,9 @@
 	                    tabla += '<tr>'
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
-	                		tabla +='<td class="info">'+object.peso+'</td>';
+	                		tabla +='<td class="info miles">'+object.peso+'</td>';
 	                		tabla +='<td>'+parseInt(object.cantidad)+'</td>';
-	                		tabla +='<td><input type="number" step="0.01" class="form-control dataAsignacion" data-idmaterial="'+object.id+'" data-cantidadreal="'+object.peso+'" min="0" value="'+object.peso+'" /></td>';
+	                		tabla +='<td><input type="text" class="form-control dataAsignacion miles" data-idmaterial="'+object.id+'" data-cantidadreal="'+object.peso+'" value="0" /></td>';
 	                    tabla +='</tr>';
 	                	count++;
 	                	idTabla++;
@@ -155,10 +155,10 @@
 			var apoyo = $("#cmbApoyo").val();
 			var elemento = $("#cmbElemento").val();
 			var frente = $("#cmbFrente").val();
-			$("input.dataAsignacion[type=number]").each(function(index, element) {
+			$("input.dataAsignacion[type=text]").each(function(index, element) {
 				var material = $(this).data("idmaterial");
 				var cantidadReal = $(this).data("cantidadreal");
-				var cantidadAsignada = this.value;
+				var cantidadAsignada = limpiaValor(this.value);
 				array.push({"material": material, "cantidadReal": cantidadReal, "cantidadAsignada": cantidadAsignada});
 			});
 			var json = JSON.stringify(array);

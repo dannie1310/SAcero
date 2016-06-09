@@ -32,6 +32,7 @@ from django.utils.crypto import get_random_string
 from decimal import *
 from django.conf import settings
 from django.contrib.auth.models import User, Permission, Group
+from django.template import RequestContext
 
 # def loginUsuario(request):
 # 	logout(request)
@@ -69,15 +70,15 @@ def loginUsuario(request):
 				login(request, user)
 				current_user = request.user
 				user_id = current_user.id
-				#getTallerAsignado(request, user_id)
-				url = '/control_acero/principal/'
+				getTallerAsignado(request, 0)
+				url = '/control_acero/perfil/'
 				return HttpResponseRedirect(url)
 	template_name = '/control_acero'
  	messages.error(request, 'Usuario y/o Password invalidos')
  	return HttpResponseRedirect(template_name)
 
-def getTallerAsignado(request, user_id):
-	taller = Taller.objects.filter(usuario_id = user_id)
+def getTallerAsignado(request, almacen):
+	taller = Taller.objects.filter(id = almacen).order_by()
 	if taller.exists():
 		request.session['idTaller'] = taller[0].id
 		request.session['nombreTaller'] = taller[0].nombre
@@ -610,6 +611,18 @@ def recepcionMaterialSave(request):
 									folio = numFolio,
 									numFolio = numFolioInt
 									)
+		ird = InventarioRemisionDetalle.objects\
+							.create(
+									remision_id=p.pk,
+									material_id=idMaterial,
+									apoyo_id=apoyo,
+									elemento_id=elemento,
+									peso=pesoMaterial,
+									cantidad=cantidadMaterial,
+									longitud=longitud,
+									folio = numFolio,
+									numFolio = numFolioInt
+									)
 	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)
@@ -659,7 +672,7 @@ def salidaHabilitadoMaterial(request):
 	dataDetalle = []
 	idFuncion = request.POST.get('funcion', 1)
 	cantidadReal = 0
-	remisionDetalles = RemisionDetalle.objects\
+	remisionDetalles = InventarioRemisionDetalle.objects\
 						.values(
 								'material_id',
 								'material__nombre'
@@ -690,6 +703,14 @@ def salidaHabilitadoSave(request):
 	array = {}
 	mensaje = {}
 	data = []
+	totalAsignado = 0
+	totalAsignadoResta = 0
+	inventarioPeso = 0
+	cantidadRestar = 0
+	cantidadSobrante = 0
+	var = 0
+	inventarioId = 0
+	irdpeso = 0
 	folio = Salida.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
@@ -700,7 +721,48 @@ def salidaHabilitadoSave(request):
 		material = jsonData["material"]
 		cantidadReal = jsonData["cantidadReal"]
 		cantidadAsignada = jsonData["cantidadAsignada"]
+		totalAsignado = cantidadAsignada
+		remisionDetallesTotales = InventarioRemisionDetalle.objects\
+							.values(
+									'material_id',
+									'material__nombre'
+									)\
+							.annotate(pesoMaterial = Sum('peso'))\
+							.annotate(cantidadMaterial = Sum('cantidad'))\
+							.filter(material_id = material, remision__tallerAsignado_id = request.session["idTaller"])
+		for remisionDetallesTotal in remisionDetallesTotales:
+			if Decimal(remisionDetallesTotal["pesoMaterial"]) >= Decimal(totalAsignado):
+				inventarioRemisionDetalles = InventarioRemisionDetalle.objects.all()\
+												.filter(material_id = material, estatusTotalizado = 1, remision__tallerAsignado_id = request.session["idTaller"])
+				for inventarioRemisionDetalle in inventarioRemisionDetalles:
+					inventarioId = inventarioRemisionDetalle.id
+					irdpeso = inventarioRemisionDetalle.peso
+					if Decimal(irdpeso) <= Decimal(totalAsignado):
+						totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
+						InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=0, estatusTotalizado = 0)
+						continue
+
+					if Decimal(irdpeso) > Decimal(totalAsignado):
+						cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
+						InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=cantidadRestar)
+			else:
+				mensaje = {"estatus":"ok", "mensaje":"No se pudo"}
+				array = mensaje
+				return JsonResponse(array)
 		salida = Salida.objects\
+						.create(
+								apoyo_id = apoyo,
+								elemento_id = elemento,
+								material_id = material,
+								frente_id = frente,
+								cantidadReal = cantidadReal,
+								cantidadAsignada = cantidadAsignada,
+								estatusEtapa = 1,
+								folio = numFolio,
+								numFolio = numFolioInt,
+								tallerAsignado_id = request.session["idTaller"]
+								)
+		inventarioSalida = InventarioSalida.objects\
 						.create(
 								apoyo_id = apoyo,
 								elemento_id = elemento,
@@ -754,23 +816,31 @@ def entradaArmadoMaterial(request):
 	mensaje = {}
 	data = []
 	dataDetalle = []
-	idFuncion = request.POST.get('funcion', 1)
+	folio = request.POST.get('folio', 1)
 	cantidadReal = 0
 	remisionDetalles = Salida.objects \
 						.values(
 								'material_id',
 								'material__nombre',
-								'material__diametro'
+								'material__diametro',
+								'apoyo__id',
+								'apoyo__numero',
+								'elemento__id',
+								'elemento__nombre'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
-						.filter(tallerAsignado_id = request.session["idTaller"]) \
+						.filter(numFolio = folio, tallerAsignado_id = request.session["idTaller"]) \
 						.order_by('material_id')
 	for remisionDetalle in remisionDetalles:
 		resultado = {
 						"id":remisionDetalle["material_id"],
 						"materialNombre":remisionDetalle["material__nombre"],
 						"materialDiametro":remisionDetalle["material__diametro"],
-						"cantidadAsignada":remisionDetalle["cantidadAsignada"]
+						"cantidadAsignada":remisionDetalle["cantidadAsignada"],
+						"apoyoId":remisionDetalle["apoyo__id"],
+						"apoyoNumero":remisionDetalle["apoyo__numero"],
+						"elementoId":remisionDetalle["elemento__id"],
+						"elementoNombre":remisionDetalle["elemento__nombre"]
 					}
 		data.append(resultado)
 
@@ -782,6 +852,7 @@ def entradaArmadoSave(request):
 	apoyo = request.POST.get('apoyo', 0)
 	elemento = request.POST.get('elemento', 0)
 	funcion = request.POST.get('funcion', 0)
+	folioSalida = request.POST.get('folio', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
 	numFolio = 0
@@ -857,6 +928,22 @@ def foliosMostrar(request):
 	array = mensaje
 	return JsonResponse(array)
 
+def foliosSalidaHabilitado(request):
+	array = {}
+	mensaje = {}
+	data = []
+	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct()
+	for salidaFolio in salidaFolios:
+		resultado = {
+						"numFolio":salidaFolio["numFolio"],
+						"folio":salidaFolio["folio"],
+						"apoyo":salidaFolio["apoyo__numero"],
+						"elemento":salidaFolio["elemento__nombre"]
+					}
+		data.append(resultado)
+	array["data"]=data
+	return JsonResponse(array)
+
 class IndexView(generic.ListView):
 	template_name = 'control_acero/login.html'
 	context_object_name = 'ultimos_cinco_productos'
@@ -867,7 +954,21 @@ class IndexView(generic.ListView):
 	#return render(request, 'control_acero/index.html', context)
 
 @login_required(login_url='/control_acero/usuario/login/')
+def perfilView(request):
+	current_user = request.user
+	user_id = current_user.id
+	talleres = Taller.objects.all().filter(user__id = user_id).order_by("nombre")
+	return render_to_response('control_acero/perfil.html', RequestContext(request, {"talleres": talleres}))
+
+@login_required(login_url='/control_acero/usuario/login/')
 def principalView(request):
+	if request.method == "POST":
+		almacen = request.POST["almacen"]
+		if int(almacen) == 0:
+			template_name = '/control_acero/perfil'
+		 	messages.error(request, 'Debes Elegir un Perfil')
+		 	return HttpResponseRedirect(template_name)
+		getTallerAsignado(request, almacen)
 	template = 'control_acero/principal.html'
 	return render(request, template)
 

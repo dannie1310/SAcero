@@ -15,6 +15,11 @@
 			<input type="text" data-toggle="tooltip" data-placement="bottom" title="Agrega Remisión" class="form-control" name="remision" id="remision"></input>
 		</div>
 		<div class="form-group col-md-6">
+			<label  class="control-label" for="cmbFolio">Folio:</label>
+			<select name="cmbFolio" id="cmbFolio" class="select2 cmbFolio form-control">
+			</select>
+		</div>
+		<!--<div class="form-group col-md-6">
 			<label  class="control-label" for="cmbApoyo">Selecciona un Apoyo:</label>
 			<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
 			</select>
@@ -23,18 +28,36 @@
 			<label  class="control-label" for="cmbElemento">Selecciona Elemento:</label>
 			<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
 			</select>
-		</div>
-		<div class="form-group col-md-6">
+		</div>-->
+		<div class="form-group col-md-offset-3 col-md-6">
 			<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor de Armado:</label>
 			<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 			</select>
 		</div>
-		<div class="form-group col-md-6">
+		<div class="form-group col-md-12">
+			<button type="button" class="btn btn-success" name="btnAgregar" id="btnAgregar">Aceptar</button>
+		</div>
+		<!--<div class="form-group col-md-6">
 			<label  class="control-label" for="cmbFrente">Selecciona un Frente:</label>
 			<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 			</select>
-		</div>
+		</div>-->
 		<div class="clearfix"></div>
+		<div class="col-md-12 table-responsive">
+			<div class="text-center"><h3>Detalle de Salida de Habilitado</h3></div>
+			<table id="tablaHabilitado" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Remision</th>
+						<th class="text-center">Folio</th>
+						<th class="text-center">Apoyo</th>
+						<th class="text-center">Elemento</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
 		<div class="col-md-2">
 			<div class="alert-info">&nbsp;</div>
 		</div>
@@ -91,6 +114,25 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		foliosSalidaHabilitado = function(){
+			$.post( "{% url 'foliosSalidaHabilitado' %}",{
+			},
+			function(data, status) {
+		            try {
+		                $('.cmbFolio').empty();
+	                    $.each(data.data, function (count, object) {
+							$('.cmbFolio').append('<optgroup label="Apoyo asignado: ' + object.apoyo + ' Elemento asignado:' + object.elemento + '">');
+	                        	$('.cmbFolio').append('<option data-folio="'+object.folio+'" value="' + object.numFolio + '">' + object.folio + '</option>');
+	                        $('.cmbFolio').append('</optgroup>');
+	                    });
+		            } catch (e) {
+		                alert("Error al cargar Combo del Folio:" + e);
+		            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del Folio" );
+			});
+		}
 		mostrarFolio = function(){
 			var modulo = 3;
 			$.post( "{% url 'foliosMostrar' %}",{
@@ -143,11 +185,12 @@
 				mensajeWarning( "Error en la petición del Elemento" );
 			});
 		}
-		materialRecepcionado = function(){
+		materialRecepcionado = function(folio){
 			$("#tablaMaterial tbody").empty();
 			var tabla = '';
 			var idTabla = 1;
 			$.post( "{% url 'entradaArmadoMaterial' %}",{
+				folio: folio
 			},
 			function(data, status) {
 	            try {
@@ -155,8 +198,8 @@
 	                    tabla += '<tr>'
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
-	                		tabla +='<td class="info">'+object.cantidadAsignada+'</td>';
-	                		tabla +='<td><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Cantidad a Recibir" step="0.01" class="form-control dataAsignacion" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" min="0" value="'+object.cantidadAsignada+'" /></td>';
+	                		tabla +='<td class="info miles">'+object.cantidadAsignada+'</td>';
+	                		tabla +='<td><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Cantidad a Recibir" class="form-control dataAsignacion miles" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" value="0" /></td>';
 	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Digita la Nomenclatura" title="Nomenclatura" class="form-control" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
 	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Longitud" title="Longitud" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
 	                		tabla +='<td style="display:none;" id="piezas_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Piezas" title="Piezas" step="0.01" class="form-control" min="0" name="txtPiezas_'+count+'" id="txtPiezas_'+count+'" placeholder="Piezas" /></td>';
@@ -166,6 +209,8 @@
 	                		tabla += '<td id="btnCancelarDif_'+count+'" style="display:none;"><button type="button" class="btn btn-warning" name="removeDiferencia_'+count+'" id="removeDiferencia_'+count+'" onClick="cancelarDiferencia('+count+');">Cancelar</td>';
 	                    tabla +='</tr>';
 	                	idTabla++;
+	                	$("#divApoyo").html(object.apoyoNumero);
+	                	$("#divElemento").html(object.elementoNombre);
 	                });
 	            } catch (e) {
 	                alert("Error al cargar el Material Recepcionado:" + e);
@@ -257,12 +302,26 @@
 			$("#txtPiezas_"+posicion).val('');
 			$("#txtBandera_"+posicion).val(0);
 		}
+		$( "#btnAgregar" ).click(function() {
+			$("#tablaHabilitado tbody").empty();
+			var remision = $("#remision").val();
+			var folio = $("#cmbFolio").val();
+			var folioText = $("#cmbFolio").find(':selected').data('folio')
+			var tabla = '';
+				tabla +='<tr>';
+					tabla +='<td>'+remision+'</td>';
+					tabla +='<td>'+folioText+'</td>';
+					tabla +='<td><div id="divApoyo"></div></td>';
+					tabla +='<td><div id="divElemento"></div></td>';
+				tabla +='</tr>';
+			$("#tablaHabilitado tbody").append(tabla);
+			materialRecepcionado(folio);
+		});
 		$( "#btnGuardar" ).click(function() {
 			var array = [];
 			var remision = $("#remision").val();
-			var apoyo = $("#cmbApoyo").val();
-			var elemento = $("#cmbElemento").val();
 			var funcion = $("#cmbFuncion").val();
+			var folio = $("#cmbFolio").val();
 			$("input.datos[type=hidden]").each(function(index, element) {
 				var material = $(this).data("datosidmaterial");
 				var cantidadReal = $(this).data("datoscantidadreal");
@@ -283,9 +342,8 @@
 			var json = JSON.stringify(array);
 			$.post( "{% url 'entradaArmadoSave' %}",{
 				remision: remision,
-				apoyo: apoyo,
-				elemento: elemento,
 				funcion: funcion,
+				folio: folio,
 				json: json
 			},
 			function(data, status) {
@@ -301,12 +359,16 @@
 			});
 		});
 	    $(function () {
+	    	foliosSalidaHabilitado();
 	    	mostrarFolio();
 	    	comboApoyo();
 	    	comboElemento();
 	    	comboFrente();
-	    	materialRecepcionado();
 	    	comboFuncion();
+	    	$(".select2").select2({
+				placeholder: "Selecciona un Folio",
+				allowClear: true
+			});
 	    });
 	</script>
 {% endblock %}

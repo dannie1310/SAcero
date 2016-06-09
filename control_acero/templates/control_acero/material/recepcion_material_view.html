@@ -189,7 +189,7 @@
 	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 									+ '<div class="input-group">'
-										+ '<input class="form-control currency" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="number" min="1" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
+										+ '<input class="form-control miles" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
 										+ '<div class="input-group-addon">Kg</div>'
 									+ '</div>'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
@@ -237,6 +237,7 @@
 			var pesoMaterial = 0;
 			var material = '';
 			var cantidadMaterial = 0;
+			var cantidadMaterialReal = 0;
 			var colors = ["info"];
 			var randomColor = Math.floor(Math.random()*colors.length);
 			var color = colors[randomColor];
@@ -251,6 +252,8 @@
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
+				cantidadMaterialReal = $("#count"+idMaterial).val();
+				cantidadMaterial = limpiaValor(cantidadMaterial);
 				longitud = $("#txt"+idMaterial+"Longitud").val();
 				pesoMaterial = this.value;
 				pesoTotal += parseFloat(cantidadMaterial);
@@ -260,9 +263,10 @@
 					tabla += '<tr class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
 								+'<td class="text-center">'+parseInt(pesoMaterial)+'</td>'
-								+'<td class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
+								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
+								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
-								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove eliminar" onClick="eliminar();" data-eliminar="0"></span</td>'
+								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove eliminar" onClick="eliminar(this);" data-eliminar="0"></span</td>'
 								+'<td style="display:none" class="text-center">'
 									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
 								+'</td>'
@@ -284,7 +288,6 @@
 			$("#divPesoTotal").append(pesoTd.toFixed(2)+" Kg");
 			$("#divPesoTonelada").append(tonHtml+" Ton");
 			$("#txtPesoTotal").val(pesoTotal.toFixed(4));
-			asignaEliminar();
 		});
 		$( "#btnSolicitar" ).click(function() {
 			var orden = $("#cmbOrden").val();
@@ -343,7 +346,8 @@
 		    $("#tablaApoyoElemento tbody").empty();
 		});
 		function cantidadMaterial (id){
-			var value = parseFloat($("#count"+id).val());
+			var value = $("#count"+id).val();
+			value = parseFloat(limpiaValor(value));
 			var original = parseFloat($("#txt"+id+"Original").val());
 			var conversion = parseFloat($("#txt"+id+"Conversion").val());
 			var longitud = parseFloat($("#txt"+id+"Longitud").val());
@@ -369,19 +373,8 @@
 				$("#divVarilla_"+valor).hide("slide");
 			}
 		}
-		function asignaEliminar (){
-			var count = 0;
-			$(".eliminar").each(function() {
-				$(this).attr('data-eliminar', count);
-				$(this).attr('onClick', 'eliminar('+count+');');
-			    count ++;
-			});
-		}
-		function eliminar (valor){
-			var length = $("#tablaApoyoElemento > tbody").length;
-			asignaEliminar();
-			$("#tablaApoyoElemento > tbody > tr:eq("+valor+")").remove();
-			asignaEliminar();
+		function eliminar (a){
+			$(a).closest("tr").remove();
 		}
 	    $(function () {
 	    	mostrarFolio();
