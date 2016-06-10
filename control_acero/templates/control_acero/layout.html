@@ -66,6 +66,11 @@
         <!-- PLUGIN MASK POPUP -->
         <script src="{% static 'maskPlugin/jquery.mask.min.js' %}"></script>
 
+        <!-- PLUGIN BOOTBOX -->
+        <script src="{% static 'bootbox/bootbox.js' %}"></script>
+
+
+
         <script type="text/javascript">
             function getCookie(name) {
                 var cookieValue = null;
@@ -126,7 +131,7 @@
                 $('.popup-image').magnificPopup({
                     type:'image'
                 });
-                $('[data-toggle="tooltip"]').tooltip(); 
+                $('[data-toggle="tooltip"]').tooltip();
             });
             $('.miles').mask("#,##0.00", {reverse: true});
             function limpiaValor(valor){

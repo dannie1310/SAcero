@@ -285,6 +285,7 @@ class EntradaDetalle(models.Model):
 	longitud = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	piezas = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	entrada = models.ForeignKey(Entrada, null=True)
+	calculado = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

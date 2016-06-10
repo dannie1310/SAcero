@@ -635,8 +635,21 @@ def elementoMaterial(request):
 	array = {}
 	mensaje = {}
 	data = []
-	idElemento = request.POST.get('idElemento', 0)
-	elemento = Material.objects.values(
+	material = request.POST.get('material', 0)
+	if material > 0:
+		elemento = Material.objects.values(
+											'id',
+											'nombre',
+											'numero',
+											'peso',
+											'diametro',
+											'proveedor',
+											'longitud',
+											'factor__pva',
+											'factor__factorPulgada',
+											'factor__pi').filter(id=material)
+	else:
+		elemento = Material.objects.values(
 										'id',
 										'nombre',
 										'numero',
@@ -859,6 +872,8 @@ def entradaArmadoSave(request):
 	folioSalida = request.POST.get('folio', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
+	respuestaFaltante = request.POST.get('jsonFaltante')
+	jsonDataInfoFaltante = json.loads(respuestaFaltante)
 	numFolio = 0
 	array = {}
 	mensaje = {}
@@ -869,22 +884,43 @@ def entradaArmadoSave(request):
 	numFolioInt = int(numFolio)+1
 	numFolio = "%04d" % (numFolioInt,)
 	numFolio = "EMA-"+numFolio
+	print jsonDataInfoFaltante
 	for jsonData in jsonDataInfo:
 		material = jsonData["material"]
 		cantidadReal = jsonData["cantidadReal"]
 		cantidadAsignada = jsonData["cantidadAsignada"]
 		bandera = jsonData["bandera"]
-		nomenclatura = jsonData["nomenclatura"]
-		longitud = jsonData["longitud"]
-		piezas = jsonData["piezas"]
 		entrada = Entrada.objects\
 						.create(
 								remision = remision,
 								elemento_id = elemento,
+								apoyo_id = apoyo,
 								material_id = material,
 								funcion_id = funcion,
 								cantidadReal = cantidadReal,
 								cantidadAsignada = cantidadAsignada,
+								folio = numFolio,
+								numFolio = numFolioInt,
+								tallerAsignado_id = request.session["idTaller"]
+								)
+	for jsonDataFaltante in jsonDataInfoFaltante:
+		materialF = jsonDataFaltante["material"]
+		cantidadRealF = jsonDataFaltante["cantidadReal"]
+		cantidadAsignadaF = jsonDataFaltante["cantidadAsignada"]
+		nomenclatura = jsonDataFaltante["nomenclatura"]
+		longitud = jsonDataFaltante["longitud"]
+		piezas = jsonDataFaltante["piezas"]
+		calculado = jsonDataFaltante["calculadoReal"]
+		bandera = jsonDataFaltante["bandera"]
+		entradaFaltante = Entrada.objects\
+						.create(
+								remision = remision,
+								elemento_id = elemento,
+								apoyo_id = apoyo,
+								material_id = materialF,
+								funcion_id = funcion,
+								cantidadReal = cantidadRealF,
+								cantidadAsignada = cantidadAsignadaF,
 								folio = numFolio,
 								numFolio = numFolioInt,
 								tallerAsignado_id = request.session["idTaller"]
@@ -895,7 +931,8 @@ def entradaArmadoSave(request):
 									nomenclatura = nomenclatura,
 									longitud = longitud,
 									piezas = piezas,
-									entrada_id = entrada.id
+									calculado = calculado,
+									entrada_id = entradaFaltante.id
 									)
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
