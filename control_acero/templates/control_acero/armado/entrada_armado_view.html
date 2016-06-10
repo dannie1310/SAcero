@@ -45,8 +45,8 @@
 			</select>
 		</div>-->
 		<div class="clearfix"></div>
-		<div class="col-md-12 table-responsive">
-			<div class="text-center"><h3>Detalle de Salida de Habilitado</h3></div>
+		<div style="display: none" id="detalleHabilitado" class="col-md-12 table-responsive">
+			<div class="text-center"><h3>Detalle del Envio desde el Habilitado</h3></div>
 			<table id="tablaHabilitado" class="table table-hover">
 				<thead>
 					<tr>
@@ -60,35 +60,37 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-2">
-			<div class="alert-info">&nbsp;</div>
+		<div  style="display: none" id="indicadorColor" class="col-md-12">
+			<div class="col-md-2">
+				<div class="alert-info">&nbsp;</div>
+			</div>
+			<div class="col-md-4 text-left">
+				<div class="alert-default"><b>Peso Original de Recepción</b></div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="col-md-2">
+				<div class="alert-success">&nbsp;</div>
+			</div>
+			<div class="col-md-4 text-left">
+				<div class="alert-default"><b>Cantidad Asignada en la Partida</b></div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="col-md-2">
+				<div class="alert-warning">&nbsp;</div>
+			</div>
+			<div class="clear-fix"></div>
+			<div class="col-md-4 text-left">
+				<div class="alert-default"><b>Detalle de la Diferencia de la Partida</b></div>
+			</div>
 		</div>
-		<div class="col-md-4 text-left">
-			<div class="alert-default"><b>Peso Original de Recepción</b></div>
-		</div>
-		<div class="clearfix"></div>
-		<div class="col-md-2">
-			<div class="alert-success">&nbsp;</div>
-		</div>
-		<div class="col-md-4 text-left">
-			<div class="alert-default"><b>Cantidad Asignada en la Partida</b></div>
-		</div>
-		<div class="clearfix"></div>
-		<div class="col-md-2">
-			<div class="alert-warning">&nbsp;</div>
-		</div>
-		<div class="clear-fix"></div>
-		<div class="col-md-4 text-left">
-			<div class="alert-default"><b>Detalle de la Diferencia de la Partida</b></div>
-		</div>
-		<div class="col-md-12 table-responsive">
-			<div class="text-center"><h3>Recepción del Material</h3></div>
+		<div style="display: none" id="detalleMaterial" class="col-md-12 table-responsive">
+			<div class="text-center"><h3>Detalle del Material Habilitado</h3></div>
 			<table id="tablaMaterial" class="table table-hover">
 				<thead>
 					<tr>
 						<th class="text-center">No</th>
-						<th class="text-center">Nombre Material</th>
-						<th class="text-center">Peso Kg</th>
+						<th class="text-center">Nombre del Material</th>
+						<th class="text-center">Peso Enviado en Kg</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -96,45 +98,50 @@
 			</table>
 		</div>
 		<hr>
-		<div class="col-md-12 table-responsive">
-			<div class="text-center"><h3>Detalle Asignación</h3></div>
+		<div style="display: none" id="detalleRecepcion" class="col-md-12 table-responsive">
+			<div class="text-center"><h3>Detalle de la Recepción Completa</h3></div>
 			<table id="tablaMaterialDetalle" class="table table-hover">
 				<thead>
 					<tr>
 						<th class="text-center">Nombre Material</th>
-						<th class="text-center">Cantidad Asignada</th>
-						<th class="text-center">Peso Kg</th>
+						<th class="text-center">Peso Completo en Kg</th>
+						<th class="text-center">Peso Enviado por el Habilitado en Kg</th>
 					</tr>
 				</thead>
 				<tbody>
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-12 table-responsive">
+		<div style="display: none" id="detalleFaltante" class="col-md-12 table-responsive">
 			<div class="text-center"><h3>Material Faltante</h3></div>
 			<table id="tablaMaterialFaltante" class="table table-hover">
 				<thead>
 					<tr>
 						<th class="text-center">Nombre Material</th>
-						<th class="text-center">Peso de la Salida</th>
-						<th class="text-center">Peso Calculado Faltante</th>
-						<th class="text-center">Peso Real Calculado</th>
 						<th class="text-center">Nomenclatura</th>
 						<th class="text-center">Longitud</th>
 						<th class="text-center">Piezas</th>
+						<th class="text-center">Peso Enviado de Habilitado en Kg</th>
+						<th class="text-center">Peso Faltante en Kg</th>
+						<th class="text-center">Peso Real Recibido en Kg</th>
 					</tr>
 				</thead>
 				<tbody>
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-12">
-			<button class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
+		
+		<div style="display: none" id="botones"class="col-md-12">
+			<div  class="col-md-6">
+				<button class="btn btn-success" name="btnGuardar" id="btnGuardar">Recibir Material</button>
+			</div>
+			<div class="col-md-6">
+				<button class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
+			</div>
 		</div>
 		<div class="clearfix"></div>
-		<div class="col-md-12">
-			<button class="btn btn-success" name="btnGuardar" id="btnGuardar">Generar Salida</button>
-		</div>
+		
+		
 	</div>
 	<script type="text/javascript">
 		foliosSalidaHabilitado = function(){
@@ -229,7 +236,7 @@
 	                		tabla +='<td style="display:none;"><input type="text" class="form-control" name="txtBandera_'+count+'" id="txtBandera_'+count+'" value="0"/></td>';
 	                		tabla += '<td><button type="button" class="btn btn-info" name="add_'+count+'" id="add_'+count+'" onClick="agregarAsignacion('+count+');">Completo</td>';
 	                		tabla += '<td id="btnDiferencia_'+count+'"><button type="button" class="btn btn-danger" name="addDiferencia_'+count+'" id="addDiferencia_'+count+'" onClick="agregarDiferencia('+count+');">Material Faltante</td>';
-	                		tabla += '<td id="btnCancelarDif_'+count+'" style="display:none;"><button type="button" class="btn btn-warning" name="removeDiferencia_'+count+'" id="removeDiferencia_'+count+'" onClick="cancelarDiferencia('+count+');">Cancelar</td>';
+	                		//tabla += '<td id="btnCancelarDif_'+count+'" style="display:none;"><button type="button" class="btn btn-warning" name="removeDiferencia_'+count+'" id="removeDiferencia_'+count+'" onClick="cancelarDiferencia('+count+');">Cancelar</td>';
 	                    tabla +='</tr>';
 	                	idTabla++;
 	                	$("#divApoyo").html(object.apoyoNumero);
@@ -287,6 +294,7 @@
 		}
 		agregarAsignacion = function(posicion){
 			bootbox.confirm("Estas seguro?", function(result) {
+
 				if(result){
 					$( "#add_"+posicion ).prop( "disabled", true );
 					$( "#addDiferencia_"+posicion ).prop( "disabled", true );
@@ -309,6 +317,8 @@
 								tabla += '<td><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
 							tabla += '</tr>';
 							$("#tablaMaterialDetalle").append(tabla);
+							$("#detalleRecepcion").show("slide");
+							$("#botones").show("slide");
 						}else{
 							$( "#add_"+posicion ).prop( "disabled", false );
 							$( "#addDiferencia_"+posicion ).prop( "disabled", false );
@@ -322,30 +332,37 @@
 							}
 							tabla += '<tr class="danger">';
 								tabla += '<td>'+materialNombre+'</td>';
+								tabla += '<td>'+nomenclatura+'</td>';
+								tabla += '<td>'+longitud+'</td>';
+								tabla += '<td>'+piezas+'</td>';
 								tabla += '<td class="miles">'+cantidadReal+'</td>';
 								tabla += '<td class="miles">' +cantidadAsignada+ '</td>';
 								tabla += '<td style="display:none;"><input type="hidden" class="datosFaltante" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" data-pesoreal="'+pesoRealCalculado.toFixed(2)+'" /></td>';
 								tabla += '<td class="miles">'+pesoRealCalculado.toFixed(2)+'</td>';
 								tabla += '<td style="display:none;"><input type="text" class="real_'+idMaterial+'" value="'+cantidadAsignada+'" /></td>';
-								tabla += '<td>'+nomenclatura+'</td>';
-								tabla += '<td>'+longitud+'</td>';
-								tabla += '<td>'+piezas+'</td>';
+								
 							tabla += '</tr>';
 							$("#tablaMaterialFaltante").append(tabla);
+							$("#detalleFaltante").show("slide");
+							$("#botones").show("slide");
 						}
 
 				}
 			});
 		}
 		agregarDiferencia = function(posicion){
-			$("#asignado_"+posicion).show('slide');
-			$("#longitud_"+posicion).show('slide');
-			$("#piezas_"+posicion).show('slide');
-			$("#nomenclatura_"+posicion).show('slide');
-			$("#btnDiferencia_"+posicion).hide('slide');
-			$("#btnCancelarDif_"+posicion).show('slide');
-			$("#txtBandera_"+posicion).val(1);
-			$("#add_"+posicion).text("Agregar Material Faltante");
+			bootbox.confirm("Estas seguro que deseas agregar Material Faltante?", function(result) {
+				if(result){
+					$("#asignado_"+posicion).show('slide');
+					$("#longitud_"+posicion).show('slide');
+					$("#piezas_"+posicion).show('slide');
+					$("#nomenclatura_"+posicion).show('slide');
+					$("#btnDiferencia_"+posicion).hide('slide');
+					$("#btnCancelarDif_"+posicion).show('slide');
+					$("#txtBandera_"+posicion).val(1);
+					$("#add_"+posicion).text("Agregar Material Faltante");
+				}
+			});
 		}
 		cancelarDiferencia = function(posicion){
 			$("#asignado_"+posicion).hide('slide');
@@ -386,6 +403,20 @@
 			var remision = $("#remision").val();
 			var folio = $("#cmbFolio").val();
 			var folioText = $("#cmbFolio").find(':selected').data('folio')
+			var proveedor = $("#cmbFuncion").val();
+
+			if(remision==0){
+				mensajeWarning("<strong>Debes elegir una Remisión.</strong>");
+				return false;
+			}
+			if(proveedor==0){
+				mensajeWarning("<strong>Debes elegir un Proveedor de Armado.</strong>");
+				return false;
+			}
+			if(folio==0){
+				mensajeWarning("<strong>Debes elegir un Folio.</strong>");
+				return false;
+			}
 			var tabla = '';
 				tabla +='<tr>';
 					tabla +='<td>'+remision+'</td>';
@@ -395,13 +426,23 @@
 				tabla +='</tr>';
 			$("#tablaHabilitado tbody").append(tabla);
 			materialRecepcionado(folio);
+			$("#detalleHabilitado").show("slide");
+			$("#indicadorColor").show("slide");
+			$("#detalleMaterial").show("slide");
 		});
 		$( "#btnCancelar" ).click(function() {
 			bootbox.confirm("Estas seguro de Cancelar. Se eliminaran todos los datos ingresados", function(result) {
-				$("#tablaMaterial tbody").empty();
-				$("#tablaMaterialDetalle tbody").empty();
-				$("#tablaMaterialFaltante tbody").empty();
-				$("#btnAgregar").trigger("click");
+				if(result){
+					$("#tablaMaterial tbody").empty();
+					$("#tablaMaterialDetalle tbody").empty();
+					$("#tablaMaterialFaltante tbody").empty();
+					$("#btnAgregar").trigger("click");
+					$("#detalleRecepcion").hide("slide");
+					$("#detalleMaterial").hide("slide");
+					$("#detalleFaltante").hide("slide");
+					$("#detalleHabilitado").hide("slide");
+					$("#botones").hide("slide");
+				}
 			});
 		});
 		$( "#btnGuardar" ).click(function() {
@@ -466,6 +507,7 @@
 					.fail(function() {
 						mensajeWarning( "Error en la petición Guardar la información" );
 					});
+					$("#botones").hide("slide");
 				}
 			});
 		});

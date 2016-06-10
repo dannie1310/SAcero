@@ -45,6 +45,9 @@
         <link href="{% static 'magnific-popup/magnific-popup.css' %}" rel="stylesheet" />
 
 
+        <link href="{% static 'bootstrap-duallistbox-master/bootstrap-duallistbox.css' %}" rel="stylesheet" />
+        
+
         <script src="{% static 'js/respond.min.js' %}"></script>
 
         <!-- PLUGIN JQUERY-->
@@ -62,6 +65,10 @@
 
         <!-- PLUGIN MAGNIFIC POPUP -->
         <script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+		<!-- PLUGIN DualListBox -->
+        <script src="{% static 'bootstrap-duallistbox-master/jquery.bootstrap-duallistbox.js' %}"></script>
+
 
         <!-- PLUGIN MASK POPUP -->
         <script src="{% static 'maskPlugin/jquery.mask.min.js' %}"></script>
@@ -279,7 +286,7 @@
                                             <div class="col-sm-3">
                                                 <h5>USUARIOS</h5>
                                                 <ul>
-                                                    <li><a href="{% url 'usuariosNewView' %}">Editar Usuario</a>
+                                                    <li><a href="{% url 'usuariosView' %}">Editar Usuario</a>
                                                     </li>
                                                 </ul>
                                                 <h5>GRUPOS</h5>

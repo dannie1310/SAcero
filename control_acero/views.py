@@ -166,8 +166,40 @@ def usuariosEditView(request, pk):
 			user.save()
 			#user.groups.add(Group.objects.get(name=user))
 	else:
-		form = UserForm(instance=usuario)
-	return render(request, 'control_acero/catalogos/usuarios/usuario_edit.html', {'form': form})
+		print usuario
+		user_grupos = usuario.groups.all()
+		grupos = Group.objects.exclude(user__id = usuario.id)
+
+		user_permisos = usuario.user_permissions.all()
+		permisos = Permission.objects.exclude(user__id = usuario.id)
+
+	return render(request, 'control_acero/catalogos/usuarios/usuario_edit.html', {'user': usuario,'grupos': grupos,'user_grupos': user_grupos,'permisos': permisos,'user_permisos': user_permisos})
+
+def usuariosUpdateView(request, pk):
+	usuario = get_object_or_404(User, pk=pk)
+	permisos = request.POST.getlist('permisos[]')
+	grupos = request.POST.getlist('grupos[]')
+	first_name = request.POST['first_name']
+	last_name = request.POST['last_name']
+	email = request.POST['email']
+	is_superuser = request.POST['is_superuser']
+	superuser = 0 if is_superuser == "false" else 1
+	is_active = request.POST['is_active']
+	activo = 0 if is_active == "false" else 1
+	usuario.first_name = first_name
+	usuario.last_name = last_name
+	usuario.email = email
+	usuario.is_superuser = superuser
+	usuario.is_active = activo
+	usuario.save()
+	usuario.user_permissions.clear()
+	usuario.groups.clear()
+	for grupo in grupos:
+		usuario.groups.add(grupo)
+	for permiso in permisos:
+		usuario.user_permissions.add(permiso)
+
+	return JsonResponse({'msj': 'Se modifico Correctamente el Usuario'})
 
 def gruposNewView(request):
 	if request.method == "POST":
@@ -191,6 +223,18 @@ def apoyosView(request):
 	except EmptyPage:
 		apoyos = paginator.page(paginator.num_pages)
 	return render_to_response('control_acero/catalogos/apoyos/apoyo.html', {"apoyos": apoyos})
+
+def usuariosView(request):
+	usuario_list = User.objects.all()
+	paginator = Paginator(usuario_list, 10)
+	page = request.GET.get('page')
+	try:
+		usuarios = paginator.page(page)
+	except PageNotAnInteger:
+		usuarios = paginator.page(1)
+	except EmptyPage:
+		usuarios = paginator.page(paginator.num_pages)
+	return render_to_response('control_acero/catalogos/usuarios/usuario.html', {"usuarios": usuarios})
 
 def apoyosNewView(request):
 	if request.method == "POST":

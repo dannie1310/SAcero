@@ -1,0 +1,50 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE USUARIOS
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Nombre de Usuario</th>
+					<th class="text-center">Nombre(s)</th>
+					<th class="text-center">Apellidos(s)</th>
+					<th class="text-center">Activo</th>
+					<th class="text-center">Editar</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for usuario in usuarios %}
+				<tr>
+			    	<td>{{ usuario.username}}</td>
+			    	<td>{{ usuario.first_name }}</td>
+			    	<td>{{ usuario.last_name }}</td>
+			    	{% if usuario.is_active %}
+					<td class="success"> SI </td>
+					{% else %}
+					<td class="danger"> NO </td>
+			    	{% endif %}
+			    	<td><a href="/control_acero/catalogos/usuarios/{{usuario.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a></td>
+			   	</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+		    <span class="step-links">
+		        {% if usuarios.has_previous %}
+		            <a href="?page={{ usuarios.previous_page_number }}">previous</a>
+		        {% endif %}
+
+		        <span class="current">
+		            Page {{ usuarios.number }} of {{ usuarios.paginator.num_pages }}.
+		        </span>
+
+		        {% if apoyos.has_next %}
+		            <a href="?page={{ usuarios.next_page_number }}">next</a>
+		        {% endif %}
+		    </span>
+		</div>
+	</div>
+{% endblock %}

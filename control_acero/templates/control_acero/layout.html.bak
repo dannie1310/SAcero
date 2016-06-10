@@ -60,8 +60,16 @@
         <!-- PLUGIN UPLOAD FILE-->
         <script src="{% static 'uploadFile4.0.10/js/jquery.uploadfile.min.js' %}"></script>
 
-        <!-- ESTILOS MAGNIFIC POPUP -->
+        <!-- PLUGIN MAGNIFIC POPUP -->
         <script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+        <!-- PLUGIN MASK POPUP -->
+        <script src="{% static 'maskPlugin/jquery.mask.min.js' %}"></script>
+
+        <!-- PLUGIN BOOTBOX -->
+        <script src="{% static 'bootbox/bootbox.js' %}"></script>
+
+
 
         <script type="text/javascript">
             function getCookie(name) {
@@ -85,6 +93,7 @@
                 return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
             }
             $.ajaxSetup({
+                async:false,
                 beforeSend: function(xhr, settings) {
                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -122,7 +131,13 @@
                 $('.popup-image').magnificPopup({
                     type:'image'
                 });
+                $('[data-toggle="tooltip"]').tooltip();
             });
+            $('.miles').mask("#,##0.00", {reverse: true});
+            function limpiaValor(valor){
+                var limpio = valor.replace(/,/g, '');
+                return limpio;
+            }
         </script>
         <style>
             .notificacion {
@@ -144,7 +159,7 @@
             <div class="container">
                 <div class="col-md-6" data-animate="fadeInDown">
                     <ul class="menu">
-                        <li><a href="#">Bienvenido</a>
+                        <li><a href="#">Bienvenido {{ user.get_username }}</a>
                         </li>
                         <li><a href="{% url 'logout' %}">Salir</a>
                         </li>
@@ -174,7 +189,6 @@
                     </div>
                 </div>
                 <!--/.navbar-header -->
-
                 <div class="navbar-collapse collapse" id="navigation">
 
                     <ul class="nav navbar-nav navbar-left">
@@ -218,60 +232,59 @@
                                     <div class="yamm-content">
                                         <div class="row">
                                             <div class="col-sm-3">
-                                                <h5>SUMINISTRO</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'frenteTrabajoNuevoView' %}">Recepción del Material del Fabricante</a>
-                                                    </li>
-                                                </ul>
-                                                <ul>
-                                                    <li><a href="{% url 'suministroAsignacionView' %}">Asignación de Material para Habilitar</a>
-                                                    </li>
-                                                </ul>
-                                                <h5>ORDEN DE TRABAJO</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'ordenTrabajoNuevoView' %}">Crear Orden de Trabajo para Habilitar</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div class="col-sm-3">
                                                 <h5>HABILITADO</h5>
                                                 <ul>
-                                                    <li><a href="{% url 'habilitadoRecepcionView' %}">Recepción de Material y Orden de Trabajo</a>
+                                                    <li><a href="{% url 'recepcionMaterialView' %}">Recepción del Material del Fabricante</a>
                                                     </li>
                                                 </ul>
                                                 <ul>
-                                                    <li><a href="{% url 'habilitadoAsignacionView' %}">Asignación de Despiece a Armado</a>
+                                                    <li><a href="{% url 'salidaHabilitadoView' %}">Salida Habilitado</a>
                                                     </li>
                                                 </ul>
+                                                
+                                            </div>
+                                            <div class="col-sm-3">
                                                 <h5>ARMADO</h5>
                                                 <ul>
-                                                    <li><a href="{% url 'armadoRecepcionView' %}">Recepción de Despiece para Armar</a>
-                                                    </li>
-                                                </ul>
-                                                <ul>
-                                                    <li><a href="{% url 'armadoAsignacionView' %}">Asignación de Armado</a>
+                                                    <li><a href="{% url 'entradaArmadoView' %}">Armado Recepción</a>
                                                     </li>
                                                 </ul>
                                             </div>
-                                            <div class="col-sm-3">
-                                                <h5>COLOCADO</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'colocadoRecepcionView' %}">Colocado del Armado</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                            
                                             <div class="col-sm-3">
                                                 <h5>INVENTARIO</h5>
+                                                   <ul> <li><a href="{% url 'inventarioFisicoView' %}">Inventario Fisico</a>
+                                                    </li>
+                                                    </ul>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h5>REPORTES</h5>
                                                 <ul>
-                                                    <li><a href="{% url 'inventarioFisicoView' %}">Inventario Físico</a>
+                                                    <li><a href="{% url 'reporteView' %}">Reporte</a>
                                                     </li>
                                                 </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.yamm-content -->
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown yamm-fw">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">ADMINISTRACIÓN <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <div class="yamm-content">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <h5>USUARIOS</h5>
                                                 <ul>
-                                                    <li><a href="#">Cierres de Inventario</a>
+                                                    <li><a href="{% url 'usuariosNewView' %}">Editar Usuario</a>
                                                     </li>
                                                 </ul>
+                                                <h5>GRUPOS</h5>
                                                 <ul>
-                                                    <li><a href="#">Control Incidencias</a>
+                                                    <li><a href="{% url 'gruposNewView' %}">Nuevo Grupo</a>
                                                     </li>
                                                 </ul>
                                             </div>
