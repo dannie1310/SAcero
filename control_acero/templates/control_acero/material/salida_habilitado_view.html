@@ -37,9 +37,9 @@
 					<tr>
 						<th class="text-center">No</th>
 						<th class="text-center">Nombre Material</th>
-						<th class="text-center">Peso Kg</th>
-						<th class="text-center">Cantidad en Piezas</th>
-						<th class="text-center">Asignar Cantidad</th>
+						<th class="text-center">Peso en Almacen en Kg</th>
+						<th class="text-center">Peso de Salida en Kg</th>
+
 					</tr>
 				</thead>
 				<tbody>
@@ -117,7 +117,6 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info miles">'+object.peso+'</td>';
-	                		tabla +='<td>'+parseInt(object.cantidad)+'</td>';
 	                		tabla +='<td><input type="text" class="form-control dataAsignacion miles" data-idmaterial="'+object.id+'" data-cantidadreal="'+object.peso+'" value="0" /></td>';
 	                    tabla +='</tr>';
 	                	count++;
@@ -155,30 +154,62 @@
 			var apoyo = $("#cmbApoyo").val();
 			var elemento = $("#cmbElemento").val();
 			var frente = $("#cmbFrente").val();
+
+			if(frente == 0){
+				mensajeWarning("<strong>Debes elegir una Frente.</strong>");
+				return false;
+			}
+			if(apoyo == 0){
+				mensajeWarning("<strong>Debes elegir un Apoyo.</strong>");
+				return false;
+			}
+			if(elemento == 0){
+				mensajeWarning("<strong>Debes elegir un Elemento.</strong>");
+				return false;
+			}
 			$("input.dataAsignacion[type=text]").each(function(index, element) {
 				var material = $(this).data("idmaterial");
 				var cantidadReal = $(this).data("cantidadreal");
 				var cantidadAsignada = limpiaValor(this.value);
-				array.push({"material": material, "cantidadReal": cantidadReal, "cantidadAsignada": cantidadAsignada});
+				if (cantidadAsignada != 0){
+					array.push({"material": material, "cantidadReal": cantidadReal, "cantidadAsignada": cantidadAsignada});	
+				}
+				
 			});
-			var json = JSON.stringify(array);
-			$.post( "{% url 'salidaHabilitadoSave' %}",{
-				apoyo: apoyo,
-				elemento: elemento,
-				frente: frente,
-				json: json
-			},
-			function(data, status) {
-		            try {
-		            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-		            	$("#folio").html(data.folio);
-		            } catch (e) {
-		                alert("Error al cargar Guardar la información:" + e);
-		            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la petición Guardar la información" );
-			});
+			if(array.length != 0){
+				var json = JSON.stringify(array);
+			}
+			else{
+				mensajeWarning("Debes asignar peso");
+				return false;
+			}
+				$.post( "{% url 'salidaHabilitadoSave' %}",{
+					apoyo: apoyo,
+					elemento: elemento,
+					frente: frente,
+					json: json
+				},
+				function(data, status) {
+			            try {
+			            	
+			            	if(data.mensaje =='No puede exceder el peso existente'){
+			            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+			            	
+			            	}
+			            	else{
+			            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+			            	$("#folio").html(data.folio);
+			            	$("#btnGuardar").hide();
+			            	}
+			            } catch (e) {
+			                alert("Error al cargar Guardar la información:" + e);
+			            }
+				})
+				.fail(function() {
+					mensajeWarning( "Error en la petición Guardar la información" );
+				});
+
+			
 		});
 	    $(function () {
 	    	mostrarFolio();

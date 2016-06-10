@@ -38,7 +38,7 @@
 			
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
-				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision"></input>
+				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision" value="  "></input>
 			</div>
 		</div>
 		<div class="col-md-12">
@@ -46,7 +46,7 @@
 		</div>
 		
 		<div style="display:none;" id="divTituloVarillas" class="col-md-12">
-				<h4>Cantidades de Varilla</h4>
+				<h4>Tipos de Varillas</h4>
 		</div>
 		<div style="display:none;" id="divVarillasCheck" class="col-md-12">
 			
@@ -97,7 +97,7 @@
 			function(data, status) {
 		            try {
 						$("#folio").html(data.folio);
-						
+						//$("#fechaRemision").html(data.date);
 						
 		            } catch (e) {
 		                alert("Error al cargar el Folio:" + e);
@@ -227,16 +227,15 @@
 			.fail(function() {
 				mensajeWarning( "Error en la petición carga Varillas" );
 			});
-			$("#divTituloVarillas").show();
-			$("#divVarillasCheck").show();
-		    $("#tablaInformacionVarillas tbody").append(tabla);
+			$("#divTituloVarillas").show("slide");
+			$("#divVarillasCheck").show("slide");
 		    $("#divCantidades").append(html);
 		    $("#divVarillasCheck").append(checks);
-		    $("#divCantidades").show();
-		    $("#divCantidadesBotones").show('slide');
-		    $("#divDetalle").show('slide');
-		    $("#divDetalleSolicita").show('slide');
-		    $("#divDetalleCancelar").show('slide');
+		    $("#divCantidades").show("slide");
+		    //$("#divCantidadesBotones").show('slide');
+		   // $("#divDetalle").show('slide');
+		    //$("#divDetalleSolicita").show('slide');
+		    //$("#divDetalleCancelar").show('slide');
 		});
 		$( "#btnAgregaVarilla" ).click(function() {
 			$("#divPesoTotal").empty();
@@ -256,6 +255,7 @@
 			var pesoTotal = 0;
 			var pesoTotalReal = 0;
 			var ton = 0;
+			var flag = 0;
 			var tonHtml = '';
 			var pesoTd = 0;
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
@@ -286,24 +286,37 @@
 					pesoTotalReal = 0;
 							
 				}
+
+
 			});
-			$("#tablaApoyoElemento").append(tabla);
-			$("#divDetalleSolicita").show();
-		    $("#divDetalleCancelar").show();
-			$('.pesoTotal').each(function(i, obj) {
-				pesoTd += parseFloat($(this).text());
-			});
-			if(pesoTotal >= 1000){
-				ton = pesoTd / 1000;
-				tonHtml += ton.toFixed(2);
+
+			if(tabla.length==0){
+				mensajeWarning("Campos vacios");
+				return false;
 			}
-			$("#divPesoTotal").append(pesoTd.toFixed(2)+" Kg");
-			$("#divPesoTonelada").append(tonHtml+" Ton");
-			$("#txtPesoTotal").val(pesoTotal.toFixed(4));
+			else{
+
+				$("#tablaApoyoElemento").append(tabla);
+				$('.pesoTotal').each(function(i, obj) {
+					pesoTd += parseFloat($(this).text());
+				});
+				if(pesoTotal >= 1000){
+					ton = pesoTd / 1000;
+					tonHtml += ton.toFixed(2);
+				}
+				$("#divDetalle").show("slide");
+				$("#divDetalleSolicita").show("slide");
+			    $("#divDetalleCancelar").show("slide");
+				$("#divPesoTotal").append(pesoTd.toFixed(2)+" Kg");
+				$("#divPesoTonelada").append(tonHtml+" Ton");
+				$("#txtPesoTotal").val(pesoTotal.toFixed(4));
+				
+			}
 		});
 		$( "#btnSolicitar" ).click(function() {
 			var orden = $("#cmbOrden").val();
 			var remision = $("#remision").val();
+
 			//var frente = $("#cmbFrente").val();
 			var funcion = $("#cmbFuncion").val();
 			var funcionHabilitado = $("#cmbFuncionHabilitado").val();
@@ -312,11 +325,18 @@
 			var pesoBruto = $("#txtPesoBruto").val();
 			var pesoTotal = $("#txtPesoTotal").val();
         	var datos = [];
+        	
 			$(":input[class=dataVarilla]").each(function(index, element) {
+
 				datos.push({"data": this.value});
 			});
+			if(datos.length==0){
+				mensajeWarning("Debes asignar peso");
+				return false;
+			}
+			else{
 			var json = JSON.stringify(datos);
-
+			}
 			$.post( "{% url 'recepcionMaterialSave' %}",{
 			        		remision: remision,
 			        		idOrden: orden,
@@ -340,6 +360,8 @@
 			.fail(function() {
 				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
 			});
+			$("#btnSolicitar").hide();
+			$("#btnCancelar").hide();
 		});
 		$( "#btnCancelar" ).click(function() {
 			$("#cmbOrden").val(' ');
@@ -388,6 +410,8 @@
 			var checkbox = $("#chk_"+valor).val();
 			if ($("#chk_"+valor).is(':checked')) {
 				$("#divVarilla_"+valor).show("slide");
+				$("#divCantidadesBotones").show("slide");
+
 			} else {
 				$("#divVarilla_"+valor).hide("slide");
 			}
