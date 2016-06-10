@@ -129,6 +129,10 @@
 			</table>
 		</div>
 		<div class="col-md-12">
+			<button class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
+		</div>
+		<div class="clearfix"></div>
+		<div class="col-md-12">
 			<button class="btn btn-success" name="btnGuardar" id="btnGuardar">Generar Salida</button>
 		</div>
 	</div>
@@ -284,6 +288,8 @@
 		agregarAsignacion = function(posicion){
 			bootbox.confirm("Estas seguro?", function(result) {
 				if(result){
+					$( "#add_"+posicion ).prop( "disabled", true );
+					$( "#addDiferencia_"+posicion ).prop( "disabled", true );
 					var cantidadAsignada = $("#row_"+posicion).val();
 					var cantidadReal = $("#row_"+posicion).data("cantidadreal");
 					var idMaterial = $("#row_"+posicion).data("idmaterial");
@@ -304,6 +310,8 @@
 							tabla += '</tr>';
 							$("#tablaMaterialDetalle").append(tabla);
 						}else{
+							$( "#add_"+posicion ).prop( "disabled", false );
+							$( "#addDiferencia_"+posicion ).prop( "disabled", false );
 							$(":input[class=real_"+idMaterial+"]").each(function(index, element) {
 								sumaTotalCalculado += parseFloat(this.value);
 							});
@@ -387,6 +395,14 @@
 				tabla +='</tr>';
 			$("#tablaHabilitado tbody").append(tabla);
 			materialRecepcionado(folio);
+		});
+		$( "#btnCancelar" ).click(function() {
+			bootbox.confirm("Estas seguro de Cancelar. Se eliminaran todos los datos ingresados", function(result) {
+				$("#tablaMaterial tbody").empty();
+				$("#tablaMaterialDetalle tbody").empty();
+				$("#tablaMaterialFaltante tbody").empty();
+				$("#btnAgregar").trigger("click");
+			});
 		});
 		$( "#btnGuardar" ).click(function() {
 			bootbox.confirm("Estas seguro?", function(result) {
