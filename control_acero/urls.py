@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^entrada/armado/material/$', views.entradaArmadoMaterial, name='entradaArmadoMaterial'),
     url(r'^entrada/armado/save/$', views.entradaArmadoSave, name='entradaArmadoSave'),
 
-
+    url(r'^fecha/$', views.fecha, name='fecha'),
     url(r'^elemento/elementomaterial/$', views.elementoMaterial, name='elementoMaterial'),
 
     url(r'^recepcion/material/save/$', views.recepcionMaterialSave, name='recepcionMaterialSave'),

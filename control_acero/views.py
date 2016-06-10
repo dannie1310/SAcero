@@ -77,14 +77,32 @@ def loginUsuario(request):
  	messages.error(request, 'Usuario y/o Password invalidos')
  	return HttpResponseRedirect(template_name)
 
+def fecha(request):
+
+
+	array = {}
+	mensaje = {}
+	data = []
+
+	today = datetime.now()
+	dateFormat = today.strftime("%d/%m/%Y")
+	print dateFormat
+	#mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
+	mensaje = {"date":dateFormat}
+	array = mensaje
+	return JsonResponse(array)
+
 def getTallerAsignado(request, almacen):
 	taller = Taller.objects.filter(id = almacen).order_by()
+	# today = datetime.now()
+	# date = today.strftime("%d/%m/%Y")
 	if taller.exists():
 		request.session['idTaller'] = taller[0].id
 		request.session['nombreTaller'] = taller[0].nombre
 		request.session['proveedorTaller'] = taller[0].proveedor
 		request.session['ubicacionTaller'] = taller[0].ubicacion
 		request.session['responsableTaller'] = taller[0].responsable
+		# request.session['fecha'] = date
 	else:
 		request.session['idTaller'] = 0
 		request.session['nombreTaller'] = 0
@@ -750,7 +768,7 @@ def salidaHabilitadoSave(request):
 						cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
 						InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=cantidadRestar)
 			else:
-				mensaje = {"estatus":"ok", "mensaje":"No se pudo"}
+				mensaje = {"estatus":"ok", "mensaje":"No puede exceder el peso existente"}
 				array = mensaje
 				return JsonResponse(array)
 		salida = Salida.objects\
@@ -901,16 +919,17 @@ def entradaArmadoSave(request):
 	array = mensaje
 	return JsonResponse(array)
 
+
 def foliosMostrar(request):
 	modulo = request.POST.get('modulo', 0)
 	numFolio = 0
 	array = {}
 	mensaje = {}
 	data = []
-
-	# today = datetime.now()
-	# dateFormat = today.strftime("%d/%m/%Y")
-	# print dateFormat
+	today = datetime.now()
+	dateFormat = today.strftime("%d/%m/%Y")
+	print "------"
+	print dateFormat
 
 	if int(modulo) == 1:
 		folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
@@ -934,8 +953,8 @@ def foliosMostrar(request):
 		numFolio = "%04d" % (numFolioInt,)
 		numFolio = "EMA-"+numFolio
 
-	#mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
-	mensaje = {"estatus":"ok", "folio":numFolio}
+	mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
+	#mensaje = {"estatus":"ok", "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)
 
