@@ -3,13 +3,138 @@
 	CATALOGO DE USUARIOS (EDICIÓN)
 {% endblock %}
 {% block content %}
-    <form method="POST" class="post-form">{% csrf_token %}
-        {{ form.as_p }}
-        {{ group.as_p }}
-        <button type="submit" class="btn btn-success">Guardar</button>
-    </form>
+
+    <form method="POST" action=>
+    {% csrf_token %}
+
+      <div class="row">
+      	<div class="col-md-6">
+
+      	  <h2>Información</h2>
+      	  
+      	  <div class="form-group col-md-10 col-md-offset-1">
+		    <label class="control-label">Nombre de Usuario:</label>
+
+		    <input id="username" name="username" class="form-control" type="text" value="{{ user.username }}" disabled>
+		  </div>
+
+      	  <div class="form-group col-md-10 col-md-offset-1">
+	    	<label class="control-label">Nombre(s):</label>
+	     	<input id="first_name" name="first_name" class="form-control" type="text" value="{{ user.first_name}}">
+	  	  </div>
+
+	      <div class="form-group col-md-10 col-md-offset-1">
+		    <label class="control-label">Apellido(s):</label>
+		    <input id="last_name" name="last_name" class="form-control" type="text" value="{{ user.last_name }}">
+		  </div>
+
+	      <div class="form-group col-md-10 col-md-offset-1">
+		    <label class="control-label">Correo Electrónico:</label>
+		    <input id="email" name="email" class="form-control" type="text" value="{{ user.email }}">
+		  </div>
+	 	  
+	 	  <div class="col-md-6">		    
+	 	    <label class="control-label">Super Usuario:</label>
+	 	    {% if user.is_superuser %}
+      	    <input id="is_superuser" name="is_superuser" type="checkbox" checked>
+      	    {% else %}
+      	    <input id="is_superuser" name="is_superuser" type="checkbox">
+      	    {% endif %}
+
+      	  </div>
+
+      	  <div class="col-md-6">		    
+	 	    <label class="control-label">Activo:</label>
+	 	    {% if user.is_active %}
+      	    <input id="is_active" name="is_active" type="checkbox" checked>
+      	    {% else %}
+      	    <input id="is_active" name="is_active" type="checkbox">
+      	    {% endif %}
+      	  </div>
+      	
+      	</div>
+      	
+      	<div class="col-md-6">
+      	
+      	  <h2>Grupos</h2>
+      	  <select name="grupos" multiple id="grupos">
+      	  {% for g in grupos %}
+      	  	<option name="{{ g.name }}" value="{{ g.id }}">{{ g.name }}</option>
+      	  {% endfor %}
+      	  {% for ug in user_grupos %}
+      	  	<option name="{{ ug.name }}" value="{{ ug.id }}" selected>{{ ug.name }}</option>
+      	  {% endfor %}
+      	  </select>
+      	  <hr>
+      	  <h2>Permisos</h2>
+      	  <select name="permisos" multiple id="permisos">
+      	  {% for p in permisos %}
+      	    <option name="{{ p.name }}" value="{{ p.id }}">{{ p.name }}</option>
+      	  {% endfor %}
+      	  {% for up in user_permisos %}
+      	    <option name="{{ up.name }}" value="{{ up.id }}" selected>{{ up.name }}</option>
+      	  {% endfor %}
+      	  </select>
+
+      	</div>
+      
+      </div>
+	  <br>
+	  <div class="form-group col-md-6 col-md-offset-3">
+	      <button id="save"  type="submit" class="btn btn-success btn-block">Guardar</button>
+	  </div>
+	  </form>
 
     <div class="col-xs-12 text-left">
 		<button type="submit" class="btn btn-info"><a href="{% url 'transportesView' %}"><font color="FFFFFF"> << Regresar </font></a></button>
 	</div>
+
+	<script type="text/javascript">
+
+		var grupos = $('#grupos').bootstrapDualListbox({
+		  	nonSelectedListLabel: 'Todos los Grupos',
+		  	selectedListLabel: 'Grupos asignados',
+		  	infoText: false,
+		  	moveOnSelect: false,
+		  	preserveSelectionOnMove: 'moved',
+		  	filterPlaceHolder: 'Filtro'
+		});
+
+		var permisos = $('#permisos').bootstrapDualListbox({
+		  	nonSelectedListLabel: 'Todos los Permisos',
+		  	selectedListLabel: 'Permisos Asignados',
+		  	infoText: false,
+		  	moveOnSelect: false,
+		  	preserveSelectionOnMove: 'moved',
+		  	filterPlaceHolder: 'Filtro'
+		});
+
+		$('form').submit(function(e) {
+			e.preventDefault();
+			data = {
+				username: $('#username').val(),
+				first_name: $('#first_name').val(),
+				last_name: $('#last_name').val(),
+				email: $('#email').val(),
+				is_active: $('#is_active').is(':checked'),	
+				is_superuser: $('#is_superuser').is(':checked'),
+				grupos: $('#grupos').val(),
+				permisos: $('#permisos').val()
+			};
+			
+			$.ajax({
+				type: "POST",
+				url: "{% url 'usuariosUpdateView' user.id %}",
+				data: data,
+				dataType: 'JSON',
+				success: function(data) {
+					console.log(data.msj);
+				},
+				error: function(XHR, textStatus, throwError) {
+
+				}
+			});
+		});
+	</script>
+
 {% endblock %}
