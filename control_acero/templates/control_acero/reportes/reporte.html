@@ -8,22 +8,22 @@
 			
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor:</label>
-				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
+				<select style="width: 100%" name="cmbFuncion" id="cmbFuncion" class="select2 cmbFuncion form-control col-md-6">
 				</select>
 			</div>
-			<div style="display:none;" id="taller" class="form-group col-md-6">
-				<label  class="control-label" for="cmbTaller">Seleccionar Talleres:</label>
-				<select name="cmbTaller" id="cmbTaller" class="cmbTaller form-control">
-				</select>
-			</div>
-			<div style="display:none;" id="frente" class="form-group col-md-6">
-				<label  class="control-label" for="cmbFrente">Seleccionar Frente:</label>
-				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
-				</select>
-			</div>
-
 			<div class="form-group col-md-6">
-			<label  class="control-label" for="fechaInicial">Fecha Inicial:</label>
+				<label  class="control-label" for="cmbTaller">Seleccionar Talleres:</label>
+				<select style="width: 100%"   name="cmbTaller" id="cmbTaller" class="cmbTaller form-control select2 col-md-6">
+				</select>
+			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="cmbFrente">Seleccionar Frente:</label>
+				<select style="width: 100%"  name="cmbFrente" id="cmbFrente" class="cmbFrente form-control select2 col-md-6">
+				</select>
+			</div>
+			
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="fechaInicial">Fecha Inicial:</label>
 				<input type="text" class="calendario form-control" name="fechaInicial" id="fechaInicial" value=" "></input>
 			</div>
 			<div class="form-group col-md-6">
@@ -33,6 +33,22 @@
 		</div>
 		<div class="col-md-12">
 			<button type="button" class="btn btn-success" name="solicitarConsulta" id="solicitarConsulta">Seleccionar</button>
+		</div>
+		<div style="display:none"; id="tituloE" class="col-md-12">
+			<h2>Entradas al Habilitador</h2>
+		</div>
+		<div style="display:none;" id="divEntrada" class="col-md-12 table-responsive">
+			
+			<table id="tablaEntrada" class="table table-hover">
+				<thead>
+					
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		<div style="display:none"; id="tituloS" class="col-md-12">
+			<h2>Salida del Habilitador</h2>
 		</div>
 		<div style="display:none;" id="divSolicita" class="col-md-12 table-responsive">
 			<table id="tablaSolicita" class="table table-hover">
@@ -44,6 +60,32 @@
 			</table>
 		</div>
 		
+			
+		<div style="display:none;" id="divTotales" class="col-md-6 table-responsive">
+				<h4 class="text-center">Pesos Totales de Entrada en Kg por Varilla</h4>
+				<table id="tablaTotales" class="table table-hover">
+					<thead>
+						
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+		</div>
+			
+		<div style="display:none;" id="divTotalesS" class="col-md-6 table-responsive">
+				<h4>Pesos Totales de Salida en Kg por Varilla</h4>
+				<table id="tablaTotalesS" class="table table-hover">
+					<thead>
+						
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+		</div>
+		<div style="display:none;" id="divImprimirF" class="col-md-12">
+			
+			<button type="button" class="btn btn-success btn-lg" name="imprimirFabricante" id="imprimirFabricante" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
+		</div>
 	</div>
 	<script type="text/javascript">
 		comboFuncion = function(){
@@ -54,9 +96,9 @@
 			function(data, status) {
 		            try {
 		                $('.cmbFuncion').empty();
-		                $('.cmbFuncion').append('<option value="0">Selecciona Proveedor</option>');
+		                 $('.cmbFuncion').append('<option value="0">Selecciona un proveedor</option>');
 	                    $.each(data.data, function (count, object) {
-	                        $('.cmbFuncion').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
+	                        $('.cmbFuncion').append('<option data-tipo="'+object.tipo+'" value="' + object.id + '">' + object.proveedor + '</option>');
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar Combo del Fabricante:" + e);
@@ -74,7 +116,7 @@
 			function(data, status) {
 		            try {
 		                $('.cmbFrente').empty();
-		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
+		                $('.cmbFrente').append('<option value="0">Selecciona un Frente de Trabajo</option>');
 	                    $.each(data.data, function (count, object) {
 	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
@@ -87,16 +129,15 @@
 			});
 		}
 
-		comboTaller = function(value){
-			var funcion = value;
+		comboTaller = function(){
+			
 
-			$.post( "{% url 'comboTaller' %}",{
-				funcion:funcion
+			$.post( "{% url 'comboTallerG' %}",{
 			},
 			function(data, status) {
 		            try {
 		                $('.cmbTaller').empty();
-		                $('.cmbTaller').append('<option value="0">Selecciona un Taller</option>');
+		                $('.cmbTaller').append('<option value="0">Selecciona un Taller Habilitador</option>');
 	                    $.each(data.data, function (count, object) {
 	                        $('.cmbTaller').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
@@ -109,44 +150,38 @@
 			});
 		}
 		
-		$( "#cmbFuncion" ).change(function() {
-			var value = this.value;
-			
-			if(value>=5 && value<=9){ //Validacion para habilitadores
-				
-				comboTaller(value);
-				$("#taller").show();
-
-				$("#frente").show();
-				
-			}
-			if(value>=1 && value<=4 && value==10){
-				$("#taller").hide();
-				$("#frente").hide();
-				comboTaller(value);
-			}
-			if(value>10){
-				console.log("else whats");
-				$("#taller").hide();
-				
-				$("#frente").show();
-			}
-		});
+		
 
 		$( "#solicitarConsulta" ).click(function() {
 			$("#tablaSolicita thead").empty();
 			$("#tablaSolicita tbody").empty();
+			$("#tablaEntrada thead").empty();
+			$("#tablaEntrada tbody").empty();
+			$("#tablaTotales thead").empty();
+			$("#tablaTotales tbody").empty();
+			$("#tablaTotalesS thead").empty();
+			$("#tablaTotalesS tbody").empty();
+
 			var funcion = $("#cmbFuncion").val();
 			var taller = $("#cmbTaller").val();
 			var frente = $("#cmbFrente").val();
 			var fechai = $("#fechaInicial").val();
 			var fechaf = $("#fechaFinal").val();
-			
-			console.log(funcion+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
+			var tipo = $("#cmbFuncion").find(':selected').data('tipo')
+			var folio = '';
+			var i=0;
+			console.log(funcion+" - "+tipo+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
 			var tabla = '';
 			var head='';
+			var t='';
+			var h='';
+			var tT='';
+			var hT='';
+			var tt='';
+			var ht='';
 			$.post( "{% url 'reporteConsulta' %}",{
 						funcion:funcion,
+						tipo:tipo,
 		        		taller:taller,
 		        		frente:frente,
 		        		fechai:fechai,
@@ -154,89 +189,237 @@
 			},
 			function(data, status) {
 	            try {
-	                $.each(data.data, function (count, object) {
-	                	console.log(data.data);
 
-	                	if(object.value==1){
-	                			
+	                $.each(data.data, function (count, object) {
+	                	//console.log(data);
+	                	//console.log("Fabricante", tipo);
+	                	if(object.value==1 && tipo==1){
+	                		//Fabricante 
+	                		      			
 								head ='<tr>'
+								+'<th class="text-center">Folio</th>'
 								+'<th class="text-center"># Orden</th>'
 								+'<th class="text-center">Remisión</th>'	
 								+'<th class="text-center">Varilla</th>'
 								+'<th class="text-center">Piezas</th>'
 								+'<th class="text-center">Longitud</th>'
-								+'<th class="text-center">Peso</th>'
+								
+								+'<th class="text-center">Habilitador</th>'
+								+'<th class="text-center">Fecha de Recepción</th>'
+								+'<th class="text-center">Peso en Kg</th>'
 								+'</tr>';
 
 	                        	tabla += '<tr>';
+	                        	tabla +='<td>'+object.folio+'</td>';
 	                        	tabla +='<td>'+object.orden+'</td>';
 								tabla +='<td>'+object.remision+'</td>';
 	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td>'+object.piezas+'</td>';
+	                    		tabla +='<td>'+parseInt(object.piezas)+'</td>';
 	                    		tabla +='<td>'+object.longitud+'</td>';
-	                    		tabla +='<td>'+object.peso+'</td>';
-								tabla += '</tr>';
+	                    		tabla +='<td>'+object.taller+'</td>';
+	                    		tabla +='<td>'+object.fechaA+'</td>';
+	                    		tabla +='<td class="info miles">'+object.peso+'</td>';
+	                    		tabla += '</tr>';
+	                    	
+							$("#tituloE").hide('slide');
+							$("#tituloS").hide('slide');
+							
 
-		                   }
+		                }
 
 		                 if(object.value==2){
+		                 	//Armador
 		                 		head ='<tr>'
+		                 		+'<th class="text-center">Folio</th>'
 		                 		+'<th class="text-center">Remisión</th>'
-		                 		+'<th class="text-center">Proveedor</th>'
+		                 		+'<th class="text-center">Taller</th>'
+		                 		+'<th class="text-center">Armador</th>'
+		                 		+'<th class="text-center">Apoyo</th>'
 								+'<th class="text-center">Elemento</th>'	
 								+'<th class="text-center">Varilla</th>'
-								+'<th class="text-center">Cantidad Asignada</th>'
-								+'<th class="text-center">cantidad Real</th>'
+								+'<th class="text-center">Peso Asignado en Kg</th>'								
+								+'<th class="text-center">Peso Total en Kg</th>'
 								
 								+'</tr>';
 
 	                        	tabla += '<tr>';
+	                        	tabla +='<td>'+object.folio+'</td>';
 	                        	tabla +='<td>'+object.remision+'</td>';
+	                        	tabla +='<td>'+object.taller+'</td>';
 								tabla +='<td>'+object.proveedor+'</td>';
+								tabla +='<td>'+object.apoyo+'</td>';
 	                    		tabla +='<td>'+object.elemento+'</td>';
 	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td>'+object.cantidad+'</td>';
-	                    		tabla +='<td>'+object.cantidadReal+'</td>';
+	                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
+	                    		tabla +='<td class="info miles">'+object.cantidadReal+'</td>';
 								tabla += '</tr>';
+								$("#tituloE").hide('slide');
+								$("#tituloS").hide('slide');
+								$("#divTotales").hide('slide');
+								 $("#divTotalesS").hide('slide');
 		                 }
 
 		                 if(object.value==3){
+		                 	//taller Habilitado
 		                 		head ='<tr>'
-									
-								+'<th class="text-center">Varilla</th>'
-								+'<th class="text-center">Cantidad Asignada</th>'
-								+'<th class="text-center">Cantidad Total</th>'
+								+'<th class="text-center">Folio</th>'
+								+'<th class="text-center">Taller</th>'
+								+'<th class="text-center">Fecha de Envio</th>'
+								+'<th class="text-center">Frente</th>'
 								+'<th class="text-center">Apoyo</th>'
-								+'<th class="text-center">Elemento</th>'
+								+'<th class="text-center">Elemento</th>'	
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Peso Asignado en Kg</th>'
+								
 								+'</tr>';
 
 	                        	tabla += '<tr>';
-	                        	
-	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td>'+object.cantidad+'</td>';
-	                    		tabla +='<td>'+object.cantidadReal+'</td>';
-	                    		tabla +='<td>'+object.apoyo+'</td>';
+	                        	tabla +='<td>'+object.folio+'</td>';
+	                        	tabla +='<td>'+object.taller+'</td>';
+	                        	tabla +='<td>'+object.fechaR+'</td>';
+	                        	tabla +='<td>'+object.frente+'</td>';
+	                        	tabla +='<td>'+object.apoyo+'</td>';
 	                    		tabla +='<td>'+object.elemento+'</td>';
+	                    		tabla +='<td>'+object.material+'</td>';
+	                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
+	                    		
 								tabla += '</tr>';
+								$("#tituloE").show('slide');
+								$("#tituloS").show('slide');
 		                 }
-		                    });
+		                  if(object.value==4 && tipo==2){
+
+		                  	//proveedor Habilitador 
+
+		                 		head ='<tr>'
+								+'<th class="text-center">Folio</th>'
+								+'<th class="text-center">Taller de Habilitado</th>'
+								+'<th class="text-center">Fecha de Envio</th>'
+								+'<th class="text-center">Frente</th>'
+								+'<th class="text-center">Apoyo</th>'
+								+'<th class="text-center">Elemento</th>'	
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Peso Asignado en Kg</th>'
+								
+								+'</tr>';
+
+	                        	tabla += '<tr>';
+	                        	tabla +='<td>'+object.folio+'</td>';
+	                        	tabla +='<td>'+object.taller+'</td>';
+	                        	tabla +='<td>'+object.fechaR+'</td>';
+	                        	tabla +='<td>'+object.frente+'</td>';
+	                        	tabla +='<td>'+object.apoyo+'</td>';
+	                    		tabla +='<td>'+object.elemento+'</td>';
+	                    		tabla +='<td>'+object.material+'</td>';
+	                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
+	                    		
+								tabla += '</tr>';
+								$("#tituloE").show('slide');
+								$("#tituloS").show('slide');
+		                 	}
+
+		                });
+						$.each(data.entrada, function (count, object) {
+									//console.log(object);
+									h ='<tr>'
+											+'<th class="text-center">Folio</th>'
+											+'<th class="text-center">Taller de Habilitado</th>'
+											+'<th class="text-center"># Orden</th>'
+											+'<th class="text-center">Remisión</th>'	
+											+'<th class="text-center">Varilla</th>'
+											+'<th class="text-center">Piezas</th>'
+											+'<th class="text-center">Longitud</th>'
+											
+											
+											+'<th class="text-center">Fecha de Recepción</th>'
+											+'<th class="text-center">Peso</th>'
+											+'</tr>';
+
+				                        	t += '<tr>';
+				                        	t +='<td>'+object.folio+'</td>';
+				                        	t +='<td>'+object.taller+'</td>';
+				                        	t +='<td>'+object.orden+'</td>';
+											t +='<td>'+object.remision+'</td>';
+				                    		t +='<td>'+object.material+'</td>';
+				                    		t +='<td>'+parseInt(object.piezas)+'</td>';
+				                    		t +='<td>'+object.longitud+'</td>';
+				                    		
+				                    		t +='<td>'+object.fechaA+'</td>';
+				                    		t +='<td class="info miles">'+object.peso+'</td>';
+				                    		t += '</tr>';
+								});
+						$.each(data.totales, function (count, object) {
+	                    		 	//console.log(object);
+	                    		 	hT='<tr>'
+										+'<th class="text-center">Varilla</th>'
+										+'<th class="text-center">Peso Total en Kg</th>'
+										+'</tr>';
+
+									tT  += '<tr>';
+				                    tT +='<td>'+object.nombre+'</td>';
+				                    tT +='<td class="info miles">'+object.peso+'</td>';
+				                    tT += '</tr>';
+				                     $("#divTotales").show('slide');
+
+	                    });
+	                    $.each(data.totalesS, function (count, object) {
+	                    		 	//console.log(object);
+	                    		 	ht='<tr>'
+										+'<th class="text-center">Varilla</th>'
+										+'<th class="text-center">Peso Total en Kg</th>'
+										+'</tr>';
+
+									tt+= '<tr>';
+				                    tt +='<td>'+object.nombre+'</td>';
+				                    tt +='<td class="info miles">'+object.peso+'</td>';
+				                    tt += '</tr>';
+				                   
+				                    $("#divTotalesS").show('slide');
+				                    
+				                    
+	                    });
+						
+		            	mensajeWarning("<b>"+datos.mensaje+"</b>");
+		            	
 		        } catch (e) {
-	                mensajeWarning("Error al cargar Varillas :" + e);
+	                mensajeWarning("Consulta invalida");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición carga Varillas" );
+				mensajeWarning( "Error en la petición del reporte" );
 			});
+
 			$('#tablaSolicita thead').append(head);
 		    $("#tablaSolicita tbody").append(tabla);
 		    $("#divSolicita").show('slide');
+
+		    $('#tablaEntrada thead').append(h);
+		   	$("#tablaEntrada tbody").append(t);
+		    $("#divEntrada").show('slide');
+
+		    $('#tablaTotales thead').append(hT);
+		   	$("#tablaTotales tbody").append(tT);
+		   
+
+		    $('#tablaTotalesS thead').append(ht);
+		    $("#tablaTotalesS tbody").append(tt);
+		   	
+		});
+
+		$( "#imprimirFabricante" ).click(function() {
+			var funcion = $("#cmbFuncion").val();
+			var fechaFinal=$("#fechaFinal").val();
+			var fechaInicial=$("#fechaInicial").val();
+			var href = "http://localhost:8000/Fabricante/"+funcion+"/"+fechaInicial+"/"+fechaFinal;
+			//console.log(href);
+			$("#framePdf").attr("src", href);
 		});
 		
 	    $(function () {
 	    	comboFuncion();
 	    	comboFrente();
-	    	comboTaller(0);
-	    	
+	    	comboTaller();
+	    	$(".select2").select2();
 	    });
 	</script>
 {% endblock %}

@@ -1998,20 +1998,20 @@ S2.define('select2/selection/search',[
   };
 
   Search.prototype.resizeSearch = function () {
-    this.$search.css('width', '25px');
+  //   this.$search.css('width', '25px');
 
-    var width = '';
+  //   var width = '';
 
-    if (this.$search.attr('placeholder') !== '') {
-      width = this.$selection.find('.select2-selection__rendered').innerWidth();
-    } else {
-      var minimumWidth = this.$search.val().length + 1;
+  //   if (this.$search.attr('placeholder') !== '') {
+  //     width = this.$selection.find('.select2-selection__rendered').innerWidth();
+  //   } else {
+  //     var minimumWidth = this.$search.val().length + 1;
 
-      width = (minimumWidth * 0.75) + 'em';
-    }
+  //     width = (minimumWidth * 0.75) + 'em';
+  //   }
 
-    this.$search.css('width', width);
-  };
+  //   this.$search.css('width', width);
+   };
 
   return Search;
 });
@@ -5056,11 +5056,11 @@ S2.define('select2/core',[
   Select2.prototype._placeContainer = function ($container) {
     $container.insertAfter(this.$element);
 
-    var width = this._resolveWidth(this.$element, this.options.get('width'));
+    // var width = this._resolveWidth(this.$element, this.options.get('width'));
 
-    if (width != null) {
-      $container.css('width', width);
-    }
+    // if (width != null) {
+    //   $container.css('width', width);
+    // }
   };
 
   Select2.prototype._resolveWidth = function ($element, method) {
