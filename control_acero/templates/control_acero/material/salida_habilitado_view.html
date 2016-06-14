@@ -47,6 +47,27 @@
 				</tbody>
 			</table>
 		</div>
+		<div class="col-md-12 table-responsive">
+			<table id="tablaMaterialDetalle" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center" colspan="6">Detalle de Salida</th>
+					</tr>
+					<tr>
+						<th class="text-center">No</th>
+						<th class="text-center">Nombre Material</th>
+						<th class="text-center">Peso en Almacen en Kg</th>
+						<th class="text-center">Peso de Salida en Kg</th>
+						<th class="text-center">Peso Aceptado Restante en Kg</th>
+						<th class="text-center">Eliminar</th>
+
+					</tr>
+				</thead>
+				<tbody>
+					<!--<td><input type="checkbox" name="test" value="0" /></td>-->
+				</tbody>
+			</table>
+		</div>
 		<div class="col-md-12">
 			<button class="btn btn-success" name="btnGuardar" id="btnGuardar">Generar Salida</button>
 		</div>
@@ -117,7 +138,9 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info miles">'+object.peso+'</td>';
-	                		tabla +='<td><input type="text" class="form-control dataAsignacion miles" data-idmaterial="'+object.id+'" data-cantidadreal="'+object.peso+'" value="0" /></td>';
+	                		tabla +='<td><input type="text" class="form-control miles" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="0" /></td>';
+	                		//tabla +='<td><input type="text" class="form-control miles" value="0" /></td>';
+	                		tabla +='<td><button type="button" class="btn btn-info" name="btnAceptar" id="btnAceptar" onClick="agregaDetalle('+count+');">Aceptar Salida</button></td>';
 	                    tabla +='</tr>';
 	                	count++;
 	                	idTabla++;
@@ -130,6 +153,30 @@
 				mensajeWarning( "Error en la petición del Material Recepcionado" );
 			});
 			$("#tablaMaterial tbody").append(tabla);
+		}
+		agregaDetalle = function(posicion){
+			var asignado = $("#txtAsignado_"+posicion).val();
+			var nombre = $("#txtAsignado_"+posicion).data("nombrematerial");
+			var peso = $("#txtAsignado_"+posicion).data("cantidadreal");
+			var idmaterial = $("#txtAsignado_"+posicion).data("idmaterial");
+			var posicionTabla = parseInt(posicion+1);
+			var pesoRestante =parseFloat(limpiaValor(peso)) - parseFloat(limpiaValor(asignado));
+			if(asignado <= 0){
+				mensajeWarning("El peso de salida no puede ser en 0");
+				return false;
+			}
+			$("#limpia_"+idmaterial).remove();
+			var tabla = '';
+				tabla += '<tr id="limpia_'+idmaterial+'">';
+					tabla += '<td>'+posicionTabla+'</td>';
+					tabla += '<td>'+nombre+'</td>';
+					tabla += '<td class="miles info">'+peso+'</td>';
+					tabla += '<td class="miles success">'+asignado+'</td>';
+					tabla += '<td class="warning">'+pesoRestante.toFixed(2)+'</td>';
+					tabla +='<td style="display:none;"><input type="text" class="form-control miles dataAsignacion" data-idmaterial="'+idmaterial+'" data-nombrematerial="'+nombre+'" data-cantidadreal="'+peso+'" value="'+asignado+'" /></td>';
+					tabla += '<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);"></span></td>';
+				tabla += '</tr>';
+			$("#tablaMaterialDetalle").append(tabla);
 		}
 		comboFrente = function(){
 			$.post( "{% url 'comboFrente' %}",{
@@ -149,65 +196,72 @@
 				mensajeWarning( "Error en la petición del Frente" );
 			});
 		}
+		function eliminar (a){
+			$(a).closest("tr").remove();
+		}
 		$( "#btnGuardar" ).click(function() {
-			var array = [];
-			var apoyo = $("#cmbApoyo").val();
-			var elemento = $("#cmbElemento").val();
-			var frente = $("#cmbFrente").val();
+			bootbox.confirm("Estas seguro de Aceptar la salida, debido que posteriormente no podras realizar ningun cambio dentro de este registro.", function(result) {
+				if(result){
+					var array = [];
+					var apoyo = $("#cmbApoyo").val();
+					var elemento = $("#cmbElemento").val();
+					var frente = $("#cmbFrente").val();
 
-			if(frente == 0){
-				mensajeWarning("<strong>Debes elegir una Frente.</strong>");
-				return false;
-			}
-			if(apoyo == 0){
-				mensajeWarning("<strong>Debes elegir un Apoyo.</strong>");
-				return false;
-			}
-			if(elemento == 0){
-				mensajeWarning("<strong>Debes elegir un Elemento.</strong>");
-				return false;
-			}
-			$("input.dataAsignacion[type=text]").each(function(index, element) {
-				var material = $(this).data("idmaterial");
-				var cantidadReal = $(this).data("cantidadreal");
-				var cantidadAsignada = limpiaValor(this.value);
-				if (cantidadAsignada != 0){
-					array.push({"material": material, "cantidadReal": cantidadReal, "cantidadAsignada": cantidadAsignada});	
+					if(frente == 0){
+						mensajeWarning("<strong>Debes elegir una Frente.</strong>");
+						return false;
+					}
+					if(apoyo == 0){
+						mensajeWarning("<strong>Debes elegir un Apoyo.</strong>");
+						return false;
+					}
+					if(elemento == 0){
+						mensajeWarning("<strong>Debes elegir un Elemento.</strong>");
+						return false;
+					}
+					$("input.dataAsignacion[type=text]").each(function(index, element) {
+						var material = $(this).data("idmaterial");
+						var cantidadReal = $(this).data("cantidadreal");
+						var cantidadAsignada = limpiaValor(this.value);
+						if (cantidadAsignada != 0){
+							array.push({"material": material, "cantidadReal": cantidadReal, "cantidadAsignada": cantidadAsignada});	
+						}
+						
+					});
+					if(array.length != 0){
+						var json = JSON.stringify(array);
+					}
+					else{
+						mensajeWarning("Debes asignar peso");
+						return false;
+					}
+					$.post( "{% url 'salidaHabilitadoSave' %}",{
+						apoyo: apoyo,
+						elemento: elemento,
+						frente: frente,
+						json: json
+					},
+					function(data, status) {
+				            try {
+				            	
+				            	if(data.mensaje =='No puede exceder el peso existente'){
+				            		mensajeSuccess("<b>"+data.mensaje+"</b>");
+				            	}
+				            	else{
+					            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+					            	materialRecepcionado();
+					            	$("#folio").html(data.folio);
+					            	$("#btnGuardar").hide();
+				            	}
+				            } catch (e) {
+				                alert("Error al cargar Guardar la información:" + e);
+				            }
+					})
+					.fail(function() {
+						mensajeWarning( "Error en la petición Guardar la información" );
+					});
 				}
-				
 			});
-			if(array.length != 0){
-				var json = JSON.stringify(array);
-			}
-			else{
-				mensajeWarning("Debes asignar peso");
-				return false;
-			}
-				$.post( "{% url 'salidaHabilitadoSave' %}",{
-					apoyo: apoyo,
-					elemento: elemento,
-					frente: frente,
-					json: json
-				},
-				function(data, status) {
-			            try {
-			            	
-			            	if(data.mensaje =='No puede exceder el peso existente'){
-			            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-			            	
-			            	}
-			            	else{
-			            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-			            	$("#folio").html(data.folio);
-			            	$("#btnGuardar").hide();
-			            	}
-			            } catch (e) {
-			                alert("Error al cargar Guardar la información:" + e);
-			            }
-				})
-				.fail(function() {
-					mensajeWarning( "Error en la petición Guardar la información" );
-				});
 
 			
 		});

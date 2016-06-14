@@ -275,7 +275,7 @@
 								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
 								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
-								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove eliminar" onClick="eliminar(this);" data-eliminar="0"></span</td>'
+								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove eliminar" onClick="eliminar(this);" data-eliminar="0"></span></td>'
 								+'<td style="display:none" class="text-center">'
 									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
 								+'</td>'
@@ -314,68 +314,64 @@
 			}
 		});
 		$( "#btnSolicitar" ).click(function() {
-			var orden = $("#cmbOrden").val();
-			var remision = $("#remision").val();
+			bootbox.confirm("Estas seguro?", function(result) {
+				if(result){
+					var orden = $("#cmbOrden").val();
+					var remision = $("#remision").val();
 
-			//var frente = $("#cmbFrente").val();
-			var funcion = $("#cmbFuncion").val();
-			var funcionHabilitado = $("#cmbFuncionHabilitado").val();
-			var fechaRemision = $("#fechaRemision").val();
-			var pesoTara = $("#txtTara").val();
-			var pesoBruto = $("#txtPesoBruto").val();
-			var pesoTotal = $("#txtPesoTotal").val();
-        	var datos = [];
-        	
-			$(":input[class=dataVarilla]").each(function(index, element) {
+					//var frente = $("#cmbFrente").val();
+					var funcion = $("#cmbFuncion").val();
+					var funcionHabilitado = $("#cmbFuncionHabilitado").val();
+					var fechaRemision = $("#fechaRemision").val();
+					var pesoTara = $("#txtTara").val();
+					var pesoBruto = $("#txtPesoBruto").val();
+					var pesoTotal = $("#txtPesoTotal").val();
+		        	var datos = [];
+		        	
+					$(":input[class=dataVarilla]").each(function(index, element) {
 
-				datos.push({"data": this.value});
+						datos.push({"data": this.value});
+					});
+					if(datos.length==0){
+						mensajeWarning("Debes asignar peso");
+						return false;
+					}
+					else{
+					var json = JSON.stringify(datos);
+					}
+					$.post( "{% url 'recepcionMaterialSave' %}",{
+					        		remision: remision,
+					        		idOrden: orden,
+					        		//idFrente: frente,
+					        		funcion: funcion,
+					        		funcionHabilitado: funcionHabilitado,
+					        		fechaRemision: fechaRemision,
+					        		pesoTara: pesoTara,
+					        		pesoBruto: pesoBruto,
+					        		pesoTotal: pesoTotal,
+					        		json: json
+								},
+					function(data, status) {
+				            try {
+				            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+				            	$("#folio").html(data.folio);
+				            } catch (e) {
+				                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
+				            }
+					})
+					.fail(function() {
+						mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+					});
+					$("#btnSolicitar").hide();
+					$("#btnCancelar").hide();
+				}
 			});
-			if(datos.length==0){
-				mensajeWarning("Debes asignar peso");
-				return false;
-			}
-			else{
-			var json = JSON.stringify(datos);
-			}
-			$.post( "{% url 'recepcionMaterialSave' %}",{
-			        		remision: remision,
-			        		idOrden: orden,
-			        		//idFrente: frente,
-			        		funcion: funcion,
-			        		funcionHabilitado: funcionHabilitado,
-			        		fechaRemision: fechaRemision,
-			        		pesoTara: pesoTara,
-			        		pesoBruto: pesoBruto,
-			        		pesoTotal: pesoTotal,
-			        		json: json
-						},
-			function(data, status) {
-		            try {
-		            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-		            	$("#folio").html(data.folio);
-		            } catch (e) {
-		                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
-		            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
-			});
-			$("#btnSolicitar").hide();
-			$("#btnCancelar").hide();
 		});
 		$( "#btnCancelar" ).click(function() {
 			$("#cmbOrden").val(' ');
 			$("#cmbFuncion").val(0);
 			$("#remision").val(' ');
 			$("#fechaRemision").val(' ');
-			//$("#cmbFrente").val(0);
-			//$("#fechaInicial").val('');
-			//$("#fechaFinal").val('');
-			//$("#cmbApoyo").val(0);
-			//$("#cmbElemento").val(0);
-			//$("#divFrente").hide('slide');
-			//$("#divApoyo").hide('slide');
-
 			$("#tablaApoyoElemento tbody ").empty();
 			$("#tablaVarillasCheck tbody").empty();
 			$("#divVarillasCheck").hide();

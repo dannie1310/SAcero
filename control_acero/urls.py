@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^perfil/$', views.perfilView, name='perfilView'),
     url(r'^usuario/login/$', views.loginUsuario, name='loginUsuario'),
     url(r'^usuario/logout/$', views.logout_view, name='logout'),
+    url(r'^mail/$', views.mail, name='mail'),
 
     url(r'^recepcion/material/$', views.recepcionMaterialView, name='recepcionMaterialView'),
     

@@ -152,3 +152,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+DEFAULT_FROM_EMAIL = "control_acero@grupohi.mx"
+
+EMAIL_HOST = "172.20.74.6"
+
+EMAIL_HOST_USER = "control_acero@grupohi.mx"
+
+EMAIL_HOST_PASSWORD = ""
+
+EMAIL_PORT = 25
+
+EMAIL_USE_TLS = False

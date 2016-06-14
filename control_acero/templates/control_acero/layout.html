@@ -76,6 +76,9 @@
         <!-- PLUGIN BOOTBOX -->
         <script src="{% static 'bootbox/bootbox.js' %}"></script>
 
+        <!-- PLUGIN BLOCKUI -->
+        <script src="{% static 'blockui-master/jquery.blockUI.js' %}"></script>
+
 
 
         <script type="text/javascript">
@@ -99,13 +102,24 @@
                 // these HTTP methods do not require CSRF protection
                 return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
             }
+            var bar = '';
             $.ajaxSetup({
                 async:false,
                 beforeSend: function(xhr, settings) {
+                    bar += '<div class="progress">';
+                        bar += '<div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">';
+                        bar += '</div>';
+                    bar += '</div>';
+                    $.blockUI({ message: '<h1>'+bar+'Procesando Información...</h1>' });
+                    bar = '';
                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     }
-                }
+                },
+                cache: false
+            });
+            $(document).ajaxComplete(function(event, jqXHR, settings) {
+                setTimeout($.unblockUI, 2000); 
             });
             function mensajeInfo (mensaje) {
                 $(".mensajeInfo").empty();
@@ -209,22 +223,38 @@
                                         <div class="row">
                                             <div class="col-sm-3">
                                                 <ul>
+                                                {% if perms.control_acero.add_materiales %}
                                                     <li><a href="{% url 'materialesView' %}">Registro de Materiales(Varillas) </a>
                                                     </li>
+                                                {% endif %}
+                                                {% if perms.control_acero.add_despieces %}
                                                     <li><a href="{% url 'despiecesView' %}">Registro de Despieces</a>
                                                     </li>
+                                                {% endif %}
+                                                {% if perms.control_acero.add_elementos %}
                                                     <li><a href="{% url 'elementosView' %}">Registro de Elementos</a>
                                                     </li>
+                                                {% endif %}
+                                                {% if perms.control_acero.add_apoyos %}
                                                     <li><a href="{% url 'apoyosView' %}">Registro de Apoyos</a>
                                                     </li>
+                                                {% endif %}
+                                                {% if perms.control_acero.add_frentes %}
                                                     <li><a href="{% url 'frentesView' %}">Registro de Frentes de Trabajo</a>
                                                     </li>
+                                                {% endif %}
+                                                {% if perms.control_acero.add_proveedores %}
                                                     <li><a href="{% url 'funcionesView' %}">Registro de Proveedores</a>
                                                     </li>
+                                                {% endif %}
+                                                {% if perms.control_acero.add_talleres %}
                                                     <li><a href="{% url 'talleresView' %}">Registro de Talleres de Habilitado</a>
                                                     </li>
+                                                {% endif %}
+                                                {% if perms.control_acero.add_transportes %}
                                                     <li><a href="{% url 'transportesView' %}">Registro de Transportes</a>
                                                     </li>
+                                                {% endif %}
                                                 </ul> 
                                             </div>
                                         </div>
@@ -240,22 +270,27 @@
                                         <div class="row">
                                             <div class="col-sm-3">
                                                 <h5>HABILITADO</h5>
+                                                {% if perms.control_acero.view_recepcion_material %}
                                                 <ul>
                                                     <li><a href="{% url 'recepcionMaterialView' %}">Recepción del Material del Fabricante</a>
                                                     </li>
                                                 </ul>
+                                                {% endif %}
+                                                {% if perms.control_acero.view_salida_habilitado %}
                                                 <ul>
                                                     <li><a href="{% url 'salidaHabilitadoView' %}">Salida Habilitado</a>
                                                     </li>
                                                 </ul>
-                                                
+                                                {% endif %}
                                             </div>
                                             <div class="col-sm-3">
                                                 <h5>ARMADO</h5>
+                                                {% if perms.control_acero.view_armado_recepcion %}
                                                 <ul>
                                                     <li><a href="{% url 'entradaArmadoView' %}">Armado Recepción</a>
                                                     </li>
                                                 </ul>
+                                                {% endif %}
                                             </div>
                                             
                                             <div class="col-sm-3">
@@ -277,30 +312,32 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="dropdown yamm-fw">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">ADMINISTRACIÓN <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <div class="yamm-content">
-                                        <div class="row">
-                                            <div class="col-sm-3">
-                                                <h5>USUARIOS</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'usuariosView' %}">Editar Usuario</a>
-                                                    </li>
-                                                </ul>
-                                                <h5>GRUPOS</h5>
-                                                <ul>
-                                                    <li><a href="{% url 'gruposNewView' %}">Nuevo Grupo</a>
-                                                    </li>
-                                                </ul>
+                        {% if request.user.is_superuser %}
+                            <li class="dropdown yamm-fw">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">ADMINISTRACIÓN <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <div class="yamm-content">
+                                            <div class="row">
+                                                <div class="col-sm-3">
+                                                    <h5>USUARIOS</h5>
+                                                    <ul>
+                                                        <li><a href="{% url 'usuariosView' %}">Editar Usuario</a>
+                                                        </li>
+                                                    </ul>
+                                                    <h5>GRUPOS</h5>
+                                                    <ul>
+                                                        <li><a href="{% url 'gruposNewView' %}">Nuevo Grupo</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <!-- /.yamm-content -->
-                                </li>
-                            </ul>
-                        </li>
+                                        <!-- /.yamm-content -->
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

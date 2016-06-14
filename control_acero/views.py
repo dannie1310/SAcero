@@ -166,12 +166,11 @@ def usuariosEditView(request, pk):
 			user.save()
 			#user.groups.add(Group.objects.get(name=user))
 	else:
-		print usuario
 		user_grupos = usuario.groups.all()
 		grupos = Group.objects.exclude(user__id = usuario.id)
 
 		user_permisos = usuario.user_permissions.all()
-		permisos = Permission.objects.exclude(user__id = usuario.id)
+		permisos = Permission.objects.exclude(user__id = usuario.id).filter(content_type_id=36)
 
 	return render(request, 'control_acero/catalogos/usuarios/usuario_edit.html', {'user': usuario,'grupos': grupos,'user_grupos': user_grupos,'permisos': permisos,'user_permisos': user_permisos})
 
@@ -635,9 +634,6 @@ def recepcionMaterialSave(request):
 	pesoTotal = request.POST.get('pesoTotal', 0)
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
-	print "***********"
-	print respuesta
-	print "***********"
 	p = Remision.objects\
 				.create(
 						idOrden=idOrden,
@@ -691,6 +687,38 @@ def recepcionMaterialSave(request):
 									)
 	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	header = "RECEPCION DEL MATERIAL DEL FABRICANTE"
+	body = ""
+	body += """\
+			<html>
+			<head></head>
+			<body>
+				<table>
+					<thead>
+						<tr>
+							<th> Usuario %s %s %s %s</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Se Creo el Folio: %s</td>
+						</tr>
+					</tbody>
+				</table>
+			</body>
+			</html>
+	""" %\
+	(
+		request.user.username,
+		request.user.first_name,
+		request.user.last_name,
+		request.user.email,
+		numFolio
+	)
+	for envioEmail in envioEmails:
+		mail(header, body, envioEmail.email)
+
 	return JsonResponse(array)
 
 def elementoMaterial(request):
@@ -856,6 +884,37 @@ def salidaHabilitadoSave(request):
 								)
 	mensaje = {"estatus":"ok", "mensaje":"Salida de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	header = "SALIDA DEL HABILITADO"
+	body = ""
+	body += """\
+			<html>
+			<head></head>
+			<body>
+				<table>
+					<thead>
+						<tr>
+							<th> Usuario %s %s %s %s</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Se Creo el Folio: %s</td>
+						</tr>
+					</tbody>
+				</table>
+			</body>
+			</html>
+	""" %\
+	(
+		request.user.username,
+		request.user.first_name,
+		request.user.last_name,
+		request.user.email,
+		numFolio
+	)
+	for envioEmail in envioEmails:
+		mail(header, body, envioEmail.email)
 	return JsonResponse(array)
 
 def entradaArmadoComboApoyo(request):
@@ -998,6 +1057,37 @@ def entradaArmadoSave(request):
 									)
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	header = "ARMADO RECEPCIÓN"
+	body = ""
+	body += """\
+			<html>
+			<head></head>
+			<body>
+				<table>
+					<thead>
+						<tr>
+							<th> Usuario %s %s %s %s</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Se Creo el Folio: %s</td>
+						</tr>
+					</tbody>
+				</table>
+			</body>
+			</html>
+	""" %\
+	(
+		request.user.username,
+		request.user.first_name,
+		request.user.last_name,
+		request.user.email,
+		numFolio
+	)
+	for envioEmail in envioEmails:
+		mail(header, body, envioEmail.email)
 	return JsonResponse(array)
 
 
@@ -2250,3 +2340,10 @@ def apoyoBusquedaView(request):
 
 	return JsonResponse(array)
 
+
+def mail(header, body, to):
+	try:
+		send_mail(header, body, 'control-acero@grupohi.mx',
+		    [to], html_message=body, fail_silently=False)
+	except:
+		return True;
