@@ -1086,7 +1086,7 @@ def entradaArmadoSave(request):
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
-	header = "ARMADO RECEPCIÓN"
+	header = "RECEPCIÓN EN FRENTE DE TRABAJO"
 	body = ""
 	body += """\
 			<html>
@@ -1187,7 +1187,7 @@ def foliosSalidaHabilitado(request):
 	array = {}
 	mensaje = {}
 	data = []
-	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct()
+	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct().filter(tallerAsignado_id=request.session['idTaller'])
 	for salidaFolio in salidaFolios:
 		resultado = {
 						"numFolio":salidaFolio["numFolio"],
@@ -1227,7 +1227,7 @@ def principalView(request):
 	template = 'control_acero/principal.html'
 	return render(request, template)
 
-@permission_required('control_acero.add_apoyo')
+#@permission_required('control_acero.add_apoyo')
 def recepcionMaterialView(request):
 	template = 'control_acero/material/recepcion_material_view.html'
 	return render(request, template)
