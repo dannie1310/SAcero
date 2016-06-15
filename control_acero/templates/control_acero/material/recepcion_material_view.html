@@ -318,8 +318,7 @@
 				if(result){
 					var orden = $("#cmbOrden").val();
 					var remision = $("#remision").val();
-
-					//var frente = $("#cmbFrente").val();
+					var htmlMail = $("#tablaApoyoElemento").html();
 					var funcion = $("#cmbFuncion").val();
 					var funcionHabilitado = $("#cmbFuncionHabilitado").val();
 					var fechaRemision = $("#fechaRemision").val();
@@ -349,6 +348,7 @@
 					        		pesoTara: pesoTara,
 					        		pesoBruto: pesoBruto,
 					        		pesoTotal: pesoTotal,
+					        		htmlMail: htmlMail,
 					        		json: json
 								},
 					function(data, status) {

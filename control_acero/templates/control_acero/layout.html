@@ -119,7 +119,7 @@
                 cache: false
             });
             $(document).ajaxComplete(function(event, jqXHR, settings) {
-                setTimeout($.unblockUI, 2000); 
+                setTimeout($.unblockUI, 500); 
             });
             function mensajeInfo (mensaje) {
                 $(".mensajeInfo").empty();
@@ -215,6 +215,7 @@
                     <ul class="nav navbar-nav navbar-left">
                         <li class="active"><a href="{% url 'principalView' %}">INICIO</a>
                         </li>
+                        {% if perms.control_acero.add_materiales or perms.control_acero.add_despieces or perms.control_acero.add_elementos or .control_acero.add_apoyos or perms.control_acero.add_frentes or perms.control_acero.add_proveedores or perms.control_acero.add_talleres or perms.control_acero.add_transportes %}
                         <li class="dropdown yamm-fw">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">CATALOGO <b class="caret"></b></a>
                             <ul class="dropdown-menu">
@@ -262,12 +263,15 @@
                                 </li>
                             </ul>
                         </li>
+                        {% endif %}
+                        {% if perms.control_acero.view_recepcion_material or  perms.control_acero.view_salida_habilitado %}
                         <li class="dropdown yamm-fw">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">MODULOS <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li>
                                     <div class="yamm-content">
                                         <div class="row">
+                                            {% if perms.control_acero.view_recepcion_material or  perms.control_acero.view_salida_habilitado or perms.control_acero.view_armado_recepcion or perms.control_acero.view_inventario_fisico or perms.control_acero.view_reportes %}
                                             <div class="col-sm-3">
                                                 <h5>HABILITADO</h5>
                                                 {% if perms.control_acero.view_recepcion_material %}
@@ -283,22 +287,27 @@
                                                 </ul>
                                                 {% endif %}
                                             </div>
+                                            {% endif %}
+                                            {% if perms.control_acero.view_armado_recepcion %}
                                             <div class="col-sm-3">
                                                 <h5>ARMADO</h5>
-                                                {% if perms.control_acero.view_armado_recepcion %}
                                                 <ul>
                                                     <li><a href="{% url 'entradaArmadoView' %}">Armado Recepción</a>
                                                     </li>
                                                 </ul>
-                                                {% endif %}
                                             </div>
+                                            {% endif %}
                                             
+                                            {% if perms.control_acero.view_inventario_fisico %}
                                             <div class="col-sm-3">
                                                 <h5>INVENTARIO</h5>
-                                                   <ul> <li><a href="{% url 'inventarioFisicoView' %}">Inventario Fisico</a>
-                                                    </li>
+                                                    <ul>
+                                                        <li><a href="{% url 'inventarioFisicoView' %}">Inventario Fisico</a>
+                                                        </li>
                                                     </ul>
                                             </div>
+                                            {% endif %}
+                                            {% if perms.control_acero.view_reportes %}
                                             <div class="col-sm-3">
                                                 <h5>REPORTES</h5>
                                                 <ul>
@@ -306,12 +315,14 @@
                                                     </li>
                                                 </ul>
                                             </div>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <!-- /.yamm-content -->
                                 </li>
                             </ul>
                         </li>
+                        {% endif %}
                         {% if request.user.is_superuser %}
                             <li class="dropdown yamm-fw">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">ADMINISTRACIÓN <b class="caret"></b></a>

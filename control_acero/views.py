@@ -33,53 +33,58 @@ from decimal import *
 from django.conf import settings
 from django.contrib.auth.models import User, Permission, Group
 from django.template import RequestContext
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
-# def loginUsuario(request):
-# 	logout(request)
-# 	username = password = ''
-# 	if request.POST:
-# 		username = request.POST['usuario']
-# 		password = request.POST['clave']
-#         userIGH = Usuario.objects.using('auth_db').filter(usuario=username, clave=md5.new(password).hexdigest()).first()
-#         if userIGH:
-#             try:
-#                 user = User.objects.get(username=userIGH.usuario)
-#             except User.DoesNotExist:
-#                 user = User(username=userIGH.usuario, password=userIGH.clave, email=userIGH.correo, first_name=userIGH.nombre, last_name=userIGH.apaterno + ' ' + userIGH.amaterno)
-#                 user.save()
-#             user = authenticate(username=username, password=password)
-#             if user is not None:
-#                 if user.is_active:
-#                     login(request, user)
-#                     url = '/control_acero/principal/'
-#                     return HttpResponseRedirect(url)
-# 	template_name = '/control_acero'
-#  	messages.error(request, 'Usuario y/o Password invalidos')
-#  	return HttpResponseRedirect(template_name)
- 	
 def loginUsuario(request):
 	logout(request)
 	username = password = ''
 	if request.POST:
 		username = request.POST['usuario']
 		password = request.POST['clave']
-
-		user = authenticate(username=username, password=password)
-		if user is not None:
-			if user.is_active:
-				login(request, user)
-				current_user = request.user
-				user_id = current_user.id
-				getTallerAsignado(request, 0)
-				url = '/control_acero/perfil/'
-				return HttpResponseRedirect(url)
+        userIGH = Usuario.objects.using('auth_db').filter(usuario=username, clave=md5.new(password).hexdigest()).first()
+        if userIGH:
+            try:
+                user = User.objects.get(username=userIGH.usuario)
+            except User.DoesNotExist:
+                user = User(username=userIGH.usuario, password=userIGH.clave, email=userIGH.correo, first_name=userIGH.nombre, last_name=userIGH.apaterno + ' ' + userIGH.amaterno)
+                user.save()
+            user = authenticate(username=username, password=password)
+            if user is not None:
+				if user.is_active:
+					login(request, user)
+					current_user = request.user
+					user_id = current_user.id
+					getTallerAsignado(request, 0)
+					if current_user.is_superuser:
+						url = '/control_acero/principal/'
+					else:
+						url = '/control_acero/perfil/'
+					return HttpResponseRedirect(url)
 	template_name = '/control_acero'
  	messages.error(request, 'Usuario y/o Password invalidos')
  	return HttpResponseRedirect(template_name)
+ 	
+# def loginUsuario(request):
+# 	logout(request)
+# 	username = password = ''
+# 	if request.POST:
+# 		username = request.POST['usuario']
+# 		password = request.POST['clave']
+
+# 		user = authenticate(username=username, password=password)
+# 		if user is not None:
+# 			if user.is_active:
+# 				login(request, user)
+# 				current_user = request.user
+# 				user_id = current_user.id
+# 				getTallerAsignado(request, 0)
+# 				url = '/control_acero/perfil/'
+# 				return HttpResponseRedirect(url)
+# 	template_name = '/control_acero'
+#  	messages.error(request, 'Usuario y/o Password invalidos')
+#  	return HttpResponseRedirect(template_name)
 
 def fecha(request):
-
-
 	array = {}
 	mensaje = {}
 	data = []
@@ -109,26 +114,6 @@ def getTallerAsignado(request, almacen):
 		request.session['proveedorTaller'] = 0
 		request.session['ubicacionTaller'] = 0
 		request.session['responsableTaller'] = 0
-
-# def loginUsuario(request):
-# 	usuario = request.POST['usuario']
-# 	clave = request.POST['clave']
-# 	if (usuario == ""):
-# 		resultado = {"estatus":"error","mensaje":"El campo usuario esta vacio"}
-# 		return JsonResponse(resultado)
-# 	if (clave == ""):
-# 		resultado = {"estatus":"error","mensaje":"El campo clave esta vacio"}
-# 		return JsonResponse(resultado)
-# 	login = Usuario.objects.using('auth_db').filter(usuario=usuario, clave=md5.new(clave).hexdigest())
-# 	for e in login:
-# 		if(e != ""):
-# 			request.session['idusuario'] = e.idusuario
-# 			request.session['usuario'] = e.usuario
-# 			url = '/control_acero/principal/'
-# 			return HttpResponseRedirect(url)
-# 	template_name = '/control_acero'
-# 	messages.error(request, 'Usuario y/o Password invalidos')
-# 	return HttpResponseRedirect(template_name)
 
 def logout_view(request):
 	del request.session['idTaller']
@@ -632,6 +617,7 @@ def recepcionMaterialSave(request):
 	pesoBruto = request.POST.get('pesoBruto', 0)
 	pesoTara = request.POST.get('pesoTara', 0)
 	pesoTotal = request.POST.get('pesoTotal', 0)
+	htmlMail = request.POST.get('htmlMail', 0)
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
 	p = Remision.objects\
@@ -692,19 +678,35 @@ def recepcionMaterialSave(request):
 	body = ""
 	body += """\
 			<html>
-			<head></head>
+			<head>
+			</head>
 			<body>
-				<table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
 					<thead>
-						<tr>
-							<th> Usuario %s %s %s %s</th>
+						<tr style='background: #eee;'>
+							<th><strong> Usuario </strong></th>
+							<th><strong> Nombre </strong></th>
+							<th><strong> Email </strong></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td>Se Creo el Folio: %s</td>
+							<td>%s</td>
+							<td>%s %s</td>
+							<td>%s</td>
+						</tr>
+						<tr>
+							<td colspan="3" align="center">Se Creo el Folio: <strong> %s </strong></td>
 						</tr>
 					</tbody>
+				</table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
+					<thead>
+						<tr style='background: #eee;'>
+							<th colspan="5">Detalle del Folio</th>
+						</tr>
+					</thead>
+					%s
 				</table>
 			</body>
 			</html>
@@ -714,7 +716,8 @@ def recepcionMaterialSave(request):
 		request.user.first_name,
 		request.user.last_name,
 		request.user.email,
-		numFolio
+		numFolio,
+		htmlMail
 	)
 	for envioEmail in envioEmails:
 		mail(header, body, envioEmail.email)
@@ -804,6 +807,7 @@ def salidaHabilitadoSave(request):
 	apoyo = request.POST.get('apoyo', 0)
 	elemento = request.POST.get('elemento', 0)
 	frente = request.POST.get('frente', 0)
+	htmlMail = request.POST.get('htmlMail', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
 	numFolio = 0
@@ -889,19 +893,35 @@ def salidaHabilitadoSave(request):
 	body = ""
 	body += """\
 			<html>
-			<head></head>
+			<head>
+			</head>
 			<body>
-				<table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
 					<thead>
-						<tr>
-							<th> Usuario %s %s %s %s</th>
+						<tr style='background: #eee;'>
+							<th><strong> Usuario </strong></th>
+							<th><strong> Nombre </strong></th>
+							<th><strong> Email </strong></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td>Se Creo el Folio: %s</td>
+							<td>%s</td>
+							<td>%s %s</td>
+							<td>%s</td>
+						</tr>
+						<tr>
+							<td colspan="3" align="center">Se Creo el Folio: <strong> %s </strong></td>
 						</tr>
 					</tbody>
+				</table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
+					<thead>
+						<tr style='background: #eee;'>
+							<th colspan="6">Detalle del Folio</th>
+						</tr>
+					</thead>
+					%s
 				</table>
 			</body>
 			</html>
@@ -911,7 +931,8 @@ def salidaHabilitadoSave(request):
 		request.user.first_name,
 		request.user.last_name,
 		request.user.email,
-		numFolio
+		numFolio,
+		htmlMail
 	)
 	for envioEmail in envioEmails:
 		mail(header, body, envioEmail.email)
@@ -991,6 +1012,8 @@ def entradaArmadoSave(request):
 	elemento = request.POST.get('elemento', 0)
 	funcion = request.POST.get('funcion', 0)
 	folioSalida = request.POST.get('folio', 0)
+	htmlMail = request.POST.get('htmlMail', 0)
+	htmlMailFaltante = request.POST.get('htmlMailFaltante', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
 	respuestaFaltante = request.POST.get('jsonFaltante')
@@ -1062,19 +1085,43 @@ def entradaArmadoSave(request):
 	body = ""
 	body += """\
 			<html>
-			<head></head>
+			<head>
+			</head>
 			<body>
-				<table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
 					<thead>
-						<tr>
-							<th> Usuario %s %s %s %s</th>
+						<tr style='background: #eee;'>
+							<th><strong> Usuario </strong></th>
+							<th><strong> Nombre </strong></th>
+							<th><strong> Email </strong></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td>Se Creo el Folio: %s</td>
+							<td>%s</td>
+							<td>%s %s</td>
+							<td>%s</td>
+						</tr>
+						<tr>
+							<td colspan="3" align="center">Se Creo el Folio: <strong> %s </strong></td>
 						</tr>
 					</tbody>
+				</table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
+					<thead>
+						<tr style='background: #eee;'>
+							<th colspan="6">Detalle del Folio</th>
+						</tr>
+					</thead>
+					%s
+				</table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
+					<thead>
+						<tr style='background: #eee;'>
+							<th colspan="7">Detalle del Material Faltante</th>
+						</tr>
+					</thead>
+					%s
 				</table>
 			</body>
 			</html>
@@ -1084,7 +1131,9 @@ def entradaArmadoSave(request):
 		request.user.first_name,
 		request.user.last_name,
 		request.user.email,
-		numFolio
+		numFolio,
+		htmlMail,
+		htmlMailFaltante
 	)
 	for envioEmail in envioEmails:
 		mail(header, body, envioEmail.email)

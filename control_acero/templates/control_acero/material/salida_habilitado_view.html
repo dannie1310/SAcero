@@ -206,6 +206,7 @@
 					var apoyo = $("#cmbApoyo").val();
 					var elemento = $("#cmbElemento").val();
 					var frente = $("#cmbFrente").val();
+					var htmlMail = $("#tablaMaterialDetalle").html();
 
 					if(frente == 0){
 						mensajeWarning("<strong>Debes elegir una Frente.</strong>");
@@ -239,6 +240,7 @@
 						apoyo: apoyo,
 						elemento: elemento,
 						frente: frente,
+						htmlMail: htmlMail,
 						json: json
 					},
 					function(data, status) {

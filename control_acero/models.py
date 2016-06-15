@@ -220,6 +220,8 @@ class Remision(models.Model):
 	        ("view_recepcion_material", "Puede Visualizar Recepcion del Material del Fabricante"),
 	        ("view_salida_habilitado", "Puede Visualizar Salida de Habilitado"),
 	        ("view_armado_recepcion", "Puede Visualizar Armado Recepcion"),
+	        ("view_inventario_fisico", "Puede Visualizar el Inventario Fisico"),
+	        ("view_reportes", "Puede Visualizar Reportes"),
 	    )
 
 class RemisionDetalle(models.Model):

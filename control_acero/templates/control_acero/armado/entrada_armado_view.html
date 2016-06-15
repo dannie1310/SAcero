@@ -230,7 +230,7 @@
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info miles">'+object.cantidadAsignada+'</td>';
 	                		tabla +='<td style="display:none;" id="asignado_'+count+'"><input type="text" readonly disabled data-toggle="toolinfo" data-placement="bottom" title="Peso Calculado" class="form-control dataAsignacion miles" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" value="0" /></td>';
-	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Digita la Nomenclatura" title="Nomenclatura" class="form-control" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
+	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Digita la Nomenclatura" title="Nomenclatura" class="form-control text-uppercase" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
 	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Longitud" title="Longitud" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
 	                		tabla +='<td style="display:none;" id="piezas_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Piezas" title="Piezas" step="0.01" class="form-control" min="0" name="txtPiezas_'+count+'" id="txtPiezas_'+count+'" placeholder="Piezas" onChange="calculo('+count+','+object.id+');" /></td>';
 	                		tabla +='<td style="display:none;"><input type="text" class="form-control" name="txtBandera_'+count+'" id="txtBandera_'+count+'" value="0"/></td>';
@@ -454,6 +454,8 @@
 					var folio = $("#cmbFolio").val();
 					var apoyo = $("#txtApoyo").val();
 					var elemento = $("#txtElemento").val();
+					var htmlMail = $("#tablaMaterialDetalle").html();
+					var htmlMailFaltante = $("#tablaMaterialFaltante").html();
 					$("input.datos[type=hidden]").each(function(index, element) {
 						var material = $(this).data("datosidmaterial");
 						var cantidadReal = $(this).data("datoscantidadreal");
@@ -492,6 +494,8 @@
 						folio: folio,
 						apoyo: apoyo,
 						elemento: elemento,
+						htmlMail: htmlMail,
+						htmlMailFaltante: htmlMailFaltante,
 						json: json,
 						jsonFaltante: jsonFaltante
 					},
