@@ -104,7 +104,7 @@
 				<thead>
 					<tr>
 						<th class="text-center">Nombre Material</th>
-						<th class="text-center">Peso Completo en Kg</th>
+						
 						<th class="text-center">Peso Enviado por el Habilitado en Kg</th>
 					</tr>
 				</thead>
@@ -293,7 +293,7 @@
 			});
 		}
 		agregarAsignacion = function(posicion){
-			bootbox.confirm("Estas seguro?", function(result) {
+			bootbox.confirm("¿Estás seguro de realizar esta acción, posteriormente no podrás realizar ningún cambio?", function(result) {
 				if(result){
 					$( "#add_"+posicion ).prop( "disabled", true );
 					$( "#addDiferencia_"+posicion ).prop( "disabled", true );
@@ -312,7 +312,7 @@
 							tabla += '<tr>';
 								tabla += '<td>'+materialNombre+'</td>';
 								tabla += '<td class="success miles">'+cantidadReal+'</td>';
-								tabla += '<td>'+cantidadReal+'</td>';
+								
 								tabla += '<td><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
 							tabla += '</tr>';
 							$("#tablaMaterialDetalle").append(tabla);
@@ -350,7 +350,7 @@
 			});
 		}
 		agregarDiferencia = function(posicion){
-			bootbox.confirm("Estas seguro que deseas agregar Material Faltante?", function(result) {
+			bootbox.confirm("¿Estás seguro que deseas agregar material faltante?", function(result) {
 				if(result){
 					$("#asignado_"+posicion).show('slide');
 					$("#longitud_"+posicion).show('slide');
@@ -430,7 +430,7 @@
 			$("#detalleMaterial").show("slide");
 		});
 		$( "#btnCancelar" ).click(function() {
-			bootbox.confirm("Estas seguro de Cancelar. Se eliminaran todos los datos ingresados", function(result) {
+			bootbox.confirm("¿Estás seguro de Cancelar. Todos los datos capturados se eliminarán?.", function(result) {
 				if(result){
 					$("#tablaMaterial tbody").empty();
 					$("#tablaMaterialDetalle tbody").empty();
@@ -445,7 +445,7 @@
 			});
 		});
 		$( "#btnGuardar" ).click(function() {
-			bootbox.confirm("Estas seguro?", function(result) {
+			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
 				if(result){
 					var array = [];
 					var arrayFaltante = [];

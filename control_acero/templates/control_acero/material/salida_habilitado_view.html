@@ -59,7 +59,7 @@
 						<th class="text-center">Peso en Almacen en Kg</th>
 						<th class="text-center">Peso de Salida en Kg</th>
 						<th class="text-center">Peso Aceptado Restante en Kg</th>
-						<th class="text-center">Eliminar</th>
+						<th class="text-center">Corregir</th>
 
 					</tr>
 				</thead>
@@ -161,10 +161,17 @@
 			var idmaterial = $("#txtAsignado_"+posicion).data("idmaterial");
 			var posicionTabla = parseInt(posicion+1);
 			var pesoRestante =parseFloat(limpiaValor(peso)) - parseFloat(limpiaValor(asignado));
+			
 			if(asignado <= 0){
-				mensajeWarning("El peso de salida no puede ser en 0");
+				mensajeWarning("Debes capturar un peso de salida diferente a cero");
 				return false;
 			}
+			
+			if(pesoRestante <= 0){
+				mensajeWarning("No debe exceder el peso existente ");
+				return false;
+			}
+			console.log(asignado,peso,pesoRestante);
 			$("#limpia_"+idmaterial).remove();
 			var tabla = '';
 				tabla += '<tr id="limpia_'+idmaterial+'">';
@@ -200,7 +207,7 @@
 			$(a).closest("tr").remove();
 		}
 		$( "#btnGuardar" ).click(function() {
-			bootbox.confirm("Estas seguro de Aceptar la salida, debido que posteriormente no podras realizar ningun cambio dentro de este registro.", function(result) {
+			bootbox.confirm("¿Estás seguro que la información de salida es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
 				if(result){
 					var array = [];
 					var apoyo = $("#cmbApoyo").val();
@@ -243,16 +250,12 @@
 					},
 					function(data, status) {
 				            try {
-				            	
-				            	if(data.mensaje =='No puede exceder el peso existente'){
 				            		mensajeSuccess("<b>"+data.mensaje+"</b>");
-				            	}
-				            	else{
-					            	mensajeSuccess("<b>"+data.mensaje+"</b>");
 					            	materialRecepcionado();
 					            	$("#folio").html(data.folio);
-					            	$("#btnGuardar").hide();
-				            	}
+					            	$("#btnGuardar").hide('slide');
+				            	
+				            	
 				            } catch (e) {
 				                alert("Error al cargar Guardar la información:" + e);
 				            }
