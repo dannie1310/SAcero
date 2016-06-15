@@ -66,7 +66,7 @@
 						<th class="text-center">Piezas</th>
 						<th class="text-center">Peso Total Kg</th>
 						<th class="text-center">Longitud Mts</th>
-						<th class="text-center">Eliminar</th>
+						<th class="text-center">Corregir</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -314,7 +314,7 @@
 			}
 		});
 		$( "#btnSolicitar" ).click(function() {
-			bootbox.confirm("Estas seguro?", function(result) {
+			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
 				if(result){
 					var orden = $("#cmbOrden").val();
 					var remision = $("#remision").val();

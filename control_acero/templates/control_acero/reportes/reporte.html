@@ -170,6 +170,7 @@
 			var tipo = $("#cmbFuncion").find(':selected').data('tipo')
 			var folio = '';
 			var i=0;
+			var res=0;
 			console.log(funcion+" - "+tipo+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
 			var tabla = '';
 			var head='';
@@ -229,6 +230,7 @@
 
 		                 if(object.value==2){
 		                 	//Armador
+		                 	//console.log(object);
 		                 		head ='<tr>'
 		                 		+'<th class="text-center">Folio</th>'
 		                 		+'<th class="text-center">Remisión</th>'
@@ -237,8 +239,9 @@
 		                 		+'<th class="text-center">Apoyo</th>'
 								+'<th class="text-center">Elemento</th>'	
 								+'<th class="text-center">Varilla</th>'
-								+'<th class="text-center">Peso Asignado en Kg</th>'								
-								+'<th class="text-center">Peso Total en Kg</th>'
+								+'<th class="text-center">Peso por Remisión de Habilitado en Kg</th>'	
+								+'<th class="text-center">Peso Faltante en Kg</th>'								
+								+'<th class="text-center">Peso Recibido en Kg</th>'
 								
 								+'</tr>';
 
@@ -250,12 +253,21 @@
 								tabla +='<td>'+object.apoyo+'</td>';
 	                    		tabla +='<td>'+object.elemento+'</td>';
 	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
 	                    		tabla +='<td class="info miles">'+object.cantidadReal+'</td>';
+	                    		if(object.id==object.idED){
+		                    		tabla +='<td class="alert-warning info miles">'+object.cantidad+'</td>';
+		                    		tabla +='<td class="info miles">'+object.calculado+'</td>';
+									
+								}
+								else{
+									tabla +='<td class="info miles">0</td>';
+		                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
+									
+								}
 								tabla += '</tr>';
 								$("#tituloE").hide('slide');
 								$("#tituloS").hide('slide');
-								$("#divTotales").hide('slide');
+								$("#divTotales").show('slide');
 								 $("#divTotalesS").hide('slide');
 		                 }
 
@@ -284,7 +296,7 @@
 	                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
 	                    		
 								tabla += '</tr>';
-								$("#tituloE").show('slide');
+								
 								$("#tituloS").show('slide');
 		                 }
 		                  if(object.value==4 && tipo==2){
@@ -347,6 +359,7 @@
 				                    		t +='<td>'+object.fechaA+'</td>';
 				                    		t +='<td class="info miles">'+object.peso+'</td>';
 				                    		t += '</tr>';
+				                    		$("#tituloE").show('slide');
 								});
 						$.each(data.totales, function (count, object) {
 	                    		 	//console.log(object);
@@ -354,10 +367,15 @@
 										+'<th class="text-center">Varilla</th>'
 										+'<th class="text-center">Peso Total en Kg</th>'
 										+'</tr>';
-
-									tT  += '<tr>';
-				                    tT +='<td>'+object.nombre+'</td>';
-				                    tT +='<td class="info miles">'+object.peso+'</td>';
+										tT  += '<tr>';
+				                    	tT +='<td>'+object.nombre+'</td>';
+									
+				                    if(object.faltante!=null){
+				                    	tT +='<td class="info miles">'+object.faltante+'</td>';
+				                    }
+				                    else{
+				                    	tT +='<td class="info miles">'+object.peso+'</td>';
+				                    }
 				                    tT += '</tr>';
 				                     $("#divTotales").show('slide');
 
@@ -378,9 +396,7 @@
 				                    
 				                    
 	                    });
-						
-		            	mensajeWarning("<b>"+datos.mensaje+"</b>");
-		            	
+     	
 		        } catch (e) {
 	                mensajeWarning("Consulta invalida");
 	            }

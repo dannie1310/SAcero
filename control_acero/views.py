@@ -1022,6 +1022,7 @@ def entradaArmadoSave(request):
 	array = {}
 	mensaje = {}
 	data = []
+
 	folio = Entrada.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
@@ -1070,6 +1071,10 @@ def entradaArmadoSave(request):
 								tallerAsignado_id = request.session["idTaller"]
 								)
 		if bandera == 1:
+			print "------"
+			print bandera
+			print nomenclatura
+			print longitud
 			entradaDetalle = EntradaDetalle.objects\
 							.create(
 									nomenclatura = nomenclatura,
@@ -2154,11 +2159,11 @@ def reporteConsulta(request):
 
 	idFuncion = request.POST.get('funcion', 0)
 	idTaller = request.POST.get('taller', 0)
-	idFrente = request.POST.get('frente', 0)
+	idFrente = request.POST.get('frente', 6)
 	tipo =request.POST.get('tipo',0)
 
 	fechaInicial = request.POST.get('fechai', '17/05/2016')
-	fechaFinal = request.POST.get('fechaf', '12/06/2016')
+	fechaFinal = request.POST.get('fechaf', '14/06/2016')
 	fechaInicialFormat = datetime.strptime(fechaInicial+" 00:00:00", '%d/%m/%Y %H:%M:%S')
 	fechaFinalFormat = datetime.strptime(fechaFinal+" 23:59:59", '%d/%m/%Y %H:%M:%S')
 
@@ -2170,11 +2175,9 @@ def reporteConsulta(request):
 	print fechaInicial
 	print fechaFinal
 
-	if idTaller=='0' and idFrente=='0' and tipo=='1':
+	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='1':
 
-		print "aqui Fabricante"
-		print idTaller
-			##here!!! :D .annotate(pesoMaterial = Sum('peso'))\
+		print "Fabricante"
 
 		total = RemisionDetalle.objects.values(	'material__id',
 												'material__nombre'		
@@ -2236,9 +2239,100 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totales"]=totales
 		return JsonResponse(array)
+
+	if idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='1':
+
+		print "Fabricante y Taller de Habilitado"
+		
+		total = RemisionDetalle.objects.values(	'material__id',
+												'material__nombre'		
+												).annotate(pesoMaterial = Sum('peso'))\
+												.filter(remision__funcion__id =idFuncion,
+														remision__tallerAsignado__id=idTaller,
+														fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("material__id")
+
+		print total.query
+		for x in total:
+			resultado = {
+					"id":x['material__id'],
+					"nombre":x['material__nombre'],
+					"peso":x['pesoMaterial']
+			}											
+			totales.append(resultado)
+		datos = Remision.objects.values(
+												'id',
+												'idOrden',
+												'pesoNeto',
+												'fechaRemision',
+												'fechaActualizacion',
+												'remision',
+												'tallerAsignado__nombre',
+												'funcion__proveedor',
+												'remisiondetalle__cantidad',
+												'remisiondetalle__peso',
+												'remisiondetalle__folio',
+												'remisiondetalle__numFolio',
+												'remisiondetalle__longitud',
+												'remisiondetalle__material__nombre')\
+												.filter(fechaRegistro__gte=fechaInicialFormat,
+																			fechaRegistro__lte=fechaFinalFormat,
+																			funcion_id= idFuncion,
+																			tallerAsignado__id=idTaller,
+																			estatus=1).order_by("tallerAsignado__id")
+		#print datos.query
+		for e in datos:
+				
+			resultado = {   "value": 1,
+								"id":e['id'],
+								"orden":e['idOrden'],
+								"pesoTotal":e['pesoNeto'],
+								"peso":e['remisiondetalle__peso'],
+								"fechaR":e['fechaRemision'],
+								"fechaA":e['fechaActualizacion'],
+								"taller":e['tallerAsignado__nombre'],
+								"folio":e['remisiondetalle__folio'],
+								"num":e['remisiondetalle__numFolio'],
+								"remision":e['remision'],
+								"proveedor":e['funcion__proveedor'],
+								"piezas":e['remisiondetalle__cantidad'],
+								"longitud":e['remisiondetalle__longitud'],
+								"material":e['remisiondetalle__material__nombre']
+							}
+
+			data.append(resultado)
+		array["data"]=data
+		array["totales"]=totales
+		return JsonResponse(array)
+
+	elif  idTaller=='0' and idFuncion!='0' and tipo=='3':
+		print "elif Armador"
+		total = Entrada.objects.values(			
+												'material__id',
+												'material__nombre',
+												'entradadetalle__calculado'		
+												).annotate(pesoMaterial = Sum('cantidadAsignada'))\
+												.filter(funcion__id =idFuncion,
+														fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("material__id")
+
+
+		#print total.query
+		for x in total:
 			
-	elif idFrente!='0' and idTaller=='0':
-		print "elif Armado"
+			resultado = {
+					"id":x['material__id'],
+					"nombre":x['material__nombre'],
+					"peso":x['pesoMaterial'],
+					"faltante":x['entradadetalle__calculado']
+			}											
+			totales.append(resultado)
+
+
 		armador = Entrada.objects.values(
 											'id',
 											'cantidadAsignada',
@@ -2249,7 +2343,9 @@ def reporteConsulta(request):
 											'elemento__nombre',
 											'folio',
 											'tallerAsignado__nombre',
-											'remision').filter(
+											'entradadetalle__entrada_id',
+											'entradadetalle__calculado',
+											'remision').filter( funcion__id =idFuncion,
 																fechaRegistro__gte=fechaInicialFormat,
 																fechaRegistro__lte=fechaFinalFormat,
 																estatus=1).order_by("tallerAsignado__id")
@@ -2263,6 +2359,8 @@ def reporteConsulta(request):
 							"apoyo":e['apoyo__numero'],
 							"folio":e['folio'],
 							"taller":e['tallerAsignado__nombre'],
+							"idED":e['entradadetalle__entrada_id'],
+							"calculado":e['entradadetalle__calculado'],
 							"remision":e['remision'],
 							"material":e['material__nombre'],
 							"cantidadReal":e['cantidadReal'],
@@ -2271,6 +2369,71 @@ def reporteConsulta(request):
 			data.append(resultado)
 
 		array["data"]=data
+		array["totales"]=totales
+		return JsonResponse(array)
+
+	elif idFrente!='0' and idTaller=='0' :
+		print "elif Frente de Trabajo"
+
+		total = Entrada.objects.values(			
+												'material__id',
+												'material__nombre',
+												'entradadetalle__calculado'		
+												).annotate(pesoMaterial = Sum('cantidadAsignada'))\
+												.filter(fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("material__id")
+
+
+		print total.query
+		for x in total:
+			
+			resultado = {
+					"id":x['material__id'],
+					"nombre":x['material__nombre'],
+					"peso":x['pesoMaterial'],
+					"faltante":x['entradadetalle__calculado']
+			}											
+			totales.append(resultado)
+
+		armador = Entrada.objects.values(
+											'id',
+											'cantidadAsignada',
+											'funcion__proveedor',
+											'material__nombre',
+											'apoyo__numero',
+											'cantidadReal',
+											'elemento__nombre',
+											'folio',
+											'tallerAsignado__nombre',
+											'entradadetalle__entrada_id',
+											'entradadetalle__calculado',
+											'remision').filter(
+																fechaRegistro__gte=fechaInicialFormat,
+																fechaRegistro__lte=fechaFinalFormat,
+																estatus=1).order_by("tallerAsignado__id")
+		print armador.query
+		for e in armador:
+			
+			resultado = {	"value": 2,
+							"id":e['id'],
+							"cantidad":e['cantidadAsignada'],
+							"proveedor":e['funcion__proveedor'],
+							"apoyo":e['apoyo__numero'],
+							"folio":e['folio'],
+							"taller":e['tallerAsignado__nombre'],
+							"idED":e['entradadetalle__entrada_id'],
+							"calculado":e['entradadetalle__calculado'],
+							"remision":e['remision'],
+							"material":e['material__nombre'],
+							"cantidadReal":e['cantidadReal'],
+							"elemento":e['elemento__nombre']
+						}
+			data.append(resultado)
+
+		array["data"]=data
+		array["totales"]=totales
 		return JsonResponse(array)
 
 	elif idTaller!='0' and idFrente=='0' and idFuncion=='0':
@@ -2511,12 +2674,70 @@ def reporteConsulta(request):
 		array["totalesS"]=totalesS
 		return JsonResponse(array)
 
+	elif idTaller!='0' and idFrente!='0' and idFuncion=='0':
+		print "Taller de habilitado y frente de trabajo"
+		
+		total = Salida.objects.values(	'material__id',
+										'material__nombre'		
+												).annotate(pesoMaterial = Sum('cantidadAsignada'))\
+												.filter(tallerAsignado__id= idTaller,
+														frente_id = idFrente,
+														fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("material__id")
 
-	else:
-		mensaje = {"estatus":"ok", "mensaje":"Consulta invalida"}
-		print mensaje
-	array = mensaje
-	return JsonResponse(array)
+		#print total.query
+		for x in total:
+			resultado = {
+					"id":x['material__id'],
+					"nombre":x['material__nombre'],
+					"peso":x['pesoMaterial']
+			}											
+			totalesS.append(resultado)
+
+		habilitadores= Salida.objects.values(
+												'id',
+												'cantidadAsignada',
+												'fechaRegistro',
+												'folio',
+												'tallerAsignado__nombre',
+												'tallerAsignado__funcion__proveedor',
+												'apoyo__numero',
+												'frente__nombre',
+												'material__nombre',
+												'cantidadReal',
+												'elemento__nombre').filter(tallerAsignado_id=idTaller,
+																			frente_id = idFrente,
+																			fechaRegistro__gte=fechaInicialFormat,
+																			fechaRegistro__lte=fechaFinalFormat,
+																			estatus=1)
+
+
+		for e in habilitadores:
+			resultado={	"value": 3,
+						"id":e['id'],
+						"cantidad":e['cantidadAsignada'],
+						"fechaR":e['fechaRegistro'],
+						"folio":e['folio'],
+						"taller":e['tallerAsignado__nombre'],
+						"proveedor":e['tallerAsignado__funcion__proveedor'],
+						"apoyo":e['apoyo__numero'],
+						"frente":e['frente__nombre'],
+						"material":e['material__nombre'],
+						"cantidadReal":e['cantidadReal'],
+						"elemento":e['elemento__nombre']
+
+			}
+
+			data.append(resultado)
+
+		array["entrada"]=dataEn
+		array["totales"]=totales
+		array["data"]=data
+		array["totalesS"]=totalesS
+		return JsonResponse(array)
+	
 
 
 def inventarioFisicoView(request):
