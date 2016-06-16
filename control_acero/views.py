@@ -55,6 +55,8 @@ def loginUsuario(request):
 					current_user = request.user
 					user_id = current_user.id
 					if current_user.is_superuser:
+						getTallerAsignado(request, 0)
+						getFrenteAsignado(request, 0)
 						url = '/control_acero/principal/'
 					else:
 						url = '/control_acero/perfil/'
@@ -130,6 +132,10 @@ def logout_view(request):
 	del	request.session['proveedorTaller']
 	del	request.session['ubicacionTaller']
 	del	request.session['responsableTaller']
+	del	request.session['idFrente']
+	del	request.session['nombreFrente']
+	del	request.session['identificacionFrente']
+	del	request.session['ubicacionFrente']
 	logout(request)
     	template_name = '/control_acero'
     	return HttpResponseRedirect(template_name)
