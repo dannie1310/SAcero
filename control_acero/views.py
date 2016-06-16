@@ -990,7 +990,7 @@ def entradaArmadoMaterial(request):
 	dataDetalle = []
 	folio = request.POST.get('folio', 1)
 	cantidadReal = 0
-	remisionDetalles = Salida.objects \
+	salidas = InventarioSalida.objects \
 						.values(
 								'material_id',
 								'material__nombre',
@@ -1003,16 +1003,16 @@ def entradaArmadoMaterial(request):
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
 						.filter(numFolio = folio, frente_id = request.session["idFrente"]) \
 						.order_by('material_id')
-	for remisionDetalle in remisionDetalles:
+	for salida in salidas:
 		resultado = {
-						"id":remisionDetalle["material_id"],
-						"materialNombre":remisionDetalle["material__nombre"],
-						"materialDiametro":remisionDetalle["material__diametro"],
-						"cantidadAsignada":remisionDetalle["cantidadAsignada"],
-						"apoyoId":remisionDetalle["apoyo__id"],
-						"apoyoNumero":remisionDetalle["apoyo__numero"],
-						"elementoId":remisionDetalle["elemento__id"],
-						"elementoNombre":remisionDetalle["elemento__nombre"]
+						"id":salida["material_id"],
+						"materialNombre":salida["material__nombre"],
+						"materialDiametro":salida["material__diametro"],
+						"cantidadAsignada":salida["cantidadAsignada"],
+						"apoyoId":salida["apoyo__id"],
+						"apoyoNumero":salida["apoyo__numero"],
+						"elementoId":salida["elemento__id"],
+						"elementoNombre":salida["elemento__nombre"]
 					}
 		data.append(resultado)
 
@@ -1035,19 +1035,32 @@ def entradaArmadoSave(request):
 	array = {}
 	mensaje = {}
 	data = []
-
 	folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
 	numFolio = "%04d" % (numFolioInt,)
 	numFolio = "EMA-"+numFolio
-	print jsonDataInfoFaltante
 	for jsonData in jsonDataInfo:
 		material = jsonData["material"]
 		cantidadReal = jsonData["cantidadReal"]
 		cantidadAsignada = jsonData["cantidadAsignada"]
 		bandera = jsonData["bandera"]
+		totalAsignado = cantidadAsignada
+		inventarioSalidas = InventarioSalida.objects.all()\
+										.filter(material_id = material, estatusTotalizado = 1, frente_id = request.session["idFrente"])
+		for inventarioSalida in inventarioSalidas:
+			inventarioId = inventarioSalida.id
+			irdpeso = inventarioSalida.cantidadAsignada
+			if Decimal(irdpeso) <= Decimal(totalAsignado):
+				totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
+				InventarioSalida.objects.filter(id=inventarioId).update(cantidadAsignada=0, estatusTotalizado = 0)
+				continue
+
+			if Decimal(irdpeso) > Decimal(totalAsignado):
+				cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
+				InventarioSalida.objects.filter(id=inventarioId).update(cantidadAsignada=cantidadRestar)
+
 		entrada = Entrada.objects\
 						.create(
 								remision = remision,

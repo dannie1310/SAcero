@@ -512,6 +512,7 @@
 				            try {
 				            	mensajeSuccess("<b>"+data.mensaje+"</b>");
 				            	$("#folio").html(data.folio);
+				            	materialRecepcionado(folio);
 				            } catch (e) {
 				                alert("Error al cargar Guardar la información:" + e);
 				            }

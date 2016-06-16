@@ -164,18 +164,17 @@
 			var peso = $("#txtAsignado_"+posicion).data("cantidadreal");
 			var idmaterial = $("#txtAsignado_"+posicion).data("idmaterial");
 			var posicionTabla = parseInt(posicion+1);
-			var pesoRestante =parseFloat(peso) - parseFloat(asignado);
+			var pesoRestante =parseFloat(limpiaValor(peso)) - parseFloat(limpiaValor(asignado));
 			
 			if(asignado <= 0){
 				mensajeWarning("Debes capturar un peso de salida diferente a cero");
 				return false;
 			}
 			
-			if(pesoRestante <= 0){
+			if(pesoRestante < 0){
 				mensajeWarning("No debe exceder el peso existente ");
 				return false;
 			}
-			console.log(asignado,peso,pesoRestante);
 			$("#limpia_"+idmaterial).remove();
 			var tabla = '';
 				tabla += '<tr id="limpia_'+idmaterial+'">';
@@ -183,11 +182,12 @@
 					tabla += '<td>'+nombre+'</td>';
 					tabla += '<td class="miles info">'+peso+'</td>';
 					tabla += '<td class="miles success">'+asignado+'</td>';
-					tabla += '<td class="warning">'+pesoRestante.toFixed(2)+'</td>';
+					tabla += '<td class="warning miles">'+pesoRestante.toFixed(2)+'</td>';
 					tabla +='<td style="display:none;"><input type="text" class="form-control miles dataAsignacion" data-idmaterial="'+idmaterial+'" data-nombrematerial="'+nombre+'" data-cantidadreal="'+peso+'" value="'+asignado+'" /></td>';
 					tabla += '<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);"></span></td>';
 				tabla += '</tr>';
 			$("#tablaMaterialDetalle").append(tabla);
+			$("#txtAsignado_"+posicion).val(0);
 		}
 		comboFrente = function(){
 			$.post( "{% url 'comboFrente' %}",{
