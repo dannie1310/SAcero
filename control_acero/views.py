@@ -573,11 +573,13 @@ def comboApoyo(request):
 	array = {}
 	mensaje = {}
 	data = []
+	frente = request.POST.get('frente', 0)
+
 	apoyos = Apoyo.objects.all()\
-								.filter(
+								.filter(frente_id=frente,
 										estatus = 1
 										)\
-								.order_by("numero")
+								.order_by("id")
 	for apoyo in apoyos:
 		resultado = {
 						"id":apoyo.id,
