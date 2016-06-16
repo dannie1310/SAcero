@@ -66,7 +66,7 @@
 						<th class="text-center">Piezas</th>
 						<th class="text-center">Peso Total Kg</th>
 						<th class="text-center">Longitud Mts</th>
-						<th class="text-center">Corregir</th>
+						<th class="text-center eliminar">Corregir</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -266,7 +266,7 @@
 								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
 								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
-								+'<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove eliminar" onClick="eliminar(this);" data-eliminar="0"></span></td>'
+								+'<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);" data-eliminar="0"></span></td>'
 								+'<td style="display:none" class="text-center">'
 									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
 								+'</td>'
@@ -274,15 +274,16 @@
 					$("#count"+idMaterial).val(0);
 					$("#txt"+idMaterial).val(0);
 					pesoTotalReal = 0;
-				}
-			});
 
+				} 
+				
+			});
 			if(tabla.length==0){
 				mensajeWarning("Campos vacios");
 				return false;
 			}
 			else{
-
+				
 				$("#tablaApoyoElemento").append(tabla);
 				$('.pesoTotal').each(function(i, obj) {
 					pesoTd += parseFloat($(this).text());
@@ -294,7 +295,8 @@
 				$("#divDetalle").show("slide");
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
-				$("#divPesoTotal").append(pesoTd.toFixed(2)+" Kg");
+			    
+				$("#divPesoTotal").append('<td class="miles info">'+pesoTd.toFixed(2)+" Kg</td>");
 				$("#divPesoTonelada").append(tonHtml+" Ton");
 				$("#txtPesoTotal").val(pesoTotal.toFixed(4));
 				
@@ -317,6 +319,7 @@
 					$(":input[class=dataVarilla]").each(function(index, element) {
 
 						datos.push({"data": this.value});
+						
 					});
 					if(datos.length==0){
 						mensajeWarning("Debes asignar peso");
@@ -324,6 +327,7 @@
 					}
 					else{
 					var json = JSON.stringify(datos);
+
 					}
 					$.post( "{% url 'recepcionMaterialSave' %}",{
 					        		remision: remision,
@@ -348,10 +352,11 @@
 					})
 					.fail(function() {
 						mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
-					});
-					$("#btnSolicitar").hide();
-					$("#btnCancelar").hide();
+					});	
 				}
+				$("#btnSolicitar").hide("slide");
+				$("#btnCancelar").hide("slide");
+				$(".eliminar").hide();
 			});
 		});
 		$( "#btnCancelar" ).click(function() {
@@ -402,6 +407,8 @@
 		function eliminar (a){
 			$(a).closest("tr").remove();
 		}
+		
+
 	    $(function () {
 	    	mostrarFolio();
 	    	comboFuncion();

@@ -89,8 +89,12 @@
 				mensajeWarning( "Error en la petición del Fabricante" );
 			});
 		}
-		comboApoyo = function(){
+
+		
+		comboApoyo = function(value){
+			var frente =value;
 			$.post( "{% url 'comboApoyo' %}",{
+				frente:frente
 			},
 			function(data, status) {
 		            try {
@@ -203,6 +207,11 @@
 				mensajeWarning( "Error en la petición del Frente" );
 			});
 		}
+		$( "#cmbFrente" ).change(function() {
+			var value = this.value;
+			comboApoyo(value);
+		});
+
 		function eliminar (a){
 			$(a).closest("tr").remove();
 		}
