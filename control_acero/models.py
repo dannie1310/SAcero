@@ -151,6 +151,10 @@ class Frente(models.Model):
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
 	)
+	user = models.ManyToManyField(
+		User,
+		blank=True,
+	)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION

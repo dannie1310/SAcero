@@ -160,7 +160,7 @@
 			var peso = $("#txtAsignado_"+posicion).data("cantidadreal");
 			var idmaterial = $("#txtAsignado_"+posicion).data("idmaterial");
 			var posicionTabla = parseInt(posicion+1);
-			var pesoRestante =parseFloat(limpiaValor(peso)) - parseFloat(limpiaValor(asignado));
+			var pesoRestante =parseFloat(peso) - parseFloat(asignado);
 			
 			if(asignado <= 0){
 				mensajeWarning("Debes capturar un peso de salida diferente a cero");

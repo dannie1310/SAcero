@@ -54,7 +54,6 @@ def loginUsuario(request):
 					login(request, user)
 					current_user = request.user
 					user_id = current_user.id
-					getTallerAsignado(request, 0)
 					if current_user.is_superuser:
 						url = '/control_acero/principal/'
 					else:
@@ -97,23 +96,33 @@ def fecha(request):
 	array = mensaje
 	return JsonResponse(array)
 
-def getTallerAsignado(request, almacen):
-	taller = Taller.objects.filter(id = almacen).order_by()
-	# today = datetime.now()
-	# date = today.strftime("%d/%m/%Y")
+def getTallerAsignado(request, taller):
+	taller = Taller.objects.filter(id = taller).order_by()
 	if taller.exists():
 		request.session['idTaller'] = taller[0].id
 		request.session['nombreTaller'] = taller[0].nombre
 		request.session['proveedorTaller'] = taller[0].proveedor
 		request.session['ubicacionTaller'] = taller[0].ubicacion
 		request.session['responsableTaller'] = taller[0].responsable
-		# request.session['fecha'] = date
 	else:
 		request.session['idTaller'] = 0
 		request.session['nombreTaller'] = 0
 		request.session['proveedorTaller'] = 0
 		request.session['ubicacionTaller'] = 0
 		request.session['responsableTaller'] = 0
+
+def getFrenteAsignado(request, frente):
+	frente = Frente.objects.filter(id = frente).order_by()
+	if frente.exists():
+		request.session['idFrente'] = frente[0].id
+		request.session['nombreFrente'] = frente[0].nombre
+		request.session['identificacionFrente'] = frente[0].identificacion
+		request.session['ubicacionFrente'] = frente[0].ubicacion
+	else:
+		request.session['idFrente'] = 0
+		request.session['nombreFrente'] = 0
+		request.session['identificacionFrente'] = 0
+		request.session['ubicacionFrente'] = 0
 
 def logout_view(request):
 	del request.session['idTaller']
@@ -390,6 +399,7 @@ def frentesNewView(request):
 		if(form.is_valid()):
 			frente = form.save(commit=False)
 			frente.save()
+			form.save_m2m()
 			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
 	else:
 		form = FrenteForm()
@@ -403,6 +413,7 @@ def frentesEditView(request, pk):
 		if(form.is_valid()):
 			frente = form.save(commit=False)
 			frente.save()
+			form.save_m2m()
 			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
 	else:
 		form = FrenteForm(instance=frente)
@@ -988,7 +999,7 @@ def entradaArmadoMaterial(request):
 								'elemento__nombre'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
-						.filter(numFolio = folio, tallerAsignado_id = request.session["idTaller"]) \
+						.filter(numFolio = folio, frente_id = request.session["idFrente"]) \
 						.order_by('material_id')
 	for remisionDetalle in remisionDetalles:
 		resultado = {
@@ -1023,7 +1034,7 @@ def entradaArmadoSave(request):
 	mensaje = {}
 	data = []
 
-	folio = Entrada.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
@@ -1046,7 +1057,7 @@ def entradaArmadoSave(request):
 								cantidadAsignada = cantidadAsignada,
 								folio = numFolio,
 								numFolio = numFolioInt,
-								tallerAsignado_id = request.session["idTaller"]
+								frente_id = request.session["idFrente"]
 								)
 	for jsonDataFaltante in jsonDataInfoFaltante:
 		materialF = jsonDataFaltante["material"]
@@ -1068,13 +1079,9 @@ def entradaArmadoSave(request):
 								cantidadAsignada = cantidadAsignadaF,
 								folio = numFolio,
 								numFolio = numFolioInt,
-								tallerAsignado_id = request.session["idTaller"]
+								frente_id = request.session["idFrente"]
 								)
 		if bandera == 1:
-			print "------"
-			print bandera
-			print nomenclatura
-			print longitud
 			entradaDetalle = EntradaDetalle.objects\
 							.create(
 									nomenclatura = nomenclatura,
@@ -1085,7 +1092,7 @@ def entradaArmadoSave(request):
 									)
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
-	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	envioEmails = User.objects.all().filter(frente__id = request.session['idFrente'])
 	header = "RECEPCIÓN EN FRENTE DE TRABAJO"
 	body = ""
 	body += """\
@@ -1171,7 +1178,7 @@ def foliosMostrar(request):
 		numFolio = "%04d" % (numFolioInt,)
 		numFolio = "SMH-"+numFolio
 	if int(modulo) == 3:
-		folio = Entrada.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+		folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
@@ -1187,7 +1194,7 @@ def foliosSalidaHabilitado(request):
 	array = {}
 	mensaje = {}
 	data = []
-	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct().filter(tallerAsignado_id=request.session['idTaller'])
+	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct().filter(frente_id=request.session['idFrente'])
 	for salidaFolio in salidaFolios:
 		resultado = {
 						"numFolio":salidaFolio["numFolio"],
@@ -1213,17 +1220,27 @@ def perfilView(request):
 	current_user = request.user
 	user_id = current_user.id
 	talleres = Taller.objects.all().filter(user__id = user_id).order_by("nombre")
-	return render_to_response('control_acero/perfil.html', RequestContext(request, {"talleres": talleres}))
+	frentes = Frente.objects.all().filter(user__id = user_id).order_by("nombre")
+	return render_to_response('control_acero/perfil.html', RequestContext(request, {"talleres": talleres, "frentes": frentes}))
 
 @login_required(login_url='/control_acero/usuario/login/')
 def principalView(request):
 	if request.method == "POST":
-		almacen = request.POST["almacen"]
-		if int(almacen) == 0:
-			template_name = '/control_acero/perfil'
-		 	messages.error(request, 'Debes Elegir un Perfil')
-		 	return HttpResponseRedirect(template_name)
-		getTallerAsignado(request, almacen)
+		perfil = request.POST.get('perfil', 0)
+		taller = request.POST.get('taller', 0)
+		frente = request.POST.get('frente', 0)
+		if int(perfil) == 1:
+			if int(taller) == 0:
+				template_name = '/control_acero/perfil'
+			 	messages.error(request, 'Debes Elegir un Perfil Taller de Habilitado')
+			 	return HttpResponseRedirect(template_name)
+		if int(perfil) == 2:
+			if int(frente) == 0:
+				template_name = '/control_acero/perfil'
+			 	messages.error(request, 'Debes Elegir un Frente de Trabajo')
+			 	return HttpResponseRedirect(template_name)
+		getTallerAsignado(request, taller)
+		getFrenteAsignado(request, frente)
 	template = 'control_acero/principal.html'
 	return render(request, template)
 

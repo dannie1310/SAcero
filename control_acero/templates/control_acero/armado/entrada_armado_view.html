@@ -4,10 +4,19 @@
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
-		<div class="form-group col-md-6 text-left alert-info">
+		{% if request.session.nombreFrente > 0 %}
+		<div class="form-group col-md-12 text-center alert-info">
+			<h3> Frente de Trabajo "{{ request.session.nombreFrente }}"</h3>
+		</div>
+		{% else %}
+		<div class="form-group col-md-12 text-center alert-info">
+			<h3> NO TIENES FRENTE DE TRABAJO ASIGNADO</h3>
+		</div>
+		{% endif %}
+		<div class="form-group col-md-6 text-center alert-info">
 			<h3> Folio: <span id="folio"></span></h3>
 		</div>
-		<div class="form-group col-md-6 text-left alert-info">
+		<div class="form-group col-md-6 text-center alert-info">
 			<h3> Reponsable: {{ user.get_username }}</h3>
 		</div>
 		<div class="form-group col-md-6">
@@ -151,9 +160,9 @@
 		            try {
 		                $('.cmbFolio').empty();
 	                    $.each(data.data, function (count, object) {
+	                        $('.cmbFolio').append('<option data-folio="'+object.folio+'" value="' + object.numFolio + '">' + object.folio + '</option>');
 							$('.cmbFolio').append('<optgroup label="Apoyo asignado: ' + object.apoyo + ' Elemento asignado:' + object.elemento + '">');
-	                        	$('.cmbFolio').append('<option data-folio="'+object.folio+'" value="' + object.numFolio + '">' + object.folio + '</option>');
-	                        $('.cmbFolio').append('</optgroup>');
+							$('.cmbFolio').append('</optgroup>');
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar Combo del Folio:" + e);

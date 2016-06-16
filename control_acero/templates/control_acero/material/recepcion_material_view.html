@@ -149,13 +149,10 @@
 			});
 		}
 		$( "#agregarVarillas" ).click(function() {
-			//$("#tablaFrente tbody").empty();
 			$("#divVarillasCheck").empty();
 			$("#divCantidades").empty();
 			var orden = $("#cmbOrden").val();
 			var remision = $("#remision").val();
-			//var frente = $("#cmbFrente").val();
-			//var fechaInicial = $("#fechaInicial").val();
 			var proveedor =$("#cmbFuncion").val();
 			var fechaRemision = $("#fechaRemision").val();
 			
@@ -176,8 +173,6 @@
 				mensajeWarning("<strong>Debes elegir una Fecha de Remisión.</strong>");
 				return false;
 			}
-
-		    //$("#divFrente").show("slide");
 			
 			var tabla = '';
 			
@@ -232,10 +227,6 @@
 		    $("#divCantidades").append(html);
 		    $("#divVarillasCheck").append(checks);
 		    $("#divCantidades").show("slide");
-		    //$("#divCantidadesBotones").show('slide');
-		   // $("#divDetalle").show('slide');
-		    //$("#divDetalleSolicita").show('slide');
-		    //$("#divDetalleCancelar").show('slide');
 		});
 		$( "#btnAgregaVarilla" ).click(function() {
 			$("#divPesoTotal").empty();

@@ -49,7 +49,7 @@ class MaterialForm(forms.ModelForm):
 class FrenteForm(forms.ModelForm):
 	class Meta:
 		model = Frente
-		fields = ['nombre', 'estatus', 'identificacion','ubicacion','kilometros']
+		fields = ['nombre', 'estatus', 'identificacion','ubicacion','kilometros', 'user']
 		exclude = ['estatus']
 
 class FuncionForm(forms.ModelForm):

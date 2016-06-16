@@ -59,7 +59,7 @@ urlpatterns = [
     url(r'^combo/elemento/$', views.comboElemento, name='comboElemento'),
     url(r'^combo/funciongeneral/$', views.comboFuncionGeneral, name='comboFuncionGeneral'),
     url(r'^combo/taller/$', views.comboTaller, name='comboTaller'),
-    url(r'^combo/tallerG/$', views.comboTallerG, name='comboTallerG'),
+
 
     #"""------------------------------------------"""
     #"""   RUTAS RELACIONADAS CATALOGO DE APOYOS  """
