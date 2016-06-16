@@ -166,6 +166,7 @@ class Apoyo(models.Model):
 	    (1, 'Activo'),
 	)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	frente = models.ForeignKey(Frente, null=True)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
