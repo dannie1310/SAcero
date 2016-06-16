@@ -59,7 +59,7 @@
 						<th class="text-center">Peso en Almacen en Kg</th>
 						<th class="text-center">Peso de Salida en Kg</th>
 						<th class="text-center">Peso Aceptado Restante en Kg</th>
-						<th class="text-center">¿Corregir?</th>
+						<th class="text-center eliminar">¿Corregir?</th>
 
 					</tr>
 				</thead>
@@ -184,7 +184,7 @@
 					tabla += '<td class="miles success">'+asignado+'</td>';
 					tabla += '<td class="warning miles">'+pesoRestante.toFixed(2)+'</td>';
 					tabla +='<td style="display:none;"><input type="text" class="form-control miles dataAsignacion" data-idmaterial="'+idmaterial+'" data-nombrematerial="'+nombre+'" data-cantidadreal="'+peso+'" value="'+asignado+'" /></td>';
-					tabla += '<td class="text-center"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);"></span></td>';
+					tabla += '<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);"></span></td>';
 				tabla += '</tr>';
 			$("#tablaMaterialDetalle").append(tabla);
 			$("#txtAsignado_"+posicion).val(0);
@@ -275,6 +275,8 @@
 						mensajeWarning( "Error en la petición Guardar la información" );
 					});
 				}
+				$("#btnGuardar").hide("slide");
+				$(".eliminar").hide("slide");
 			});
 
 			
