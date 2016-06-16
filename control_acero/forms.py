@@ -15,7 +15,7 @@ class GroupForm(forms.ModelForm):
 class ApoyoForm(forms.ModelForm):
 	class Meta:
 		model = Apoyo
-		fields = ['numero', 'estatus', 'elemento']
+		fields = ['numero', 'estatus', 'elemento', 'frente']
 		exclude = ['estatus']
 
 class ElementoForm(forms.ModelForm):

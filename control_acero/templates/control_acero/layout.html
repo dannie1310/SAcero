@@ -155,6 +155,7 @@
                 $('[data-toggle="tooltip"]').tooltip();
             });
             $('.miles').mask("#,##0.00", {reverse: true});
+            $('.milesLimpio').mask("#,##0", {reverse: true});
             function limpiaValor(valor){
                 var limpio = valor.replace(/,/g, '');
                 return limpio;
