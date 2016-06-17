@@ -262,7 +262,7 @@
 				if(cantidadMaterial != 0){
 					tabla += '<tr  class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
-								+'<td class="text-center">'+parseInt(pesoMaterial)+'</td>'
+								+'<td class="text-center milesLimpio">'+parseInt(pesoMaterial)+'</td>'
 								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
 								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
@@ -296,7 +296,7 @@
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
 			    
-				$("#divPesoTotal").append('<td class="miles info">'+pesoTd.toFixed(2)+" Kg</td>");
+				$("#divPesoTotal").append('<td class="milesLimpio info">'+pesoTd+" Kg</td>");
 				$("#divPesoTonelada").append(tonHtml+" Ton");
 				$("#txtPesoTotal").val(pesoTotal.toFixed(4));
 				

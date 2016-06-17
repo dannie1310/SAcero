@@ -142,7 +142,7 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info miles">'+object.peso+'</td>';
-	                		tabla +='<td><input type="num" class="form-control miles" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="0" /></td>';
+	                		tabla +='<td><input type="text" class="form-control miles" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="" /></td>';
 	                		//tabla +='<td><input type="text" class="form-control miles" value="0" /></td>';
 	                		tabla +='<td><button type="button" class="btn btn-info" name="btnAceptar" id="btnAceptar" onClick="agregaDetalle('+count+');">Aceptar Salida</button></td>';
 	                    tabla +='</tr>';
@@ -187,7 +187,7 @@
 					tabla += '<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);"></span></td>';
 				tabla += '</tr>';
 			$("#tablaMaterialDetalle").append(tabla);
-			$("#txtAsignado_"+posicion).val(0);
+			$("#txtAsignado_"+posicion).val('');
 		}
 		comboFrente = function(){
 			$.post( "{% url 'comboFrente' %}",{
@@ -265,6 +265,7 @@
 					            	materialRecepcionado();
 					            	$("#folio").html(data.folio);
 					            	$("#btnGuardar").hide('slide');
+					            	$(".eliminar").hide("slide");
 				            	
 				            	
 				            } catch (e) {
@@ -275,8 +276,6 @@
 						mensajeWarning( "Error en la petición Guardar la información" );
 					});
 				}
-				$("#btnGuardar").hide("slide");
-				$(".eliminar").hide("slide");
 			});
 
 			
