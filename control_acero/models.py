@@ -425,3 +425,20 @@ class Folio(models.Model):
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
+
+class InventarioFisico(models.Model):
+	cantidadPiezas = models.IntegerField()
+	longitud = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	atado = models.IntegerField(null=True)
+	nomenclatura = models.CharField(max_length=10, null=True)
+	material = models.ForeignKey(Material, null=True)
+	elemento = models.ForeignKey(Elemento, null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.nomenclatura
