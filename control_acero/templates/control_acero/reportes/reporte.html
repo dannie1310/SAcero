@@ -82,6 +82,19 @@
 					</tbody>
 				</table>
 		</div>
+		<div style="display:none;" id="divTotal" class="col-md-12 table-responsive">
+				<h4>Peso Total en Kg </h4>
+				<table id="tablaTotal" class="table table-hover">
+					<thead>
+						<tr>
+							<th>Peso Total de Suministro de Acero en Kg</th>				
+								<th>Peso Total de Salida de Habilitado en Kg</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+		</div>
 		<div style="display:none;" id="divImprimirF" class="col-md-12">
 			
 			<button type="button" class="btn btn-success btn-lg" name="imprimirFabricante" id="imprimirFabricante" data-toggle="modal" data-target="#modalPdf">Imprimir</button>
@@ -89,7 +102,6 @@
 	</div>
 	<script type="text/javascript">
 		comboFuncion = function(){
-			
 			$.post( "{% url 'comboFuncionGeneral' %}",{
 				
 			},
@@ -130,7 +142,6 @@
 		}
 
 		comboTaller = function(){
-			
 
 			$.post( "{% url 'comboTallerG' %}",{
 			},
@@ -161,6 +172,7 @@
 			$("#tablaTotales tbody").empty();
 			$("#tablaTotalesS thead").empty();
 			$("#tablaTotalesS tbody").empty();
+			$("#tablaTotal tbody").empty();
 
 			var funcion = $("#cmbFuncion").val();
 			var taller = $("#cmbTaller").val();
@@ -171,7 +183,7 @@
 			var folio = '';
 			var i=0;
 			var res=0;
-			console.log(funcion+" - "+tipo+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
+			//console.log(funcion+" - "+tipo+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
 			var tabla = '';
 			var head='';
 			var t='';
@@ -179,6 +191,10 @@
 			var tT='';
 			var hT='';
 			var tt='';
+			var sum= 0;
+			var sumSalida= 0;
+			var totales='';
+			var tobody='';
 			var ht='';
 			$.post( "{% url 'reporteConsulta' %}",{
 						funcion:funcion,
@@ -344,7 +360,7 @@
 											
 											
 											+'<th class="text-center">Fecha de Recepción</th>'
-											+'<th class="text-center">Peso</th>'
+											+'<th class="text-center">Peso Recibido en Kg</th>'
 											+'</tr>';
 
 				                        	t += '<tr>';
@@ -363,6 +379,7 @@
 								});
 						$.each(data.totales, function (count, object) {
 	                    		 	//console.log(object);
+	                    		 	
 	                    		 	hT='<tr>'
 										+'<th class="text-center">Varilla</th>'
 										+'<th class="text-center">Peso Total en Kg</th>'
@@ -372,9 +389,13 @@
 									
 				                    if(object.faltante!=null){
 				                    	tT +='<td class="info miles">'+object.faltante+'</td>';
+				                    	sum = sum+parseInt(object.faltante);
+				                    	//console.log(sum,object.faltante);
 				                    }
 				                    else{
 				                    	tT +='<td class="info miles">'+object.peso+'</td>';
+				                    	sum = sum+ parseInt(object.peso);
+				                    	//console.log(sum,parseInt(object.peso));
 				                    }
 				                    tT += '</tr>';
 				                     $("#divTotales").show('slide');
@@ -391,11 +412,12 @@
 				                    tt +='<td>'+object.nombre+'</td>';
 				                    tt +='<td class="info miles">'+object.peso+'</td>';
 				                    tt += '</tr>';
-				                   
+				                   sumSalida = sumSalida+parseInt(object.peso);
 				                    $("#divTotalesS").show('slide');
 				                    
 				                    
 	                    });
+	                    
      	
 		        } catch (e) {
 	                mensajeWarning("Consulta invalida");
@@ -404,9 +426,15 @@
 			.fail(function() {
 				mensajeWarning( "Error en la petición del reporte" );
 			});
+			
+			tobody ='<tr><td class="alert-info">'+sum+'</td>'
+						+'<td class="alert-success">'+sumSalida+'</td>'
+						+'</tr>';
 
+			///console.log("Total : ",sum, sumSalida);
 			$('#tablaSolicita thead').append(head);
 		    $("#tablaSolicita tbody").append(tabla);
+
 		    $("#divSolicita").show('slide');
 
 		    $('#tablaEntrada thead').append(h);
@@ -415,7 +443,9 @@
 
 		    $('#tablaTotales thead').append(hT);
 		   	$("#tablaTotales tbody").append(tT);
-		   
+
+		   	$("#tablaTotal tbody").append(tobody);
+		   	$("#divTotal").show('slide');
 
 		    $('#tablaTotalesS thead').append(ht);
 		    $("#tablaTotalesS tbody").append(tt);

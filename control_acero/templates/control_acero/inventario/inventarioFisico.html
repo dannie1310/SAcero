@@ -9,13 +9,13 @@
 			<div class="form-group col-md-12">
 						<label  class="control-label" for="cmbTipoInventario'">Elige tipo de Inventario a Realizar:</label>
 						<select name="cmbTipoInventario" id="cmbTipoInventario" class="cmbTipoInventario form-control"><option value="0">Selecciona un Tipo de Inventario</option>
-						<option value="1">Varilla de Acero</option>
+						<option value="1">Varilla Corrugada</option>
 						<option value="2">Pieza Habilitada</option>
 						</select>
 			</div> 
 			<div style="display:none" id="busquedaElemento">
 				<div class="form-group col-md-12">
-					<label  class="control-label" for="cmbElemento">Elegir Elemento al que pertenece:</label>
+					<label  class="control-label" for="cmbElemento">Elegir Elemento al que Pertenece:</label>
 					<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
 					</select>
 				</div>
@@ -202,25 +202,28 @@
 					var json = JSON.stringify(datos);
 
 					}
-					$.post( "{% url 'recepcionMaterialSave' %}",{
+					$.post( "{% url 'inventarioSave' %}",{
 					        		
 					        		json: json
 								},
 					function(data, status) {
 				            try {
 				            	mensajeSuccess("<b>"+data.mensaje+"</b>");
+				            	$("#asignar").hide("slide");
+								$(".eliminar").hide();
 				            	
 				            } catch (e) {
-				                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
+				                alert("Error al cargar al Guardar el Material al Inventario:" + e);
 				            }
 					})
 					.fail(function() {
-						mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+						mensajeWarning( "Error en la petición al Guardar el Material al Inventario" );
 					});	
+
 				}
-				$("#asignar").hide("slide");
-				$(".eliminar").hide();
+				
 			});
+			
 		});
 
 		comboElemento = function () {
@@ -288,10 +291,11 @@
 			$("#tablaElemento tbody").empty();
 			$("#tablaMaterial tbody").empty();
 			var elemento = $("#cmbElemento").val();
-			console.log("el:",elemento); 
+			//console.log("el:",elemento); 
 			var tabla = '';
 			var idMaterial = 0;
 			var piezas = '';
+			var nom = '';
 			var atado = '';
 			var longitud ='';
 			var material = '';
@@ -312,7 +316,8 @@
 				atado = $("#txt"+idMaterial+"Atado").val();
 
 				if(tipo == 1 && longitud != 0 && piezas !=0){
-
+					elemento = null;
+					nom=null;
 					tabla += '<tr  class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
@@ -320,7 +325,7 @@
 								+'<td class="text-center">'+atado+'</td>'
 								+'<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);" data-eliminar="0"></span></td>'
 								+'<td style="display:none" class="text-center">'
-									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+idMaterial+'|'+longitud+'|'+piezas+'|'+atado+'" />'
+									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+idMaterial+'|'+longitud+'|'+piezas+'|'+atado+'|'+nom+'|'+elemento+'" />'
 								+'</td>'
 							+'</tr>';
 					//$("#count"+idMaterial).val(0);
@@ -331,16 +336,16 @@
 				
 				}
 				if(tipo == 2 && longitud != 0 && piezas !=0){
-					atado = $("#txt"+idMaterial+"nom").val();
-					
+					nom = $("#txt"+idMaterial+"nom").val();
+					atado=null;
 					tabla += '<tr  class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
-								+'<td class="text-center">'+atado+'</td>'
+								+'<td class="text-center">'+nom+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
 								+'<td class="text-center">'+piezas+'</td>'
 								+'<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);" data-eliminar="0"></span></td>'
 								+'<td style="display:none" class="text-center">'
-									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+idMaterial+'|'+longitud+'|'+piezas+'|'+atado+'|'+elemento+'" />'
+									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+idMaterial+'|'+longitud+'|'+piezas+'|'+atado+'|'+nom+'|'+elemento+'" />'
 								+'</td>'
 							+'</tr>';
 					//$("#count"+idMaterial).val(0);

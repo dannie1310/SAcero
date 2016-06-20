@@ -2862,109 +2862,40 @@ def inventarioSave(request):
 	array = {}
 	mensaje = {}
 	
-	# respuesta = request.POST.get('json')
-	# json_object = json.loads(respuesta)
-	# p = Remision.objects\
-	# 			.create(
-	# 					idOrden=idOrden,
-	# 					remision=remision,
-	# 					funcion_id=funcion,
-	# 					pesoBruto=pesoBruto,
-	# 					pesoTara=pesoTara,
-	# 					pesoNeto=pesoTotal,
-	# 					fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
-	# 					estatus=1,
-	# 					tallerAsignado_id=request.session['idTaller']
-	# 					)
-	# folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id=request.session["idTaller"]).order_by("-numFolio")[:1]
-	# if folio.exists():
-	# 	numFolio = folio[0].numFolio
-	# numFolioInt = int(numFolio)+1
-	# numFolio = "%04d" % (numFolioInt,)
-	# numFolio = "RMH-"+numFolio
-	# for data in json_object:
-	# 	datos = data["data"]
-	# 	splitData = datos.split("|")
-	# 	apoyo = splitData[0]
-	# 	elemento = splitData[1]
-	# 	idMaterial = splitData[2]
-	# 	cantidadMaterial= splitData[3]
-	# 	pesoMaterial = splitData[4]
-	# 	longitud = splitData[5]
-	# 	pd = RemisionDetalle.objects\
-	# 						.create(
-	# 								remision_id=p.pk,
-	# 								material_id=idMaterial,
-	# 								apoyo_id=apoyo,
-	# 								elemento_id=elemento,
-	# 								peso=pesoMaterial,
-	# 								cantidad=cantidadMaterial,
-	# 								longitud=longitud,
-	# 								folio = numFolio,
-	# 								numFolio = numFolioInt
-	# 								)
-	# 	ird = InventarioRemisionDetalle.objects\
-	# 						.create(
-	# 								remision_id=p.pk,
-	# 								material_id=idMaterial,
-	# 								apoyo_id=apoyo,
-	# 								elemento_id=elemento,
-	# 								peso=pesoMaterial,
-	# 								cantidad=cantidadMaterial,
-	# 								longitud=longitud,
-	# 								folio = numFolio,
-	# 								numFolio = numFolioInt
-	# 								)
-	# mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso. Folio: "+numFolio, "folio":numFolio}
-	# array = mensaje
-	# envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
-	# header = "RECEPCION DEL MATERIAL DEL FABRICANTE"
-	# body = ""
-	# body += """\
-	# 		<html>
-	# 		<head>
-	# 		</head>
-	# 		<body>
-	# 			<table rules="all" style="border-color: #666;" cellpadding="10">
-	# 				<thead>
-	# 					<tr style='background: #eee;'>
-	# 						<th><strong> Usuario </strong></th>
-	# 						<th><strong> Nombre </strong></th>
-	# 						<th><strong> Email </strong></th>
-	# 					</tr>
-	# 				</thead>
-	# 				<tbody>
-	# 					<tr>
-	# 						<td>%s</td>
-	# 						<td>%s %s</td>
-	# 						<td>%s</td>
-	# 					</tr>
-	# 					<tr>
-	# 						<td colspan="3" align="center">Se Creo el Folio: <strong> %s </strong></td>
-	# 					</tr>
-	# 				</tbody>
-	# 			</table>
-	# 			<table rules="all" style="border-color: #666;" cellpadding="10">
-	# 				<thead>
-	# 					<tr style='background: #eee;'>
-	# 						<th colspan="5">Detalle del Folio</th>
-	# 					</tr>
-	# 				</thead>
-	# 				%s
-	# 			</table>
-	# 		</body>
-	# 		</html>
-	# """ %\
-	# (
-	# 	request.user.username,
-	# 	request.user.first_name,
-	# 	request.user.last_name,
-	# 	request.user.email,
-	# 	numFolio,
-	# 	htmlMail
-	# )
-	# for envioEmail in envioEmails:
-	# 	mail(header, body, envioEmail.email)
+	respuesta = request.POST.get('json')
+	json_object = json.loads(respuesta)
+	print "----------"
+	print respuesta
+	for data in json_object:
+		datos = data["data"]
+		splitData = datos.split("|")
+		idMaterial = splitData[0]
+		longitud = splitData[1]
+		piezas = splitData[2]
+		atado= splitData[3]
+		nomenclatura = splitData[4]
+		elemento = splitData[5]
+		
+		if nomenclatura == 'null':
+			inv = InventarioFisico.objects\
+								.create(
+										cantidadPiezas=piezas,
+										longitud=longitud,
+										atado=atado,
+										material_id=idMaterial								
+										)
+		if atado == 'null':
+			inv = InventarioFisico.objects\
+								.create(
+										cantidadPiezas=piezas,
+										longitud=longitud,
+										nomenclatura=nomenclatura,
+										material_id=idMaterial,
+										elemento_id=elemento								
+										)
+	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso."}
+	array = mensaje
+	
 
 	return JsonResponse(array)
 
