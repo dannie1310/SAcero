@@ -190,7 +190,7 @@
 	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 									+ '<div class="input-group">'
-										+ '<input class="form-control milesLimpio" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
+										+ '<input class="form-control milesLimpio" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
 										+ '<div class="input-group-addon">Kg</div>'
 									+ '</div>'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
@@ -252,11 +252,15 @@
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
+				console.log("-----")
+				console.log(cantidadMaterial);
 				cantidadMaterialReal = $("#count"+idMaterial).val();
 				cantidadMaterial = limpiaValor(cantidadMaterial);
+				console.log(cantidadMaterial);
 				longitud = $("#txt"+idMaterial+"Longitud").val();
 				pesoMaterial = this.value;
 				pesoTotal += parseFloat(cantidadMaterial);
+				console.log(pesoTotal);
 				pesoTotalReal = parseFloat(cantidadMaterial);
 				material = $(this).attr("attrMaterial");
 				if(cantidadMaterial != 0){
@@ -298,7 +302,7 @@
 			    
 				$("#divPesoTotal").append('<td class="milesLimpio info">'+pesoTd+" Kg</td>");
 				$("#divPesoTonelada").append(tonHtml+" Ton");
-				$("#txtPesoTotal").val(pesoTotal.toFixed(4));
+				$("#txtPesoTotal").val(pesoTd.toFixed(4));
 				
 			}
 		});

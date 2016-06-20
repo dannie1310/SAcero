@@ -34,6 +34,8 @@ from django.conf import settings
 from django.contrib.auth.models import User, Permission, Group
 from django.template import RequestContext
 from django.contrib.staticfiles.templatetags.staticfiles import static
+import xlsxwriter
+import urllib2
 
 def loginUsuario(request):
 	logout(request)
@@ -3006,3 +3008,9 @@ def mail(header, body, to):
 		    [to], html_message=body, fail_silently=False)
 	except:
 		return True;
+
+def excel(request):
+	workbook = xlsxwriter.Workbook('hello.xlsx')
+	worksheet = workbook.add_worksheet()
+	worksheet.write('A1', 'Hello world')
+	workbook.close()
