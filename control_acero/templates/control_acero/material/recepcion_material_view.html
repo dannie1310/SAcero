@@ -38,7 +38,7 @@
 			
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
-				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision" value="  "></input>
+				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision" value="{% now "d/m/Y" %}"></input>
 			</div>
 		</div>
 		<div class="col-md-12">
@@ -252,15 +252,11 @@
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
-				console.log("-----")
-				console.log(cantidadMaterial);
 				cantidadMaterialReal = $("#count"+idMaterial).val();
 				cantidadMaterial = limpiaValor(cantidadMaterial);
-				console.log(cantidadMaterial);
 				longitud = $("#txt"+idMaterial+"Longitud").val();
 				pesoMaterial = this.value;
 				pesoTotal += parseFloat(cantidadMaterial);
-				console.log(pesoTotal);
 				pesoTotalReal = parseFloat(cantidadMaterial);
 				material = $(this).attr("attrMaterial");
 				if(cantidadMaterial != 0){

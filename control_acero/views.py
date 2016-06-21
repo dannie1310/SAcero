@@ -35,7 +35,7 @@ from django.contrib.auth.models import User, Permission, Group
 from django.template import RequestContext
 from django.contrib.staticfiles.templatetags.staticfiles import static
 import xlsxwriter
-import urllib2
+import StringIO
 
 def loginUsuario(request):
 	logout(request)
@@ -56,9 +56,9 @@ def loginUsuario(request):
 					login(request, user)
 					current_user = request.user
 					user_id = current_user.id
+					getTallerAsignado(request, 0)
+					getFrenteAsignado(request, 0)
 					if current_user.is_superuser:
-						getTallerAsignado(request, 0)
-						getFrenteAsignado(request, 0)
 						url = '/control_acero/principal/'
 					else:
 						url = '/control_acero/perfil/'
@@ -2941,7 +2941,15 @@ def mail(header, body, to):
 		return True;
 
 def excel(request):
-	workbook = xlsxwriter.Workbook('hello.xlsx')
+	filename = 'reporte.xlsx'
+	workbook = xlsxwriter.Workbook(filename)
 	worksheet = workbook.add_worksheet()
 	worksheet.write('A1', 'Hello world')
 	workbook.close()
+	excel = open(filename, "rb")
+	output = StringIO.StringIO(excel.read())
+	out_content = output.getvalue()
+	output.close()
+	response = HttpResponse(out_content,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+	response['Content-Disposition'] = 'attachment; filename='+filename
+	return response
