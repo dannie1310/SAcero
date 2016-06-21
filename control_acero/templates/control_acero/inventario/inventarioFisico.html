@@ -1,6 +1,6 @@
 {% extends 'control_acero/layout.html' %}
 {% block title_module %}
-	INVENTARIO FISICO
+	LEVANTAMIENTO DE INVENTARIO FISICO
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
@@ -106,7 +106,7 @@
 	                				+'<br />'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 									+'<br />'
-									+ '<label class="control-label" for="txt'+object.idMaterial+'piezas">Cantidad de Piezas por Varilla</label>'
+									+ '<label class="control-label" for="txt'+object.idMaterial+'piezas">Cantidad de Piezas Sueltas</label>'
 									+ '<div class="input-group">'
 										+ '<input type="number" class="form-control"  name="txt'+object.idMaterial+'piezas" id="txt'+object.idMaterial+'piezas" value=""></input>'
 										+ '<div class="input-group-addon">Pieza(s)</div>'

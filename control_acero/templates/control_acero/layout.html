@@ -79,7 +79,7 @@
         <script src="{% static 'blockui-master/jquery.blockUI.js' %}"></script>
 
         <!-- PLUGIN ANGULAR -->
-        <script src="{% static 'angular/angularjs-1.5.7.js' %}"></script>
+        <!--<script src="{% static 'angular/angularjs-1.5.7.js' %}"></script>-->
 
         <script type="text/javascript">
             function getCookie(name) {
@@ -159,6 +159,11 @@
             function limpiaValor(valor){
                 var limpio = valor.replace(/,/g, '');
                 return limpio;
+            }
+            function backToTop(){
+                $('body,html').animate({
+                    scrollTop: 0
+                }, "slow");
             }
         </script>
         <style>
@@ -412,7 +417,7 @@
                 autoclose: true
             });
         </script>
-        <script src="{% static 'angular/angularscript.js' %}"></script>
+        <!--<script src="{% static 'angular/angularscript.js' %}"></script>-->
     </body>
 
 </html>

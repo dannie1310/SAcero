@@ -631,14 +631,12 @@ def recepcionMaterialSave(request):
 	mensaje = {}
 	idOrden = request.POST.get('idOrden', 0)
 	numFolio = 0
-	#idFrente = request.POST.get('idFrente', 0)
 	funcion = request.POST.get('funcion', 0)
 	fechaRemision = request.POST.get('fechaRemision', 0)
 	remision = request.POST.get('remision', 0)
 	pesoBruto = request.POST.get('pesoBruto', 0)
 	pesoTara = request.POST.get('pesoTara', 0)
 	pesoTotal = request.POST.get('pesoTotal', 0)
-	htmlMail = request.POST.get('htmlMail', 0)
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
 	p = Remision.objects\
@@ -694,55 +692,7 @@ def recepcionMaterialSave(request):
 									)
 	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
-	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
-	header = "RECEPCION DEL MATERIAL DEL FABRICANTE"
-	body = ""
-	body += """\
-			<html>
-			<head>
-			</head>
-			<body>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th><strong> Usuario </strong></th>
-							<th><strong> Nombre </strong></th>
-							<th><strong> Email </strong></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>%s</td>
-							<td>%s %s</td>
-							<td>%s</td>
-						</tr>
-						<tr>
-							<td colspan="3" align="center">Se Creo el Folio: <strong> %s </strong></td>
-						</tr>
-					</tbody>
-				</table>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th colspan="5">Detalle del Folio</th>
-						</tr>
-					</thead>
-					%s
-				</table>
-			</body>
-			</html>
-	""" %\
-	(
-		request.user.username,
-		request.user.first_name,
-		request.user.last_name,
-		request.user.email,
-		numFolio,
-		htmlMail
-	)
-	for envioEmail in envioEmails:
-		mail(header, body, envioEmail.email)
-
+	mailHtml(request, numFolioInt)
 	return JsonResponse(array)
 
 def elementoMaterial(request):
@@ -909,54 +859,6 @@ def salidaHabilitadoSave(request):
 								)
 	mensaje = {"estatus":"ok", "mensaje":"Salida de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
-	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
-	header = "SALIDA DEL HABILITADO"
-	body = ""
-	body += """\
-			<html>
-			<head>
-			</head>
-			<body>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th><strong> Usuario </strong></th>
-							<th><strong> Nombre </strong></th>
-							<th><strong> Email </strong></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>%s</td>
-							<td>%s %s</td>
-							<td>%s</td>
-						</tr>
-						<tr>
-							<td colspan="3" align="center">Se Creo el Folio: <strong> %s </strong></td>
-						</tr>
-					</tbody>
-				</table>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th colspan="6">Detalle del Folio</th>
-						</tr>
-					</thead>
-					%s
-				</table>
-			</body>
-			</html>
-	""" %\
-	(
-		request.user.username,
-		request.user.first_name,
-		request.user.last_name,
-		request.user.email,
-		numFolio,
-		htmlMail
-	)
-	for envioEmail in envioEmails:
-		mail(header, body, envioEmail.email)
 	return JsonResponse(array)
 
 def entradaArmadoComboApoyo(request):
@@ -2939,6 +2841,91 @@ def apoyoBusquedaView(request):
 
 	return JsonResponse(array)
 
+def mailHtml(request, folio):
+	remisiones = Remision.objects.values(
+											"idOrden",
+											"remision",
+											"fechaRemision",
+											"fechaRegistro",
+											"funcion_id",
+											"remisiondetalle__material__nombre",
+											"remisiondetalle__peso",
+											"remisiondetalle__longitud",
+											"remisiondetalle__cantidad",
+											"remisiondetalle__folio"
+										)\
+										.filter(
+											remisiondetalle__numFolio = folio
+										)
+	folioStr = remisiones[0]["remisiondetalle__folio"]
+	orden = remisiones[0]["idOrden"]
+	remision = remisiones[0]["remision"]
+	fechaRemision = remisiones[0]["fechaRemision"]
+	fechaRegistro = remisiones[0]["fechaRegistro"]
+
+	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	header = "SALIDA DEL HABILITADO"
+	body = ""
+	body += """\
+			<html>
+			<head>
+			</head>
+			<body>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
+					<thead>
+						<tr style='background: #eee;'>
+							<th><strong> Usuario </strong></th>
+							<th><strong> Nombre </strong></th>
+							<th><strong> Email </strong></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>%s</td>
+							<td>%s %s</td>
+							<td>%s</td>
+						</tr>
+					</tbody>
+				</table>
+				<table rules="all" style="border-color: #666;" cellpadding="10">
+					<thead>
+						<tr style='background: #eee;'>
+							<th><strong> Folio </strong></th>
+							<th><strong> Orden </strong></th>
+							<th><strong> Remision </strong></th>
+							<th><strong> Fecha de Remision </strong></th>
+							<th><strong> Fecha de Creacion </strong></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>%s</td>
+							<td>%s</td>
+							<td>%s</td>
+							<td>%s</td>
+							<td>%s</td>
+						</tr>
+					</tbody>
+				</table>
+			</body>
+			</html>
+	""" %\
+	(
+		request.user.username,
+		request.user.first_name,
+		request.user.last_name,
+		request.user.email,
+		folioStr,
+		orden,
+		remision,
+		fechaRemision,
+		fechaRegistro
+	)
+	for envioEmail in envioEmails:
+		print "OK"
+		mail(header, body, envioEmail.email)
+
+	return True
 
 def mail(header, body, to):
 	try:

@@ -30,11 +30,6 @@
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
-			<!--<div class="form-group col-md-6">
-				<label  class="control-label" for="cmbFrente">Seleccionar Destino:</label>
-				<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
-				</select>
-			</div>-->
 			
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
@@ -42,11 +37,11 @@
 			</div>
 		</div>
 		<div class="col-md-12">
-			<button type="button" class="btn btn-success" name="agregarVarillas" id="agregarVarillas">Seleccionar</button>
+			<button type="button" class="btn btn-success" name="agregarVarillas" id="agregarVarillas">Registrar Cargamento</button>
 		</div>
 		
 		<div style="display:none;" id="divTituloVarillas" class="col-md-12">
-				<h4>Tipos de Varillas</h4>
+				<h4>Seleccionar Tipos de Varillas</h4>
 		</div>
 		<div style="display:none;" id="divVarillasCheck" class="col-md-12">
 			
@@ -55,7 +50,7 @@
 		<div id="divCantidades" class="col-md-12">
 		</div>
 		<div style="display:none;" id="divCantidadesBotones" class="col-md-12">
-			<button type="button" class="btn btn-info" name="btnAgregaVarilla" id="btnAgregaVarilla">Agregar</button>
+			<button type="button" class="btn btn-info" name="btnAgregaVarilla" id="btnAgregaVarilla">Continuar</button>
 			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
 		</div>
 		<div style="display:none;" id="divDetalle" class="col-md-12 table-responsive">
@@ -66,7 +61,7 @@
 						<th class="text-center">Piezas</th>
 						<th class="text-center">Peso Total Kg</th>
 						<th class="text-center">Longitud Mts</th>
-						<th class="text-center eliminar">Corregir</th>
+						<th class="text-center eliminar">¿Corregir?</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -296,8 +291,10 @@
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
 			    
-				$("#divPesoTotal").append('<td class="milesLimpio info">'+pesoTd+" Kg</td>");
-				$("#divPesoTonelada").append(tonHtml+" Ton");
+				$("#divPesoTotal").append('<span class="milesLimpio">'+pesoTd+'</span>');
+				$("#divPesoTotal").append('<span> Kg</span>');
+				$("#divPesoTonelada").append('<span class="milesLimpio">'+Math.floor(tonHtml)+'</span>');
+				$("#divPesoTonelada").append('<span> Ton</span>');
 				$("#txtPesoTotal").val(pesoTd.toFixed(4));
 				
 			}
@@ -346,6 +343,10 @@
 				            try {
 				            	mensajeSuccess("<b>"+data.mensaje+"</b>");
 				            	$("#folio").html(data.folio);
+								$("#btnSolicitar").hide("slide");
+								$("#btnCancelar").hide("slide");
+								$(".eliminar").hide();
+								backToTop();
 				            } catch (e) {
 				                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
 				            }
@@ -354,9 +355,6 @@
 						mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
 					});	
 				}
-				$("#btnSolicitar").hide("slide");
-				$("#btnCancelar").hide("slide");
-				$(".eliminar").hide();
 			});
 		});
 		$( "#btnCancelar" ).click(function() {
