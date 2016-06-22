@@ -2840,6 +2840,43 @@ def apoyoBusquedaView(request):
 	array["data"]=data
 
 	return JsonResponse(array)
+def mailHtmlHeader(request):
+	html = """\
+			<html>
+				<head>
+				</head>
+				<body>
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #eee;'>
+								<th><strong> Usuario </strong></th>
+								<th><strong> Nombre </strong></th>
+								<th><strong> Email </strong></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>%s</td>
+								<td>%s %s</td>
+								<td>%s</td>
+							</tr>
+						</tbody>
+					</table>
+			""" %\
+			(
+				request.user.username,
+				request.user.first_name,
+				request.user.last_name,
+				request.user.email,
+			)
+	return html;
+
+def mailHtmlFooter():
+	html = """\
+			</body>
+			</html>
+			"""
+	return html;
 
 def mailHtml(request, folio):
 	remisiones = Remision.objects.values(
@@ -2855,8 +2892,43 @@ def mailHtml(request, folio):
 											"remisiondetalle__folio"
 										)\
 										.filter(
-											remisiondetalle__numFolio = folio
+											remisiondetalle__numFolio = folio,
+											tallerAsignado_id = request.session['idTaller']
 										)
+	tablaDetalle = ''
+	tablaDetalle += """\
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #eee;'>
+								<th>Material</th>
+								<th>Piezas</th>
+								<th>Peso Recibido</th>
+								<th>Longitud</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
+	for rem in remisiones:
+		tablaDetalle += """\
+							<tr>
+								<td>%s</td>
+								<td>%s</td>
+								<td>%s</td>
+								<td>%s</td>
+							</tr>
+						"""%\
+						(
+							rem["remisiondetalle__material__nombre"],
+							rem["remisiondetalle__cantidad"],
+							rem["remisiondetalle__peso"],
+							rem["remisiondetalle__longitud"]
+						)
+
+	tablaDetalle += """\
+						</tbody>
+					</table>\
+					"""
+
 	folioStr = remisiones[0]["remisiondetalle__folio"]
 	orden = remisiones[0]["idOrden"]
 	remision = remisiones[0]["remision"]
@@ -2864,65 +2936,42 @@ def mailHtml(request, folio):
 	fechaRegistro = remisiones[0]["fechaRegistro"]
 
 	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
-	header = "SALIDA DEL HABILITADO"
+	header = "RECEPCION DEL MATERIAL"
 	body = ""
-	body += """\
-			<html>
-			<head>
-			</head>
-			<body>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th><strong> Usuario </strong></th>
-							<th><strong> Nombre </strong></th>
-							<th><strong> Email </strong></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>%s</td>
-							<td>%s %s</td>
-							<td>%s</td>
-						</tr>
-					</tbody>
-				</table>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th><strong> Folio </strong></th>
-							<th><strong> Orden </strong></th>
-							<th><strong> Remision </strong></th>
-							<th><strong> Fecha de Remision </strong></th>
-							<th><strong> Fecha de Creacion </strong></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>%s</td>
-							<td>%s</td>
-							<td>%s</td>
-							<td>%s</td>
-							<td>%s</td>
-						</tr>
-					</tbody>
-				</table>
-			</body>
-			</html>
-	""" %\
-	(
-		request.user.username,
-		request.user.first_name,
-		request.user.last_name,
-		request.user.email,
-		folioStr,
-		orden,
-		remision,
-		fechaRemision,
-		fechaRegistro
-	)
+	body += mailHtmlHeader(request)
+	body += """
+			<table rules="all" style="border-color: #666;" cellpadding="10">
+				<thead>
+					<tr style='background: #eee;'>
+						<th><strong> Folio </strong></th>
+						<th><strong> Orden </strong></th>
+						<th><strong> Remision </strong></th>
+						<th><strong> Fecha Remision </strong></th>
+						<th><strong> Fecha Creacion </strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>%s</strong></td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>
+				</tbody>
+			</table>
+			""" %\
+			(
+				folioStr,
+				orden,
+				remision,
+				fechaRemision.strftime("%d/%m/%Y"),
+				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
+			)
+	body += tablaDetalle
+	body += mailHtmlFooter()
+
 	for envioEmail in envioEmails:
-		print "OK"
 		mail(header, body, envioEmail.email)
 
 	return True
