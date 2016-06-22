@@ -237,7 +237,7 @@
 	                    tabla += '<tr>'
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
-	                		tabla +='<td class="info miles">'+object.cantidadAsignada+'</td>';
+	                		tabla +='<td class="info milesLimpio">'+Math.floor(object.cantidadAsignada)+'</td>';
 	                		tabla +='<td style="display:none;" id="asignado_'+count+'"><input type="text" readonly disabled data-toggle="toolinfo" data-placement="bottom" title="Peso Calculado" class="form-control dataAsignacion miles" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" value="0" /></td>';
 	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Digita la Nomenclatura" title="Nomenclatura" class="form-control text-uppercase" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
 	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Longitud" title="Longitud" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
