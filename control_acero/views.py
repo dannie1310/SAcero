@@ -2775,8 +2775,6 @@ def inventarioSave(request):
 	
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
-	print "----------"
-	print respuesta
 	for data in json_object:
 		datos = data["data"]
 		splitData = datos.split("|")
@@ -2810,8 +2808,90 @@ def inventarioSave(request):
 
 	return JsonResponse(array)
 
-	
-	
+def inventarioRemision(request):
+	array = {}
+	dataRemision = []
+	dataRemisionInventario = []
+	dataRemisionInventarioSum = []
+	dataSalida = []
+	dataSalidaInventario = []
+	remisiones = Remision.objects.values(
+										"remisiondetalle__material__nombre",
+										"remisiondetalle__peso",
+										"remisiondetalle__longitud",
+										"remisiondetalle__numFolio"
+										)\
+					.filter(tallerAsignado_id = request.session['idTaller'])
+	for remision in remisiones:
+			resultado = {
+							"material":remision["remisiondetalle__material__nombre"],
+							"peso":remision["remisiondetalle__peso"],
+							"longitud":remision["remisiondetalle__longitud"],
+							"numFolio":remision["remisiondetalle__numFolio"]
+						}
+			dataRemision.append(resultado)
+	remisionesInventario = Remision.objects.values(
+										"inventarioremisiondetalle__material__nombre",
+										"inventarioremisiondetalle__peso",
+										"inventarioremisiondetalle__longitud"
+										)\
+					.filter(tallerAsignado_id = request.session['idTaller'])
+	for remisionInventario in remisionesInventario:
+			resultado = {
+							"material":remisionInventario["inventarioremisiondetalle__material__nombre"],
+							"peso":remisionInventario["inventarioremisiondetalle__peso"],
+							"longitud":remisionInventario["inventarioremisiondetalle__longitud"]
+						}
+			dataRemisionInventario.append(resultado)
+	remisionesInventarioSum = Remision.objects.values(
+										"inventarioremisiondetalle__material__id",
+										"inventarioremisiondetalle__material__nombre",
+										)\
+					.annotate(pesoMaterial = Sum('inventarioremisiondetalle__peso'))\
+					.filter(tallerAsignado_id = request.session['idTaller'])\
+					.order_by('inventarioremisiondetalle__material_id')
+
+	for remisionInventarioSum in remisionesInventarioSum:
+			resultado = {
+							"materialId":remisionInventarioSum["inventarioremisiondetalle__material__id"],
+							"material":remisionInventarioSum["inventarioremisiondetalle__material__nombre"],
+							"peso":remisionInventarioSum["pesoMaterial"],
+						}
+			dataRemisionInventarioSum.append(resultado)
+	salidas = Salida.objects.values(
+										"id",
+										"cantidadReal",
+										"cantidadAsignada",
+										"numFolio"
+										)\
+					.filter(tallerAsignado_id = request.session['idTaller'])
+	for salida in salidas:
+			resultado = {
+						"id":salida["id"],
+						"cantidadReal":salida["cantidadReal"],
+						"cantidadAsignada":salida["cantidadAsignada"],
+						"numFolio":salida["numFolio"]
+						}
+			dataSalida.append(resultado)
+	salidasInventario = InventarioSalida.objects.values(
+										"id",
+										"cantidadReal",
+										"cantidadAsignada"
+										)\
+					.filter(tallerAsignado_id = request.session['idTaller'])
+	for salidaInventario in salidasInventario:
+			resultado = {
+						"id":salidaInventario["id"],
+						"cantidadReal":salidaInventario["cantidadReal"],
+						"cantidadAsignada":salidaInventario["cantidadAsignada"]
+						}
+			dataSalidaInventario.append(resultado)
+	array["remisiones"]=dataRemision
+	array["remisionesInventario"]=dataRemisionInventario
+	array["remisionesInventarioSum"]=dataRemisionInventarioSum
+	array["salidas"]=dataSalida
+	array["salidasInventario"]=dataSalidaInventario
+	return JsonResponse(array)
 	
 def apoyoBusquedaView(request):
 	array = {}

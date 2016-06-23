@@ -44,7 +44,6 @@
 				<h4>Seleccionar Tipos de Varillas</h4>
 		</div>
 		<div style="display:none;" id="divVarillasCheck" class="col-md-12">
-			
 		</div>
 		
 		<div id="divCantidades" class="col-md-12">
@@ -113,8 +112,7 @@
 		                $('.cmbFuncion').append('<option value="0">Selecciona Proveedor de Acero (Fabricante)</option>');
 	                    $.each(data.data, function (count, object) {
 	                        $('.cmbFuncion').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
-
-	                          });
+	                    });
 	                        
 	                    
 		            } catch (e) {
