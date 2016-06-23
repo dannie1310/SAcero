@@ -760,8 +760,9 @@ def salidaHabilitadoMaterial(request):
 								)\
 						.annotate(pesoMaterial = Sum('peso'))\
 						.annotate(cantidadMaterial = Sum('cantidad'))\
-						.filter(remision__tallerAsignado_id = request.session["idTaller"])\
+						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"])\
 						.order_by('material_id')
+	print remisionDetalles.query
 	for remisionDetalle in remisionDetalles:
 		resultado = {
 						"id":remisionDetalle["material_id"],
@@ -1078,6 +1079,44 @@ def entradaArmadoSave(request):
 		mail(header, body, envioEmail.email)
 	return JsonResponse(array)
 
+def inventarioFisicoSave(request):
+	array = {}
+	mensaje = {}
+	data = []
+	numFolio = 0
+	respuesta = request.POST.get('json')
+	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	if folio.exists():
+		numFolio = folio[0].numFolio
+	numFolioInt = int(numFolio)+1
+	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "LIF-"+numFolio
+	inventarioFisico = InventarioFisico.objects\
+		.create(
+				folio = numFolio,
+				numFolio = numFolioInt,
+				tallerAsignado_id = request.session["idTaller"]
+				)
+	json_object = json.loads(respuesta)
+	for data in json_object:
+		material = data["materialId"]
+		pesoExistencia = data["existencias"]
+		pesoFisico = data["existenciaFisica"]
+		diferencia = data["diferencia"]
+		tipo = data["bandera"]
+		inventarioFisicoD = InventarioFisicoDetalle.objects\
+							.create(
+									inventarioFisico_id = inventarioFisico.pk,
+									material_id = material,
+									pesoExistencia = pesoExistencia,
+									pesoFisico = pesoFisico,
+									diferencia = diferencia,
+									tipoExistencia = tipo,
+									)
+
+	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
+	array = mensaje
+	return JsonResponse(array)
 
 def foliosMostrar(request):
 	modulo = request.POST.get('modulo', 0)
@@ -1087,8 +1126,6 @@ def foliosMostrar(request):
 	data = []
 	today = datetime.now()
 	dateFormat = today.strftime("%d/%m/%Y")
-	print "------"
-	print dateFormat
 
 	if int(modulo) == 1:
 		folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
@@ -1111,6 +1148,13 @@ def foliosMostrar(request):
 		numFolioInt = int(numFolio)+1
 		numFolio = "%04d" % (numFolioInt,)
 		numFolio = "EMA-"+numFolio
+	if int(modulo) == 4:
+		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+		if folio.exists():
+			numFolio = folio[0].numFolio
+		numFolioInt = int(numFolio)+1
+		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "LIF-"+numFolio
 
 	mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
 	#mensaje = {"estatus":"ok", "folio":numFolio}
@@ -2830,7 +2874,7 @@ def inventarioRemision(request):
 										"remisiondetalle__longitud",
 										"remisiondetalle__numFolio"
 										)\
-					.filter(tallerAsignado_id = request.session['idTaller'])
+					.filter(remisiondetalle__estatusInventario=0,tallerAsignado_id = request.session['idTaller']).distinct()
 	for remision in remisiones:
 			resultado = {
 							"material":remision["remisiondetalle__material__nombre"],
@@ -2844,7 +2888,7 @@ def inventarioRemision(request):
 										"inventarioremisiondetalle__peso",
 										"inventarioremisiondetalle__longitud"
 										)\
-					.filter(tallerAsignado_id = request.session['idTaller'])
+					.filter(inventarioremisiondetalle__estatusInventario=0,tallerAsignado_id = request.session['idTaller']).distinct()
 	for remisionInventario in remisionesInventario:
 			resultado = {
 							"material":remisionInventario["inventarioremisiondetalle__material__nombre"],
@@ -2857,8 +2901,10 @@ def inventarioRemision(request):
 										"inventarioremisiondetalle__material__nombre",
 										)\
 					.annotate(pesoMaterial = Sum('inventarioremisiondetalle__peso'))\
-					.filter(tallerAsignado_id = request.session['idTaller'])\
+					.filter(inventarioremisiondetalle__estatusInventario=0,tallerAsignado_id = request.session['idTaller'])\
 					.order_by('inventarioremisiondetalle__material_id')
+
+	print remisionesInventarioSum.query
 
 	for remisionInventarioSum in remisionesInventarioSum:
 			resultado = {
@@ -2873,7 +2919,7 @@ def inventarioRemision(request):
 										"cantidadAsignada",
 										"numFolio"
 										)\
-					.filter(tallerAsignado_id = request.session['idTaller'])
+					.filter(estatusInventario=0,tallerAsignado_id = request.session['idTaller'])
 	for salida in salidas:
 			resultado = {
 						"id":salida["id"],
@@ -2887,7 +2933,7 @@ def inventarioRemision(request):
 										"cantidadReal",
 										"cantidadAsignada"
 										)\
-					.filter(tallerAsignado_id = request.session['idTaller'])
+					.filter(estatusInventario=0,tallerAsignado_id = request.session['idTaller'])
 	for salidaInventario in salidasInventario:
 			resultado = {
 						"id":salidaInventario["id"],

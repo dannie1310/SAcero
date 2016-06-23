@@ -105,4 +105,5 @@ urlpatterns = [
     url(r'^catalogos/transportes/(?P<pk>[0-9]+)/edit/$', views.transportesEditView, name='transportesEditView'),
 
     url(r'^inventario/remision/$', views.inventarioRemision, name='inventarioRemision'),
+    url(r'^inventario/fisico/save/$', views.inventarioFisicoSave, name='inventarioFisicoSave'),
 ]
