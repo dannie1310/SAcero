@@ -108,7 +108,7 @@
 		</div>
 		<hr>
 		<div style="display: none" id="detalleRecepcion" class="col-md-12 table-responsive">
-			<div class="text-center"><h3>Detalle de la Recepción Completa</h3></div>
+			<div class="text-center"><h3>Resumen del Material Completo</h3></div>
 			<table id="tablaMaterialDetalle" class="table table-hover">
 				<thead>
 					<tr>
@@ -122,7 +122,7 @@
 			</table>
 		</div>
 		<div style="display: none" id="detalleFaltante" class="col-md-12 table-responsive">
-			<div class="text-center"><h3>Material Faltante</h3></div>
+			<div class="text-center"><h3>Detalle del Material Faltante</h3></div>
 			<table id="tablaMaterialFaltante" class="table table-hover">
 				<thead>
 					<tr>
@@ -139,7 +139,36 @@
 				</tbody>
 			</table>
 		</div>
+		<div style="display: none" id="resumenFaltante" class="col-md-12 table-responsive">
+			<div class="text-center"><h3>Resumen del Material Faltante</h3></div>
+			<table id="tablaResumenFaltante" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Nombre Material</th>
+						<th class="text-center">Peso Faltante en Kg</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
 		
+		<div style="display: none" id="resumenIncompleto" class="col-md-12 table-responsive">
+			<div class="text-center">
+				<h3>Material por Recibir Incompleto</h3>
+			</div>
+			<table id="tablaResumenIncompleto" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center">Nombre Material</th>
+						<th class="text-center">Peso Real Recibido en Kg</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
 		<div style="display: none" id="botones"class="col-md-12">
 			<div  class="col-md-6">
 				<button class="btn btn-success" name="btnGuardar" id="btnGuardar">Recibir Material</button>
@@ -153,6 +182,7 @@
 		
 	</div>
 	<script type="text/javascript">
+		
 		foliosSalidaHabilitado = function(){
 			$.post( "{% url 'foliosSalidaHabilitado' %}",{
 			},
@@ -237,7 +267,7 @@
 	                    tabla += '<tr>'
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
-	                		tabla +='<td class="info miles">'+object.cantidadAsignada+'</td>';
+	                		tabla +='<td class="info milesLimpio">'+Math.floor(object.cantidadAsignada)+'</td>';
 	                		tabla +='<td style="display:none;" id="asignado_'+count+'"><input type="text" readonly disabled data-toggle="toolinfo" data-placement="bottom" title="Peso Calculado" class="form-control dataAsignacion miles" name="row_'+count+'" id="row_'+count+'" data-idmaterial="'+object.id+'" data-materialnombre="'+object.materialNombre+'" data-cantidadreal="'+object.cantidadAsignada+'" value="0" /></td>';
 	                		tabla +='<td style="display:none;" id="nomenclatura_'+count+'"><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Digita la Nomenclatura" title="Nomenclatura" class="form-control text-uppercase" name="txtNomenclatura_'+count+'" id="txtNomenclatura_'+count+'" placeholder="Nomenclatura" /></td>';
 	                		tabla +='<td style="display:none;" id="longitud_'+count+'"><input type="number" data-toggle="toolinfo" data-placement="bottom" title="Longitud" title="Longitud" step="0.01" class="form-control" min="0" name="txtLongitud_'+count+'" id="txtLongitud_'+count+'" placeholder="Longitud" /></td>';
@@ -302,7 +332,9 @@
 			});
 		}
 		agregarAsignacion = function(posicion){
+			
 			bootbox.confirm("¿Estás seguro de realizar esta acción, posteriormente no podrás realizar ningún cambio?", function(result) {
+
 				if(result){
 					$( "#add_"+posicion ).prop( "disabled", true );
 					$( "#addDiferencia_"+posicion ).prop( "disabled", true );
@@ -314,15 +346,18 @@
 					var nomenclatura = $("#txtNomenclatura_"+posicion).val();
 					var longitud = $("#txtLongitud_"+posicion).val();
 					var piezas = $("#txtPiezas_"+posicion).val();
-					var pesoRealCalculado = 0;
+					var tablaIncompleto='';
+					var tablaFaltante='';
+			
 					var sumaTotalCalculado = parseFloat(cantidadAsignada);
+					
 					var tabla = '';
 						if(bandera == 0){
 							tabla += '<tr>';
 								tabla += '<td>'+materialNombre+'</td>';
-								tabla += '<td class="success miles">'+cantidadReal+'</td>';
+								tabla += '<td class="success milesLimpio">'+Math.floor(cantidadReal)+'</td>';
 								
-								tabla += '<td><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
+								tabla += '<td style="display:none;"><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
 							tabla += '</tr>';
 							$("#tablaMaterialDetalle").append(tabla);
 							$("#detalleRecepcion").show("slide");
@@ -338,25 +373,53 @@
 								mensajeWarning("El Material Faltante agregado es mayor a la Cantidad del Material");
 								return false;
 							}
+							console.log(piezas, cantidadAsignada, cantidadReal);
 							tabla += '<tr class="danger">';
 								tabla += '<td>'+materialNombre+'</td>';
 								tabla += '<td>'+nomenclatura+'</td>';
 								tabla += '<td>'+longitud+'</td>';
-								tabla += '<td>'+piezas+'</td>';
-								tabla += '<td class="miles">'+cantidadReal+'</td>';
-								tabla += '<td class="miles">' +cantidadAsignada+ '</td>';
-								tabla += '<td style="display:none;"><input type="hidden" class="datosFaltante" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" data-pesoreal="'+pesoRealCalculado.toFixed(2)+'" /></td>';
-								tabla += '<td class="miles">'+pesoRealCalculado.toFixed(2)+'</td>';
+								tabla += '<td class="milesLimpio">'+Math.floor(piezas)+'</td>';
+								tabla += '<td class="milesLimpio">'+Math.floor(cantidadReal)+'</td>';
+								tabla += '<td class="milesLimpio">' +Math.floor(cantidadAsignada)+ '</td>';
+								tabla += '<td style="display:none;"><input type="hidden" class="datosFaltante" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" data-pesoreal="'+pesoRealCalculado+'" /></td>';
+								tabla += '<td class="milesLimpio">'+Math.floor(pesoRealCalculado)+'</td>';
 								tabla += '<td style="display:none;"><input type="text" class="real_'+idMaterial+'" value="'+cantidadAsignada+'" /></td>';
-								
-							tabla += '</tr>';
+								tabla += '<td style="display:none;"><input type="text" class="realRecibido_'+idMaterial+'" data-idVarilla="'+idMaterial+'" data-nombreVarilla="'+materialNombre+'" data-pesoR="'+pesoRealCalculado+'" value="" /></td>';
+
+							tablaIncompleto +='<tr id="falta_'+idMaterial+'" class="danger">'
+													 			+ '<td>'+materialNombre+'</td>'
+																+ '<td class="milesLimpio">'+Math.floor(pesoRealCalculado)+'</td></tr>';
+
+							tablaFaltante += '<tr id="suma_'+idMaterial+'" class="danger">'
+													 			+ '<td>'+materialNombre+'</td>'
+																+ '<td class="milesLimpio">'+Math.floor(sumaTotalCalculado)+'</td></tr>';
+
+
 							$("#tablaMaterialFaltante").append(tabla);
 							$("#detalleFaltante").show("slide");
 							$("#botones").show("slide");
+							$("#txtNomenclatura_"+posicion).val('');
+							$("#txtLongitud_"+posicion).val('');
+							$("#txtPiezas_"+posicion).val('');
+							$("#row_"+posicion).val(0);
+						
+							$("#falta_"+idMaterial).remove();	
+							$("#tablaResumenIncompleto").append(tablaIncompleto);
+							$("#resumenIncompleto").show("slide");
+							$("#suma_"+idMaterial).remove();	
+							$("#tablaResumenFaltante").append(tablaFaltante);
+							$("#resumenFaltante").show("slide");
+
+
 						}
+							
 
 				}
+				
+
 			});
+
+			
 		}
 		agregarDiferencia = function(posicion){
 			bootbox.confirm("¿Estás seguro que deseas agregar material faltante?", function(result) {
@@ -521,6 +584,7 @@
 						mensajeWarning( "Error en la petición Guardar la información" );
 					});
 					$("#botones").hide("slide");
+					$("#detalleMaterial").hide("slide");
 				}
 			});
 		});
