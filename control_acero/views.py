@@ -2983,7 +2983,8 @@ def mailHtml(request, folio):
 										.filter(
 											remisiondetalle__numFolio = folio,
 											tallerAsignado_id = request.session['idTaller']
-										)
+										)\
+										.distinct()
 	tablaDetalle = ''
 	tablaDetalle += """\
 					<table rules="all" style="border-color: #666;" cellpadding="10">

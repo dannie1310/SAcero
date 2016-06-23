@@ -4,6 +4,15 @@
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
+		{% if request.session.nombreTaller > 0 %}
+			<div class="form-group col-md-12 text-center alert-info">
+				<h3> INVENTARIO DEL {{ request.session.nombreTaller }}</h3>
+			</div>
+		{% else %}
+			<div class="form-group col-md-12 text-center alert-info">
+				<h3> No cuentas con Taller Asignado</h3>
+			</div>
+		{% endif %}
 		<div class="col-md-12 table-responsive">
 			<table id="tablaRemisiones" class="table table-hover">
 				<thead>
@@ -143,18 +152,27 @@
         	var datos = [];
         	var materialDet = 0;
         	var pesoDet = 0;
+        	var pesoSistema = 0;
+        	var resta = 0;
         	
 			$(":input[class=dataVarilla]").each(function(index, element) {
 				var material = $(this).data("material");
 				var peso = $(this).data("peso");
 				var longitud = $(this).data("longitud");
+				pesoSistema = $("#txtPeso_"+material).val();
 				if(materialDet != parseInt(material) && materialDet != 0){
 					pesoDet = 0;
 				}
 				pesoDet += peso;
 				materialDet = parseInt(material);
+				resta = parseInt(pesoSistema) - parseInt(pesoDet);
 				$(".rowtd_"+material).remove();
 				$(".row_"+material).append('<td class="rowtd_'+material+'">'+pesoDet+'</td>');
+				if(resta > 0){
+					$(".row_"+material).append('<td class="rowtd_'+material+' success">'+resta+'</td>');
+				}else{
+					$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+resta+'</td>');
+				}
 			});
 			//console.log(datos);
 		});
@@ -179,7 +197,8 @@
                     $.each(data.remisionesInventarioSum, function (count, object) {
                     	tablaRemisionReal += '<tr class="row_'+object.materialId+'">';
                     		tablaRemisionReal += '<td>'+object.material+'</td>';
-                    		tablaRemisionReal += '<td class="milesLimpio">'+object.peso+'</td>';
+                    		tablaRemisionReal += '<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
+                    		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+object.peso+'" /></td>';
                     	tablaRemisionReal += '</tr>';
                     });
                     $.each(data.remisiones, function (count, object) {
