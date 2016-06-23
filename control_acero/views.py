@@ -2874,7 +2874,7 @@ def inventarioRemision(request):
 										"remisiondetalle__longitud",
 										"remisiondetalle__numFolio"
 										)\
-					.filter(remisiondetalle__estatusInventario=0,tallerAsignado_id = request.session['idTaller']).distinct()
+					.filter(tallerAsignado_id = request.session['idTaller'])
 	for remision in remisiones:
 			resultado = {
 							"material":remision["remisiondetalle__material__nombre"],
@@ -2888,7 +2888,7 @@ def inventarioRemision(request):
 										"inventarioremisiondetalle__peso",
 										"inventarioremisiondetalle__longitud"
 										)\
-					.filter(inventarioremisiondetalle__estatusInventario=0,tallerAsignado_id = request.session['idTaller']).distinct()
+					.filter(tallerAsignado_id = request.session['idTaller'])
 	for remisionInventario in remisionesInventario:
 			resultado = {
 							"material":remisionInventario["inventarioremisiondetalle__material__nombre"],
@@ -2901,10 +2901,8 @@ def inventarioRemision(request):
 										"inventarioremisiondetalle__material__nombre",
 										)\
 					.annotate(pesoMaterial = Sum('inventarioremisiondetalle__peso'))\
-					.filter(inventarioremisiondetalle__estatusInventario=0,tallerAsignado_id = request.session['idTaller'])\
+					.filter(tallerAsignado_id = request.session['idTaller'])\
 					.order_by('inventarioremisiondetalle__material_id')
-
-	print remisionesInventarioSum.query
 
 	for remisionInventarioSum in remisionesInventarioSum:
 			resultado = {
@@ -2919,7 +2917,7 @@ def inventarioRemision(request):
 										"cantidadAsignada",
 										"numFolio"
 										)\
-					.filter(estatusInventario=0,tallerAsignado_id = request.session['idTaller'])
+					.filter(tallerAsignado_id = request.session['idTaller'])
 	for salida in salidas:
 			resultado = {
 						"id":salida["id"],
@@ -2933,7 +2931,7 @@ def inventarioRemision(request):
 										"cantidadReal",
 										"cantidadAsignada"
 										)\
-					.filter(estatusInventario=0,tallerAsignado_id = request.session['idTaller'])
+					.filter(tallerAsignado_id = request.session['idTaller'])
 	for salidaInventario in salidasInventario:
 			resultado = {
 						"id":salidaInventario["id"],
