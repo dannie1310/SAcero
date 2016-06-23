@@ -962,6 +962,7 @@ def entradaArmadoSave(request):
 		for inventarioSalida in inventarioSalidas:
 			inventarioId = inventarioSalida.id
 			irdpeso = inventarioSalida.cantidadAsignada
+
 			if Decimal(irdpeso) <= Decimal(totalAsignado):
 				totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
 				InventarioSalida.objects.filter(id=inventarioId).update(cantidadAsignada=0, estatusTotalizado = 0)
@@ -1015,6 +1016,7 @@ def entradaArmadoSave(request):
 									calculado = calculado,
 									entrada_id = entradaFaltante.id
 									)
+
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	envioEmails = User.objects.all().filter(frente__id = request.session['idFrente'])
