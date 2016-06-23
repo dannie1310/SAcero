@@ -962,6 +962,7 @@ def entradaArmadoSave(request):
 		for inventarioSalida in inventarioSalidas:
 			inventarioId = inventarioSalida.id
 			irdpeso = inventarioSalida.cantidadAsignada
+
 			if Decimal(irdpeso) <= Decimal(totalAsignado):
 				totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
 				InventarioSalida.objects.filter(id=inventarioId).update(cantidadAsignada=0, estatusTotalizado = 0)
@@ -1015,6 +1016,7 @@ def entradaArmadoSave(request):
 									calculado = calculado,
 									entrada_id = entradaFaltante.id
 									)
+
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	envioEmails = User.objects.all().filter(frente__id = request.session['idFrente'])
@@ -2159,14 +2161,16 @@ def reporteConsulta(request):
 																			estatus=1).order_by("tallerAsignado__id")
 		#print datos.query
 		for e in datos:
+			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
+			fechaA = e['fechaActualizacion'].strftime("%d/%m/%Y")
 			
 			resultado = {   "value": 1,
 								"id":e['id'],
 								"orden":e['idOrden'],
 								"pesoTotal":e['pesoNeto'],
 								"peso":e['remisiondetalle__peso'],
-								"fechaR":e['fechaRemision'],
-								"fechaA":e['fechaActualizacion'],
+								"fechaR":fechaR,
+								"fechaA":fechaA,
 								"taller":e['tallerAsignado__nombre'],
 								"folio":e['remisiondetalle__folio'],
 								"num":e['remisiondetalle__numFolio'],
@@ -2227,14 +2231,15 @@ def reporteConsulta(request):
 																			estatus=1).order_by("tallerAsignado__id")
 		#print datos.query
 		for e in datos:
-				
+			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
+			fechaA = e['fechaActualizacion'].strftime("%d/%m/%Y")	
 			resultado = {   "value": 1,
 								"id":e['id'],
 								"orden":e['idOrden'],
 								"pesoTotal":e['pesoNeto'],
 								"peso":e['remisiondetalle__peso'],
-								"fechaR":e['fechaRemision'],
-								"fechaA":e['fechaActualizacion'],
+								"fechaR":fechaR,
+								"fechaA":fechaA,
 								"taller":e['tallerAsignado__nombre'],
 								"folio":e['remisiondetalle__folio'],
 								"num":e['remisiondetalle__numFolio'],
@@ -2422,14 +2427,15 @@ def reporteConsulta(request):
 																			estatus=1).order_by("remisiondetalle__numFolio")											
 		
 		for e in entrada:
-				
+			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
+			fechaA = e['fechaActualizacion'].strftime("%d/%m/%Y")	
 			resultado = {   "value": 4,
 								"id":e['id'],
 								"orden":e['idOrden'],
 								"pesoTotal":e['pesoNeto'],
 								"peso":e['remisiondetalle__peso'],
-								"fechaR":e['fechaRemision'],
-								"fechaA":e['fechaActualizacion'],
+								"fechaR":fechaR,
+								"fechaA":fechaA,
 								"taller":e['tallerAsignado__nombre'],
 								"folio":e['remisiondetalle__folio'],
 								"num":e['remisiondetalle__numFolio'],
@@ -2478,10 +2484,11 @@ def reporteConsulta(request):
 
 
 		for e in habilitadores:
+			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
 			resultado={	"value": 3,
 						"id":e['id'],
 						"cantidad":e['cantidadAsignada'],
-						"fechaR":e['fechaRegistro'],
+						"fechaR":fechaR,
 						"folio":e['folio'],
 						"taller":e['tallerAsignado__nombre'],
 						"proveedor":e['tallerAsignado__funcion__proveedor'],
@@ -2543,14 +2550,15 @@ def reporteConsulta(request):
 																			estatus=1).order_by("tallerAsignado__id")											
 		
 		for e in entrada:
-				
+			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
+			fechaA = e['fechaActualizacion'].strftime("%d/%m/%Y")	
 			resultado = {   "value": 4,
 								"id":e['id'],
 								"orden":e['idOrden'],
 								"pesoTotal":e['pesoNeto'],
 								"peso":e['remisiondetalle__peso'],
-								"fechaR":e['fechaRemision'],
-								"fechaA":e['fechaActualizacion'],
+								"fechaR":fechaR,
+								"fechaA":fechaA,
 								"taller":e['tallerAsignado__nombre'],
 								"folio":e['remisiondetalle__folio'],
 								"num":e['remisiondetalle__numFolio'],
@@ -2663,10 +2671,11 @@ def reporteConsulta(request):
 
 
 		for e in habilitadores:
+			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
 			resultado={	"value": 3,
 						"id":e['id'],
 						"cantidad":e['cantidadAsignada'],
-						"fechaR":e['fechaRegistro'],
+						"fechaR":fechaR,
 						"folio":e['folio'],
 						"taller":e['tallerAsignado__nombre'],
 						"proveedor":e['tallerAsignado__funcion__proveedor'],

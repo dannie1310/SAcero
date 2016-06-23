@@ -289,7 +289,7 @@
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
 			    
-				$("#divPesoTotal").append('<span class="milesLimpio">'+pesoTd+'</span>');
+				$("#divPesoTotal").append('<span class="milesLimpio">'+Math.floor(pesoTd)+'</span>');
 				$("#divPesoTotal").append('<span> Kg</span>');
 				$("#divPesoTonelada").append('<span class="milesLimpio">'+Math.floor(tonHtml)+'</span>');
 				$("#divPesoTonelada").append('<span> Ton</span>');
@@ -343,6 +343,11 @@
 				            	$("#folio").html(data.folio);
 								$("#btnSolicitar").hide("slide");
 								$("#btnCancelar").hide("slide");
+								$("#divTituloVarillas").hide("slide");
+								$("#divVarillasCheck").hide("slide");
+								$("#btnAgregaVarilla").hide("slide");
+								$("#divCantidades").hide("slide");
+								$("#agregarVarillas").hide("slide");
 								$(".eliminar").hide();
 								backToTop();
 				            } catch (e) {
