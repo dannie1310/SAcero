@@ -109,4 +109,5 @@ urlpatterns = [
     url(r'^inventario/remision/edit/$', views.inventarioRemisionEdit, name='inventarioRemisionEdit'),
     url(r'^inventario/fisico/save/$', views.inventarioFisicoSave, name='inventarioFisicoSave'),
     url(r'^inventario/fisico/(?P<pk>[0-9]+)/edit/$', views.inventarioFisicoEditView, name='inventarioFisicoEditView'),
+    url(r'^descarga/excel$', views.descargaExcel, name='descargaExcel'),
 ]

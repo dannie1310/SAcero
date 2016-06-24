@@ -36,6 +36,7 @@ from django.template import RequestContext
 from django.contrib.staticfiles.templatetags.staticfiles import static
 import xlsxwriter
 import StringIO
+import uuid
 
 def loginUsuario(request):
 	logout(request)
@@ -930,7 +931,7 @@ def entradaArmadoMaterial(request):
 								'elemento__nombre'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
-						.filter(numFolio = folio, frente_id = request.session["idFrente"]) \
+						.filter(numFolio = folio, frente_id = request.session["idFrente"], cantidadAsignada__gt=0) \
 						.order_by('material_id')
 	for salida in salidas:
 		resultado = {
@@ -1200,13 +1201,16 @@ def foliosSalidaHabilitado(request):
 	data = []
 	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct().filter(frente_id=request.session['idFrente'])
 	for salidaFolio in salidaFolios:
-		resultado = {
-						"numFolio":salidaFolio["numFolio"],
-						"folio":salidaFolio["folio"],
-						"apoyo":salidaFolio["apoyo__numero"],
-						"elemento":salidaFolio["elemento__nombre"]
-					}
-		data.append(resultado)
+		validacionAsignado = InventarioSalida.objects.filter(numFolio=salidaFolio["numFolio"]).aggregate(Sum('cantidadAsignada'))
+		validacionAsign = validacionAsignado["cantidadAsignada__sum"]
+		if Decimal(validacionAsign) > 0:
+			resultado = {
+							"numFolio":salidaFolio["numFolio"],
+							"folio":salidaFolio["folio"],
+							"apoyo":salidaFolio["apoyo__numero"],
+							"elemento":salidaFolio["elemento__nombre"]
+						}
+			data.append(resultado)
 	array["data"]=data
 	return JsonResponse(array)
 
@@ -3547,7 +3551,9 @@ def excelReportes(request, array):
 
 def excelReportesEntrada(request,array):
 	x=0;
-	workbook = xlsxwriter.Workbook('Suministro.xlsx')
+	random = uuid.uuid4().hex[:6].lower()
+	filename = "Suministro_%s.xlsx" % random
+	workbook = xlsxwriter.Workbook(filename)
 	worksheet = workbook.add_worksheet()
 	bold14 = workbook.add_format({'bold': True, 'font_size': 12, 'align': 'center'})
 	worksheet.set_column('A:I', 20)
@@ -3665,6 +3671,17 @@ def excelReportesEntrada(request,array):
 		worksheet.write(row, col + 2, 'Kg', bold14)
 
 	workbook.close()
+	return filename
+
+def descargaExcel(request):
+	excel = open("Suministro.xlsx", "rb")
+	output = StringIO.StringIO(excel.read())
+	out_content = output.getvalue()
+	output.close()
+	response = HttpResponse(out_content,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+	response['Content-Disposition'] = 'attachment; filename=Report.xlsx'
+	return response
+
 # 	generateExcel(request)
 
 # def generateExcel(request):

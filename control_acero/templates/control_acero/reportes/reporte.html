@@ -97,7 +97,7 @@
 		</div>
 		<div style="display:none;" id="divImprimir" class="col-md-12">
 			
-			<button type="button" class="btn btn-success" name="excel" id="excel">Excel</button>
+			<button type="button" class="btn btn-success" name="excel" id="excel">Generar Excel</button>
 		</div>
 	</div>
 	<script type="text/javascript">
@@ -584,14 +584,13 @@
 
 		    $('#tablaTotalesS thead').append(ht);
 		    $("#tablaTotalesS tbody").append(tt);
+		    $("#divImprimir").show("slide");
 		   	
 		});
 		
-		$( "#excel" ).click(function() {
-			
-
-
-		});
+		generarExcel = function(){
+			 $("body").append("<iframe src='{% url 'descargaExcel' %}' style='display:none;' ></iframe>");
+		}
 		
 	    $(function () {
 	    	comboFuncion();
