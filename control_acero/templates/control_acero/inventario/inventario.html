@@ -1,0 +1,62 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	LEVANTAMIENTO DE INVENTARIO FISICO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">#</th>
+					<th class="text-center">Folio</th>
+					<th class="text-center">Ver</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for inv in inventario %}
+				<tr>
+			    	<td>{{inv.id}}</td>
+			    	<td>{{inv.folio}}</td>
+			    	<td><a href="/control_acero/inventario/fisico/{{inv.id}}/edit/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a></td>
+			   	</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="col-md-12">
+	        <ul class="pagination">
+		        {% if inventario.has_previous %}
+		            <li>
+		            	<a href="?page=1"> Principio </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ inventario.previous_page_number }}"> << </a>
+		            </li>
+		        {% endif %}
+				{% for page in inventario.paginator.page_range %}
+	            	<li class="{% if inventario.number == page %}active{% endif %}">
+	            		<a href="?page={{ page }}">{{ page }}</a>
+	            	</li>
+				{% endfor %}
+		        {% if inventario.has_next %}
+		        	<li>
+		            	<a href="?page={{ inventario.next_page_number }}"> >> </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ inventario.paginator.num_pages }}"> Fin </a>
+		            </li>
+		        {% endif %}
+	        </ul>
+	    </div>
+	   	<div class="col-md-12">
+	        <span class="current">
+	            <h4> Pagina {{ inventario.number }} de {{ inventario.paginator.num_pages }}. </h4>
+	        </span>
+	    </div>
+	</div>
+	<div class="col-md-12">
+		<form action="{% url 'inventarioFisicoView' %}">
+			<button type="submit" class="btn btn-primary">Generar Inventario Fisico</button>
+		</form>
+	</div>
+{% endblock %}

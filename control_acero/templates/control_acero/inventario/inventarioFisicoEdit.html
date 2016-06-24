@@ -5,7 +5,7 @@
 {% block content %}
 	<div class="col-xs-12">
 		<div class="form-group col-md-6 text-left alert-info">
-			<h3> Folio: <span id="folio"></span></h3>
+			<h3> Folio: {{ inventario.folio }}</h3>
 		</div>
 		{% if request.session.nombreTaller > 0 %}
 			<div class="form-group col-md-6 text-center alert-info">
@@ -36,45 +36,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-12">
-			<button class="btn btn-success" id="btn1">Comenzar Inventario Físico</button>
-		</div>
-		<div style="display:none;" id="divVarillasCheck" class="col-md-12">
-		</div>
-		<div id="divCantidades" class="col-md-12">
-		</div>
-		<div style="display:none;" id="divCantidadesBotones" class="col-md-12">
-			<button type="button" class="btn btn-info" name="btnAgregaVarilla" id="btnAgregaVarilla">Continuar</button>
-			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
-		</div>
-		<div style="display:none;" id="divDetalle" class="col-md-12 table-responsive">
-			<table id="tablaApoyoElemento" class="table table-hover">
-				<thead>
-					<tr>
-						<th class="text-center col-md-3">Material</th>
-						<th class="text-center col-md-2">Piezas</th>
-						<th class="text-center col-md-3">Peso Total Kg</th>
-						<th class="text-center col-md-3">Longitud Mts</th>
-						<th class="text-center eliminar col-md-1">¿Corregir?</th>
-					</tr>
-				</thead>
-				<tbody>
-					
-				</tbody>
-				<!--<tfoot>
-					<tr>
-						<th class="col-md-2">Peso Total</th>
-						<th class="col-md-4"><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
-						<th class="col-md-4"><div id="divPesoTonelada"></div></th>
-					</tr>
-				</tfoot>-->
-			</table>
-		</div>
-		<div class="col-md-12">
-			<button type="button" style="display:none;" class="btn btn-info" name="btn2" id="btn2">¿Terminaste?</button>
-			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
-		</div>		
-		<div id="divRemisionReal" style="display: none;" class="col-md-12 table-responsive">
+		<div id="divRemisionReal" class="col-md-12 table-responsive">
 			<table id="tablaRemisionReal" class="table table-hover">
 				<thead>
 					<tr>
@@ -88,6 +50,28 @@
 					</tr>
 				</thead>
 				<tbody>
+					{% for detalle in detalles %}
+						{% if detalle.tipoExistencia == 0 %}
+						<tr>
+							<td>{{ detalle.material_id }}</td>
+							<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+							<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+							{% if detalle.diferencia|length >= 0 %}
+								<td class="success">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+							{% endif %}
+							{% if detalle.diferencia|length < 0 %}
+								<td class="danger">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+							{% endif %}
+						</tr>
+						{% else %}
+						<tr class="danger">
+							<td>{{ detalle.material_id }}</td>
+							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+						</tr>
+						{% endif %}
+					{% endfor %}
 				</tbody>
 			</table>
 		</div>
@@ -149,8 +133,6 @@
 		    $("#divCantidades").append(html);
 		    $("#divVarillasCheck").append(checks);
 		    $("#divCantidades").show("slide");
-		    $("#btn1").hide("slide");
-		    remisiones();
 		});
 		var arrayRemisiones = [];
 		var arrayRemisionesInventario = [];
@@ -166,19 +148,11 @@
 			var pesoSalida = 0;
 			var pesoInventario = 0;
 			var tabla = '';
-			var tablaRemisionReal = '';
-			$.post( "{% url 'inventarioRemision' %}",{
+			$.post( "{% url 'inventarioRemisionEdit' %}",{
+						folio: {{ inventario.numFolio }}
 						},
 			function(data, status) {
 	            try {
-                    $.each(data.remisionesInventarioSum, function (count, object) {
-                    	tablaRemisionReal += '<tr class="real row_'+object.materialId+'">';
-                    		tablaRemisionReal += '<td style="display:none;">'+object.materialId+'</td>';
-                    		tablaRemisionReal += '<td>'+object.material+'</td>';
-                    		tablaRemisionReal += '<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
-                    		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+object.peso+'" /></td>';
-                    	tablaRemisionReal += '</tr>';
-                    });
                     $.each(data.remisiones, function (count, object) {
                     	arrayRemisiones.push(object.id);
                     	arrayFolioRemision.push(object.numFolio);
@@ -214,7 +188,6 @@
 				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
 			});
 			$("#tablaRemisiones tbody").append(tabla);
-			$("#tablaRemisionReal tbody").append(tablaRemisionReal);
 		};
 		$( "#btn2" ).click(function() {
         	var datos = [];
@@ -383,25 +356,7 @@
 				$("#txtPesoTotal").val(pesoTd.toFixed(4));
 				
 			}
-			$("#btn2").show("slide");
 		});
-		mostrarFolio = function(){
-			var modulo = 4;
-			$.post( "{% url 'foliosMostrar' %}",{
-				modulo: modulo
-			},
-			function(data, status) {
-		            try {
-						$("#folio").html(data.folio);
-						//$("#fechaRemision").html(data.date);
-		            } catch (e) {
-		                alert("Error al cargar el Folio:" + e);
-		            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la petición del Folio" );
-			});
-		}
 		function cantidadMaterial (id){
 			var value = $("#count"+id).val();
 			value = parseFloat(limpiaValor(value));
@@ -436,7 +391,7 @@
 			$(a).closest("tr").remove();
 		}
 	    $(function () {
-	    	mostrarFolio();
+	    	remisiones();
 	    });
 
 	</script>

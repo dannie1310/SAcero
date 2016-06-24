@@ -223,7 +223,7 @@ def apoyosView(request):
 		apoyos = paginator.page(1)
 	except EmptyPage:
 		apoyos = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/apoyos/apoyo.html', {"apoyos": apoyos})
+	return render(request,'control_acero/catalogos/apoyos/apoyo.html', {"apoyos": apoyos})
 
 def usuariosView(request):
 	usuario_list = User.objects.all()
@@ -235,7 +235,7 @@ def usuariosView(request):
 		usuarios = paginator.page(1)
 	except EmptyPage:
 		usuarios = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/usuarios/usuario.html', {"usuarios": usuarios})
+	return render(request,'control_acero/catalogos/usuarios/usuario.html', {"usuarios": usuarios})
 
 def apoyosNewView(request):
 	if request.method == "POST":
@@ -288,7 +288,7 @@ def elementosView(request):
 		elementos = paginator.page(1)
 	except EmptyPage:
 		elementos = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/elementos/elementos.html', {"elementos": elementos})
+	return render(request,'control_acero/catalogos/elementos/elementos.html', {"elementos": elementos})
 
 def elementosNewView(request):
 	if request.method == "POST":
@@ -325,7 +325,7 @@ def despiecesView(request):
 		despieces = paginator.page(1)
 	except EmptyPage:
 		despieces = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/despieces/despiece.html', {"despieces": despieces})
+	return render(request,'control_acero/catalogos/despieces/despiece.html', {"despieces": despieces})
 
 def despiecesNewView(request):
 	if request.method == "POST":
@@ -362,7 +362,7 @@ def materialesView(request):
 		materiales = paginator.page(1)
 	except EmptyPage:
 		materiales = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/materiales/material.html', {"materiales": materiales})
+	return render(request,'control_acero/catalogos/materiales/material.html', {"materiales": materiales})
 
 def materialesNewView(request):
 	if request.method == "POST":
@@ -399,7 +399,7 @@ def frentesView(request):
 		frentes = paginator.page(1)
 	except EmptyPage:
 		frentes = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/frentes/frente.html', {"frentes": frentes})
+	return render(request,'control_acero/catalogos/frentes/frente.html', {"frentes": frentes})
 
 def frentesNewView(request):
 	if request.method == "POST":
@@ -438,7 +438,7 @@ def funcionesView(request):
 		funciones = paginator.page(1)
 	except EmptyPage:
 		funciones = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/funciones/funcion.html', {"funciones": funciones})
+	return render(request,'control_acero/catalogos/funciones/funcion.html', {"funciones": funciones})
 
 def funcionesNewView(request):
 	if request.method == "POST":
@@ -476,7 +476,7 @@ def talleresView(request):
 		talleres = paginator.page(1)
 	except EmptyPage:
 		talleres = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/talleres/taller.html', {"talleres": talleres})
+	return render(request,'control_acero/catalogos/talleres/taller.html', {"talleres": talleres})
 
 def talleresNewView(request):
 	if request.method == "POST":
@@ -515,7 +515,7 @@ def transportesView(request):
 		transportes = paginator.page(1)
 	except EmptyPage:
 		transportes = paginator.page(paginator.num_pages)
-	return render_to_response('control_acero/catalogos/transportes/transporte.html', {"transportes": transportes})
+	return render(request,'control_acero/catalogos/transportes/transporte.html', {"transportes": transportes})
 
 def transportesNewView(request):
 	if request.method == "POST":
@@ -542,6 +542,24 @@ def transportesEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/transportes/transporte_edit.html', {'form': form})
 
+def inventario(request):
+	inventario_list = InventarioFisico.objects.filter(estatus=1)
+	paginator = Paginator(inventario_list, 10)
+	page = request.GET.get('page')
+	try:
+		inventario = paginator.page(page)
+	except PageNotAnInteger:
+		inventario = paginator.page(1)
+	except EmptyPage:
+		inventario = paginator.page(paginator.num_pages)
+	return render(request,'control_acero/inventario/inventario.html', {"inventario": inventario})
+
+def inventarioFisicoEditView(request, pk):
+	inventario = get_object_or_404(InventarioFisico, pk=pk)
+	inventarioDetalle = InventarioFisicoDetalle.objects.filter(inventarioFisico_id=inventario.id);
+	template = 'control_acero/inventario/inventarioFisicoEdit.html'
+	#inventario = InventarioFisico.objects.filter(id=pk, estatus=1)
+	return render(request, template, {"inventario": inventario, "detalles": inventarioDetalle})
 ######################################################
 ######################################################
 ######################################################
@@ -2892,7 +2910,6 @@ def inventarioRemision(request):
 										"remisiondetalle__numFolio"
 										)\
 					.filter(remisiondetalle__estatusInventario = 0, tallerAsignado_id = request.session['idTaller']).distinct()
-	print remisiones.query
 	for remision in remisiones:
 			resultado = {
 							"id":remision["remisiondetalle__id"],
@@ -2922,10 +2939,10 @@ def inventarioRemision(request):
 													FROM control_acero_remision\
 													LEFT OUTER JOIN control_acero_inventarioremisiondetalle ON ( control_acero_remision.id = control_acero_inventarioremisiondetalle.remision_id )\
 													LEFT OUTER JOIN control_acero_material ON ( control_acero_inventarioremisiondetalle.material_id = control_acero_material.id )\
-													WHERE control_acero_remision.tallerAsignado_id = 17\
+													WHERE control_acero_remision.tallerAsignado_id = %s\
 													AND control_acero_inventarioremisiondetalle.estatusInventario = 0\
 													GROUP BY control_acero_inventarioremisiondetalle.material_id, control_acero_material.nombre\
-													ORDER BY control_acero_inventarioremisiondetalle.material_id ASC");
+													ORDER BY control_acero_inventarioremisiondetalle.material_id ASC", [request.session['idTaller']]);
 		remisionesInventarioSum = cursor.fetchall()
 		for remisionInventarioSum in remisionesInventarioSum:
 			resultado = {
@@ -2967,6 +2984,79 @@ def inventarioRemision(request):
 	array["remisiones"]=dataRemision
 	array["remisionesInventario"]=dataRemisionInventario
 	array["remisionesInventarioSum"]=dataRemisionInventarioSum
+	array["salidas"]=dataSalida
+	array["salidasInventario"]=dataSalidaInventario
+	return JsonResponse(array)
+
+def inventarioRemisionEdit(request):
+	array = {}
+	dataRemision = []
+	dataRemisionInventario = []
+	dataSalida = []
+	dataSalidaInventario = []
+	folio= request.POST.get('folio',1)
+	remisiones = Remision.objects.values(
+										"remisiondetalle__id",
+										"remisiondetalle__material__nombre",
+										"remisiondetalle__peso",
+										"remisiondetalle__longitud",
+										"remisiondetalle__numFolio"
+										)\
+					.filter(remisiondetalle__folioInventario = folio, tallerAsignado_id = request.session['idTaller']).distinct()
+	for remision in remisiones:
+			resultado = {
+							"id":remision["remisiondetalle__id"],
+							"material":remision["remisiondetalle__material__nombre"],
+							"peso":remision["remisiondetalle__peso"],
+							"longitud":remision["remisiondetalle__longitud"],
+							"numFolio":remision["remisiondetalle__numFolio"]
+						}
+			dataRemision.append(resultado)
+	remisionesInventario = Remision.objects.values(
+										"inventarioremisiondetalle__id",
+										"inventarioremisiondetalle__material__nombre",
+										"inventarioremisiondetalle__peso",
+										"inventarioremisiondetalle__longitud"
+										)\
+					.filter(inventarioremisiondetalle__folioInventario = folio, tallerAsignado_id = request.session['idTaller']).distinct()
+	for remisionInventario in remisionesInventario:
+			resultado = {
+							"id":remisionInventario["inventarioremisiondetalle__id"],
+							"material":remisionInventario["inventarioremisiondetalle__material__nombre"],
+							"peso":remisionInventario["inventarioremisiondetalle__peso"],
+							"longitud":remisionInventario["inventarioremisiondetalle__longitud"]
+						}
+			dataRemisionInventario.append(resultado)
+	salidas = Salida.objects.values(
+										"id",
+										"cantidadReal",
+										"cantidadAsignada",
+										"numFolio"
+										)\
+					.filter(folioInventario = folio, tallerAsignado_id = request.session['idTaller'])
+	for salida in salidas:
+			resultado = {
+						"id":salida["id"],
+						"cantidadReal":salida["cantidadReal"],
+						"cantidadAsignada":salida["cantidadAsignada"],
+						"numFolio":salida["numFolio"]
+						}
+			dataSalida.append(resultado)
+	salidasInventario = InventarioSalida.objects.values(
+										"id",
+										"cantidadReal",
+										"cantidadAsignada"
+										)\
+					.filter(folioInventario = folio, tallerAsignado_id = request.session['idTaller'])
+	for salidaInventario in salidasInventario:
+			resultado = {
+						"id":salidaInventario["id"],
+						"cantidadReal":salidaInventario["cantidadReal"],
+						"cantidadAsignada":salidaInventario["cantidadAsignada"]
+						}
+			dataSalidaInventario.append(resultado)
+	array["remisiones"]=dataRemision
+	array["remisionesInventario"]=dataRemisionInventario
 	array["salidas"]=dataSalida
 	array["salidasInventario"]=dataSalidaInventario
 	return JsonResponse(array)
