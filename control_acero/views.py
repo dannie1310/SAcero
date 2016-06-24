@@ -879,6 +879,7 @@ def salidaHabilitadoSave(request):
 								)
 	mensaje = {"estatus":"ok", "mensaje":"Salida de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	mailHtmlSH(request, numFolioInt)
 	return JsonResponse(array)
 
 def entradaArmadoComboApoyo(request):
@@ -1039,63 +1040,8 @@ def entradaArmadoSave(request):
 
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
-	envioEmails = User.objects.all().filter(frente__id = request.session['idFrente'])
-	header = "RECEPCIÓN EN FRENTE DE TRABAJO"
-	body = ""
-	body += """\
-			<html>
-			<head>
-			</head>
-			<body>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th><strong> Usuario </strong></th>
-							<th><strong> Nombre </strong></th>
-							<th><strong> Email </strong></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>%s</td>
-							<td>%s %s</td>
-							<td>%s</td>
-						</tr>
-						<tr>
-							<td colspan="3" align="center">Se Creo el Folio: <strong> %s </strong></td>
-						</tr>
-					</tbody>
-				</table>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th colspan="6">Detalle del Folio</th>
-						</tr>
-					</thead>
-					%s
-				</table>
-				<table rules="all" style="border-color: #666;" cellpadding="10">
-					<thead>
-						<tr style='background: #eee;'>
-							<th colspan="7">Detalle del Material Faltante</th>
-						</tr>
-					</thead>
-					%s
-				</table>
-			</body>
-			</html>
-	""" %\
-	(
-		request.user.username,
-		request.user.first_name,
-		request.user.last_name,
-		request.user.email,
-		numFolio,
-		htmlMail,
-		htmlMailFaltante
-	)
-	for envioEmail in envioEmails:
-		mail(header, body, envioEmail.email)
+	
+	mailHtmlEA(request,numFolioInt)
 	return JsonResponse(array)
 
 def inventarioFisicoSave(request):
@@ -3202,6 +3148,8 @@ def apoyoBusquedaView(request):
 	array["data"]=data
 
 	return JsonResponse(array)
+
+
 def mailHtmlHeader(request):
 	html = """\
 			<html>
@@ -3241,12 +3189,14 @@ def mailHtmlFooter():
 	return html;
 
 def mailHtml(request, folio):
+	# Mail Recepcion Material
 	remisiones = Remision.objects.values(
 											"idOrden",
 											"remision",
 											"fechaRemision",
 											"fechaRegistro",
 											"funcion_id",
+											"funcion__proveedor",
 											"remisiondetalle__material__nombre",
 											"remisiondetalle__peso",
 											"remisiondetalle__longitud",
@@ -3260,17 +3210,19 @@ def mailHtml(request, folio):
 										.distinct()
 	tablaDetalle = ''
 	tablaDetalle += """\
+					
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
 							<tr style='background: #eee;'>
 								<th>Material</th>
 								<th>Piezas</th>
-								<th>Peso Recibido</th>
+								<th>Peso Recibido Kg</th>
 								<th>Longitud</th>
 							</tr>
 						</thead>
 						<tbody>\
 						"""
+
 	for rem in remisiones:
 		tablaDetalle += """\
 							<tr>
@@ -3289,10 +3241,12 @@ def mailHtml(request, folio):
 
 	tablaDetalle += """\
 						</tbody>
-					</table>\
+					</table>
+					<br />\
 					"""
 
 	folioStr = remisiones[0]["remisiondetalle__folio"]
+	proveedor = remisiones[0]["funcion__proveedor"]
 	orden = remisiones[0]["idOrden"]
 	remision = remisiones[0]["remision"]
 	fechaRemision = remisiones[0]["fechaRemision"]
@@ -3303,10 +3257,12 @@ def mailHtml(request, folio):
 	body = ""
 	body += mailHtmlHeader(request)
 	body += """
+			<br />
 			<table rules="all" style="border-color: #666;" cellpadding="10">
 				<thead>
 					<tr style='background: #eee;'>
 						<th><strong> Folio </strong></th>
+						<th><strong> Fabricante </strong></th>
 						<th><strong> Orden </strong></th>
 						<th><strong> Remision </strong></th>
 						<th><strong> Fecha Remision </strong></th>
@@ -3320,12 +3276,15 @@ def mailHtml(request, folio):
 						<td>%s</td>
 						<td>%s</td>
 						<td>%s</td>
+						<td>%s</td>
 					</tr>
 				</tbody>
 			</table>
+			<br />
 			""" %\
 			(
 				folioStr,
+				proveedor,
 				orden,
 				remision,
 				fechaRemision.strftime("%d/%m/%Y"),
@@ -3339,6 +3298,272 @@ def mailHtml(request, folio):
 
 	return True
 
+def mailHtmlSH(request, folio):
+	# Mail Salida Habilitado
+	#salidaHabilitadoSave
+	res=0;
+	salida = Salida.objects.values(			"folio",
+											"cantidadAsignada",
+											"fechaRegistro",
+											"apoyo__numero",
+											"frente__id",
+											"frente__nombre",
+											"material__nombre",
+											"elemento__nombre",
+											"tallerAsignado__nombre",
+											"cantidadReal"
+										)\
+										.filter(
+											numFolio = folio,
+											tallerAsignado_id = request.session['idTaller']
+										)\
+										.distinct()
+	tablaDetalle = ''
+	tablaDetalle += """\
+					
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #eee;'>
+								<th>Material</th>
+								<th>Peso de Salida de Habilitado en Kg</th>
+								<th>Peso Restante en Almacen Kg</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
+
+	for rem in salida:
+		res=rem["cantidadReal"]-rem["cantidadAsignada"]
+
+		tablaDetalle += """\
+							<tr>
+								<td>%s</td>
+								<td>%s</td>
+								<td>%s</td>
+							</tr>
+						"""%\
+						(
+							rem["material__nombre"],
+							rem["cantidadAsignada"],
+							res
+						)
+
+	tablaDetalle += """\
+						</tbody>
+					</table>
+					<br />\
+					"""
+
+	tablaDetalleF = ''
+	tablaDetalleF += """\
+					
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #eee;'>
+								<th>Material</th>
+								<th>Peso Recibido Kg</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
+
+	for rem in salida:
+		tablaDetalleF += """\
+							<tr>
+								<td>%s</td>
+								<td>%s</td>
+							</tr>
+						"""%\
+						(
+							rem["material__nombre"],
+							rem["cantidadAsignada"]
+						)
+
+	tablaDetalleF += """\
+						</tbody>
+					</table>
+					<br />\
+					"""
+
+	folioStr = salida[0]["folio"]
+	taller = salida[0]["tallerAsignado__nombre"]
+	frente = salida[0]["frente__nombre"]
+	apoyo = salida[0]["apoyo__numero"]
+	elemento = salida[0]["elemento__nombre"] 
+	fechaRegistro = salida[0]["fechaRegistro"]
+
+	talleresEmail = User.objects.all().filter(taller__id = request.session['idTaller'])
+
+	frentesEmail = User.objects.all().filter(frente__id = salida[0]["frente__id"])
+
+	header = "SALIDA DE MATERIAL HABILITADO"
+	body = ""
+	body2 = ""
+	body += mailHtmlHeader(request)
+	body += """
+			<br />
+			<table rules="all" style="border-color: #666;" cellpadding="10">
+				<thead>
+					<tr style='background: #eee;'>
+						<th><strong> Folio </strong></th>
+						<th><strong> Taller </strong></th>
+						<th><strong> Frente Enviado</strong></th>
+						<th><strong> Apoyo </strong></th>
+						<th><strong> Elemento </strong></th>
+						<th><strong> Fecha Creacion </strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>%s</strong></td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>
+				</tbody>
+			</table>
+			<br />
+			""" %\
+			(
+				folioStr,
+				taller,
+				frente,
+				apoyo,
+				elemento,
+				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
+			)
+	body2 += body
+	body += tablaDetalle
+	body += mailHtmlFooter()
+
+
+	body2 +=tablaDetalleF
+	body2 +=mailHtmlFooter()
+
+	
+	for envio in frentesEmail:
+		mail(header, body2, envio.email)
+	
+	
+	for envioEmail in talleresEmail:
+		mail(header, body, envioEmail.email)
+	return True	
+
+def mailHtmlEA(request, folio):
+	# Mail entradaArmadoSave
+	#salidaHabilitadoSave
+	res=0;
+	entrada = Entrada.objects.values(			"folio",
+											"cantidadAsignada",
+											"fechaRegistro",
+											"apoyo__numero",
+											"frente__id",
+											"frente__nombre",
+											"material__nombre",
+											"elemento__nombre",
+											"taller__nombre",
+											"cantidadReal"
+										)\
+										.filter(
+											numFolio = folio,
+											frente_id = request.session['idFrente']
+										)\
+										.distinct()
+	tablaDetalle = ''
+	tablaDetalle += """\
+					
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #eee;'>
+								<th>Material</th>
+								<th>Peso de Recibido en Kg</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
+
+	for rem in entrada:
+		
+
+		tablaDetalle += """\
+							<tr>
+								<td>%s</td>
+								<td>%s</td>
+							</tr>
+						"""%\
+						(
+							rem["material__nombre"],
+							rem["cantidadAsignada"]
+							
+						)
+
+	tablaDetalle += """\
+						</tbody>
+					</table>
+					<br />\
+					"""
+
+	
+	folioStr = entrada[0]["folio"]
+	taller = entrada[0]["taller__nombre"]
+	frente = entrada[0]["frente__nombre"]
+	apoyo = entrada[0]["apoyo__numero"]
+	elemento = entrada[0]["elemento__nombre"] 
+	fechaRegistro = entrada[0]["fechaRegistro"]
+
+	frenteEmail = User.objects.all().filter(frente__id = request.session['idFrente'])
+
+	
+	header = "RECEPCION EN FRENTE DE TRABAJO"
+	body = ""
+
+	body += mailHtmlHeader(request)
+	body += """
+			<br />
+			<table rules="all" style="border-color: #666;" cellpadding="10">
+				<thead>
+					<tr style='background: #eee;'>
+						<th><strong> Folio </strong></th>
+						<th><strong> Taller </strong></th>
+						<th><strong> Frente Enviado</strong></th>
+						<th><strong> Apoyo </strong></th>
+						<th><strong> Elemento </strong></th>
+						<th><strong> Fecha Creacion </strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>%s</strong></td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>
+				</tbody>
+			</table>
+			<br />
+			""" %\
+			(
+				folioStr,
+				taller,
+				frente,
+				apoyo,
+				elemento,
+				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
+			)
+	
+	body += tablaDetalle
+	body += mailHtmlFooter()
+
+	for envioEmail in frenteEmail:
+		mail(header, body, envioEmail.email)
+	return True	
+
+
+
 def mail(header, body, to):
 	try:
 		send_mail(header, body, 'control-acero@grupohi.mx',
@@ -3349,7 +3574,7 @@ def mail(header, body, to):
 def excelReportes(request, array):
 	x=0;
 	y=0;
-	workbook = xlsxwriter.Workbook('Habilitador.xlsx')
+	workbook = xlsxwriter.Workbook('Suministro.xlsx')
 	worksheet = workbook.add_worksheet()
 	bold14 = workbook.add_format({'bold': True, 'font_size': 12, 'align': 'center'})
 	worksheet.set_column('A:J', 25)
