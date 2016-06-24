@@ -189,13 +189,22 @@
 			var t='';
 			var h='';
 			var tT='';
+			var s=0;
+	        var x=0;
 			var hT='';
 			var tt='';
+			var num=0;
+			var nFolio=0;
+			var idMaterial=0;
+			var idFrente=0;
 			var sum= 0;
 			var sumSalida= 0;
 			var totales='';
 			var tobody='';
 			var ht='';
+			var suma=0;
+			var sumaFaltante=0;
+			var faltante=0;
 			$.post( "{% url 'reporteConsulta' %}",{
 						funcion:funcion,
 						tipo:tipo,
@@ -231,11 +240,11 @@
 	                        	tabla +='<td>'+object.orden+'</td>';
 								tabla +='<td>'+object.remision+'</td>';
 	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td>'+parseInt(object.piezas)+'</td>';
+	                    		tabla +='<td class="milesLimpio">'+Math.floor(object.piezas)+'</td>';
 	                    		tabla +='<td>'+object.longitud+'</td>';
 	                    		tabla +='<td>'+object.taller+'</td>';
 	                    		tabla +='<td>'+object.fechaA+'</td>';
-	                    		tabla +='<td class="info miles">'+object.peso+'</td>';
+	                    		tabla +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
 	                    		tabla += '</tr>';
 	                    	
 							$("#tituloE").hide('slide');
@@ -247,10 +256,11 @@
 		                 if(object.value==2){
 		                 	//Armador
 		                 	//console.log(object);
+		                 	
 		                 		head ='<tr>'
 		                 		+'<th class="text-center">Folio</th>'
 		                 		+'<th class="text-center">Remisión</th>'
-		                 		+'<th class="text-center">Taller</th>'
+		                 		+'<th class="text-center">Frente</th>'
 		                 		+'<th class="text-center">Armador</th>'
 		                 		+'<th class="text-center">Apoyo</th>'
 								+'<th class="text-center">Elemento</th>'	
@@ -261,31 +271,111 @@
 								
 								+'</tr>';
 
-	                        	tabla += '<tr>';
-	                        	tabla +='<td>'+object.folio+'</td>';
-	                        	tabla +='<td>'+object.remision+'</td>';
-	                        	tabla +='<td>'+object.taller+'</td>';
-								tabla +='<td>'+object.proveedor+'</td>';
-								tabla +='<td>'+object.apoyo+'</td>';
-	                    		tabla +='<td>'+object.elemento+'</td>';
-	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td class="info miles">'+object.cantidadReal+'</td>';
-	                    		if(object.id==object.idED){
-		                    		tabla +='<td class="alert-warning info miles">'+object.cantidad+'</td>';
-		                    		tabla +='<td class="info miles">'+object.calculado+'</td>';
+								
 									
-								}
-								else{
-									tabla +='<td class="info miles">0</td>';
-		                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
+									if(object.cantidadReal== object.cantidad){
+		                    				tabla +='<tr>';
+				                        		tabla +='<td>'+object.folio+'</td>';
+				                        		tabla +='<td>'+object.remision+'</td>';
+				                        		tabla +='<td>'+object.frente+'</td>';
+												tabla +='<td>'+object.proveedor+'</td>';
+												tabla +='<td>'+object.apoyo+'</td>';
+				                    			tabla +='<td>'+object.elemento+'</td>';
+				                    			tabla +='<td>'+object.material+'</td>';
+		                    					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
+					                    		tabla +='<td class="milesLimpio">0</td>';
+					                    		tabla +='<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>';
+					                    		tabla += '</tr>';
+		                    		}
+		                        	
+		                    		if(object.id==object.idED){
+
+		                    			if(nFolio==object.nFolio && idFrente==object.idFrente && idMaterial==object.idMaterial){
+											
+											faltante=faltante+parseInt(object.cantidad);
+												tabla +='<tr>';
+				                        		tabla +='<td>'+object.folio+'</td>';
+				                        		tabla +='<td>'+object.remision+'</td>';
+				                        		tabla +='<td>'+object.frente+'</td>';
+												tabla +='<td>'+object.proveedor+'</td>';
+												tabla +='<td>'+object.apoyo+'</td>';
+				                    			tabla +='<td>'+object.elemento+'</td>';
+				                    			tabla +='<td>'+object.material+'</td>';
+		                    					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
+					                    		tabla +='<td class="alert-warning milesLimpio">'+faltante+'</td>';
+					                    		tabla +='<td class="milesLimpio">'+Math.floor(object.calculado)+'</td>';
+					                    		tabla += '</tr>';
+					                    		faltante=0;
+					                    		nFolio=0;
+												idFrente=0;
+												idMaterial=0;
+										// suma= suma + Math.floor(object.cantidad);
+										// sumaFaltante= sumaFaltante + Math.floor(object.calculado);
+	
+										}   
+										if( nFolio==object.nFolio && idFrente==object.idFrente && idMaterial!=object.idMateria) {
+												
+												faltante=faltante+parseInt(object.cantidad);
+
+												tabla +='<tr>';
+				                        		tabla +='<td>'+object.folio+'</td>';
+				                        		tabla +='<td>'+object.remision+'</td>';
+				                        		tabla +='<td>'+object.frente+'</td>';
+												tabla +='<td>'+object.proveedor+'</td>';
+												tabla +='<td>'+object.apoyo+'</td>';
+				                    			tabla +='<td>'+object.elemento+'</td>';
+				                    			tabla +='<td>'+object.material+'</td>';
+		                    					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
+					                    		tabla +='<td class="alert-warning milesLimpio">'+faltante+'</td>';
+					                    		tabla +='<td class="milesLimpio">'+Math.floor(object.calculado)+'</td>';
+					                    		tabla += '</tr>';
+
+					                    		//console.log(object.cantidadReal, object.cantidad, faltante,object.calculado);
+										} //falta un dato....
+
+										// if( nFolio!=object.nFolio && idFrente==object.idFrente && idMaterial!=object.idMateria) {
+												
+										// 		//faltante=faltante+parseInt(object.cantidad);
+
+										// 		tabla +='<tr>';
+				      //                   		tabla +='<td>'+object.folio+'</td>';
+				      //                   		tabla +='<td>'+object.remision+'</td>';
+				      //                   		tabla +='<td>'+object.frente+'</td>';
+										// 		tabla +='<td>'+object.proveedor+'</td>';
+										// 		tabla +='<td>'+object.apoyo+'</td>';
+				      //               			tabla +='<td>'+object.elemento+'</td>';
+				      //               			tabla +='<td>'+object.material+'</td>';
+		        //             					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
+					     //                		tabla +='<td class="alert-warning milesLimpio">'+Math.floor(object.cantidad)+'</td>';
+					     //                		tabla +='<td class="milesLimpio">'+Math.floor(object.calculado)+'</td>';
+					     //                		tabla += '</tr>';
+
+					     //                		//console.log(object.cantidadReal, object.cantidad, faltante,object.calculado);
+										// } 
+										else{
+
+											//console.log("aq");
+											//console.log("faltante "+faltante, nFolio, idFrente, idMaterial);
+												nFolio= parseInt(object.nFolio);
+												idFrente = parseInt(object.idFrente);
+												idMaterial = parseInt(object.idMaterial);
+												
+												faltante= faltante + parseInt(object.cantidad);
+												
+											
+										}
+									}
 									
-								}
-								tabla += '</tr>';
+								
+								//console.log(suma,"sumaf ", sumaFaltante);
+								
+								//$("#falta_"+object.nFolio+"_"+object.idFrente+"_"+object.idMaterial).remove();
+								//$("#tablaSolicita tbody").append(tabla);
 								$("#tituloE").hide('slide');
 								$("#tituloS").hide('slide');
 								$("#divTotales").show('slide');
 								 $("#divTotalesS").hide('slide');
-		                 }
+		                 } 
 
 		                 if(object.value==3){
 		                 	//taller Habilitado
@@ -309,14 +399,14 @@
 	                        	tabla +='<td>'+object.apoyo+'</td>';
 	                    		tabla +='<td>'+object.elemento+'</td>';
 	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
+	                    		tabla +='<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>';
 	                    		
 								tabla += '</tr>';
 								
 								$("#tituloS").show('slide');
 		                 }
 		                  if(object.value==4 && tipo==2){
-
+		                  	//console.log(object);
 		                  	//proveedor Habilitador 
 
 		                 		head ='<tr>'
@@ -339,7 +429,7 @@
 	                        	tabla +='<td>'+object.apoyo+'</td>';
 	                    		tabla +='<td>'+object.elemento+'</td>';
 	                    		tabla +='<td>'+object.material+'</td>';
-	                    		tabla +='<td class="info miles">'+object.cantidad+'</td>';
+	                    		tabla +='<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>';
 	                    		
 								tabla += '</tr>';
 								$("#tituloE").show('slide');
@@ -351,6 +441,7 @@
 									//console.log(object);
 									h ='<tr>'
 											+'<th class="text-center">Folio</th>'
+											+'<th class="text-center">Fabricante</th>'
 											+'<th class="text-center">Taller de Habilitado</th>'
 											+'<th class="text-center"># Orden</th>'
 											+'<th class="text-center">Remisión</th>'	
@@ -365,22 +456,65 @@
 
 				                        	t += '<tr>';
 				                        	t +='<td>'+object.folio+'</td>';
+				                        	t +='<td>'+object.proveedor+'</td>';
 				                        	t +='<td>'+object.taller+'</td>';
 				                        	t +='<td>'+object.orden+'</td>';
 											t +='<td>'+object.remision+'</td>';
 				                    		t +='<td>'+object.material+'</td>';
-				                    		t +='<td>'+parseInt(object.piezas)+'</td>';
+				                    		t +='<td class="milesLimpio">'+Math.floor(object.piezas)+'</td>';
 				                    		t +='<td>'+object.longitud+'</td>';
 				                    		
 				                    		t +='<td>'+object.fechaA+'</td>';
-				                    		t +='<td class="info miles">'+object.peso+'</td>';
+				                    		t +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
 				                    		t += '</tr>';
 				                    		$("#tituloE").show('slide');
 								});
 						$.each(data.totales, function (count, object) {
 	                    		 	//console.log(object);
 	                    		 	
-	                    		 	hT='<tr>'
+	                    		 	//console.log(object);
+	                    		 if(object.value==1){
+	                    		 	
+		                    		 	if(num!=object.id){
+		                    		 		num= parseInt(object.id);
+		                    		 		//console.log("id: ",num);
+		                    		 		s=s+x;
+		                    		 		if(s!=0){
+			                    		 		hT='<tr>'
+													+'<th class="text-center">Varilla</th>'
+													+'<th class="text-center">Peso Total en Kg</th>'
+													+'</tr>';
+												tT  += '<tr>';
+					                    		tT +='<td>'+object.nombre+'</td>';
+					                    		tT +='<td class="milesLimpio">'+Math.floor(s)+'</td>';
+					                    		+'</tr>';
+					                    		//console.log("imprimio: ",object.id, s);
+					                    		s=0;
+					                    		x=0;
+				                    		}
+		                    		 		
+
+		                    		 	}
+		                    		 	if(num==object.id){
+		                    		 		if(object.real== object.peso){
+		                    		 			//console.log("entrar igual??",s);
+		                    		 			s=s+ parseInt(object.peso);
+			                    		 		//console.log("sum1: ",s);
+			                    		 		
+		                    		 		}
+		                    		 		else{
+		                    		 		if(s!=0){
+		                    		 		x=parseInt(object.faltante);
+
+		                    		 		}
+		                    		 		//console.log("igual:: ",x,s, num, object.id, object.faltante);
+		                    		 		num=0;
+		                    		 		}
+		                    		 	}
+   
+				                 }
+				                 else{
+				                 	hT='<tr>'
 										+'<th class="text-center">Varilla</th>'
 										+'<th class="text-center">Peso Total en Kg</th>'
 										+'</tr>';
@@ -388,17 +522,18 @@
 				                    	tT +='<td>'+object.nombre+'</td>';
 									
 				                    if(object.faltante!=null){
-				                    	tT +='<td class="info miles">'+object.faltante+'</td>';
+				                    	tT +='<td class="milesLimpio">'+Math.floor(object.faltante)+'</td>';
 				                    	sum = sum+parseInt(object.faltante);
 				                    	//console.log(sum,object.faltante);
 				                    }
 				                    else{
-				                    	tT +='<td class="info miles">'+object.peso+'</td>';
+				                    	tT +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
 				                    	sum = sum+ parseInt(object.peso);
 				                    	//console.log(sum,parseInt(object.peso));
 				                    }
 				                    tT += '</tr>';
-				                     $("#divTotales").show('slide');
+				                 }
+				                 $("#divTotales").show('slide');
 
 	                    });
 	                    $.each(data.totalesS, function (count, object) {
@@ -410,7 +545,7 @@
 
 									tt+= '<tr>';
 				                    tt +='<td>'+object.nombre+'</td>';
-				                    tt +='<td class="info miles">'+object.peso+'</td>';
+				                    tt +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
 				                    tt += '</tr>';
 				                   sumSalida = sumSalida+parseInt(object.peso);
 				                    $("#divTotalesS").show('slide');
@@ -427,8 +562,8 @@
 				mensajeWarning( "Error en la petición del reporte" );
 			});
 			
-			tobody ='<tr><td class="alert-info">'+sum+'</td>'
-						+'<td class="alert-success">'+sumSalida+'</td>'
+			tobody ='<tr><td class="alert-info milesLimpio">'+Math.floor(sum)+'</td>'
+						+'<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>'
 						+'</tr>';
 
 			///console.log("Total : ",sum, sumSalida);
