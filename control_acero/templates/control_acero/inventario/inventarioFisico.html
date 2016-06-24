@@ -61,20 +61,20 @@
 				<tbody>
 					
 				</tbody>
-				<tfoot>
+				<!--<tfoot>
 					<tr>
 						<th class="col-md-2">Peso Total</th>
 						<th class="col-md-4"><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
 						<th class="col-md-4"><div id="divPesoTonelada"></div></th>
 					</tr>
-				</tfoot>
+				</tfoot>-->
 			</table>
 		</div>
 		<div class="col-md-12">
 			<button type="button" class="btn btn-info" name="btn2" id="btn2">¿Terminaste?</button>
 			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
 		</div>		
-		<div id="divRemisionReal" class="col-md-12 table-responsive">
+		<div id="divRemisionReal" style="display: none;" class="col-md-12 table-responsive">
 			<table id="tablaRemisionReal" class="table table-hover">
 				<thead>
 					<tr>
@@ -151,6 +151,70 @@
 		    $("#divCantidades").show("slide");
 		    remisiones();
 		});
+		var arrayRemisiones = [];
+		var arrayRemisionesInventario = [];
+		var arraySalidas = [];
+		var arraySalidasInventario = [];
+		remisiones = function () {
+			$("#tablaRemisiones tbody").empty();
+			var arrayFolioRemision = [];
+			var foliosRemision = 0;
+			var pesoRemision = 0;
+			var arrayFolioSalida = [];
+			var foliosSalida = 0;
+			var pesoSalida = 0;
+			var pesoInventario = 0;
+			var tabla = '';
+			var tablaRemisionReal = '';
+			$.post( "{% url 'inventarioRemision' %}",{
+						},
+			function(data, status) {
+	            try {
+                    $.each(data.remisionesInventarioSum, function (count, object) {
+                    	tablaRemisionReal += '<tr class="real row_'+object.materialId+'">';
+                    		tablaRemisionReal += '<td style="display:none;">'+object.materialId+'</td>';
+                    		tablaRemisionReal += '<td>'+object.material+'</td>';
+                    		tablaRemisionReal += '<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
+                    		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+object.peso+'" /></td>';
+                    	tablaRemisionReal += '</tr>';
+                    });
+                    $.each(data.remisiones, function (count, object) {
+                    	arrayRemisiones.push(object.id);
+                    	arrayFolioRemision.push(object.numFolio);
+                    	pesoRemision += Math.floor(object.peso);
+                    });
+                    foliosRemision = jQuery.unique(arrayFolioRemision).length;
+                    $.each(data.salidas, function (count, object) {
+                    	arraySalidas.push(object.id);
+                    	arrayFolioSalida.push(object.numFolio);
+                    	pesoSalida += Math.floor(object.cantidadAsignada);
+                    });
+                    $.each(data.salidasInventario, function (count, object) {
+                    	arraySalidasInventario.push(object.id);
+                    });
+                    $.each(data.remisionesInventario, function (count, object) {
+                    	arrayRemisionesInventario.push(object.id);
+                    	pesoInventario += Math.floor(object.peso);
+                    });
+                    foliosSalida = jQuery.unique(arrayFolioSalida).length;
+                    tabla += '<tr>';
+                    	tabla += '<td class="col-md-2">'+foliosRemision+'</td>';
+                    	tabla += '<td class="col-md-2">'+(pesoRemision/1000)+'</td>';
+                    	tabla += '<td class="col-md-2">'+foliosSalida+'</td>';
+                    	tabla += '<td class="col-md-2">'+(pesoSalida/1000)+'</td>';
+                    	tabla += '<td class="col-md-4">'+(pesoInventario/1000)+' Ton</td>';
+                    tabla += '</tr>';
+                        
+	            } catch (e) {
+	                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
+	            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+			});
+			$("#tablaRemisiones tbody").append(tabla);
+			$("#tablaRemisionReal tbody").append(tablaRemisionReal);
+		};
 		$( "#btn2" ).click(function() {
         	var datos = [];
         	var materialDet = 0;
@@ -214,8 +278,15 @@
 				array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 1});
 			});
 			var json = JSON.stringify(array);
+			var jsonRemisiones = JSON.stringify(arrayRemisiones);
+			var jsonRemisionesInventario = JSON.stringify(arrayRemisionesInventario);
+			var jsonSalidas = JSON.stringify(arraySalidas);
+			var jsonSalidasInventario = JSON.stringify(arraySalidasInventario);
 			$.post( "{% url 'inventarioFisicoSave' %}",{
-				json: json
+				json: json,
+				jsonRemisiones: jsonRemisiones,
+				jsonRemisionesInventario: jsonRemisionesInventario,
+				jsonSalidas: jsonSalidas
 			},
 			function(data, status) {
 	            try {
@@ -228,65 +299,14 @@
 			.fail(function() {
 				mensajeWarning( "Error en la guardar Inventario" );
 			});
-			
+			$("#divRemisionReal").show("slide");
+			$("#btn1").hide("slide");
+			$("#divVarillasCheck").hide("slide");
+			$("#divCantidades").hide("slide");
+			$("#btnAgregaVarilla").hide("slide");
+			$("#btn2").hide("slide");
+			backToTop();
 		}
-		remisiones = function () {
-			$("#tablaRemisiones tbody").empty();
-			var arrayFolioRemision = [];
-			var foliosRemision = 0;
-			var pesoRemision = 0;
-			var arrayFolioSalida = [];
-			var foliosSalida = 0;
-			var pesoSalida = 0;
-			var pesoInventario = 0;
-			var tabla = '';
-			var tablaRemisionReal = '';
-			$.post( "{% url 'inventarioRemision' %}",{
-						},
-			function(data, status) {
-	            try {
-					$('input[type=checkbox]').each(function () {
-						console.log(this.value);
-					});
-                    $.each(data.remisionesInventarioSum, function (count, object) {
-                    	tablaRemisionReal += '<tr class="real row_'+object.materialId+'">';
-                    		tablaRemisionReal += '<td style="display:none;">'+object.materialId+'</td>';
-                    		tablaRemisionReal += '<td>'+object.material+'</td>';
-                    		tablaRemisionReal += '<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
-                    		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+object.peso+'" /></td>';
-                    	tablaRemisionReal += '</tr>';
-                    });
-                    $.each(data.remisiones, function (count, object) {
-                    	arrayFolioRemision.push(object.numFolio);
-                    	pesoRemision += Math.floor(object.peso);
-                    });
-                    foliosRemision = jQuery.unique(arrayFolioRemision).length;
-                    $.each(data.salidas, function (count, object) {
-                    	arrayFolioSalida.push(object.numFolio);
-                    	pesoSalida += Math.floor(object.cantidadAsignada);
-                    });
-                    $.each(data.remisionesInventario, function (count, object) {
-                    	pesoInventario += Math.floor(object.peso);
-                    });
-                    foliosSalida = jQuery.unique(arrayFolioSalida).length;
-                    tabla += '<tr>';
-                    	tabla += '<td class="col-md-2">'+foliosRemision+'</td>';
-                    	tabla += '<td class="col-md-2">'+(pesoRemision/1000)+'</td>';
-                    	tabla += '<td class="col-md-2">'+foliosSalida+'</td>';
-                    	tabla += '<td class="col-md-2">'+(pesoSalida/1000)+'</td>';
-                    	tabla += '<td class="col-md-4">'+(pesoInventario/1000)+' Ton</td>';
-                    tabla += '</tr>';
-                        
-	            } catch (e) {
-	                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
-	            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
-			});
-			$("#tablaRemisiones tbody").append(tabla);
-			$("#tablaRemisionReal tbody").append(tablaRemisionReal);
-		};
 		$( "#btnAgregaVarilla" ).click(function() {
 			$("#divPesoTotal").empty();
 			$("#divPesoTonelada").empty();

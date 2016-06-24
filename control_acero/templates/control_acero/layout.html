@@ -110,7 +110,7 @@
                         bar += '<div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">';
                         bar += '</div>';
                     bar += '</div>';
-                    $.blockUI({ message: "<img class='img-responsive text-center' src='{% static 'img/loader.gif' %}'>" });
+                    $.blockUI({ message: "<img width='80' heigth='80' class='text-center' src='{% static 'img/loader.gif' %}'>" });
                     bar = '';
                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
