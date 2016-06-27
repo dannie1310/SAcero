@@ -2132,19 +2132,12 @@ def reporteConsulta(request):
 	idTaller = request.POST.get('taller', 0)
 	idFrente = request.POST.get('frente', 18)
 	tipo =request.POST.get('tipo',3)
+	excel = request.POST.get('excel',0)
 
 	fechaInicial = request.POST.get('fechai', '17/05/2016')
 	fechaFinal = request.POST.get('fechaf', '14/06/2016')
 	fechaInicialFormat = datetime.strptime(fechaInicial+" 00:00:00", '%d/%m/%Y %H:%M:%S')
 	fechaFinalFormat = datetime.strptime(fechaFinal+" 23:59:59", '%d/%m/%Y %H:%M:%S')
-
-	print "----------"
-	print idFuncion
-	print tipo
-	print idTaller
-	print idFrente
-	print fechaInicial
-	print fechaFinal
 
 	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='1':
 
@@ -2212,8 +2205,11 @@ def reporteConsulta(request):
 			data.append(resultado)
 		array["data"]=data
 		array["totales"]=totales
-		excelReportesEntrada(request,array)
-		#print array
+		if int(excel) == 1:
+			print "1"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
+
 		return JsonResponse(array)
 
 	if idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='1':
@@ -2283,7 +2279,11 @@ def reporteConsulta(request):
 			data.append(resultado)
 		array["data"]=data
 		array["totales"]=totales
-		excelReportesEntrada(request,array)
+		if int(excel) == 1:
+			print "2"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
+
 		return JsonResponse(array)
 
 	elif idFrente=='0' and idTaller=='0' and idFuncion!='0' and tipo=='3':
@@ -2638,7 +2638,9 @@ def reporteConsulta(request):
 		array["totales"]=totales
 		array["data"]=data
 		array["totalesS"]=totalesS
-		excelReportes(request,array)
+		if int(excel) == 1:
+			print "3"
+			excelReportes(request,array)
 		#print array
 		return JsonResponse(array)
 
@@ -2763,7 +2765,9 @@ def reporteConsulta(request):
 		array["totales"]=totales
 		array["data"]=data
 		array["totalesS"]=totalesS
-		excelReportes(request,array)
+		if int(excel) == 1:
+			print "4"
+			excelReportes(request,array)
 		return JsonResponse(array)
 
 	elif idTaller!='0' and idFrente!='0' and idFuncion=='0':
@@ -3777,8 +3781,10 @@ def excelReportes(request, array):
 def excelReportesEntrada(request,array):
 	x=0;
 	random = uuid.uuid4().hex[:6].lower()
-	filename = "Suministro_%s.xlsx" % random
-	workbook = xlsxwriter.Workbook(filename)
+	filename = "Suministro_%s" % random
+	ext = ".xlsx"
+	path = "control_acero/static/excel/"
+	workbook = xlsxwriter.Workbook(path+filename+ext)
 	worksheet = workbook.add_worksheet()
 	bold14 = workbook.add_format({'bold': True, 'font_size': 12, 'align': 'center'})
 	worksheet.set_column('A:I', 20)
@@ -3898,16 +3904,16 @@ def excelReportesEntrada(request,array):
 	workbook.close()
 	return filename
 
-def descargaExcel(request):
-	excel = open("Suministro.xlsx", "rb")
+def descargaExcel(request, filename):
+	path = "control_acero/static/excel/"
+	ext = ".xlsx"
+	excel = open(path + filename + ext, "rb")
 	output = StringIO.StringIO(excel.read())
 	out_content = output.getvalue()
 	output.close()
 	response = HttpResponse(out_content,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-	response['Content-Disposition'] = 'attachment; filename=Report.xlsx'
+	response['Content-Disposition'] = 'attachment; filename=%s.xlsx' % filename
 	return response
-
-# 	generateExcel(request)
 
 # def generateExcel(request):
 #     path = './hello.xlsx' # this should live elsewhere, definitely

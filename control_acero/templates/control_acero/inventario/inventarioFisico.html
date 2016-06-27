@@ -293,6 +293,7 @@
 	            try {
 	            	mensajeSuccess("<b>"+data.mensaje+"</b>");
 	            	$("#folio").html(data.folio);
+	            	$(".eliminar").empty();
 	            } catch (e) {
 	                alert("Error al cargar Guardar la información:" + e);
 	            }
