@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 proyectos_django/settings.py
 /nbproject/
+=======
+proyectos_django/*
+control_acero/static/excel/*
+>>>>>>> 8c07d8aa2776557135b98ee8de35cb0bb6518cfc

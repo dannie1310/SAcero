@@ -31,8 +31,12 @@
 				<input type="text" class="calendario form-control" name="fechaFinal" id="fechaFinal" value="{% now "d/m/Y" %}"></input>
 			</div>
 		</div>
-		<div class="col-md-12">
+		<div class="col-md-6">
 			<button type="button" class="btn btn-success" name="solicitarConsulta" id="solicitarConsulta">Seleccionar</button>
+		</div>
+		<div class="col-md-6">
+			
+			<button type="button" class="btn btn-success" name="excel" id="excel">Generar Excel</button>
 		</div>
 		<div style="display:none"; id="tituloE" class="col-md-12">
 			<h2>Entradas al Habilitador</h2>
@@ -94,10 +98,6 @@
 					<tbody>
 					</tbody>
 				</table>
-		</div>
-		<div style="display:none;" id="divImprimir" class="col-md-12">
-			
-			<button type="button" class="btn btn-success" name="excel" id="excel">Excel</button>
 		</div>
 	</div>
 	<script type="text/javascript">
@@ -584,14 +584,67 @@
 
 		    $('#tablaTotalesS thead').append(ht);
 		    $("#tablaTotalesS tbody").append(tt);
+		    $("#divImprimir").show("slide");
 		   	
 		});
-		
 		$( "#excel" ).click(function() {
-			
-
-
+			var funcion = $("#cmbFuncion").val();
+			var taller = $("#cmbTaller").val();
+			var frente = $("#cmbFrente").val();
+			var fechai = $("#fechaInicial").val();
+			var fechaf = $("#fechaFinal").val();
+			var tipo = $("#cmbFuncion").find(':selected').data('tipo')
+			var folio = '';
+			var i=0;
+			var res=0;
+			var tabla = '';
+			var head='';
+			var t='';
+			var h='';
+			var tT='';
+			var s=0;
+	        var x=0;
+			var hT='';
+			var tt='';
+			var num=0;
+			var nFolio=0;
+			var idMaterial=0;
+			var idFrente=0;
+			var sum= 0;
+			var sumSalida= 0;
+			var totales='';
+			var tobody='';
+			var ht='';
+			var suma=0;
+			var sumaFaltante=0;
+			var faltante=0;
+			var excel=1;
+			var filename = '';
+			$.post( "{% url 'reporteConsulta' %}",{
+						funcion:funcion,
+						tipo:tipo,
+		        		taller:taller,
+		        		frente:frente,
+		        		fechai:fechai,
+		        		fechaf:fechaf,
+		        		excel:excel
+			},
+			function(data, status) {
+	            try {
+	            	filename = data.filename;
+	            	generarExcel(filename);
+		        } catch (e) {
+	                mensajeWarning("Consulta invalida");
+	            }
+			})
+			.fail(function() {
+				mensajeWarning( "Error en la petición del reporte" );
+			});
+			console.log("test");
 		});
+		generarExcel = function(filename){
+			 $("body").append("<iframe src='/control_acero/descarga/excel/"+filename+"' style='display:none;' ></iframe>");
+		}
 		
 	    $(function () {
 	    	comboFuncion();

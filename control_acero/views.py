@@ -36,6 +36,7 @@ from django.template import RequestContext
 from django.contrib.staticfiles.templatetags.staticfiles import static
 import xlsxwriter
 import StringIO
+import uuid
 
 logo = static('img/hs.png')
 
@@ -934,7 +935,7 @@ def entradaArmadoMaterial(request):
 								'elemento__nombre'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
-						.filter(numFolio = folio, frente_id = request.session["idFrente"]) \
+						.filter(numFolio = folio, frente_id = request.session["idFrente"], cantidadAsignada__gt=0) \
 						.order_by('material_id')
 	for salida in salidas:
 		resultado = {
@@ -1150,13 +1151,16 @@ def foliosSalidaHabilitado(request):
 	data = []
 	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct().filter(frente_id=request.session['idFrente'])
 	for salidaFolio in salidaFolios:
-		resultado = {
-						"numFolio":salidaFolio["numFolio"],
-						"folio":salidaFolio["folio"],
-						"apoyo":salidaFolio["apoyo__numero"],
-						"elemento":salidaFolio["elemento__nombre"]
-					}
-		data.append(resultado)
+		validacionAsignado = InventarioSalida.objects.filter(numFolio=salidaFolio["numFolio"]).aggregate(Sum('cantidadAsignada'))
+		validacionAsign = validacionAsignado["cantidadAsignada__sum"]
+		if Decimal(validacionAsign) > 0:
+			resultado = {
+							"numFolio":salidaFolio["numFolio"],
+							"folio":salidaFolio["folio"],
+							"apoyo":salidaFolio["apoyo__numero"],
+							"elemento":salidaFolio["elemento__nombre"]
+						}
+			data.append(resultado)
 	array["data"]=data
 	return JsonResponse(array)
 
@@ -2132,19 +2136,12 @@ def reporteConsulta(request):
 	idTaller = request.POST.get('taller', 0)
 	idFrente = request.POST.get('frente', 18)
 	tipo =request.POST.get('tipo',3)
+	excel = request.POST.get('excel',0)
 
 	fechaInicial = request.POST.get('fechai', '17/05/2016')
 	fechaFinal = request.POST.get('fechaf', '14/06/2016')
 	fechaInicialFormat = datetime.strptime(fechaInicial+" 00:00:00", '%d/%m/%Y %H:%M:%S')
 	fechaFinalFormat = datetime.strptime(fechaFinal+" 23:59:59", '%d/%m/%Y %H:%M:%S')
-
-	print "----------"
-	print idFuncion
-	print tipo
-	print idTaller
-	print idFrente
-	print fechaInicial
-	print fechaFinal
 
 	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='1':
 
@@ -2212,8 +2209,11 @@ def reporteConsulta(request):
 			data.append(resultado)
 		array["data"]=data
 		array["totales"]=totales
-		excelReportesEntrada(request,array)
-		#print array
+		if int(excel) == 1:
+			print "1"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
+
 		return JsonResponse(array)
 
 	if idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='1':
@@ -2283,7 +2283,11 @@ def reporteConsulta(request):
 			data.append(resultado)
 		array["data"]=data
 		array["totales"]=totales
-		excelReportesEntrada(request,array)
+		if int(excel) == 1:
+			print "2"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
+
 		return JsonResponse(array)
 
 	elif idFrente=='0' and idTaller=='0' and idFuncion!='0' and tipo=='3':
@@ -2638,7 +2642,9 @@ def reporteConsulta(request):
 		array["totales"]=totales
 		array["data"]=data
 		array["totalesS"]=totalesS
-		excelReportes(request,array)
+		if int(excel) == 1:
+			print "3"
+			excelReportes(request,array)
 		#print array
 		return JsonResponse(array)
 
@@ -2763,7 +2769,9 @@ def reporteConsulta(request):
 		array["totales"]=totales
 		array["data"]=data
 		array["totalesS"]=totalesS
-		excelReportes(request,array)
+		if int(excel) == 1:
+			print "4"
+			excelReportes(request,array)
 		return JsonResponse(array)
 
 	elif idTaller!='0' and idFrente!='0' and idFuncion=='0':
@@ -3971,7 +3979,11 @@ def excelReportes(request, array):
 
 def excelReportesEntrada(request,array):
 	x=0;
-	workbook = xlsxwriter.Workbook('Suministro.xlsx')
+	random = uuid.uuid4().hex[:6].lower()
+	filename = "Suministro_%s" % random
+	ext = ".xlsx"
+	path = "control_acero/static/excel/"
+	workbook = xlsxwriter.Workbook(path+filename+ext)
 	worksheet = workbook.add_worksheet()
 	bold14 = workbook.add_format({'bold': True, 'font_size': 12, 'align': 'center'})
 	worksheet.set_column('A:I', 20)
@@ -4089,7 +4101,18 @@ def excelReportesEntrada(request,array):
 		worksheet.write(row, col + 2, 'Kg', bold14)
 
 	workbook.close()
-# 	generateExcel(request)
+	return filename
+
+def descargaExcel(request, filename):
+	path = "control_acero/static/excel/"
+	ext = ".xlsx"
+	excel = open(path + filename + ext, "rb")
+	output = StringIO.StringIO(excel.read())
+	out_content = output.getvalue()
+	output.close()
+	response = HttpResponse(out_content,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+	response['Content-Disposition'] = 'attachment; filename=%s.xlsx' % filename
+	return response
 
 # def generateExcel(request):
 #     path = './hello.xlsx' # this should live elsewhere, definitely

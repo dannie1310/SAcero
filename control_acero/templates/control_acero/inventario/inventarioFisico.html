@@ -9,7 +9,7 @@
 		</div>
 		{% if request.session.nombreTaller > 0 %}
 			<div class="form-group col-md-6 text-center alert-info">
-				<h3> INVENTARIO DEL {{ request.session.nombreTaller }}</h3>
+				<h3> INVENTARIO FISICO {{ request.session.nombreTaller }}</h3>
 			</div>
 		{% else %}
 			<div class="form-group col-md-6 text-center alert-info">
@@ -293,6 +293,7 @@
 	            try {
 	            	mensajeSuccess("<b>"+data.mensaje+"</b>");
 	            	$("#folio").html(data.folio);
+	            	$(".eliminar").empty();
 	            } catch (e) {
 	                alert("Error al cargar Guardar la información:" + e);
 	            }
