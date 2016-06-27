@@ -966,6 +966,7 @@ def entradaArmadoSave(request):
 	array = {}
 	mensaje = {}
 	data = []
+	cursor = connection.cursor()
 	folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
@@ -1028,6 +1029,15 @@ def entradaArmadoSave(request):
 								numFolio = numFolioInt,
 								frente_id = request.session["idFrente"]
 								)
+		try:
+			cursor.execute("UPDATE control_acero_inventariosalida\
+								SET cantidadAsignada = 0,\
+									estatusTotalizado = 0\
+								WHERE numFolio = %s\
+								AND material_id = %s", [folioSalida,materialF]);
+		finally:
+			print "Se actualizo"
+
 		if bandera == 1:
 			entradaDetalle = EntradaDetalle.objects\
 							.create(
