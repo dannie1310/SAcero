@@ -37,7 +37,10 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 import xlsxwriter
 import StringIO
 
+logo = static('img/hs.png')
+
 def loginUsuario(request):
+
 	logout(request)
 	username = password = ''
 	if request.POST:
@@ -780,7 +783,7 @@ def salidaHabilitadoMaterial(request):
 						.annotate(cantidadMaterial = Sum('cantidad'))\
 						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"])\
 						.order_by('material_id')
-	print remisionDetalles.query
+	#print remisionDetalles.query
 	for remisionDetalle in remisionDetalles:
 		resultado = {
 						"id":remisionDetalle["material_id"],
@@ -1550,7 +1553,7 @@ def habilitadoRecepcionHabilitado(request):
 									funcion_id=idFuncion,
 									estatusEtapa=1,
 									tipoRecepcion=1)
-	print etapa.query
+	#print etapa.query
 	for e in etapa:
 		idOrdenTrabajo = e["idOrdenTrabajo"]
 		if e["idOrdenTrabajo"] is None:
@@ -1658,7 +1661,7 @@ def habilitadoAsignarElemento(request):
 										.filter(id=elemento,
 												estatus=1)\
 										.order_by("despiece__material__id");
-	print elementoRelacion.query
+	#print elementoRelacion.query
 	for e in elementoRelacion:
 		despiecePeso = Decimal(e["despiece__peso"])*Decimal(cantidad);
 		resultadoDespiece = {"id":e["id"], 
@@ -1860,7 +1863,7 @@ def armadoAsignacionComboElemento(request):
 	etapa = Etapa.objects.filter(estatusEtapa=4,
 									funcion_id=idFuncion,
 									programaSuministro_id=idPrograma).values_list('EtapaDespiece__elemento__id', flat=True).distinct()
-	print etapa.query
+	#print etapa.query
 	for e in etapa:
 		elemento = Elemento.objects.filter(id=e)
 		for e in elemento:
@@ -2155,7 +2158,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("material__id")
 
-		print total.query
+		#print total.query
 		for x in total:
 			resultado = {
 					"id":x['material__id'],
@@ -3147,14 +3150,17 @@ def apoyoBusquedaView(request):
 
 
 def mailHtmlHeader(request):
+	print logo
 	html = """\
 			<html>
 				<head>
 				</head>
 				<body>
+					<br />
+					<img src="%s" alt="Logo" />
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
-							<tr style='background: #eee;'>
+							<tr style='background: #66cc00;'>
 								<th><strong> Usuario </strong></th>
 								<th><strong> Nombre </strong></th>
 								<th><strong> Email </strong></th>
@@ -3169,7 +3175,8 @@ def mailHtmlHeader(request):
 						</tbody>
 					</table>
 			""" %\
-			(
+			(	
+				logo,
 				request.user.username,
 				request.user.first_name,
 				request.user.last_name,
@@ -3209,7 +3216,7 @@ def mailHtml(request, folio):
 					
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
-							<tr style='background: #eee;'>
+							<tr style='background: #66cc00;'>
 								<th>Material</th>
 								<th>Piezas</th>
 								<th>Peso Recibido Kg</th>
@@ -3256,7 +3263,7 @@ def mailHtml(request, folio):
 			<br />
 			<table rules="all" style="border-color: #666;" cellpadding="10">
 				<thead>
-					<tr style='background: #eee;'>
+					<tr style='background:#66cc00;'>
 						<th><strong> Folio </strong></th>
 						<th><strong> Fabricante </strong></th>
 						<th><strong> Orden </strong></th>
@@ -3319,7 +3326,7 @@ def mailHtmlSH(request, folio):
 					
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
-							<tr style='background: #eee;'>
+							<tr style='background: #66cc00;'>
 								<th>Material</th>
 								<th>Peso de Salida de Habilitado en Kg</th>
 								<th>Peso Restante en Almacen Kg</th>
@@ -3355,7 +3362,7 @@ def mailHtmlSH(request, folio):
 					
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
-							<tr style='background: #eee;'>
+							<tr style='background: #66cc00;'>
 								<th>Material</th>
 								<th>Peso Recibido Kg</th>
 							</tr>
@@ -3395,12 +3402,19 @@ def mailHtmlSH(request, folio):
 	header = "SALIDA DE MATERIAL HABILITADO"
 	body = ""
 	body2 = ""
+	aux = "" 
+	
 	body += mailHtmlHeader(request)
 	body += """
+			<h4>Reporte a Habilitadores</h4>
+
+			"""
+	
+	aux += """
 			<br />
 			<table rules="all" style="border-color: #666;" cellpadding="10">
 				<thead>
-					<tr style='background: #eee;'>
+					<tr style='background: #66cc00;'>
 						<th><strong> Folio </strong></th>
 						<th><strong> Taller </strong></th>
 						<th><strong> Frente Enviado</strong></th>
@@ -3430,7 +3444,14 @@ def mailHtmlSH(request, folio):
 				elemento,
 				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
 			)
-	body2 += body
+	body2 += mailHtmlHeader(request)
+	body2 += """
+			<h4>Proxima Entrega en Frente de Trabajo</h4>
+
+			"""
+	body2 += aux
+	body +=aux
+
 	body += tablaDetalle
 	body += mailHtmlFooter()
 
@@ -3450,52 +3471,118 @@ def mailHtmlSH(request, folio):
 def mailHtmlEA(request, folio):
 	# Mail entradaArmadoSave
 	#salidaHabilitadoSave
-	res=0;
-	entrada = Entrada.objects.values(			"folio",
+	res=0
+	flag=0
+	entrada = Entrada.objects.values(	   "folio",
 											"cantidadAsignada",
+											"remision",
+											"funcion__proveedor",
 											"fechaRegistro",
 											"apoyo__numero",
 											"frente__id",
 											"frente__nombre",
 											"material__nombre",
 											"elemento__nombre",
-											"taller__nombre",
-											"cantidadReal"
+											"cantidadReal",
+											"entradadetalle__entrada_id",
+											"entradadetalle__nomenclatura",
+											"entradadetalle__longitud",
+											"entradadetalle__piezas",
+											"entradadetalle__calculado"
 										)\
 										.filter(
 											numFolio = folio,
 											frente_id = request.session['idFrente']
 										)\
 										.distinct()
+	#print entrada
 	tablaDetalle = ''
+	tabla = ''
+	tablaDetalleFaltante =''
 	tablaDetalle += """\
 					
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
-							<tr style='background: #eee;'>
+							<tr style='background: #66cc00;'>
 								<th>Material</th>
 								<th>Peso de Recibido en Kg</th>
 							</tr>
 						</thead>
 						<tbody>\
 						"""
+	
+
+	tablaDetalleFaltante += """\
+					<br />
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #66cc00;'>
+								<th>Material</th>
+								<th>Nomenclatura</th>
+								<th>Num. Piezas</th>
+								<th>Longitud mts</th>
+								<th>Peso Faltante en Kg</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
 
 	for rem in entrada:
-		
+		if rem["entradadetalle__nomenclatura"]!=None:
+			res= res + rem["cantidadAsignada"]
+			
+			tablaDetalleFaltante += """\
+										<tr>
+											<td>%s</td>
+											<td>%s</td>
+											<td>%s</td>
+											<td>%s</td>
+											<td>%s</td>
+										</tr>
+									"""%\
+									(
+										rem["material__nombre"],
+										rem["entradadetalle__nomenclatura"],
+										rem["entradadetalle__longitud"],
+										rem["entradadetalle__piezas"],
+										rem["cantidadAsignada"]
+										
+									)
+			
+				
+			
+			
+				
 
-		tablaDetalle += """\
-							<tr>
-								<td>%s</td>
-								<td>%s</td>
-							</tr>
-						"""%\
-						(
-							rem["material__nombre"],
-							rem["cantidadAsignada"]
-							
-						)
+			
+
+		else:
+			#res= res + rem["cantidadAsignada"]
+			print "***********"
+			print res
+
+			tablaDetalle += """\
+									<tr>
+										<td>%s</td>
+										<td>%s</td>
+									</tr>
+								"""%\
+								(
+									rem["material__nombre"],
+									rem["cantidadAsignada"]
+									
+								)
+
+								
+
+	tablaDetalle += tabla
 
 	tablaDetalle += """\
+						</tbody>
+					</table>
+					<br />\
+					"""
+	tablaDetalleFaltante += """\
 						</tbody>
 					</table>
 					<br />\
@@ -3503,7 +3590,8 @@ def mailHtmlEA(request, folio):
 
 	
 	folioStr = entrada[0]["folio"]
-	taller = entrada[0]["taller__nombre"]
+	proveedor = entrada[0]["funcion__proveedor"]
+	remision = entrada[0]["remision"]
 	frente = entrada[0]["frente__nombre"]
 	apoyo = entrada[0]["apoyo__numero"]
 	elemento = entrada[0]["elemento__nombre"] 
@@ -3520,10 +3608,11 @@ def mailHtmlEA(request, folio):
 			<br />
 			<table rules="all" style="border-color: #666;" cellpadding="10">
 				<thead>
-					<tr style='background: #eee;'>
+					<tr style='background: #66cc00;'>
 						<th><strong> Folio </strong></th>
-						<th><strong> Taller </strong></th>
-						<th><strong> Frente Enviado</strong></th>
+						<th><strong> Remision </strong></th>
+						<th><strong> Recepcion en el Frente </strong></th>
+						<th><strong> Armador Asignado </strong></th>
 						<th><strong> Apoyo </strong></th>
 						<th><strong> Elemento </strong></th>
 						<th><strong> Fecha Creacion </strong></th>
@@ -3537,6 +3626,7 @@ def mailHtmlEA(request, folio):
 						<td>%s</td>
 						<td>%s</td>
 						<td>%s</td>
+						<td>%s</td>
 					</tr>
 				</tbody>
 			</table>
@@ -3544,14 +3634,16 @@ def mailHtmlEA(request, folio):
 			""" %\
 			(
 				folioStr,
-				taller,
+				remision,
 				frente,
+				proveedor,				
 				apoyo,
 				elemento,
 				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
 			)
 	
 	body += tablaDetalle
+	body += tablaDetalleFaltante
 	body += mailHtmlFooter()
 
 	for envioEmail in frenteEmail:
