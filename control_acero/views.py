@@ -1098,6 +1098,7 @@ def inventarioFisicoSave(request):
 
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	mailHtmlIF(request,numFolioInt)
 	return JsonResponse(array)
 
 def foliosMostrar(request):
@@ -3150,14 +3151,14 @@ def apoyoBusquedaView(request):
 
 
 def mailHtmlHeader(request):
-	print logo
+	#print logo
+	# <img src="%s" alt="Logo" />
 	html = """\
 			<html>
 				<head>
 				</head>
 				<body>
 					<br />
-					<img src="%s" alt="Logo" />
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
 							<tr style='background: #66cc00;'>
@@ -3176,7 +3177,7 @@ def mailHtmlHeader(request):
 					</table>
 			""" %\
 			(	
-				logo,
+				
 				request.user.username,
 				request.user.first_name,
 				request.user.last_name,
@@ -3210,7 +3211,8 @@ def mailHtml(request, folio):
 											remisiondetalle__numFolio = folio,
 											tallerAsignado_id = request.session['idTaller']
 										)\
-										.distinct()
+										.distinct()\
+										.order_by("remisiondetalle__material__id")
 	tablaDetalle = ''
 	tablaDetalle += """\
 					
@@ -3230,9 +3232,9 @@ def mailHtml(request, folio):
 		tablaDetalle += """\
 							<tr>
 								<td>%s</td>
-								<td>%s</td>
-								<td>%s</td>
-								<td>%s</td>
+								<td>%d</td>
+								<td>%d</td>
+								<td>%d</td>
 							</tr>
 						"""%\
 						(
@@ -3320,7 +3322,8 @@ def mailHtmlSH(request, folio):
 											numFolio = folio,
 											tallerAsignado_id = request.session['idTaller']
 										)\
-										.distinct()
+										.distinct()\
+										.order_by("material__id")
 	tablaDetalle = ''
 	tablaDetalle += """\
 					
@@ -3341,8 +3344,8 @@ def mailHtmlSH(request, folio):
 		tablaDetalle += """\
 							<tr>
 								<td>%s</td>
-								<td>%s</td>
-								<td>%s</td>
+								<td>%d</td>
+								<td>%d</td>
 							</tr>
 						"""%\
 						(
@@ -3374,7 +3377,7 @@ def mailHtmlSH(request, folio):
 		tablaDetalleF += """\
 							<tr>
 								<td>%s</td>
-								<td>%s</td>
+								<td>%d</td>
 							</tr>
 						"""%\
 						(
@@ -3494,8 +3497,9 @@ def mailHtmlEA(request, folio):
 											numFolio = folio,
 											frente_id = request.session['idFrente']
 										)\
-										.distinct()
-	#print entrada
+										.distinct()\
+										.order_by("material__id")
+	
 	tablaDetalle = ''
 	tabla = ''
 	tablaDetalleFaltante =''
@@ -3520,7 +3524,7 @@ def mailHtmlEA(request, folio):
 								<th>Material</th>
 								<th>Nomenclatura</th>
 								<th>Num. Piezas</th>
-								<th>Longitud mts</th>
+								<th>Longitud Mts</th>
 								<th>Peso Faltante en Kg</th>
 							</tr>
 						</thead>
@@ -3530,14 +3534,15 @@ def mailHtmlEA(request, folio):
 	for rem in entrada:
 		if rem["entradadetalle__nomenclatura"]!=None:
 			res= res + rem["cantidadAsignada"]
-			
+			cantReal= rem["cantidadReal"]
+			nombre = rem["material__nombre"]
 			tablaDetalleFaltante += """\
 										<tr>
 											<td>%s</td>
 											<td>%s</td>
-											<td>%s</td>
-											<td>%s</td>
-											<td>%s</td>
+											<td>%d</td>
+											<td>%d</td>
+											<td>%d</td>
 										</tr>
 									"""%\
 									(
@@ -3548,23 +3553,16 @@ def mailHtmlEA(request, folio):
 										rem["cantidadAsignada"]
 										
 									)
-			
-				
-			
-			
-				
 
-			
 
 		else:
 			#res= res + rem["cantidadAsignada"]
-			print "***********"
-			print res
+			
 
 			tablaDetalle += """\
 									<tr>
 										<td>%s</td>
-										<td>%s</td>
+										<td>%d</td>
 									</tr>
 								"""%\
 								(
@@ -3573,8 +3571,23 @@ def mailHtmlEA(request, folio):
 									
 								)
 
-								
 
+	print "***********"
+	print res
+	print cantReal
+	cantReal=cantReal-res
+	
+
+	tabla += """\
+					<tr>
+						<td>%s</td>
+						<td>%d</td>
+					</tr>
+			"""%\
+			(
+				nombre,
+				cantReal
+				)
 	tablaDetalle += tabla
 
 	tablaDetalle += """\
@@ -3650,6 +3663,100 @@ def mailHtmlEA(request, folio):
 		mail(header, body, envioEmail.email)
 	return True	
 
+def mailHtmlIF(request, folio):
+	# Mail Inventariofisico
+	inventario = InventarioFisico.objects.values(
+											"folio",
+											"fechaRegistro",
+											"tallerAsignado__nombre",
+											"inventariofisicodetalle__pesoExistencia",
+											"inventariofisicodetalle__pesoFisico",
+											"inventariofisicodetalle__diferencia",
+											"inventariofisicodetalle__material__nombre"
+										)\
+										.filter(
+											numFolio = folio,
+											tallerAsignado_id = request.session['idTaller']
+										)\
+										.distinct()\
+										.order_by("inventariofisicodetalle__material__id")
+	tablaDetalle = ''
+	tablaDetalle += """\
+					
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #66cc00;'>
+								<th>Material</th>
+								<th>Peso existencia en el sistema</th>
+								<th>Peso existencias fisicas</th>
+								<th>Diferencia</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
+
+	for rem in inventario:
+		tablaDetalle += """\
+							<tr>
+								<td>%s</td>
+								<td>%d</td>
+								<td>%d</td>
+								<td>%d</td>
+							</tr>
+						"""%\
+						(
+							rem["inventariofisicodetalle__material__nombre"],
+							rem["inventariofisicodetalle__pesoExistencia"],
+							rem["inventariofisicodetalle__pesoFisico"],
+							rem["inventariofisicodetalle__diferencia"]
+						)
+
+	tablaDetalle += """\
+						</tbody>
+					</table>
+					<br />\
+					"""
+
+	folioStr = inventario[0]["folio"]
+	taller = inventario[0]["tallerAsignado__nombre"]
+	fechaRegistro = inventario[0]["fechaRegistro"]
+
+	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	header = "INVENTARIO FISICO"
+	body = ""
+	body += mailHtmlHeader(request)
+	body += """
+			<br />
+			<table rules="all" style="border-color: #666;" cellpadding="10">
+				<thead>
+					<tr style='background:#66cc00;'>
+						<th><strong> Folio </strong></th>
+						<th><strong> Taller de Habilitado </strong></th>
+						<th><strong> Fecha Creacion </strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>%s</strong></td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>
+				</tbody>
+			</table>
+			<br />
+			""" %\
+			(
+				folioStr,
+				taller,
+				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
+			)
+	body += tablaDetalle
+	body += mailHtmlFooter()
+
+	for envioEmail in envioEmails:
+		mail(header, body, envioEmail.email)
+
+	return True
 
 
 def mail(header, body, to):
