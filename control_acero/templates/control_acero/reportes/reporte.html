@@ -202,9 +202,11 @@
 			var totales='';
 			var tobody='';
 			var ht='';
+			var aux=0;
 			var suma=0;
 			var sumaFaltante=0;
 			var faltante=0;
+			var real=0;
 			$.post( "{% url 'reporteConsulta' %}",{
 						funcion:funcion,
 						tipo:tipo,
@@ -470,49 +472,35 @@
 				                    		$("#tituloE").show('slide');
 								});
 						$.each(data.totales, function (count, object) {
-	                    		 	//console.log(object);
 	                    		 	
 	                    		 	//console.log(object);
 	                    		 if(object.value==1){
-	                    		 	
-		                    		 	if(num!=object.id){
-		                    		 		num= parseInt(object.id);
-		                    		 		//console.log("id: ",num);
-		                    		 		s=s+x;
-		                    		 		if(s!=0){
-			                    		 		hT='<tr>'
-													+'<th class="text-center">Varilla</th>'
-													+'<th class="text-center">Peso Total en Kg</th>'
-													+'</tr>';
-												tT  += '<tr>';
-					                    		tT +='<td>'+object.nombre+'</td>';
-					                    		tT +='<td class="milesLimpio">'+Math.floor(s)+'</td>';
-					                    		+'</tr>';
-					                    		//console.log("imprimio: ",object.id, s);
-					                    		s=0;
-					                    		x=0;
-				                    		}
-		                    		 		
+	                    		 	$("#divTotales").hide('slide');
+	                    		 	//console.log(object);
+		                    		//sum= sum +parseInt(object.faltante);
 
-		                    		 	}
-		                    		 	if(num==object.id){
-		                    		 		if(object.real== object.peso){
-		                    		 			//console.log("entrar igual??",s);
-		                    		 			s=s+ parseInt(object.peso);
-			                    		 		//console.log("sum1: ",s);
-			                    		 		
-		                    		 		}
-		                    		 		else{
-		                    		 		if(s!=0){
-		                    		 		x=parseInt(object.faltante);
+		                    		//console.log("Real : "+faltante, "faltante: "+ sumaFaltante);
+			                    	if(object.faltante==null){
+			                    		//console.log("Real completo "+ real);	
+			                    		real = real+Math.floor(object.real);
+			                    		
+			                    	}
+			                    	else{
+			                    		
+			                    			if(aux!=object.real){
+			                    				//console.log("Real completo "+ object.real);
+			                    				real = real+Math.floor(object.real);
+			                    			}
+			                    			sumaFaltante= sumaFaltante+Math.floor(object.cantidad);
 
-		                    		 		}
-		                    		 		//console.log("igual:: ",x,s, num, object.id, object.faltante);
-		                    		 		num=0;
-		                    		 		}
-		                    		 	}
-   
-				                 }
+			                    	}
+			                    	aux=Math.floor(object.real);	
+			                    	}
+			                    		// else{
+			                    		// 	faltante = faltante+Math.floor(object.real);
+			                    		// }
+		                    		
+				                 
 				                 else{
 				                 	hT='<tr>'
 										+'<th class="text-center">Varilla</th>'
@@ -522,6 +510,7 @@
 				                    	tT +='<td>'+object.nombre+'</td>';
 									
 				                    if(object.faltante!=null){
+
 				                    	tT +='<td class="milesLimpio">'+Math.floor(object.faltante)+'</td>';
 				                    	sum = sum+parseInt(object.faltante);
 				                    	//console.log(sum,object.faltante);
@@ -532,10 +521,15 @@
 				                    	//console.log(sum,parseInt(object.peso));
 				                    }
 				                    tT += '</tr>';
+				                    $("#divTotales").show('slide');
 				                 }
-				                 $("#divTotales").show('slide');
+				                 
+				                 
 
 	                    });
+	                    //console.log("Real : "+real);
+						sum=real-sumaFaltante;
+	                    console.log("Real : "+real,"Diferencia : "+sum, "faltante: "+ sumaFaltante);
 	                    $.each(data.totalesS, function (count, object) {
 	                    		 	//console.log(object);
 	                    		 	ht='<tr>'
@@ -594,30 +588,6 @@
 			var fechai = $("#fechaInicial").val();
 			var fechaf = $("#fechaFinal").val();
 			var tipo = $("#cmbFuncion").find(':selected').data('tipo')
-			var folio = '';
-			var i=0;
-			var res=0;
-			var tabla = '';
-			var head='';
-			var t='';
-			var h='';
-			var tT='';
-			var s=0;
-	        var x=0;
-			var hT='';
-			var tt='';
-			var num=0;
-			var nFolio=0;
-			var idMaterial=0;
-			var idFrente=0;
-			var sum= 0;
-			var sumSalida= 0;
-			var totales='';
-			var tobody='';
-			var ht='';
-			var suma=0;
-			var sumaFaltante=0;
-			var faltante=0;
 			var excel=1;
 			var filename = '';
 			$.post( "{% url 'reporteConsulta' %}",{

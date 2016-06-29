@@ -2306,13 +2306,14 @@ def reporteConsulta(request):
 												'material__id',
 												'material__nombre',
 												'entradadetalle__calculado',
-												'cantidadReal'		
-												).annotate(pesoMaterial = Sum('cantidadAsignada'))\
-												.filter(funcion__id =idFuncion,
+												'cantidadReal',	
+												'cantidadAsignada'	
+												).filter(funcion__id =idFuncion,
 														fechaRegistro__gte=fechaInicialFormat,
 														fechaRegistro__lte=fechaFinalFormat,
 														estatus=1)\
 												.order_by("material__id")
+
 
 
 		#print total.query
@@ -2322,9 +2323,9 @@ def reporteConsulta(request):
 					"value":1,
 					"id":x['material__id'],
 					"nombre":x['material__nombre'],
-					"peso":x['pesoMaterial'],
 					"faltante":x['entradadetalle__calculado'],
-					"real":x['cantidadReal']
+					"real":x['cantidadReal'],
+					"cantidad":x['cantidadAsignada']
 			}											
 			totales.append(resultado)
 
@@ -2336,12 +2337,16 @@ def reporteConsulta(request):
 											'material__nombre',
 											'apoyo__numero',
 											'cantidadReal',
+											'fechaRegistro',
 											'elemento__nombre',
 											'folio',
 											'material__id',
 											'numFolio',
 											'frente__id',
 											'frente__nombre',
+											'entradadetalle__nomenclatura',
+											'entradadetalle__longitud',
+											'entradadetalle__piezas',
 											'entradadetalle__entrada_id',
 											'entradadetalle__calculado',
 											'remision').filter( funcion__id =idFuncion,
@@ -2350,7 +2355,7 @@ def reporteConsulta(request):
 																estatus=1).order_by("folio")
 		#print armador.query
 		for e in armador:
-			
+			fecha = e['fechaRegistro'].strftime("%d/%m/%Y")
 			resultado = {	"value": 2,
 							"excel":3,
 							"id":e['id'],
@@ -2358,10 +2363,14 @@ def reporteConsulta(request):
 							"proveedor":e['funcion__proveedor'],
 							"apoyo":e['apoyo__numero'],
 							"folio":e['folio'],
+							"fechaR":fecha,
 							"nFolio":e['numFolio'],
 							"idFrente":e['frente__id'],
 							"idMaterial":e['material__id'],
 							"frente":e['frente__nombre'],
+							"nomenclatura":e['entradadetalle__nomenclatura'],
+							"longitud":e['entradadetalle__longitud'],
+							"piezas":e['entradadetalle__piezas'],
 							"idED":e['entradadetalle__entrada_id'],
 							"calculado":e['entradadetalle__calculado'],
 							"remision":e['remision'],
@@ -2373,7 +2382,10 @@ def reporteConsulta(request):
 
 		array["data"]=data
 		array["totales"]=totales
-		#excelReportes(request,array)
+		if int(excel) == 1:
+			print "Armador"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
 		#print array
 		return JsonResponse(array)
 
@@ -2384,9 +2396,9 @@ def reporteConsulta(request):
 												'material__id',
 												'material__nombre',
 												'entradadetalle__calculado',
-												'cantidadReal'		
-												).annotate(pesoMaterial = Sum('cantidadAsignada'))\
-												.filter(frente_id=idFrente,
+												'cantidadReal',
+												'cantidadAsignada'	
+												).filter(frente_id=idFrente,
 														fechaRegistro__gte=fechaInicialFormat,
 														fechaRegistro__lte=fechaFinalFormat,
 														estatus=1)\
@@ -2400,7 +2412,7 @@ def reporteConsulta(request):
 					"value":1,
 					"id":x['material__id'],
 					"nombre":x['material__nombre'],
-					"peso":x['pesoMaterial'],
+					"cantidad":x['cantidadAsignada'],
 					"faltante":x['entradadetalle__calculado'],
 					"real":x['cantidadReal']
 			}											
@@ -2414,26 +2426,32 @@ def reporteConsulta(request):
 											'apoyo__numero',
 											'cantidadReal',
 											'elemento__nombre',
+											'fechaRegistro',
 											'folio',
 											'material__id',
 											'numFolio',
+											'remision',
 											'frente__id',
 											'frente__nombre',
 											'entradadetalle__entrada_id',
-											'entradadetalle__calculado',
-											'remision').filter(	frente_id=idFrente,
+											'entradadetalle__nomenclatura',
+											'entradadetalle__longitud',
+											'entradadetalle__piezas',
+											'entradadetalle__calculado'
+											).filter(	frente_id=idFrente,
 																fechaRegistro__gte=fechaInicialFormat,
 																fechaRegistro__lte=fechaFinalFormat,
 																estatus=1).order_by("folio")
 		#print armador.query
 		for e in armador:
-			
+			fecha = e['fechaRegistro'].strftime("%d/%m/%Y")
 			resultado = {	"value": 2,
 							"excel":4,
 							"id":e['id'],
 							"cantidad":e['cantidadAsignada'],
 							"proveedor":e['funcion__proveedor'],
 							"apoyo":e['apoyo__numero'],
+							"fechaR":fecha,
 							"folio":e['folio'],
 							"nFolio":e['numFolio'],
 							"idFrente":e['frente__id'],
@@ -2444,13 +2462,20 @@ def reporteConsulta(request):
 							"remision":e['remision'],
 							"material":e['material__nombre'],
 							"cantidadReal":e['cantidadReal'],
-							"elemento":e['elemento__nombre']
+							"elemento":e['elemento__nombre'],
+							"nomenclatura":e['entradadetalle__nomenclatura'],
+							"longitud":e['entradadetalle__longitud'],
+							"piezas":e['entradadetalle__piezas']
 						}
 			data.append(resultado)
 
 		array["data"]=data
 		array["totales"]=totales
 		#excelReportes(request,array)
+		if int(excel) == 1:
+			print "Frente de Trabajo"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idFrente!='0' and idTaller=='0' and idFuncion!='0' and tipo=='3':
@@ -2460,9 +2485,9 @@ def reporteConsulta(request):
 												'material__id',
 												'material__nombre',
 												'entradadetalle__calculado',
-												'cantidadReal'		
-												).annotate(pesoMaterial = Sum('cantidadAsignada'))\
-												.filter(funcion__id =idFuncion,
+												'cantidadReal',
+												'cantidadAsignada'	
+												).filter(funcion__id =idFuncion,
 														frente_id=idFrente,
 														fechaRegistro__gte=fechaInicialFormat,
 														fechaRegistro__lte=fechaFinalFormat,
@@ -2477,7 +2502,7 @@ def reporteConsulta(request):
 					"value":1,
 					"id":x['material__id'],
 					"nombre":x['material__nombre'],
-					"peso":x['pesoMaterial'],
+					"cantidad":x['cantidadAsignada'],
 					"faltante":x['entradadetalle__calculado'],
 					"real":x['cantidadReal']
 			}											
@@ -2490,12 +2515,16 @@ def reporteConsulta(request):
 											'material__nombre',
 											'apoyo__numero',
 											'cantidadReal',
+											'fechaRegistro',
 											'elemento__nombre',
 											'folio',
 											'material__id',
 											'numFolio',
 											'frente__id',
 											'frente__nombre',
+											'entradadetalle__nomenclatura',
+											'entradadetalle__longitud',
+											'entradadetalle__piezas',
 											'entradadetalle__entrada_id',
 											'entradadetalle__calculado',
 											'remision').filter(	funcion__id =idFuncion,
@@ -2505,13 +2534,14 @@ def reporteConsulta(request):
 																estatus=1).order_by("folio")
 		#print armador.query
 		for e in armador:
-			
+			fecha = e['fechaRegistro'].strftime("%d/%m/%Y")
 			resultado = {	"value": 2,
-							"excel":8,
+							"excel":3,
 							"id":e['id'],
 							"cantidad":e['cantidadAsignada'],
 							"proveedor":e['funcion__proveedor'],
 							"apoyo":e['apoyo__numero'],
+							"fechaR":fecha,
 							"folio":e['folio'],
 							"nFolio":e['numFolio'],
 							"idFrente":e['frente__id'],
@@ -2522,13 +2552,19 @@ def reporteConsulta(request):
 							"remision":e['remision'],
 							"material":e['material__nombre'],
 							"cantidadReal":e['cantidadReal'],
-							"elemento":e['elemento__nombre']
+							"elemento":e['elemento__nombre'],
+							"nomenclatura":e['entradadetalle__nomenclatura'],
+							"longitud":e['entradadetalle__longitud'],
+							"piezas":e['entradadetalle__piezas']
 						}
 			data.append(resultado)
 
 		array["data"]=data
 		array["totales"]=totales
-		#excelReportes(request,array)
+		if int(excel) == 1:
+			print "Frente de Trabajo y Armado"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idTaller!='0' and idFrente=='0' and idFuncion=='0':
@@ -2652,13 +2688,14 @@ def reporteConsulta(request):
 		array["totales"]=totales
 		array["data"]=data
 		array["totalesS"]=totalesS
+		
 		if int(excel) == 1:
-			print "3"
-			excelReportes(request,array)
-		#print array
+			print "5"
+			filename = excelReportes(request,array)
+			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
-	elif idFuncion!='0' and idFrente=='0' and tipo=='2':
+	elif idFuncion!='0' and idFrente=='0' and tipo=='2' and idTaller=='0':
 		print "Proveedor Habilitado"
 
 		total = Remision.objects.values(	'remisiondetalle__material__id',
@@ -2780,8 +2817,140 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totalesS"]=totalesS
 		if int(excel) == 1:
-			print "4"
-			excelReportes(request,array)
+			print "6"
+			filename = excelReportes(request,array)
+			return JsonResponse({"filename": filename})
+		return JsonResponse(array)
+
+	elif idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='2':
+		print "Proveedor Habilitado y Taller"
+
+		total = Remision.objects.values(	'remisiondetalle__material__id',
+												'remisiondetalle__material__nombre'		
+												).annotate(pesoMaterial = Sum('remisiondetalle__peso'))\
+												.filter(tallerAsignado__funcion__id= idFuncion,
+														tallerAsignado__id= idTaller,
+														fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("remisiondetalle__material__id")
+
+		#print total.query
+		for x in total:
+			resultado = {
+					"id":x['remisiondetalle__material__id'],
+					"nombre":x['remisiondetalle__material__nombre'],
+					"peso":x['pesoMaterial']
+			}											
+			totales.append(resultado)
+
+		entrada = Remision.objects.values(
+												'id',
+												'idOrden',
+												'pesoNeto',
+												'fechaRemision',
+												'fechaActualizacion',
+												'remision',
+												'tallerAsignado__nombre',
+												'funcion__proveedor',
+												'remisiondetalle__cantidad',
+												'remisiondetalle__peso',
+												'remisiondetalle__folio',
+												'remisiondetalle__numFolio',
+												'remisiondetalle__longitud',
+												'remisiondetalle__material__nombre').filter(fechaRegistro__gte=fechaInicialFormat,
+																			fechaRegistro__lte=fechaFinalFormat,
+																			tallerAsignado__id= idTaller,
+																			tallerAsignado__funcion__id= idFuncion,
+																			estatus=1).order_by("tallerAsignado__id")											
+		
+		for e in entrada:
+			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
+			fechaA = e['fechaActualizacion'].strftime("%d/%m/%Y")	
+			resultado = {   "value": 4,
+								"excel":6,
+								"id":e['id'],
+								"orden":e['idOrden'],
+								"pesoTotal":e['pesoNeto'],
+								"peso":e['remisiondetalle__peso'],
+								"fechaR":fechaR,
+								"fechaA":fechaA,
+								"taller":e['tallerAsignado__nombre'],
+								"folio":e['remisiondetalle__folio'],
+								"num":e['remisiondetalle__numFolio'],
+								"remision":e['remision'],
+								"proveedor":e['funcion__proveedor'],
+								"piezas":e['remisiondetalle__cantidad'],
+								"longitud":e['remisiondetalle__longitud'],
+								"material":e['remisiondetalle__material__nombre']
+			}
+			dataEn.append(resultado)
+
+		total = Salida.objects.values(	'material__id',
+										'material__nombre'		
+												).annotate(pesoMaterial = Sum('cantidadAsignada'))\
+												.filter(tallerAsignado__funcion__id=idFuncion,
+														tallerAsignado__id= idTaller,
+														fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("material__id")
+
+		#print total.query
+		for x in total:
+			resultado = {
+					"id":x['material__id'],
+					"nombre":x['material__nombre'],
+					"peso":x['pesoMaterial']
+			}											
+			totalesS.append(resultado)
+
+		salida= Salida.objects.values(
+												'id',
+												'cantidadAsignada',
+												'fechaRegistro',
+												'folio',
+												'tallerAsignado__nombre',
+												'tallerAsignado__funcion__proveedor',
+												'apoyo__numero',
+												'frente__nombre',
+												'material__nombre',
+												'cantidadReal',
+												'elemento__nombre').filter(tallerAsignado__funcion__id=idFuncion,
+																			tallerAsignado__id= idTaller,
+																			fechaRegistro__gte=fechaInicialFormat,
+																			fechaRegistro__lte=fechaFinalFormat,
+																			estatus=1).order_by("tallerAsignado__id")
+
+
+		for s in salida:
+			fechaR = s['fechaRegistro'].strftime("%d/%m/%Y")
+			resultado={	"value": 4,
+						"excel":6,
+						"id":s['id'],
+						"cantidad":s['cantidadAsignada'],
+						"fechaR":fechaR,
+						"folio":s['folio'],
+						"taller":s['tallerAsignado__nombre'],
+						"proveedor":s['tallerAsignado__funcion__proveedor'],
+						"apoyo":s['apoyo__numero'],
+						"frente":s['frente__nombre'],
+						"material":s['material__nombre'],
+						"cantidadReal":s['cantidadReal'],
+						"elemento":s['elemento__nombre']
+
+			}
+
+			data.append(resultado)
+
+		array["entrada"]=dataEn
+		array["totales"]=totales
+		array["data"]=data
+		array["totalesS"]=totalesS
+		if int(excel) == 1:
+			print "6"
+			filename = excelReportes(request,array)
+			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idTaller!='0' and idFrente!='0' and idFuncion=='0':
@@ -3229,8 +3398,7 @@ def mailHtml(request, folio):
 											remisiondetalle__numFolio = folio,
 											tallerAsignado_id = request.session['idTaller']
 										)\
-										.distinct()\
-										.order_by("remisiondetalle__material__id")
+										.distinct()
 	tablaDetalle = ''
 	tablaDetalle += """\
 					
@@ -3787,7 +3955,11 @@ def mail(header, body, to):
 def excelReportes(request, array):
 	x=0;
 	y=0;
-	workbook = xlsxwriter.Workbook('Suministro.xlsx')
+	random = uuid.uuid4().hex[:6].lower()
+	filename = "Suministro_%s" % random
+	ext = ".xlsx"
+	path = "control_acero/static/excel/"
+	workbook = xlsxwriter.Workbook(path+filename+ext)
 	worksheet = workbook.add_worksheet()
 	bold14 = workbook.add_format({'bold': True, 'font_size': 12, 'align': 'center'})
 	worksheet.set_column('A:J', 25)
@@ -3986,9 +4158,13 @@ def excelReportes(request, array):
 		worksheet.write(row, col + 4, 'Peso Total de Habilitado en Kg', bold14)
 		worksheet.write(row, col + 5, y)
 	workbook.close()
+	return filename
 
 def excelReportesEntrada(request,array):
 	x=0;
+	faltante=0;
+	real=0;
+	
 	random = uuid.uuid4().hex[:6].lower()
 	filename = "Suministro_%s" % random
 	ext = ".xlsx"
@@ -4110,6 +4286,209 @@ def excelReportesEntrada(request,array):
 		worksheet.write(row, col + 1, x)
 		worksheet.write(row, col + 2, 'Kg', bold14)
 
+
+	elif array["data"][0]["excel"] == 3: #elif Armador
+
+		worksheet.merge_range('A1:H1', 'Tren InterUrbano Mexico Toluca', titulo_format)
+		worksheet.merge_range('A2:H2', array["data"][0]["proveedor"], merge_format)
+		worksheet.merge_range('A3:H3', 'Recepcion completa', merge_format)
+		worksheet.write('A4', 'Folio', bold14)
+		worksheet.write('B4', 'Remision', bold14)
+		worksheet.write('C4', 'Frente', bold14)
+		worksheet.write('D4', 'Apoyo', bold14)
+		worksheet.write('E4', 'Elemento', bold14)
+		worksheet.write('F4', 'Material', bold14)
+		worksheet.write('G4', 'Fecha de Remision', bold14)
+		worksheet.write('H4', 'Peso Recibido en Kg', bold14)
+		row = 4
+		col = 0
+		aux=0
+		cant=0;
+		fal=0
+		real=0
+		i=0
+		flag=0
+		idMaterial =0;
+		
+		for res in array["data"]:
+			if res["cantidad"]== res["cantidadReal"]:
+				worksheet.write(row, col, res["folio"])
+				worksheet.write(row, col + 1, res["remision"])
+				worksheet.write(row, col + 2, res["frente"])
+				worksheet.write(row, col + 3, res["apoyo"])
+				worksheet.write(row, col + 4, res["elemento"])
+				worksheet.write(row, col + 5, res["material"])
+				worksheet.write(row, col + 6, res["fechaR"])
+				worksheet.write(row, col + 7, res["cantidad"])
+				cant= cant + res["cantidad"]
+			else:
+				row= row-1
+			row += 1	
+		row+=3
+		worksheet.merge_range('A'+str(row)+':H'+str(row),'Pesos Faltantes', merge_format)
+		row+=1
+		worksheet.write('A'+str(row), 'Folio', bold14)
+		worksheet.write('B'+str(row), 'Apoyo', bold14)
+		worksheet.write('C'+str(row), 'Elemento', bold14)
+		worksheet.write('D'+str(row), 'Material', bold14)
+		worksheet.write('E'+str(row), 'Nomenclatura', bold14)
+		worksheet.write('F'+str(row), 'Longitud', bold14)
+		worksheet.write('G'+str(row), 'Piezas', bold14)
+		worksheet.write('H'+str(row), 'Peso Faltante en Kg', bold14)
+		
+		for res in array["data"]:
+			if res["cantidad"]!= res["cantidadReal"]:
+				worksheet.write(row, col, res["folio"])
+				worksheet.write(row, col + 1, res["apoyo"])
+				worksheet.write(row, col + 2, res["elemento"])
+				worksheet.write(row, col + 3, res["material"])
+				worksheet.write(row, col + 4, res["nomenclatura"])
+				worksheet.write(row, col + 5, res["longitud"])
+				worksheet.write(row, col + 6, res["piezas"])
+				worksheet.write(row, col + 7, int(res["cantidad"]))
+				
+				fal= fal + int(res["cantidad"])
+				print "*******"
+				print flag
+				#worksheet.write(row, col + 9, int(res["cantidadReal"]))
+				if flag == res["cantidadReal"]:
+					if i==0:
+						#worksheet.write(row, col + 8, int(flag))
+						real= real + int(flag)
+					i+=1
+					
+				else:
+					i=0
+
+				flag=int(res["cantidadReal"])
+					#real= real+ int(res["cantidadReal"])
+					
+					
+
+			else:
+				row=row-1
+
+			row += 1	
+		row += 3
+		worksheet.merge_range('A'+str(row)+':B'+str(row),'Resumen de Pesos Totales', merge_format)
+		row += 1
+		worksheet.write('A'+str(row), 'Peso Recibido en Kg', bold14)
+		worksheet.write('B'+str(row), 'Peso Faltante en Kg', bold14)
+		print "****"
+		print real
+
+		real=cant + (real-fal)
+		worksheet.write(row, col, real)
+		worksheet.write(row, col + 1, fal)
+
+		# row+=3
+		# worksheet.merge_range('A'+str(row)+':B'+str(row),'Pesos Totales por Varilla', merge_format)
+		# row+=1
+		# worksheet.write('A'+str(row), 'Varilla', bold14)
+		# worksheet.write('B'+str(row), 'Peso Total en Kg', bold14)
+		
+
+		# for total in array["totales"]:
+		# 	if idMaterial== total["idMaterial"]:
+		# 		worksheet.write(row, col, total["nombre"])
+		# 		worksheet.write(row, col + 1, total["peso"])
+		# 	worksheet.write(row, col, total["nombre"])
+		# 	x += total["peso"]
+		# 	worksheet.write(row, col + 1, total["peso"])
+		# 	row += 1;
+		# row += 2
+		
+		# worksheet.write(row, col, 'Peso Total de Acero', bold14)
+		# worksheet.write(row, col + 1, x)
+		# worksheet.write(row, col + 2, 'Kg', bold14)
+
+	elif array["data"][0]["excel"] == 4: #elif Frente de Trabajo
+
+		worksheet.merge_range('A1:H1', 'Tren InterUrbano Mexico Toluca', titulo_format)
+		worksheet.merge_range('A2:H2', array["data"][0]["frente"], merge_format)
+		worksheet.merge_range('A3:H3', 'Recepcion completa', merge_format)
+		worksheet.write('A4', 'Folio', bold14)
+		worksheet.write('B4', 'Remision', bold14)
+		worksheet.write('C4', 'Frente', bold14)
+		worksheet.write('D4', 'Apoyo', bold14)
+		worksheet.write('E4', 'Elemento', bold14)
+		worksheet.write('F4', 'Material', bold14)
+		worksheet.write('G4', 'Fecha de Registro', bold14)
+		worksheet.write('H4', 'Peso Recibido en Kg', bold14)
+		row = 4
+		col = 0
+		aux=0
+		cant=0;
+		fal=0
+		flag=0
+		real=0
+		idMaterial =0;
+		
+		for res in array["data"]:
+			if res["cantidad"]== res["cantidadReal"]:
+				worksheet.write(row, col, res["folio"])
+				worksheet.write(row, col + 1, res["remision"])
+				worksheet.write(row, col + 2, res["frente"])
+				worksheet.write(row, col + 3, res["apoyo"])
+				worksheet.write(row, col + 4, res["elemento"])
+				worksheet.write(row, col + 5, res["material"])
+				worksheet.write(row, col + 6, res["fechaR"])
+				worksheet.write(row, col + 7, res["cantidad"])
+				cant= cant + res["cantidad"]
+			else:
+				row= row-1
+			row += 1	
+		
+		row += 2
+		worksheet.merge_range('A'+str(row)+':H'+str(row),'Pesos Faltantes', merge_format)
+		row+=1
+		worksheet.write('A'+str(row), 'Folio', bold14)
+		worksheet.write('B'+str(row), 'Apoyo', bold14)
+		worksheet.write('C'+str(row), 'Elemento', bold14)
+		worksheet.write('D'+str(row), 'Material', bold14)
+		worksheet.write('E'+str(row), 'Nomenclatura', bold14)
+		worksheet.write('F'+str(row), 'Longitud', bold14)
+		worksheet.write('G'+str(row), 'Piezas', bold14)
+		worksheet.write('H'+str(row), 'Peso Faltante en Kg', bold14)
+		
+		for res in array["data"]:
+			if res["cantidad"]!= res["cantidadReal"]:
+				worksheet.write(row, col, res["folio"])
+				worksheet.write(row, col + 1, res["apoyo"])
+				worksheet.write(row, col + 2, res["elemento"])
+				worksheet.write(row, col + 3, res["material"])
+				worksheet.write(row, col + 4, res["nomenclatura"])
+				worksheet.write(row, col + 5, res["longitud"])
+				worksheet.write(row, col + 6, res["piezas"])
+				worksheet.write(row, col + 7, int(res["cantidad"]))
+				fal= fal + int(res["cantidad"])
+
+				#worksheet.write(row, col + 9, int(res["cantidadReal"]))
+				if flag == res["cantidadReal"]:
+					if i==0:
+						#worksheet.write(row, col + 8, int(flag))
+						real= real + int(flag)
+					i+=1
+					
+				else:
+					i=0
+
+				flag=int(res["cantidadReal"])
+					#real= real+ int(res["cantidadReal"])
+					
+			else:
+				row=row-1
+			row += 1	
+		row += 3
+		
+		worksheet.merge_range('A'+str(row)+':B'+str(row),'Resumen de Pesos Totales', merge_format)
+		row += 1
+		worksheet.write('A'+str(row), 'Peso Recibido en Kg', bold14)
+		worksheet.write('B'+str(row), 'Peso Faltante en Kg', bold14)
+		row+=1
+		real=cant + (real-fal)
+		worksheet.write(row, col, real)
+		worksheet.write(row, col + 1, fal)
 	workbook.close()
 	return filename
 
@@ -4123,14 +4502,3 @@ def descargaExcel(request, filename):
 	response = HttpResponse(out_content,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 	response['Content-Disposition'] = 'attachment; filename=%s.xlsx' % filename
 	return response
-
-# def generateExcel(request):
-#     path = './hello.xlsx' # this should live elsewhere, definitely
-#     if os.path.exists(path):
-#     	print path
-#         with open(path, "r") as excel:
-#             data = excel.read()
-
-#         response = HttpResponse(data,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-#         response['Content-Disposition'] = 'attachment; filename=hello.xlsx'
-#         return response
