@@ -21,7 +21,6 @@
 				<select style="width: 100%"  name="cmbFrente" id="cmbFrente" class="cmbFrente form-control select2 col-md-6">
 				</select>
 			</div>
-			
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaInicial">Fecha Inicial:</label>
 				<input type="text" class="calendario form-control" name="fechaInicial" id="fechaInicial" value="{% now "d/m/Y" %}"></input>
@@ -30,11 +29,14 @@
 				<label  class="control-label" for="fechaFinal">Fecha Final:</label>
 				<input type="text" class="calendario form-control" name="fechaFinal" id="fechaFinal" value="{% now "d/m/Y" %}"></input>
 			</div>
+			<div class="col-md-3" id="radios" value="0">
+					<input type="checkbox" name="criterio" value="1"> Inventario Fisico</input>
+			</div>
 		</div>
 		<div class="col-md-6">
 			<button type="button" class="btn btn-success" name="solicitarConsulta" id="solicitarConsulta">Seleccionar</button>
 		</div>
-		<div class="col-md-6">
+		<div style="display:none;" id="btnExcel" class="col-md-6">
 			
 			<button type="button" class="btn btn-success" name="excel" id="excel">Generar Excel</button>
 		</div>
@@ -102,6 +104,9 @@
 	</div>
 	<script type="text/javascript">
 		comboFuncion = function(){
+			 var tipo=1;
+			 var texto='Fabricantes de Acero';
+
 			$.post( "{% url 'comboFuncionGeneral' %}",{
 				
 			},
@@ -109,8 +114,27 @@
 		            try {
 		                $('.cmbFuncion').empty();
 		                 $('.cmbFuncion').append('<option value="0">Selecciona un proveedor</option>');
+		                 $('.cmbFuncion').append('<optgroup label="'+texto+'"></optgroup>');
 	                    $.each(data.data, function (count, object) {
-	                        $('.cmbFuncion').append('<option data-tipo="'+object.tipo+'" value="' + object.id + '">' + object.proveedor + '</option>');
+	                    	if(object.tipo==tipo){
+	                    		
+	                        	$('.cmbFuncion').append('<option data-tipo="'+object.tipo+'" value="' + object.id + '">' + object.proveedor + '</option>');
+	                        }
+	                        else{
+	                        	tipo+=1;
+	                        	 if(tipo==2){
+								 	texto='Habilitadores'
+								 }
+
+								 if(tipo==3){
+								 	texto='Armadores'
+								 }
+	                        	$('.cmbFuncion').append('<optgroup label="'+texto+'">');
+								$('.cmbFuncion').append('</optgroup>');
+								$('.cmbFuncion').append('<option data-tipo="'+object.tipo+'" value="' + object.id + '">' + object.proveedor + '</option>');
+								
+
+	                        }
 	                    });
 		            } catch (e) {
 		                alert("Error al cargar Combo del Fabricante:" + e);
@@ -180,6 +204,12 @@
 			var fechai = $("#fechaInicial").val();
 			var fechaf = $("#fechaFinal").val();
 			var tipo = $("#cmbFuncion").find(':selected').data('tipo')
+			var inventario = $('input[name="criterio"]:checked', '#radios').val();
+			
+			if(inventario!=1){
+				inventario=0;
+			}
+			
 			var folio = '';
 			var i=0;
 			var res=0;
@@ -210,6 +240,7 @@
 			$.post( "{% url 'reporteConsulta' %}",{
 						funcion:funcion,
 						tipo:tipo,
+						inventario:inventario,
 		        		taller:taller,
 		        		frente:frente,
 		        		fechai:fechai,
@@ -221,7 +252,41 @@
 	                $.each(data.data, function (count, object) {
 	                	//console.log(data);
 	                	//console.log("Fabricante", tipo);
-	                	if(object.value==1 && tipo==1){
+	                	if(object.value==0){
+	                		//Inventario Fisico 
+	                		head ='<tr>'
+								+'<th class="text-center">Folio</th>'
+								+'<th class="text-center">Taller</th>'
+								+'<th class="text-center">Fecha de Registro</th>'
+								+'<th class="text-center">Material</th>'
+								+'<th class="text-center">Peso en Sistema en Kg</th>'
+								+'<th class="text-center">Peso Fisico Ingresado en Kg</th>'
+								+'<th class="text-center">Diferencia</th>'
+								+'</tr>';
+
+								tabla += '<tr>';
+	                        	tabla +='<td>'+object.folio+'</td>';
+	                        	tabla +='<td>'+object.taller+'</td>';
+	                        	tabla +='<td>'+object.fechaR+'</td>';
+	                        	tabla +='<td>'+object.material+'</td>';
+	                        	tabla +='<td class="milesLimpio">'+Math.floor(object.existencia)+'</td>';
+
+	                        	if(object.fisico!=null && object.diferencia!=null){
+	                        		tabla +='<td class="milesLimpio">'+Math.floor(object.fisico)+'</td>';
+		                        	tabla +='<td>'+object.diferencia+'</td>';
+	                        	}
+	                        	else{
+	                        		
+	                        		tabla +='<td class="text-center">No Ingresado</td>';
+	                        		tabla +='<td class="text-center"> - </td>';	
+	                        	}
+
+	                        	tabla += '</tr>';
+	                        $("#tituloE").hide('slide');
+							$("#tituloS").hide('slide');
+							$("#divTotal").hide('slide');
+	                	}
+	                	if(object.value==1){
 	                		//Fabricante 
 	                		      			
 								head ='<tr>'
@@ -251,7 +316,7 @@
 	                    	
 							$("#tituloE").hide('slide');
 							$("#tituloS").hide('slide');
-							
+							$("#divTotal").show('slide');
 
 		                }
 
@@ -377,6 +442,7 @@
 								$("#tituloS").hide('slide');
 								$("#divTotales").show('slide');
 								 $("#divTotalesS").hide('slide');
+								 $("#divTotal").show('slide');
 		                 } 
 
 		                 if(object.value==3){
@@ -406,8 +472,9 @@
 								tabla += '</tr>';
 								
 								$("#tituloS").show('slide');
+								$("#divTotal").show('slide');
 		                 }
-		                  if(object.value==4 && tipo==2){
+		                  if(object.value==4){
 		                  	//console.log(object);
 		                  	//proveedor Habilitador 
 
@@ -436,6 +503,7 @@
 								tabla += '</tr>';
 								$("#tituloE").show('slide');
 								$("#tituloS").show('slide');
+								$("#divTotal").show('slide');
 		                 	}
 
 		                });
@@ -528,8 +596,11 @@
 
 	                    });
 	                    //console.log("Real : "+real);
-						sum=real-sumaFaltante;
-	                    console.log("Real : "+real,"Diferencia : "+sum, "faltante: "+ sumaFaltante);
+	                    if(real!= 0 && sumaFaltante!=0){
+	                    	sum=real-sumaFaltante;
+	                    	console.log("Real : "+real,"Diferencia : "+sum, "faltante: "+ sumaFaltante);
+	                    }
+						
 	                    $.each(data.totalesS, function (count, object) {
 	                    		 	//console.log(object);
 	                    		 	ht='<tr>'
@@ -560,12 +631,12 @@
 						+'<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>'
 						+'</tr>';
 
-			///console.log("Total : ",sum, sumSalida);
+			console.log("Total : ",sum, sumSalida);
 			$('#tablaSolicita thead').append(head);
 		    $("#tablaSolicita tbody").append(tabla);
 
 		    $("#divSolicita").show('slide');
-
+		    $("#btnExcel").show('slide');
 		    $('#tablaEntrada thead').append(h);
 		   	$("#tablaEntrada tbody").append(t);
 		    $("#divEntrada").show('slide');
@@ -574,7 +645,7 @@
 		   	$("#tablaTotales tbody").append(tT);
 
 		   	$("#tablaTotal tbody").append(tobody);
-		   	$("#divTotal").show('slide');
+		   	//$("#divTotal").show('slide');
 
 		    $('#tablaTotalesS thead').append(ht);
 		    $("#tablaTotalesS tbody").append(tt);
@@ -588,6 +659,10 @@
 			var fechai = $("#fechaInicial").val();
 			var fechaf = $("#fechaFinal").val();
 			var tipo = $("#cmbFuncion").find(':selected').data('tipo')
+			var inventario = $('input[name="criterio"]:checked', '#radios').val();
+			if(inventario!=1){
+				inventario=0;
+			}
 			var excel=1;
 			var filename = '';
 			$.post( "{% url 'reporteConsulta' %}",{
@@ -597,6 +672,7 @@
 		        		frente:frente,
 		        		fechai:fechai,
 		        		fechaf:fechaf,
+		        		inventario:inventario,
 		        		excel:excel
 			},
 			function(data, status) {

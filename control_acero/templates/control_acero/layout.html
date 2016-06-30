@@ -292,21 +292,23 @@
                                     <div class="yamm-content">
                                         <div class="row">
                                             {% if perms.control_acero.view_recepcion_material or  perms.control_acero.view_salida_habilitado or perms.control_acero.view_armado_recepcion or perms.control_acero.view_inventario_fisico or perms.control_acero.view_reportes %}
-                                            <div class="col-sm-3">
-                                                <h5>HABILITADO</h5>
+                                            
+                                               
                                                 {% if perms.control_acero.view_recepcion_material %}
-                                                <ul>
-                                                    <li><a href="{% url 'recepcionMaterialView' %}">Recepción del Material del Fabricante</a>
-                                                    </li>
-                                                </ul>
+                                                <div class="col-sm-3">
+                                                    <h5>HABILITADO</h5>
+                                                    <ul>
+                                                        <li><a href="{% url 'recepcionMaterialView' %}">Recepción del Material del Fabricante</a>
+                                                        </li>
+                                                    </ul>
                                                 {% endif %}
                                                 {% if perms.control_acero.view_salida_habilitado %}
-                                                <ul>
-                                                    <li><a href="{% url 'salidaHabilitadoView' %}">Salida Habilitado</a>
-                                                    </li>
-                                                </ul>
+                                                    <ul>
+                                                        <li><a href="{% url 'salidaHabilitadoView' %}">Salida Habilitado</a>
+                                                        </li>
+                                                    </ul>
                                                 {% endif %}
-                                            </div>
+                                                 </div>
                                             {% endif %}
                                             {% if perms.control_acero.view_armado_recepcion %}
                                             <div class="col-sm-3">

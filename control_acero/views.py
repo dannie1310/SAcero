@@ -2147,13 +2147,57 @@ def reporteConsulta(request):
 	idFrente = request.POST.get('frente', 18)
 	tipo =request.POST.get('tipo',3)
 	excel = request.POST.get('excel',0)
+	inventario = request.POST.get('inventario',0)
 
 	fechaInicial = request.POST.get('fechai', '17/05/2016')
 	fechaFinal = request.POST.get('fechaf', '14/06/2016')
 	fechaInicialFormat = datetime.strptime(fechaInicial+" 00:00:00", '%d/%m/%Y %H:%M:%S')
 	fechaFinalFormat = datetime.strptime(fechaFinal+" 23:59:59", '%d/%m/%Y %H:%M:%S')
 
-	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='1':
+	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='2' and inventario=='1':
+		print "Inventario Fisico"
+		datos= InventarioFisico.objects.values(
+												'id',
+												'folio',
+												'fechaRegistro',
+												'tallerAsignado__nombre',
+												'tallerAsignado__funcion__proveedor',
+												'inventariofisicodetalle__pesoExistencia',
+												'inventariofisicodetalle__pesoFisico',
+												'inventariofisicodetalle__diferencia',
+												'inventariofisicodetalle__material__nombre'
+												).filter(tallerAsignado__funcion__id=idFuncion,
+														fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("folio")
+		for x in datos:
+			fecha = x['fechaRegistro'].strftime("%d/%m/%Y")
+			resultado = {
+				"value":0,
+				"excel":0,
+				"id":x['id'],
+				"folio":x['folio'],
+				"proveedor":x['tallerAsignado__funcion__proveedor'],
+				"fechaR":fecha,
+				"taller":x['tallerAsignado__nombre'],
+				"existencia":x['inventariofisicodetalle__pesoExistencia'],
+				"fisico":x['inventariofisicodetalle__pesoFisico'],
+				"diferencia":x['inventariofisicodetalle__diferencia'],
+				"material":x['inventariofisicodetalle__material__nombre']
+			}
+
+			data.append(resultado)
+		array["data"]=data
+		if int(excel) == 1:
+			print "Inventario Excel"
+			filename = excelReportesEntrada(request,array)
+			return JsonResponse({"filename": filename})
+
+		return JsonResponse(array)
+
+
+	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='1' and inventario=='0':
 
 		print "Fabricante"
 
@@ -2226,7 +2270,7 @@ def reporteConsulta(request):
 
 		return JsonResponse(array)
 
-	if idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='1':
+	if idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='1' and inventario=='0':
 
 		print "Fabricante y Taller de Habilitado"
 		
@@ -2300,7 +2344,7 @@ def reporteConsulta(request):
 
 		return JsonResponse(array)
 
-	elif idFrente=='0' and idTaller=='0' and idFuncion!='0' and tipo=='3':
+	elif idFrente=='0' and idTaller=='0' and idFuncion!='0' and tipo=='3' and inventario=='0':
 		print "elif Armador"
 		total = Entrada.objects.values(			
 												'material__id',
@@ -2389,7 +2433,7 @@ def reporteConsulta(request):
 		#print array
 		return JsonResponse(array)
 
-	elif idFrente!='0' and idTaller=='0' and idFuncion=='0' :
+	elif idFrente!='0' and idTaller=='0' and idFuncion=='0' and inventario=='0' :
 		print "elif Frente de Trabajo"
 
 		total = Entrada.objects.values(			
@@ -2478,7 +2522,7 @@ def reporteConsulta(request):
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
-	elif idFrente!='0' and idTaller=='0' and idFuncion!='0' and tipo=='3':
+	elif idFrente!='0' and idTaller=='0' and idFuncion!='0' and tipo=='3' and inventario=='0':
 		print "Frente de Trabajo y Armador"
 
 		total = Entrada.objects.values(			
@@ -2567,7 +2611,7 @@ def reporteConsulta(request):
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
-	elif idTaller!='0' and idFrente=='0' and idFuncion=='0':
+	elif idTaller!='0' and idFrente=='0' and idFuncion=='0' and inventario=='0':
 		print "Taller del Habilitador"
 		total = Remision.objects.values(	'remisiondetalle__material__id',
 												'remisiondetalle__material__nombre'		
@@ -2695,7 +2739,7 @@ def reporteConsulta(request):
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
-	elif idFuncion!='0' and idFrente=='0' and tipo=='2' and idTaller=='0':
+	elif idFuncion!='0' and idFrente=='0' and tipo=='2' and idTaller=='0' and inventario=='0':
 		print "Proveedor Habilitado"
 
 		total = Remision.objects.values(	'remisiondetalle__material__id',
@@ -2822,7 +2866,7 @@ def reporteConsulta(request):
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
-	elif idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='2':
+	elif idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='2' and inventario=='0':
 		print "Proveedor Habilitado y Taller"
 
 		total = Remision.objects.values(	'remisiondetalle__material__id',
@@ -2953,7 +2997,7 @@ def reporteConsulta(request):
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
-	elif idTaller!='0' and idFrente!='0' and idFuncion=='0':
+	elif idTaller!='0' and idFrente!='0' and idFuncion=='0' and inventario=='0':
 		print "Taller de habilitado y frente de trabajo"
 		
 		total = Salida.objects.values(	'material__id',
@@ -4164,7 +4208,6 @@ def excelReportesEntrada(request,array):
 	x=0;
 	faltante=0;
 	real=0;
-	
 	random = uuid.uuid4().hex[:6].lower()
 	filename = "Suministro_%s" % random
 	ext = ".xlsx"
@@ -4189,6 +4232,35 @@ def excelReportesEntrada(request,array):
 	    'align': 'center',
 	    'valign': 'vcenter',
 	    'fg_color': 'green'})
+
+	if array["data"][0]["excel"] == 0: #Inventario Fisico
+		print "reporte inventario"
+		worksheet.merge_range('A1:G1', 'Tren InterUrbano Mexico Toluca', titulo_format)
+		worksheet.merge_range('A2:G2', array["data"][0]["proveedor"], merge_format)
+		worksheet.merge_range('A3:G3', 'Inventarios Fisicos', merge_format)
+
+		worksheet.write('A4', 'Folio', bold14)
+		worksheet.write('B4', 'Taller', bold14)
+		worksheet.write('C4', 'Fecha de Registro', bold14)
+		worksheet.write('D4', 'Material', bold14)
+		worksheet.write('E4', 'Peso en Sistema', bold14)
+		worksheet.write('F4', 'Peso Fisico Ingresado', bold14)
+		worksheet.write('G4', 'Diferencia', bold14)
+		row = 4
+		col = 0
+
+		for res in array["data"]:
+		
+			worksheet.write(row, col, res["folio"])
+			worksheet.write(row, col + 1, res["taller"])
+			worksheet.write(row, col + 2, res["fechaR"])
+			worksheet.write(row, col + 3, res["material"])
+			worksheet.write(row, col + 4, res["existencia"])
+			worksheet.write(row, col + 5, res["fisico"])
+			worksheet.write(row, col + 6, res["diferencia"])
+			row += 1
+
+			
 
 	if array["data"][0]["excel"] == 1: #fabricante de acero
 		worksheet.merge_range('A1:I1', 'Tren InterUrbano Mexico Toluca', titulo_format)
@@ -4241,6 +4313,7 @@ def excelReportesEntrada(request,array):
 		worksheet.write(row, col + 2, 'Kg')
 
 	elif array["data"][0]["excel"] == 2:  #Fabricante de acero y Taller de Habilitado
+
 		worksheet.merge_range('A1:H1', 'Tren InterUrbano Mexico Toluca', titulo_format)
 		worksheet.merge_range('A2:H2', array["data"][0]["proveedor"]+' - '+array["data"][0]["taller"], merge_format)
 		worksheet.merge_range('A3:H3', 'Registros de Entrada de Fabricantes de Acero', merge_format)
@@ -4381,27 +4454,7 @@ def excelReportesEntrada(request,array):
 		worksheet.write(row, col, real)
 		worksheet.write(row, col + 1, fal)
 
-		# row+=3
-		# worksheet.merge_range('A'+str(row)+':B'+str(row),'Pesos Totales por Varilla', merge_format)
-		# row+=1
-		# worksheet.write('A'+str(row), 'Varilla', bold14)
-		# worksheet.write('B'+str(row), 'Peso Total en Kg', bold14)
 		
-
-		# for total in array["totales"]:
-		# 	if idMaterial== total["idMaterial"]:
-		# 		worksheet.write(row, col, total["nombre"])
-		# 		worksheet.write(row, col + 1, total["peso"])
-		# 	worksheet.write(row, col, total["nombre"])
-		# 	x += total["peso"]
-		# 	worksheet.write(row, col + 1, total["peso"])
-		# 	row += 1;
-		# row += 2
-		
-		# worksheet.write(row, col, 'Peso Total de Acero', bold14)
-		# worksheet.write(row, col + 1, x)
-		# worksheet.write(row, col + 2, 'Kg', bold14)
-
 	elif array["data"][0]["excel"] == 4: #elif Frente de Trabajo
 
 		worksheet.merge_range('A1:H1', 'Tren InterUrbano Mexico Toluca', titulo_format)
@@ -4489,6 +4542,7 @@ def excelReportesEntrada(request,array):
 		real=cant + (real-fal)
 		worksheet.write(row, col, real)
 		worksheet.write(row, col + 1, fal)
+
 	workbook.close()
 	return filename
 
