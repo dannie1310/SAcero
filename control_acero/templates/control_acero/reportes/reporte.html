@@ -105,7 +105,7 @@
 	<script type="text/javascript">
 		comboFuncion = function(){
 			 var tipo=1;
-			 var texto='Fabricantes de Acero';
+			 var texto='F A B R I C A N T E';
 
 			$.post( "{% url 'comboFuncionGeneral' %}",{
 				
@@ -123,11 +123,11 @@
 	                        else{
 	                        	tipo+=1;
 	                        	 if(tipo==2){
-								 	texto='Habilitadores'
+								 	texto='H A B I L I T A D O R'
 								 }
 
 								 if(tipo==3){
-								 	texto='Armadores'
+								 	texto='A R M A D O R E S'
 								 }
 	                        	$('.cmbFuncion').append('<optgroup label="'+texto+'">');
 								$('.cmbFuncion').append('</optgroup>');
@@ -285,6 +285,7 @@
 	                        $("#tituloE").hide('slide');
 							$("#tituloS").hide('slide');
 							$("#divTotal").hide('slide');
+							 $("#btnExcel").show('slide');
 	                	}
 	                	if(object.value==1){
 	                		//Fabricante 
@@ -317,6 +318,7 @@
 							$("#tituloE").hide('slide');
 							$("#tituloS").hide('slide');
 							$("#divTotal").show('slide');
+							 $("#btnExcel").show('slide');
 
 		                }
 
@@ -443,6 +445,7 @@
 								$("#divTotales").show('slide');
 								 $("#divTotalesS").hide('slide');
 								 $("#divTotal").show('slide');
+								  $("#btnExcel").show('slide');
 		                 } 
 
 		                 if(object.value==3){
@@ -473,6 +476,7 @@
 								
 								$("#tituloS").show('slide');
 								$("#divTotal").show('slide');
+								 $("#btnExcel").show('slide');
 		                 }
 		                  if(object.value==4){
 		                  	//console.log(object);
@@ -504,6 +508,7 @@
 								$("#tituloE").show('slide');
 								$("#tituloS").show('slide');
 								$("#divTotal").show('slide');
+								 $("#btnExcel").show('slide');
 		                 	}
 
 		                });
@@ -538,6 +543,7 @@
 				                    		t +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
 				                    		t += '</tr>';
 				                    		$("#tituloE").show('slide');
+
 								});
 						$.each(data.totales, function (count, object) {
 	                    		 	
@@ -636,7 +642,7 @@
 		    $("#tablaSolicita tbody").append(tabla);
 
 		    $("#divSolicita").show('slide');
-		    $("#btnExcel").show('slide');
+		   
 		    $('#tablaEntrada thead').append(h);
 		   	$("#tablaEntrada tbody").append(t);
 		    $("#divEntrada").show('slide');
