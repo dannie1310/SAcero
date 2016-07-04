@@ -3061,6 +3061,7 @@ def reporteConsulta(request):
 		array["totales"]=totales
 		array["data"]=data
 		array["totalesS"]=totalesS
+		
 		#excelReportes(request,array)
 		return JsonResponse(array)
 	
