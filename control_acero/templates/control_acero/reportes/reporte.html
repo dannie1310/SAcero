@@ -67,8 +67,8 @@
 		</div>
 		
 			
-		<div style="display:none;" id="divTotales" class="col-md-6 table-responsive">
-				<h4 class="text-center">Pesos Totales de Entrada en Kg por Varilla</h4>
+		<div style="display:none;" id="divTotales" class="col-md-4 table-responsive">
+				<h4 class="text-center">Pesos Totales de Entrada en Kg</h4>
 				<table id="tablaTotales" class="table table-hover">
 					<thead>
 						
@@ -78,7 +78,7 @@
 				</table>
 		</div>
 			
-		<div style="display:none;" id="divTotalesS" class="col-md-6 table-responsive">
+		<div style="display:none;" id="divTotalesS" class="col-md-4 table-responsive">
 				<h4>Pesos Totales de Salida en Kg por Varilla</h4>
 				<table id="tablaTotalesS" class="table table-hover">
 					<thead>
@@ -88,14 +88,22 @@
 					</tbody>
 				</table>
 		</div>
+		<div style="display:none;" id="divDiferencia" class="col-md-4 table-responsive">
+				<h4>Diferencia</h4>
+				<table id="tablaDiferencia" class="table table-hover">
+					<thead>
+					<tr><th class="text-center">Varilla</th>
+					  <th class="text-center">Peso en KG</th></tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+		</div>
 		<div style="display:none;" id="divTotal" class="col-md-12 table-responsive">
 				<h4>Peso Total en Kg </h4>
 				<table id="tablaTotal" class="table table-hover">
 					<thead>
-						<tr>
-							<th>Peso Total de Suministro de Acero en Kg</th>				
-								<th>Peso Total de Salida de Habilitado en Kg</th>
-						</tr>
+						
 					</thead>
 					<tbody>
 					</tbody>
@@ -197,6 +205,8 @@
 			$("#tablaTotalesS thead").empty();
 			$("#tablaTotalesS tbody").empty();
 			$("#tablaTotal tbody").empty();
+			$("#tablaTotal thead").empty();
+			$("#tablaDiferencia tbody").empty();
 
 			var funcion = $("#cmbFuncion").val();
 			var taller = $("#cmbTaller").val();
@@ -213,6 +223,7 @@
 			var folio = '';
 			var i=0;
 			var res=0;
+			var array=[];
 			//console.log(funcion+" - "+tipo+" - "+taller+" - "+frente+" - "+fechai+" - "+fechaf);
 			var tabla = '';
 			var head='';
@@ -231,7 +242,9 @@
 			var sumSalida= 0;
 			var totales='';
 			var tobody='';
+			var headTT='';
 			var ht='';
+			var dif='';
 			var aux=0;
 			var suma=0;
 			var sumaFaltante=0;
@@ -285,6 +298,7 @@
 	                        $("#tituloE").hide('slide');
 							$("#tituloS").hide('slide');
 							$("#divTotal").hide('slide');
+							$("#divDiferencia").hide('slide');
 							 $("#btnExcel").show('slide');
 	                	}
 	                	if(object.value==1){
@@ -317,6 +331,8 @@
 	                    	
 							$("#tituloE").hide('slide');
 							$("#tituloS").hide('slide');
+
+							$("#divDiferencia").hide('slide');
 							$("#divTotal").show('slide');
 							 $("#btnExcel").show('slide');
 
@@ -444,6 +460,7 @@
 								$("#tituloS").hide('slide');
 								$("#divTotales").show('slide');
 								 $("#divTotalesS").hide('slide');
+								 $("#divDiferencia").hide('slide');
 								 $("#divTotal").show('slide');
 								  $("#btnExcel").show('slide');
 		                 } 
@@ -477,6 +494,7 @@
 								$("#tituloS").show('slide');
 								$("#divTotal").show('slide');
 								 $("#btnExcel").show('slide');
+								 $("#divDiferencia").show('slide');
 		                 }
 		                  if(object.value==4){
 		                  	//console.log(object);
@@ -509,6 +527,7 @@
 								$("#tituloS").show('slide');
 								$("#divTotal").show('slide');
 								 $("#btnExcel").show('slide');
+								$("#divDiferencia").show('slide');
 		                 	}
 
 		                });
@@ -546,34 +565,22 @@
 
 								});
 						$.each(data.totales, function (count, object) {
-	                    		 	
-	                    		 	//console.log(object);
+
 	                    		 if(object.value==1){
 	                    		 	$("#divTotales").hide('slide');
-	                    		 	//console.log(object);
-		                    		//sum= sum +parseInt(object.faltante);
-
-		                    		//console.log("Real : "+faltante, "faltante: "+ sumaFaltante);
+	                    		 	
 			                    	if(object.faltante==null){
-			                    		//console.log("Real completo "+ real);	
 			                    		real = real+Math.floor(object.real);
 			                    		
 			                    	}
 			                    	else{
-			                    		
 			                    			if(aux!=object.real){
-			                    				//console.log("Real completo "+ object.real);
 			                    				real = real+Math.floor(object.real);
 			                    			}
 			                    			sumaFaltante= sumaFaltante+Math.floor(object.cantidad);
-
-			                    	}
+			                    		}
 			                    	aux=Math.floor(object.real);	
 			                    	}
-			                    		// else{
-			                    		// 	faltante = faltante+Math.floor(object.real);
-			                    		// }
-		                    		
 				                 
 				                 else{
 				                 	hT='<tr>'
@@ -584,16 +591,15 @@
 				                    	tT +='<td>'+object.nombre+'</td>';
 									
 				                    if(object.faltante!=null){
-
 				                    	tT +='<td class="milesLimpio">'+Math.floor(object.faltante)+'</td>';
 				                    	sum = sum+parseInt(object.faltante);
-				                    	//console.log(sum,object.faltante);
 				                    }
 				                    else{
 				                    	tT +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
+				                    	
 				                    	sum = sum+ parseInt(object.peso);
-				                    	//console.log(sum,parseInt(object.peso));
 				                    }
+				                    
 				                    tT += '</tr>';
 				                    $("#divTotales").show('slide');
 				                 }
@@ -601,14 +607,13 @@
 				                 
 
 	                    });
-	                    //console.log("Real : "+real);
 	                    if(real!= 0 && sumaFaltante!=0){
 	                    	sum=real-sumaFaltante;
 	                    	console.log("Real : "+real,"Diferencia : "+sum, "faltante: "+ sumaFaltante);
 	                    }
-						
+						console.log("entrada: ",array);
 	                    $.each(data.totalesS, function (count, object) {
-	                    		 	//console.log(object);
+	                    		 
 	                    		 	ht='<tr>'
 										+'<th class="text-center">Varilla</th>'
 										+'<th class="text-center">Peso Total en Kg</th>'
@@ -623,8 +628,29 @@
 				                    
 				                    
 	                    });
-	                    
-     	
+	                    $.each(data.totales, function (count, object) {
+
+	                    		 $.each(data.totalesS, function (c, o) {
+	                    		 		if(object.id==o.id){
+	                    		 			s=parseInt(object.peso)-parseInt(o.peso);
+	                    		 			x=1;
+	                    		 		}
+
+		                    		 });
+	                    		 if(x!=0){
+	                    		 	dif+='<tr>'
+	                    		 		+'<td class="info">'+object.nombre+'</td>'
+	                    		 		+'<td class="text-center milesLimpio">'+Math.floor(s)+'</td>'
+	                    		 		+'</tr>';
+	                    		 	x=0;
+	                    		 }
+	                    		 else{
+	                    		 	dif+='<tr>'
+	                    		 		+'<td class="info">'+object.nombre+'</td>'
+	                    		 		+'<td class="text-center milesLimpio">'+Math.floor(object.peso)+'</td>'
+	                    		 		+'</tr>';
+	                    		 }
+		                 });
 		        } catch (e) {
 	                mensajeWarning("Consulta invalida");
 	            }
@@ -632,14 +658,30 @@
 			.fail(function() {
 				mensajeWarning( "Error en la petición del reporte" );
 			});
+			tobody+='<tr>';
+			headTT+='<tr>';
+			if(sum!=0){
+				headTT+='<th class="text-center">Peso Total de Suministro de Acero en Kg</th>';
+				tobody +='<td class="alert-info milesLimpio">'+Math.floor(sum)+'</td>'
+
+			}
+			if(sumSalida!=0){
+				headTT+='<th class="text-center">Peso Total de Salida de Habilitado en Kg</th>';
+				tobody +='<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>';
+				sumSalida= sum-sumSalida;
+				headTT+='<th class="text-center">Diferencia</th>';
+				tobody +='<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>';
+			}
 			
-			tobody ='<tr><td class="alert-info milesLimpio">'+Math.floor(sum)+'</td>'
-						+'<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>'
-						+'</tr>';
+			
+			tobody+='</tr>';
+			headTT+='</tr>';
 
 			console.log("Total : ",sum, sumSalida);
 			$('#tablaSolicita thead').append(head);
 		    $("#tablaSolicita tbody").append(tabla);
+		    $("#tablaDiferencia tbody").append(dif);
+		    //$("#divDiferencia").show("slide");
 
 		    $("#divSolicita").show('slide');
 		   
@@ -651,6 +693,7 @@
 		   	$("#tablaTotales tbody").append(tT);
 
 		   	$("#tablaTotal tbody").append(tobody);
+		   	$("#tablaTotal thead").append(headTT);
 		   	//$("#divTotal").show('slide');
 
 		    $('#tablaTotalesS thead').append(ht);
