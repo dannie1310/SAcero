@@ -3194,6 +3194,7 @@ def inventarioRemision(request):
 	dataRemisionInventarioSum = []
 	dataSalida = []
 	dataSalidaInventario = []
+	dataInventario = []
 	remisiones = Remision.objects.values(
 										"remisiondetalle__id",
 										"remisiondetalle__material__nombre",
@@ -3273,11 +3274,23 @@ def inventarioRemision(request):
 						"cantidadAsignada":salidaInventario["cantidadAsignada"]
 						}
 			dataSalidaInventario.append(resultado)
+	inventariosFisico = InventarioFisico.objects.values(
+										"inventariofisicodetalle__material_id",
+										"inventariofisicodetalle__diferencia"
+										)\
+					.filter(tallerAsignado_id = request.session['idTaller'])
+	for inventarioFisico in inventariosFisico:
+			resultado = {
+						"material":inventarioFisico["inventariofisicodetalle__material_id"],
+						"restante":inventarioFisico["inventariofisicodetalle__diferencia"],
+						}
+			dataInventario.append(resultado)
 	array["remisiones"]=dataRemision
 	array["remisionesInventario"]=dataRemisionInventario
 	array["remisionesInventarioSum"]=dataRemisionInventarioSum
 	array["salidas"]=dataSalida
 	array["salidasInventario"]=dataSalidaInventario
+	array["inventario"]=dataInventario
 	return JsonResponse(array)
 
 def inventarioRemisionEdit(request):

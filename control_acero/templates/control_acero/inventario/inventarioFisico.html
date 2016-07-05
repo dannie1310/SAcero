@@ -51,10 +51,11 @@
 			<table id="tablaApoyoElemento" class="table table-hover">
 				<thead>
 					<tr>
-						<th class="text-center col-md-3">Material</th>
+						<th class="text-center col-md-2">Material</th>
 						<th class="text-center col-md-2">Piezas</th>
 						<th class="text-center col-md-3">Peso Total Kg</th>
-						<th class="text-center col-md-3">Longitud Mts</th>
+						<th class="text-center col-md-1">Longitud Mts</th>
+						<th class="text-center col-md-3">Tipo de Varilla</th>
 						<th class="text-center eliminar col-md-1">¿Corregir?</th>
 					</tr>
 				</thead>
@@ -73,8 +74,8 @@
 		<div class="col-md-12">
 			<button type="button" style="display:none;" class="btn btn-info" name="btn2" id="btn2">¿Terminaste?</button>
 			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
-		</div>		
-		<div id="divRemisionReal" style="display: none;" class="col-md-12 table-responsive">
+		</div>
+		<div id="divRemisionReal" style="" class="col-md-12 table-responsive">
 			<table id="tablaRemisionReal" class="table table-hover">
 				<thead>
 					<tr>
@@ -113,7 +114,7 @@
 	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 									+ '<div class="input-group">'
-										+ '<input class="form-control milesLimpio" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
+										+ '<input class="form-control milesLimpio" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onkeyup="cantidadMaterial('+object.idMaterial+');" />'
 										+ '<div class="input-group-addon">Piezas</div>'
 									+ '</div>'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
@@ -123,7 +124,7 @@
 									+ '</div>'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'Longitud">Longitud</label>'
 									+ '<div class="input-group">'
-										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
+										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onkeyup="cantidadMaterial('+object.idMaterial+');"></input>'
 										+ '<div class="input-group-addon">Mts</div>'
 									+ '</div>'
 									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
@@ -134,9 +135,15 @@
 									+ '</div>'
 									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
 									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
+									+ '<label class="control-label" for="tipoVarilla">Tipo de Varilla</label>'
+									+ '<div>'
+										+'<select class="form-control" name="tipoVarilla_'+object.idMaterial+'" id="tipoVarilla_'+object.idMaterial+'">'
+											+'<option value="1">Habilitada</option>'
+											+'<option value="2">No Habilitada</option>'
+										+'</select>'
+									+ '</div>'
 									+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
 								+ '</div>';
-								
 	                });
 	            } catch (e) {
 	                mensajeWarning("Error al cargar Varillas :" + e);
@@ -167,16 +174,24 @@
 			var pesoInventario = 0;
 			var tabla = '';
 			var tablaRemisionReal = '';
+			var valDefault = 0;
 			$.post( "{% url 'inventarioRemision' %}",{
 						},
 			function(data, status) {
 	            try {
+                    $.each(data.inventario, function (count, object) {
+                    	console.log(object);
+                    });
                     $.each(data.remisionesInventarioSum, function (count, object) {
+                    	valDefault = Math.floor(object.peso);
+                    	valDefault = -Math.abs(valDefault);
                     	tablaRemisionReal += '<tr class="real row_'+object.materialId+'">';
                     		tablaRemisionReal += '<td style="display:none;">'+object.materialId+'</td>';
                     		tablaRemisionReal += '<td>'+object.material+'</td>';
                     		tablaRemisionReal += '<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
                     		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+object.peso+'" /></td>';
+                    		tablaRemisionReal += '<td class="default_'+object.materialId+'">0</td>';
+                    		tablaRemisionReal += '<td class="default_'+object.materialId+'">'+valDefault+'</td>';
                     	tablaRemisionReal += '</tr>';
                     });
                     $.each(data.remisiones, function (count, object) {
@@ -222,7 +237,7 @@
         	var pesoDet = 0;
         	var pesoSistema = 0;
         	var resta = 0;
-        	var html = 0;
+        	var html = '';
         	
 			$(":input[class=dataVarilla]").each(function(index, element) {
 				var material = $(this).data("material");
@@ -235,8 +250,8 @@
 				}
 				pesoDet += peso;
 				materialDet = parseInt(material);
-				resta = parseInt(pesoSistema) - parseInt(pesoDet);
-				$(".row_faltante_"+material).remove();
+				resta = parseInt(pesoDet) - parseInt(pesoSistema);
+				$(".default_"+material).remove();
 				if( $(".row_"+material).length ){
 					$(".rowtd_"+material).remove();
 					$(".row_"+material).append('<td class="rowtd_'+material+' milesLimpio">'+pesoDet+'</td>');
@@ -246,12 +261,13 @@
 						$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+parseInt(resta)+'</td>');
 					}
 				}else{
+					$(".non").remove();
 					html += '<tr class="danger non row_faltante_'+material+'">';
 						html += '<td style="display:none;">'+material+'</td>';
 						html += '<td>'+materialnombre+'</td>';
 						html += '<td>0</td>';
-						html += '<td>'+pesoDet+'</td>';
-						html += '<td>0</td>';
+						html += '<td class="milesLimpio">'+pesoDet+'</td>';
+						html += '<td class="milesLimpio">'+pesoDet+'</td>';
 					html += '</tr>';
 					$("#tablaRemisionReal tbody").append(html);
 				}
@@ -293,7 +309,7 @@
 	            try {
 	            	mensajeSuccess("<b>"+data.mensaje+"</b>");
 	            	$("#folio").html(data.folio);
-	            	$(".eliminar").empty();
+	            	$(".eliminar").remove();
 	            } catch (e) {
 	                alert("Error al cargar Guardar la información:" + e);
 	            }
@@ -330,12 +346,16 @@
 			var flag = 0;
 			var tonHtml = '';
 			var pesoTd = 0;
+			var tipoVarilla = 0;
+			var tipoVarillaText = 0;
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
 				cantidadMaterialReal = $("#count"+idMaterial).val();
 				cantidadMaterial = limpiaValor(cantidadMaterial);
 				longitud = $("#txt"+idMaterial+"Longitud").val();
+				tipoVarilla = $("#tipoVarilla_"+idMaterial).val();
+				tipoVarillaText = $("#tipoVarilla_"+idMaterial+" option:selected").text();
 				pesoMaterial = this.value;
 				pesoTotal += parseFloat(cantidadMaterial);
 				pesoTotalReal = parseFloat(cantidadMaterial);
@@ -347,6 +367,7 @@
 								+'<td class="text-center milesLimpio">'+parseInt(pesoMaterial)+'</td>'
 								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
+								+'<td class="text-center">'+tipoVarillaText+'</td>'
 								+'<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);" data-eliminar="0"></span></td>'
 								+'<td style="display:none" class="text-center">'
 									+'<input type="hidden" class="dataVarilla" data-material="'+idMaterial+'" data-materialnombre="'+material+'" data-peso="'+parseInt(pesoMaterial)+'" data-longitud="'+longitud+'" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
