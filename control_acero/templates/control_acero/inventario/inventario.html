@@ -19,7 +19,9 @@
 					<th class="text-center">#</th>
 					<th class="text-center">Folio</th>
 					<th class="text-center">Fecha de Registro</th>
+					<th class="text-center">Estatus del Inventario</th>
 					<th class="text-center">Ver</th>
+					<th class="text-center">Cerrar Inventario</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -29,7 +31,23 @@
 				    	<td>{{inv.id}}</td>
 				    	<td>{{inv.folio}}</td>
 				    	<td>{{inv.fechaRegistro}}</td>
-				    	<td><a href="/control_acero/inventario/fisico/{{inv.id}}/edit/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a></td>
+				    	{% if inv.estatusRegistro == 0 %}
+				    		<td class="success">Abierto</td>
+				    	{% else %}
+				    		<td class="danger">Cerrado</td>
+				    	{% endif %}
+				    	<td>
+				    		<a href="/control_acero/inventario/fisico/{{inv.id}}/edit/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+				    	</td>
+				    	{% if inv.estatusRegistro == 0 %}
+					    	<td>
+					    		<a href="/control_acero/inventario/fisico/{{inv.id}}/cierre/"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></a>
+					    	</td>
+				    	{% else %}
+					    	<td>
+					    		<span aria-hidden="true">El inventario ha sido cerrado</span>
+					    	</td>
+				    	{% endif %}
 				   	</tr>
 				{% endfor %}
 			{% else %}
