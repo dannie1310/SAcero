@@ -3,6 +3,7 @@
 	LEVANTAMIENTO DE INVENTARIO FISICO
 {% endblock %}
 {% block content %}
+	{% if inventarioFisicoAnterior.count == 0 %}
 	<div class="col-xs-12">
 		<div class="form-group col-md-6 text-left alert-info">
 			<h3> Folio: <span id="folio"></span></h3>
@@ -75,7 +76,7 @@
 			<button type="button" style="display:none;" class="btn btn-info" name="btn2" id="btn2">¿Terminaste?</button>
 			<!-- <button type="button" class="btn btn-success" name="btnExcel" id="btnExcel">Cargar Excel</button> -->
 		</div>
-		<div id="divRemisionReal" style="" class="col-md-12 table-responsive">
+		<div id="divRemisionReal" style="display: ;" class="col-md-12 table-responsive">
 			<table id="tablaRemisionReal" class="table table-hover">
 				<thead>
 					<tr>
@@ -175,6 +176,8 @@
 			var tabla = '';
 			var tablaRemisionReal = '';
 			var valDefault = 0;
+			var existenciaSistema = 0;
+			var existenciaEntradas = 0;
 			$.post( "{% url 'inventarioRemision' %}",{
 						},
 			function(data, status) {
@@ -185,13 +188,15 @@
                     $.each(data.remisionesInventarioSum, function (count, object) {
                     	valDefault = Math.floor(object.peso);
                     	valDefault = -Math.abs(valDefault);
+                    	existenciaSistema = Math.floor(object.peso) + Math.floor(object.fisicoActual);
+                    	existenciaEntradas += existenciaSistema;
                     	tablaRemisionReal += '<tr class="real row_'+object.materialId+'">';
                     		tablaRemisionReal += '<td style="display:none;">'+object.materialId+'</td>';
                     		tablaRemisionReal += '<td>'+object.material+'</td>';
-                    		tablaRemisionReal += '<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
-                    		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+object.peso+'" /></td>';
+                    		tablaRemisionReal += '<td class="milesLimpio">'+existenciaSistema+'</td>';
+                    		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+existenciaSistema+'" /></td>';
                     		tablaRemisionReal += '<td class="default_'+object.materialId+'">0</td>';
-                    		tablaRemisionReal += '<td class="default_'+object.materialId+'">'+valDefault+'</td>';
+                    		tablaRemisionReal += '<td class="default_'+object.materialId+'">'+-Math.abs(existenciaSistema);+'</td>';
                     	tablaRemisionReal += '</tr>';
                     });
                     $.each(data.remisiones, function (count, object) {
@@ -213,12 +218,15 @@
                     	pesoInventario += Math.floor(object.peso);
                     });
                     foliosSalida = jQuery.unique(arrayFolioSalida).length;
+                    var pesoRemisionDetalle = Math.floor(pesoRemision) + Math.floor(existenciaEntradas);
+                    var pesoInventarioDetalle = Math.floor(pesoInventario) + Math.floor(existenciaEntradas);
                     tabla += '<tr>';
                     	tabla += '<td class="col-md-2">'+foliosRemision+'</td>';
-                    	tabla += '<td class="col-md-2">'+(pesoRemision/1000)+'</td>';
+                    	tabla += '<td class="col-md-2">'+(pesoRemisionDetalle/1000)+'</td>';
                     	tabla += '<td class="col-md-2">'+foliosSalida+'</td>';
                     	tabla += '<td class="col-md-2">'+(pesoSalida/1000)+'</td>';
-                    	tabla += '<td class="col-md-4">'+(pesoInventario/1000)+' Ton</td>';
+                    	tabla += '<td class="col-md-4">'+(pesoInventarioDetalle/1000)+' Ton</td>';
+                    	tabla += '<td style="display:none;"><input type="text" class="detallePeso" data-folioentrada="'+foliosRemision+'" data-pesoentrada="'+pesoRemision+'" data-foliosalida="'+foliosSalida+'" data-pesosalida="'+pesoSalida+'" data-totalexistencia="'+pesoInventario+'"></td>';
                     tabla += '</tr>';
                         
 	            } catch (e) {
@@ -238,6 +246,8 @@
         	var pesoSistema = 0;
         	var resta = 0;
         	var html = '';
+        	var fisico = 0;
+        	var pesoFisico = 0;
         	
 			$(":input[class=dataVarilla]").each(function(index, element) {
 				var material = $(this).data("material");
@@ -251,6 +261,10 @@
 				pesoDet += peso;
 				materialDet = parseInt(material);
 				resta = parseInt(pesoDet) - parseInt(pesoSistema);
+				console.log(pesoDet);
+				console.log(pesoSistema);
+				console.log(resta);
+				$(".fisico_"+material).remove();
 				$(".default_"+material).remove();
 				if( $(".row_"+material).length ){
 					$(".rowtd_"+material).remove();
@@ -280,6 +294,18 @@
 			var existenciaFisica = 0;
 			var diferencia = 0;
 			var array = [];
+			var folioEntrada = 0;
+			var pesoEntrada = 0;
+			var folioSalida = 0;
+			var pesoSalida = 0;
+			var totalexistencia = 0;
+			$(":input[class=detallePeso]").each(function(index, element) {
+				folioEntrada = $(this).data("folioentrada");
+				pesoEntrada = $(this).data("pesoentrada");
+				folioSalida = $(this).data("foliosalida");
+				pesoSalida = $(this).data("pesosalida");
+				totalexistencia = $(this).data("totalexistencia");
+			});
 			$('.real').each(function () {
 				materialId = $(this).find('td:eq(0)').text();
 				existencias = limpiaValor($(this).find('td:eq(2)').text());
@@ -300,6 +326,11 @@
 			var jsonSalidas = JSON.stringify(arraySalidas);
 			var jsonSalidasInventario = JSON.stringify(arraySalidasInventario);
 			$.post( "{% url 'inventarioFisicoSave' %}",{
+				folioEntrada: folioEntrada,
+				pesoEntrada: pesoEntrada,
+				folioSalida: folioSalida,
+				pesoSalida: pesoSalida,
+				totalexistencia: totalexistencia,
 				json: json,
 				jsonRemisiones: jsonRemisiones,
 				jsonRemisionesInventario: jsonRemisionesInventario,
@@ -462,4 +493,7 @@
 	    });
 
 	</script>
+	{% else %}
+		<h1>Aun existe un Inventario Fisico Abierto, debes asegurarte de cerrarlo para poder continuar.</h1>
+	{% endif %}
 {% endblock %}

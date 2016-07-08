@@ -33,6 +33,23 @@
 					</tr>
 				</thead>
 				<tbody>
+					<tr>
+						<td>
+							{{ inventario.noEntradas }}
+						</td>
+						<td>
+							{% widthratio inventario.totalEntradas 1000 1 %}
+						</td>
+						<td>
+							{{ inventario.noSalidas }}
+						</td>
+						<td>
+							{% widthratio inventario.totalSalidas 1000 1 %}
+						</td>
+						<td>
+							{% widthratio inventario.totalExistencias 1000 1 %}
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
@@ -47,7 +64,6 @@
 						<th class="text-center col-md-2">Existencias del Sistema</th>
 						<th class="text-center col-md-2">Existencias Física</th>
 						<th class="text-center col-md-2">Diferencia</th>
-						<th class="text-center col-md-2">Validar Inventario</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -63,7 +79,6 @@
 							{% if detalle.diferencia|length < 0 %}
 								<td class="danger milesLimpio">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
 							{% endif %}
-							<td><input type="num" class="form-control" value="0"/></td>
 						</tr>
 						{% else %}
 						<tr class="danger">
@@ -71,331 +86,76 @@
 							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
 							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
 							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
-							<td><input type="num" class="form-control" value="0"/></td>
 						</tr>
 						{% endif %}
 					{% endfor %}
 				</tbody>
 			</table>
 		</div>
+		{% if cierres %}
+		<div class="row">asdffdas
+		</div>
+		<div id="divRemisionRealCerrada" class="col-md-12 table-responsive">
+			<table id="tablaRemisionRealCerrada" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center" colspan="8">Detalle de Inventario Cerrado</th>
+					</tr>
+					<tr>
+						<th class="text-center">Material</th>
+						<th class="text-center">Existencias del Sistema</th>
+						<th class="text-center">Existencias Física</th>
+						<th class="text-center">Diferencia</th>
+						<th class="text-center">Ajuste de Entrada</th>
+						<th class="text-center">Observación de Entrada</th>
+						<th class="text-center">Ajuste de Salida</th>
+						<th class="text-center">Observación de Salida</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for cierre in cierres %}
+						{% if cierre.tipoExistencia == 0 %}
+						<tr>
+							<td>
+								{{ cierre.material_id }}
+							</td>
+							<td class="milesLimpio">
+								{{ cierre.pesoExistencia|default_if_none:"0"|floatformat }}
+							</td>
+							<td class="milesLimpio">
+								{{ cierre.pesoFisico|default_if_none:"0"|floatformat }}
+							</td>
+							{% if cierre.diferencia|length >= 0 %}
+								<td class="success">
+									{{ cierre.diferencia|default_if_none:"0"|floatformat }}
+								</td>
+							{% endif %}
+							{% if cierre.diferencia|length < 0 %}
+								<td class="danger">
+									{{ cierre.diferencia|default_if_none:"0"|floatformat }}
+								</td>
+							{% endif %}
+							<td>{{ cierre.cantidadEntrada|default_if_none:"0"|floatformat }}</td>
+							<td>{{ cierre.observacionEntrada }}</td>
+							<td>{{ cierre.cantidadSalida|default_if_none:"0"|floatformat }}</td>
+							<td>{{ cierre.observacionSalida }}</td>
+						</tr>
+						{% else %}
+						<tr class="danger">
+							<td>{{ cierre.material_id }}</td>
+							<td>{{ cierre.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+							<td>{{ cierre.pesoFisico|default_if_none:"0"|floatformat }}</td>
+							<td>{{ cierre.diferencia|default_if_none:"0"|floatformat }}</td>
+							<td>{{ cierre.cantidadEntrada|default_if_none:"0"|floatformat }}</td>
+							<td>{{ cierre.observacionEntrada }}</td>
+							<td>{{ cierre.cantidadSalida|default_if_none:"0"|floatformat }}</td>
+							<td>{{ cierre.observacionSalida }}</td>
+						</tr>
+						{% endif %}
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		{% endif %}
 	</div>
-
-	<script type="text/javascript">
-		$( "#btn1" ).click(function() {
-			$("#divVarillasCheck").empty();
-			$("#divCantidades").empty();
-			$("#tablaRemisionReal tbody").empty();
-			var tabla = '';
-			var html = '';
-			var checks = '';
-			var conversionInicial = 0;
-			$.post( "{% url 'elementoMaterial' %}",{
-			},
-			function(data, status) {
-	            try {
-	                $.each(data.data, function (count, object) {
-	                	conversionInicial = (object.conversion)*(object.materialLongitud);
-	                	
-	                	checks += '<div id="tablaVarillasCheck" class="col-md-3"><input onclick="muestraVarillas('+object.idMaterial+');" name="chk_'+object.idMaterial+'" id="chk_'+object.idMaterial+'" value="'+object.idMaterial+'" type="checkbox"> '+object.nombreMaterial+'</div>';
-	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
-									+ '<label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
-									+ '<div class="input-group">'
-										+ '<input class="form-control milesLimpio" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onChange="cantidadMaterial('+object.idMaterial+');" />'
-										+ '<div class="input-group-addon">Piezas</div>'
-									+ '</div>'
-									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
-									+ '<div class="input-group">'
-										+ '<input type="text" readonly disabled class="form-control" name="txt'+object.idMaterial+'Volumetrico" id="txt'+object.idMaterial+'Volumetrico" value="'+object.conversion+'"></input>'
-										+ '<div class="input-group-addon">Kg/ml</div>'
-									+ '</div>'
-									+ '<label class="control-label" for="txt'+object.idMaterial+'Longitud">Longitud</label>'
-									+ '<div class="input-group">'
-										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onChange="cantidadMaterial('+object.idMaterial+');"></input>'
-										+ '<div class="input-group-addon">Mts</div>'
-									+ '</div>'
-									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
-									+ '<label class="control-label" for="txt'+object.idMaterial+'">Peso</label>'
-									+ '<div class="input-group">'
-										+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="0"></input>'
-										+ '<div class="input-group-addon">Kg</div>'
-									+ '</div>'
-									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
-									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
-									+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
-								+ '</div>';
-								
-	                });
-	            } catch (e) {
-	                mensajeWarning("Error al cargar Varillas :" + e);
-	            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la petición carga Varillas" );
-			});
-			$("#divVarillasCheck").show("slide");
-		    $("#divCantidades").append(html);
-		    $("#divVarillasCheck").append(checks);
-		    $("#divCantidades").show("slide");
-		});
-		var arrayRemisiones = [];
-		var arrayRemisionesInventario = [];
-		var arraySalidas = [];
-		var arraySalidasInventario = [];
-		remisiones = function () {
-			$("#tablaRemisiones tbody").empty();
-			var arrayFolioRemision = [];
-			var foliosRemision = 0;
-			var pesoRemision = 0;
-			var arrayFolioSalida = [];
-			var foliosSalida = 0;
-			var pesoSalida = 0;
-			var pesoInventario = 0;
-			var tabla = '';
-			$.post( "{% url 'inventarioRemisionEdit' %}",{
-						folio: {{ inventario.numFolio }}
-						},
-			function(data, status) {
-	            try {
-                    $.each(data.remisiones, function (count, object) {
-                    	arrayRemisiones.push(object.id);
-                    	arrayFolioRemision.push(object.numFolio);
-                    	pesoRemision += Math.floor(object.peso);
-                    });
-                    foliosRemision = jQuery.unique(arrayFolioRemision).length;
-                    $.each(data.salidas, function (count, object) {
-                    	arraySalidas.push(object.id);
-                    	arrayFolioSalida.push(object.numFolio);
-                    	pesoSalida += Math.floor(object.cantidadAsignada);
-                    });
-                    $.each(data.salidasInventario, function (count, object) {
-                    	arraySalidasInventario.push(object.id);
-                    });
-                    $.each(data.remisionesInventario, function (count, object) {
-                    	arrayRemisionesInventario.push(object.id);
-                    	pesoInventario += Math.floor(object.peso);
-                    });
-                    foliosSalida = jQuery.unique(arrayFolioSalida).length;
-                    tabla += '<tr>';
-                    	tabla += '<td class="col-md-2">'+foliosRemision+'</td>';
-                    	tabla += '<td class="col-md-2">'+(pesoRemision/1000)+'</td>';
-                    	tabla += '<td class="col-md-2">'+foliosSalida+'</td>';
-                    	tabla += '<td class="col-md-2">'+(pesoSalida/1000)+'</td>';
-                    	tabla += '<td class="col-md-4">'+(pesoInventario/1000)+' Ton</td>';
-                    tabla += '</tr>';
-                        
-	            } catch (e) {
-	                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
-	            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
-			});
-			$("#tablaRemisiones tbody").append(tabla);
-		};
-		$( "#btn2" ).click(function() {
-        	var datos = [];
-        	var materialDet = 0;
-        	var pesoDet = 0;
-        	var pesoSistema = 0;
-        	var resta = 0;
-        	var html = 0;
-        	
-			$(":input[class=dataVarilla]").each(function(index, element) {
-				var material = $(this).data("material");
-				var materialnombre = $(this).data("materialnombre");
-				var peso = $(this).data("peso");
-				var longitud = $(this).data("longitud");
-				pesoSistema = $("#txtPeso_"+material).val();
-				if(materialDet != parseInt(material) && materialDet != 0){
-					pesoDet = 0;
-				}
-				pesoDet += peso;
-				materialDet = parseInt(material);
-				resta = parseInt(pesoSistema) - parseInt(pesoDet);
-				$(".row_faltante_"+material).remove();
-				if( $(".row_"+material).length ){
-					$(".rowtd_"+material).remove();
-					$(".row_"+material).append('<td class="rowtd_'+material+' milesLimpio">'+pesoDet+'</td>');
-					if(resta > 0){
-						$(".row_"+material).append('<td class="rowtd_'+material+' success milesLimpio">'+parseInt(resta)+'</td>');
-					}else{
-						$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+parseInt(resta)+'</td>');
-					}
-				}else{
-					html += '<tr class="danger non row_faltante_'+material+'">';
-						html += '<td style="display:none;">'+material+'</td>';
-						html += '<td>'+materialnombre+'</td>';
-						html += '<td>0</td>';
-						html += '<td>'+pesoDet+'</td>';
-						html += '<td>0</td>';
-					html += '</tr>';
-					$("#tablaRemisionReal tbody").append(html);
-				}
-			});
-			guardaInventario();
-		});
-		guardaInventario = function () {
-			var materialId = 0;
-			var existencias = 0;
-			var existenciaFisica = 0;
-			var diferencia = 0;
-			var array = [];
-			$('.real').each(function () {
-				materialId = $(this).find('td:eq(0)').text();
-				existencias = limpiaValor($(this).find('td:eq(2)').text());
-				existenciaFisica = limpiaValor($(this).find('td:eq(4)').text());
-				diferencia = limpiaValor($(this).find('td:eq(5)').text());
-				array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 0});
-			});
-			$('.non').each(function () {
-				materialId = $(this).find('td:eq(0)').text();
-				existencias = limpiaValor($(this).find('td:eq(2)').text());
-				existenciaFisica = limpiaValor($(this).find('td:eq(3)').text());
-				diferencia = limpiaValor($(this).find('td:eq(4)').text());
-				array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 1});
-			});
-			var json = JSON.stringify(array);
-			var jsonRemisiones = JSON.stringify(arrayRemisiones);
-			var jsonRemisionesInventario = JSON.stringify(arrayRemisionesInventario);
-			var jsonSalidas = JSON.stringify(arraySalidas);
-			var jsonSalidasInventario = JSON.stringify(arraySalidasInventario);
-			$.post( "{% url 'inventarioFisicoSave' %}",{
-				json: json,
-				jsonRemisiones: jsonRemisiones,
-				jsonRemisionesInventario: jsonRemisionesInventario,
-				jsonSalidas: jsonSalidas
-			},
-			function(data, status) {
-	            try {
-	            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-	            	$("#folio").html(data.folio);
-	            } catch (e) {
-	                alert("Error al cargar Guardar la información:" + e);
-	            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la guardar Inventario" );
-			});
-			$("#divRemisionReal").show("slide");
-			$("#btn1").hide("slide");
-			$("#divVarillasCheck").hide("slide");
-			$("#divCantidades").hide("slide");
-			$("#btnAgregaVarilla").hide("slide");
-			$("#btn2").hide("slide");
-			backToTop();
-		}
-		$( "#btnAgregaVarilla" ).click(function() {
-			$("#divPesoTotal").empty();
-			$("#divPesoTonelada").empty();
-			$("#txtPesoTotal").empty();
-			var tabla = '';
-			var idMaterial = 0;
-			var pesoMaterial = 0;
-			var material = '';
-			var cantidadMaterial = 0;
-			var cantidadMaterialReal = 0;
-			var colors = ["info"];
-			var randomColor = Math.floor(Math.random()*colors.length);
-			var color = colors[randomColor];
-			var apoyo = 1;
-			var elemento = 1;
-			var pesoTotal = 0;
-			var pesoTotalReal = 0;
-			var ton = 0;
-			var flag = 0;
-			var tonHtml = '';
-			var pesoTd = 0;
-			$("input.cantidadTotal[type=text]").each(function(index, element) {
-				idMaterial = $(this).attr("attrIdMaterial");
-				cantidadMaterial = $("#count"+idMaterial).val();
-				cantidadMaterialReal = $("#count"+idMaterial).val();
-				cantidadMaterial = limpiaValor(cantidadMaterial);
-				longitud = $("#txt"+idMaterial+"Longitud").val();
-				pesoMaterial = this.value;
-				pesoTotal += parseFloat(cantidadMaterial);
-				pesoTotalReal = parseFloat(cantidadMaterial);
-				material = $(this).attr("attrMaterial");
-				if(cantidadMaterial != 0){
-					tabla += '<tr  class="'+color+'">'
-								+'<td class="text-center">'+material+'</td>'
-								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
-								+'<td class="text-center milesLimpio">'+parseInt(pesoMaterial)+'</td>'
-								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
-								+'<td class="text-center">'+longitud+'</td>'
-								+'<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);" data-eliminar="0"></span></td>'
-								+'<td style="display:none" class="text-center">'
-									+'<input type="hidden" class="dataVarilla" data-material="'+idMaterial+'" data-materialnombre="'+material+'" data-peso="'+parseInt(pesoMaterial)+'" data-longitud="'+longitud+'" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
-								+'</td>'
-							+'</tr>';
-					$("#count"+idMaterial).val(0);
-					$("#txt"+idMaterial).val(0);
-					pesoTotalReal = 0;
-
-				} 
-				
-			});
-			if(tabla.length==0){
-				mensajeWarning("Campos vacios");
-				return false;
-			}
-			else{
-				
-				$("#tablaApoyoElemento").append(tabla);
-				$('.pesoTotal').each(function(i, obj) {
-					pesoTd += parseFloat($(this).text());
-				});
-				if(pesoTotal >= 1000){
-					ton = pesoTd / 1000;
-					tonHtml += ton.toFixed(2);
-				}
-				$("#divDetalle").show("slide");
-				$("#divDetalleSolicita").show("slide");
-			    $("#divDetalleCancelar").show("slide");
-			    
-				$("#divPesoTotal").append('<span class="milesLimpio">'+pesoTd+'</span>');
-				$("#divPesoTotal").append('<span> Kg</span>');
-				$("#divPesoTonelada").append('<span class="milesLimpio">'+Math.floor(tonHtml)+'</span>');
-				$("#divPesoTonelada").append('<span> Ton</span>');
-				$("#txtPesoTotal").val(pesoTd.toFixed(4));
-				
-			}
-		});
-		function cantidadMaterial (id){
-			var value = $("#count"+id).val();
-			value = parseFloat(limpiaValor(value));
-			var original = parseFloat($("#txt"+id+"Original").val());
-			var conversion = parseFloat($("#txt"+id+"Conversion").val());
-			var longitud = parseFloat($("#txt"+id+"Longitud").val());
-			var val = conversion * longitud;
-			var total = value * val;
-			$("#txt"+id).val(parseFloat(total).toFixed(4));
-		}
-		function calculaPeso(){
-			$("#divPesoBruto").empty();
-			$("#txtPesoBruto").val('');
-			var tara = $("#txtTara").val();
-			var total = $("#txtPesoTotal").val();
-			var bruto = parseFloat(tara)+parseFloat(total);
-			var brutoDecimal = bruto.toFixed(2);
-			$("#divPesoBruto").append(brutoDecimal+" Kg");
-			$("#txtPesoBruto").val(brutoDecimal);
-		}
-		function muestraVarillas(valor){
-			var checkbox = $("#chk_"+valor).val();
-			if ($("#chk_"+valor).is(':checked')) {
-				$("#divVarilla_"+valor).show("slide");
-				$("#divCantidadesBotones").show("slide");
-
-			} else {
-				$("#divVarilla_"+valor).hide("slide");
-			}
-		}
-		function eliminar (a){
-			$(a).closest("tr").remove();
-		}
-	    $(function () {
-	    	remisiones();
-	    });
-
-	</script>
 {% endblock %}
