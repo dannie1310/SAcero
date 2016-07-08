@@ -3338,14 +3338,21 @@ def inventarioRemision(request):
 						"cantidadAsignada":salidaInventario["cantidadAsignada"]
 						}
 			dataSalidaInventario.append(resultado)
-	lastInventarioFisico = InventarioFisico.objects.order_by('-id')[0]
-	inventariosFisico = InventarioFisico.objects.values(
-										"inventariofisicodetallecierre__material_id",
-										"inventariofisicodetallecierre__material__nombre",
-										"inventariofisicodetallecierre__pesoExistencia"
-										)\
-					.filter(pk=lastInventarioFisico.id, tallerAsignado_id = request.session['idTaller'])
-	print inventariosFisico.query
+	lastInventarioFisico = InventarioFisico.objects.order_by('-id')[:1]
+	if lastInventarioFisico.count() >= 1:
+		inventariosFisico = InventarioFisico.objects.values(
+											"inventariofisicodetallecierre__material_id",
+											"inventariofisicodetallecierre__material__nombre",
+											"inventariofisicodetallecierre__pesoExistencia"
+											)\
+						.filter(pk=lastInventarioFisico[0].id, tallerAsignado_id = request.session['idTaller'])
+	else:
+		inventariosFisico = InventarioFisico.objects.values(
+											"inventariofisicodetallecierre__material_id",
+											"inventariofisicodetallecierre__material__nombre",
+											"inventariofisicodetallecierre__pesoExistencia"
+											)\
+						.filter(tallerAsignado_id = request.session['idTaller'])
 	for inventarioFisico in inventariosFisico:
 			resultado = {
 						"material":inventarioFisico["inventariofisicodetallecierre__material_id"],
