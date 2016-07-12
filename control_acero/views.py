@@ -3214,28 +3214,129 @@ def inventarioFisicoCierre(request):
 	array = {}
 	mensaje = {}
 	respuesta = request.POST.get('json')
+	fechaRemision= '14/06/2016'
 	json_object = json.loads(respuesta)
-	idInventario = 0
+	inventarioremisiondetalle__estatusInventario = 0
 	for data in json_object:
+		print data
 		idCierre = data["id"]
 		material = data["material"]
 		existencia = data["existencia"]
 		fisico = data["fisico"]
 		diferencia = data["diferencia"]
+		ifd = InventarioFisicoDetalle.objects.get(pk=idCierre)
+		idInventario = ifd.inventarioFisico_id
+		print diferencia
 		cantidadEntrada = data["cantidadEntrada"]
 		if cantidadEntrada:
 			cantidadEntrada
+			p = Remision.objects\
+				.create(idOrden=1,
+						pesoNeto=cantidadEntrada,
+						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
+						estatus=1,
+						ajuste_id=idInventario,
+						tallerAsignado_id=request.session['idTaller']
+						)
+			pd = RemisionDetalle.objects\
+							.create(
+									remision_id=p.pk,
+									material_id=material,
+									apoyo_id=1,
+									elemento_id=1,
+									numFolio=0,
+									peso=cantidadEntrada,
+									longitud=12
+									)
+			ird = InventarioRemisionDetalle.objects\
+							.create(
+									remision_id=p.pk,
+									apoyo_id=1,
+									elemento_id=1,
+									numFolio=0,
+									material_id=material,
+									peso=cantidadEntrada,
+									longitud=12
+									)
 		else:
 			cantidadEntrada = 0
 		observacionEntrada = data["observacionEntrada"]
 		cantidadSalida = data["cantidadSalida"]
 		if cantidadSalida:
-			cantidadSalida
+			cantidadReal = InventarioRemisionDetalle.objects\
+						.values(
+								'material_id',
+								'material__nombre'
+								)\
+						.annotate(pesoMaterial = Sum('peso'))\
+						.annotate(cantidadMaterial = Sum('cantidad'))\
+						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"], material_id = material)\
+						.order_by('material_id')
+			cantidad = cantidadReal[0]['pesoMaterial']
+			print "------"
+			print material
+			print cantidadReal[0]['pesoMaterial']
+			cantidadAsignada = cantidadSalida
+			totalAsignado = cantidadAsignada
+			remisionDetallesTotales = InventarioRemisionDetalle.objects\
+							.values(
+									'material_id',
+									'material__nombre'
+									)\
+							.annotate(pesoMaterial = Sum('peso'))\
+							.annotate(cantidadMaterial = Sum('cantidad'))\
+							.filter(material_id = material, remision__tallerAsignado_id = request.session["idTaller"])
+			for remisionDetallesTotal in remisionDetallesTotales:
+				if Decimal(remisionDetallesTotal["pesoMaterial"]) >= Decimal(totalAsignado):
+					inventarioRemisionDetalles = InventarioRemisionDetalle.objects.all()\
+													.filter(
+															material_id = material,
+															estatusTotalizado = 1,
+															remision__tallerAsignado_id = request.session["idTaller"])\
+													.order_by("id")
+					for inventarioRemisionDetalle in inventarioRemisionDetalles:
+						inventarioId = inventarioRemisionDetalle.id
+						irdpeso = inventarioRemisionDetalle.peso
+						if Decimal(irdpeso) <= Decimal(totalAsignado):
+							totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
+							InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=0, estatusTotalizado = 0)
+							continue
+
+						if Decimal(irdpeso) > Decimal(totalAsignado) and Decimal(totalAsignado) != 0:
+							cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
+							if cantidadRestar >= 0:
+								totalAsignado = 0;
+							InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=cantidadRestar)
+			print"**********"
+			print material
+			print cantidadAsignada
+
+			salida = Salida.objects\
+							.create(
+									tipoEstatus = 2,
+									material_id = material,
+									cantidadReal = cantidad,
+									ajuste_id=idInventario,
+									cantidadAsignada = cantidadAsignada,
+									estatusEtapa = 1,
+									numFolio=0,
+									tallerAsignado_id = request.session["idTaller"]
+									)
+			inventarioSalida = InventarioSalida.objects\
+							.create(
+									material_id = material,
+									cantidadReal = cantidad,
+									cantidadAsignada = cantidadAsignada,
+									numFolio=0,
+									estatusEtapa = 1,
+									tallerAsignado_id = request.session["idTaller"]
+									)
 		else:
 			cantidadSalida = 0
 		observacionSalida = data["observacionSalida"]
-		ifd = InventarioFisicoDetalle.objects.get(pk=idCierre)
-		idInventario = ifd.inventarioFisico_id
+		
+		print "**** "
+		print diferencia
 		ifdc = InventarioFisicoDetalleCierre.objects\
 				.create(
 						pesoExistencia = existencia,
@@ -3250,6 +3351,7 @@ def inventarioFisicoCierre(request):
 						material_id = material,
 					)
 	InventarioFisico.objects.filter(pk=idInventario).update(estatusRegistro=1)
+
 	mensaje = {"estatus":"ok", "mensaje":"El inventario se ha modificado y cerrado Correctamente"}
 	array = mensaje
 	return JsonResponse(array)

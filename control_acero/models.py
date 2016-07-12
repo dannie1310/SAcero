@@ -176,6 +176,147 @@ class Apoyo(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
+class Entrada(models.Model):
+	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	cantidad = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	tiempoEntrega = models.IntegerField(null=True)
+	funcion = models.ForeignKey(Funcion, null=True)
+	taller = models.ForeignKey(Taller, null=True)
+	material = models.ForeignKey(Material, null=True)
+	transporte = models.ForeignKey(Transporte, null=True)
+	apoyo = models.ForeignKey(Apoyo, null=True)
+	elemento = models.ForeignKey(Elemento, null=True)
+	cantidadReal = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	idEtapaPertenece = models.IntegerField(null=True)
+	idOrdenTrabajo = models.IntegerField(null=True)
+	remision = models.IntegerField(null=True)
+	frente = models.ForeignKey(Frente, null=True)
+	estatusEtapa = models.IntegerField(default=1)
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
+	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoEntrada')
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	TIPOESTATUS = (
+	    (1, 'En proceso'),
+	    (2, 'Recepcionado'),
+	    (3, 'Enviado'),
+	    (4, 'Rechazado'),
+	)
+	tipoEstatus = models.IntegerField(choices=TIPOESTATUS, default=1)
+	TIPORECEPCION = (
+	    (0, 'Parcial'),
+	    (1, 'Total'),
+	)
+	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class EntradaDetalle(models.Model):
+	nomenclatura = models.CharField(max_length=20,null=True)
+	longitud = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	piezas = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	entrada = models.ForeignKey(Entrada, null=True)
+	calculado = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return self.nomenclatura
+
+class Folio(models.Model):
+	modulo = models.IntegerField()
+	descripcion = models.CharField(max_length=10)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class InventarioFisico(models.Model):
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
+	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoInventario')
+	noEntradas = models.IntegerField(null=True)
+	totalEntradas = models.IntegerField(null=True)
+	noSalidas = models.IntegerField(null=True)
+	totalSalidas = models.IntegerField(null=True)
+	totalExistencias = models.IntegerField(null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	ESTATUSREGISTRO = (
+	    (0, 'Abierto'),
+	    (1, 'Cerrado'),
+	)
+	estatusRegistro = models.IntegerField(choices=ESTATUSREGISTRO, default=0)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class InventarioFisicoDetalle(models.Model):
+	inventarioFisico = models.ForeignKey(InventarioFisico, null=True)
+	material = models.ForeignKey(Material, null=True)
+	pesoExistencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	pesoFisico = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	diferencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	EXISTENCIA = (
+	    (0, 'Existente'),
+	    (1, 'Inexistente'),
+	)
+	tipoExistencia = models.IntegerField(choices=EXISTENCIA, default=0)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class InventarioFisicoDetalleCierre(models.Model):
+	inventarioFisico = models.ForeignKey(InventarioFisico, null=True)
+	material = models.ForeignKey(Material, null=True)
+	pesoExistencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	pesoFisico = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	diferencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	cantidadEntrada = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	observacionEntrada = models.CharField(max_length=150,null=True)
+	cantidadSalida = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	observacionSalida = models.CharField(max_length=150,null=True)
+	EXISTENCIA = (
+	    (0, 'Existente'),
+	    (1, 'Inexistente'),
+	)
+	tipoExistencia = models.IntegerField(choices=EXISTENCIA, default=0)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
 class Remision(models.Model):
 	idOrden = models.IntegerField()
 	remision = models.IntegerField(null=True)
@@ -185,6 +326,7 @@ class Remision(models.Model):
 	pesoBruto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoNeto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	frente = models.ForeignKey(Frente, null=True)
+	ajuste= models.ForeignKey(InventarioFisico, null=True, related_name='ajusteEntrada')
 	fechaRemision = models.DateField()
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
@@ -282,64 +424,6 @@ class InventarioRemisionDetalle(models.Model):
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return self.remision
 
-class Entrada(models.Model):
-	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	cantidad = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	tiempoEntrega = models.IntegerField(null=True)
-	funcion = models.ForeignKey(Funcion, null=True)
-	taller = models.ForeignKey(Taller, null=True)
-	material = models.ForeignKey(Material, null=True)
-	transporte = models.ForeignKey(Transporte, null=True)
-	apoyo = models.ForeignKey(Apoyo, null=True)
-	elemento = models.ForeignKey(Elemento, null=True)
-	cantidadReal = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	idEtapaPertenece = models.IntegerField(null=True)
-	idOrdenTrabajo = models.IntegerField(null=True)
-	remision = models.IntegerField(null=True)
-	frente = models.ForeignKey(Frente, null=True)
-	estatusEtapa = models.IntegerField(default=1)
-	numFolio = models.IntegerField(null=True)
-	folio = models.CharField(max_length=20,null=True)
-	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoEntrada')
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	TIPOESTATUS = (
-	    (1, 'En proceso'),
-	    (2, 'Recepcionado'),
-	    (3, 'Enviado'),
-	    (4, 'Rechazado'),
-	)
-	tipoEstatus = models.IntegerField(choices=TIPOESTATUS, default=1)
-	TIPORECEPCION = (
-	    (0, 'Parcial'),
-	    (1, 'Total'),
-	)
-	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
-	fechaActualizacion = models.DateTimeField(auto_now=True)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return unicode(self.estatus)
-
-class EntradaDetalle(models.Model):
-	nomenclatura = models.CharField(max_length=20,null=True)
-	longitud = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	piezas = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	entrada = models.ForeignKey(Entrada, null=True)
-	calculado = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	fechaActualizacion = models.DateTimeField(auto_now=True)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return self.nomenclatura
-
 class Salida(models.Model):
 	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	cantidad = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
@@ -357,6 +441,7 @@ class Salida(models.Model):
 	remision = models.IntegerField(null=True)
 	frente = models.ForeignKey(Frente, null=True)
 	estatusEtapa = models.IntegerField(default=1)
+	ajuste= models.ForeignKey(InventarioFisico, null=True, related_name='ajusteSalida')
 	numFolio = models.IntegerField(null=True)
 	folio = models.CharField(max_length=20,null=True)
 	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoSalida')
@@ -432,89 +517,6 @@ class InventarioSalida(models.Model):
 	)
 	estatusInventario = models.IntegerField(choices=ESTATUSINVENTARIO, default=0)
 	folioInventario = models.IntegerField(null=True)
-	fechaActualizacion = models.DateTimeField(auto_now=True)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return unicode(self.estatus)
-
-class Folio(models.Model):
-	modulo = models.IntegerField()
-	descripcion = models.CharField(max_length=10)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	fechaActualizacion = models.DateTimeField(auto_now=True)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return unicode(self.estatus)
-
-class InventarioFisico(models.Model):
-	numFolio = models.IntegerField(null=True)
-	folio = models.CharField(max_length=20,null=True)
-	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoInventario')
-	noEntradas = models.IntegerField(null=True)
-	totalEntradas = models.IntegerField(null=True)
-	noSalidas = models.IntegerField(null=True)
-	totalSalidas = models.IntegerField(null=True)
-	totalExistencias = models.IntegerField(null=True)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	ESTATUSREGISTRO = (
-	    (0, 'Abierto'),
-	    (1, 'Cerrado'),
-	)
-	estatusRegistro = models.IntegerField(choices=ESTATUSREGISTRO, default=0)
-	fechaActualizacion = models.DateTimeField(auto_now=True)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return unicode(self.estatus)
-
-class InventarioFisicoDetalle(models.Model):
-	inventarioFisico = models.ForeignKey(InventarioFisico, null=True)
-	material = models.ForeignKey(Material, null=True)
-	pesoExistencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	pesoFisico = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	diferencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	EXISTENCIA = (
-	    (0, 'Existente'),
-	    (1, 'Inexistente'),
-	)
-	tipoExistencia = models.IntegerField(choices=EXISTENCIA, default=0)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	fechaActualizacion = models.DateTimeField(auto_now=True)
-	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
-		return unicode(self.estatus)
-
-class InventarioFisicoDetalleCierre(models.Model):
-	inventarioFisico = models.ForeignKey(InventarioFisico, null=True)
-	material = models.ForeignKey(Material, null=True)
-	pesoExistencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	pesoFisico = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	diferencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	cantidadEntrada = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	observacionEntrada = models.CharField(max_length=150,null=True)
-	cantidadSalida = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	observacionSalida = models.CharField(max_length=150,null=True)
-	EXISTENCIA = (
-	    (0, 'Existente'),
-	    (1, 'Inexistente'),
-	)
-	tipoExistencia = models.IntegerField(choices=EXISTENCIA, default=0)
-	ESTATUSTABLE = (
-	    (0, 'Inactivo'),
-	    (1, 'Activo'),
-	)
-	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
