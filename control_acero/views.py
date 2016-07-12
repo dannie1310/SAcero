@@ -681,6 +681,7 @@ def recepcionMaterialSave(request):
 						estatus=1,
 						tallerAsignado_id=request.session['idTaller']
 						)
+	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=p.pk, observacion="El id guardado es de la remisión", estatus=1, modulo_id=1, user_id=request.user.id)
 	folio = RemisionDetalle.objects.all().filter(remision__tallerAsignado_id=request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
@@ -881,6 +882,7 @@ def salidaHabilitadoSave(request):
 								numFolio = numFolioInt,
 								tallerAsignado_id = request.session["idTaller"]
 								)
+		bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=salida.pk, observacion="El id guardado es de la salida", estatus=1, modulo_id=2, user_id=request.user.id)
 		inventarioSalida = InventarioSalida.objects\
 						.create(
 								apoyo_id = apoyo,
@@ -1024,6 +1026,7 @@ def entradaArmadoSave(request):
 								numFolio = numFolioInt,
 								frente_id = request.session["idFrente"]
 								)
+		bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=entrada.pk, observacion="El id guardado es de la entrada en frente de trabajo", estatus=1, modulo_id=3, user_id=request.user.id)
 	for jsonDataFaltante in jsonDataInfoFaltante:
 		materialF = jsonDataFaltante["material"]
 		cantidadRealF = jsonDataFaltante["cantidadReal"]
@@ -1103,6 +1106,7 @@ def inventarioFisicoSave(request):
 				numFolio = numFolioInt,
 				tallerAsignado_id = request.session["idTaller"]
 				)
+	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=inventarioFisico.pk, observacion="El id guardado es del inventario fisico", estatus=1, modulo_id=4, user_id=request.user.id)
 	json_object = json.loads(respuesta)
 	for data in json_object:
 		material = data["materialId"]
@@ -3351,7 +3355,7 @@ def inventarioFisicoCierre(request):
 						material_id = material,
 					)
 	InventarioFisico.objects.filter(pk=idInventario).update(estatusRegistro=1)
-
+	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=idInventario, observacion="El id guardado es de inventario cierre", estatus=1, modulo_id=5, user_id=request.user.id)
 	mensaje = {"estatus":"ok", "mensaje":"El inventario se ha modificado y cerrado Correctamente"}
 	array = mensaje
 	return JsonResponse(array)

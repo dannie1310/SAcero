@@ -243,53 +243,57 @@
 			$("#tablaRemisionReal tbody").append(tablaRemisionReal);
 		};
 		$( "#btn2" ).click(function() {
-        	var datos = [];
-        	var materialDet = 0;
-        	var pesoDet = 0;
-        	var pesoSistema = 0;
-        	var resta = 0;
-        	var html = '';
-        	var fisico = 0;
-        	var pesoFisico = 0;
-        	
-			$(":input[class=dataVarilla]").each(function(index, element) {
-				var material = $(this).data("material");
-				var materialnombre = $(this).data("materialnombre");
-				var peso = $(this).data("peso");
-				var longitud = $(this).data("longitud");
-				pesoSistema = $("#txtPeso_"+material).val();
-				if(materialDet != parseInt(material) && materialDet != 0){
-					pesoDet = 0;
-				}
-				pesoDet += peso;
-				materialDet = parseInt(material);
-				resta = parseInt(pesoDet) - parseInt(pesoSistema);
-				console.log(pesoDet);
-				console.log(pesoSistema);
-				console.log(resta);
-				$(".fisico_"+material).remove();
-				$(".default_"+material).remove();
-				if( $(".row_"+material).length ){
-					$(".rowtd_"+material).remove();
-					$(".row_"+material).append('<td class="rowtd_'+material+' milesLimpio">'+pesoDet+'</td>');
-					if(resta > 0){
-						$(".row_"+material).append('<td class="rowtd_'+material+' success milesLimpio">'+parseInt(resta)+'</td>');
-					}else{
-						$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+parseInt(resta)+'</td>');
+			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
+			if(result){
+	        	var datos = [];
+	        	var materialDet = 0;
+	        	var pesoDet = 0;
+	        	var pesoSistema = 0;
+	        	var resta = 0;
+	        	var html = '';
+	        	var fisico = 0;
+	        	var pesoFisico = 0;
+	        	
+				$(":input[class=dataVarilla]").each(function(index, element) {
+					var material = $(this).data("material");
+					var materialnombre = $(this).data("materialnombre");
+					var peso = $(this).data("peso");
+					var longitud = $(this).data("longitud");
+					pesoSistema = $("#txtPeso_"+material).val();
+					if(materialDet != parseInt(material) && materialDet != 0){
+						pesoDet = 0;
 					}
-				}else{
-					$(".non").remove();
-					html += '<tr class="danger non row_faltante_'+material+'">';
-						html += '<td style="display:none;">'+material+'</td>';
-						html += '<td>'+materialnombre+'</td>';
-						html += '<td>0</td>';
-						html += '<td class="milesLimpio">'+pesoDet+'</td>';
-						html += '<td class="milesLimpio">'+pesoDet+'</td>';
-					html += '</tr>';
-					$("#tablaRemisionReal tbody").append(html);
-				}
+					pesoDet += peso;
+					materialDet = parseInt(material);
+					resta = parseInt(pesoDet) - parseInt(pesoSistema);
+					console.log(pesoDet);
+					console.log(pesoSistema);
+					console.log(resta);
+					$(".fisico_"+material).remove();
+					$(".default_"+material).remove();
+					if( $(".row_"+material).length ){
+						$(".rowtd_"+material).remove();
+						$(".row_"+material).append('<td class="rowtd_'+material+' milesLimpio">'+pesoDet+'</td>');
+						if(resta > 0){
+							$(".row_"+material).append('<td class="rowtd_'+material+' success milesLimpio">'+parseInt(resta)+'</td>');
+						}else{
+							$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+parseInt(resta)+'</td>');
+						}
+					}else{
+						$(".non").remove();
+						html += '<tr class="danger non row_faltante_'+material+'">';
+							html += '<td style="display:none;">'+material+'</td>';
+							html += '<td>'+materialnombre+'</td>';
+							html += '<td>0</td>';
+							html += '<td class="milesLimpio">'+pesoDet+'</td>';
+							html += '<td class="milesLimpio">'+pesoDet+'</td>';
+						html += '</tr>';
+						$("#tablaRemisionReal tbody").append(html);
+					}
+				});
+				guardaInventario();
+					}
 			});
-			guardaInventario();
 		});
 		guardaInventario = function () {
 			var materialId = 0;
