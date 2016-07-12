@@ -181,6 +181,7 @@
 			$.post( "{% url 'inventarioRemision' %}",{
 						},
 			function(data, status) {
+				console.log(data)
 	            try {
                     $.each(data.inventario, function (count, object) {
                     	console.log(object);
@@ -188,12 +189,14 @@
                     $.each(data.remisionesInventarioSum, function (count, object) {
                     	valDefault = Math.floor(object.peso);
                     	valDefault = -Math.abs(valDefault);
-                    	existenciaSistema = Math.floor(object.peso) + Math.floor(object.fisicoActual);
-                    	existenciaEntradas += existenciaSistema;
+                    	//existenciaSistema = Math.floor(object.peso) + Math.floor(object.fisicoActual);
+                    	existenciaSistema = Math.floor(object.peso);
+                    	//console.log(object.peso, " juhdiuf ", object.fisicoActual);
+                    	existenciaEntradas += Math.floor(object.peso);
                     	tablaRemisionReal += '<tr class="real row_'+object.materialId+'">';
                     		tablaRemisionReal += '<td style="display:none;">'+object.materialId+'</td>';
                     		tablaRemisionReal += '<td>'+object.material+'</td>';
-                    		tablaRemisionReal += '<td class="milesLimpio">'+existenciaSistema+'</td>';
+                    		tablaRemisionReal += '<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
                     		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+existenciaSistema+'" /></td>';
                     		tablaRemisionReal += '<td class="default_'+object.materialId+'">0</td>';
                     		tablaRemisionReal += '<td class="default_'+object.materialId+'">'+-Math.abs(existenciaSistema);+'</td>';

@@ -186,6 +186,7 @@
 			var fisico = limpiaValor($("#row_"+material).find('td:eq(4)').text());
 			var diferencia = $("#row_"+material).find('td:eq(5)').text();
 			var sum = parseInt(ajuste) + parseInt(existencia);
+			console.log(ajuste, " ajuste ", existencia, "existencia", sum);
 			var operacion = parseInt(fisico) - parseInt(sum);
 			$("#row_"+material).find('td:eq(2)').text(sum);
 			$("#row_"+material).find('td:eq(5)').text(operacion);

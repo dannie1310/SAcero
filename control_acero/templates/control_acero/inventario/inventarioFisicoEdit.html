@@ -93,8 +93,7 @@
 			</table>
 		</div>
 		{% if cierres %}
-		<div class="row">asdffdas
-		</div>
+		
 		<div id="divRemisionRealCerrada" class="col-md-12 table-responsive">
 			<table id="tablaRemisionRealCerrada" class="table table-hover">
 				<thead>
@@ -120,9 +119,9 @@
 								{{ cierre.material_id }}
 							</td>
 							<td class="milesLimpio">
-								{{ cierre.pesoExistencia|default_if_none:"0"|floatformat }}
+								{{ cierre.pesoExistencia|default_if_none:"0" }}
 							</td>
-							<td class="milesLimpio">
+							<td>
 								{{ cierre.pesoFisico|default_if_none:"0"|floatformat }}
 							</td>
 							{% if cierre.diferencia|length >= 0 %}
