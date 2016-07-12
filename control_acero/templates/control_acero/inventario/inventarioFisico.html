@@ -221,8 +221,8 @@
                     	pesoInventario += Math.floor(object.peso);
                     });
                     foliosSalida = jQuery.unique(arrayFolioSalida).length;
-                    var pesoRemisionDetalle = Math.floor(pesoRemision) + Math.floor(existenciaEntradas);
-                    var pesoInventarioDetalle = Math.floor(pesoInventario) + Math.floor(existenciaEntradas);
+                    var pesoRemisionDetalle = Math.floor(pesoSalida) + Math.floor(existenciaEntradas);
+                    var pesoInventarioDetalle = Math.floor(existenciaEntradas);
                     tabla += '<tr>';
                     	tabla += '<td class="col-md-2">'+foliosRemision+'</td>';
                     	tabla += '<td class="col-md-2">'+(pesoRemisionDetalle/1000)+'</td>';

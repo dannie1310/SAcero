@@ -3,6 +3,7 @@
 	LEVANTAMIENTO DE INVENTARIO FISICO
 {% endblock %}
 {% block content %}
+	{% load humanize %}
 	<div class="col-xs-12">
 		<div class="form-group col-md-6 text-left alert-info">
 			<h3> Folio: {{ inventario.folio }}</h3>
@@ -71,21 +72,21 @@
 						{% if detalle.tipoExistencia == 0 %}
 						<tr>
 							<td>{{ detalle.material_id }}</td>
-							<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
-							<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat|intcomma }}</td>
+							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat|intcomma }}</td>
 							{% if detalle.diferencia|length >= 0 %}
-								<td class="success milesLimpio">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+								<td class="success">{{ detalle.diferencia|default_if_none:"0"|floatformat|intcomma }}</td>
 							{% endif %}
 							{% if detalle.diferencia|length < 0 %}
-								<td class="danger milesLimpio">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+								<td class="danger">{{ detalle.diferencia|default_if_none:"0"|floatformat|intcomma }}</td>
 							{% endif %}
 						</tr>
 						{% else %}
 						<tr class="danger">
 							<td>{{ detalle.material_id }}</td>
-							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
-							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
-							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat|intcomma }}</td>
+							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat|intcomma }}</td>
+							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat|intcomma }}</td>
 						</tr>
 						{% endif %}
 					{% endfor %}
@@ -118,11 +119,11 @@
 							<td>
 								{{ cierre.material_id }}
 							</td>
-							<td class="milesLimpio">
-								{{ cierre.pesoExistencia|default_if_none:"0" }}
+							<td >
+								{{ cierre.pesoExistencia|default_if_none:"0"|floatformat|intcomma }}
 							</td>
-							<td>
-								{{ cierre.pesoFisico|default_if_none:"0"|floatformat }}
+							<td >
+								{{ cierre.pesoFisico|default_if_none:"0"|floatformat|intcomma }}
 							</td>
 							{% if cierre.diferencia|length >= 0 %}
 								<td class="success">
