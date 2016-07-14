@@ -203,39 +203,47 @@
 			$("#row_"+material).find('td:eq(5)').text(operacion);
 		}
 		$( "#btnCerrar" ).click(function() {
-			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
-			if(result){
-			var array = [];
-			$(".trrow").each(function(index, element) {
-				var material = $(this).data("material");
-				var id = limpiaValor($(this).find('td:eq(0)').text());
-				var existencia = limpiaValor($(this).find('td:eq(2)').text());
-				var fisico = limpiaValor($(this).find('td:eq(4)').text());
-				var diferencia = limpiaValor($(this).find('td:eq(5)').text());
-				var cantidadEntrada = $("#inputS_"+material).val();
-				var observacionEntrada = $("#textS_"+material).val();
-				var cantidadSalida = $("#inputF_"+material).val();
-				var observacionSalida = $("#textF_"+material).val();
-				array.push({"id": id,"existencia": existencia,"fisico": fisico,"diferencia": diferencia,"cantidadEntrada": cantidadEntrada,"observacionEntrada": observacionEntrada,"cantidadSalida": cantidadSalida,"observacionSalida": observacionSalida,"material": material});
-			});
-			var json = JSON.stringify(array);
-			console.log(json);
-			$.post( "{% url 'inventarioFisicoCierre' %}",{
-				json: json
-			},
-			function(data, status) {
-	            try {
-	            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-	            	$("#btnCerrar").hide();
-	            } catch (e) {
-	                alert("Error al cargar Guardar la información:" + e);
-	            }
-			})
-			.fail(function() {
-				mensajeWarning( "Error en la guardar Inventario" );
+			swal({
+
+				  title: "¿Está seguro que los ajustes realizados en este inventario son correctos?",
+				  text: "No se podrá modificar el registro posteriormente",
+				  type: "warning",
+				  showCancelButton: true,
+				  closeOnConfirm: true,
+				  showLoaderOnConfirm: true
+				},
+				function(){
+					var array = [];
+					$(".trrow").each(function(index, element) {
+						var material = $(this).data("material");
+						var id = limpiaValor($(this).find('td:eq(0)').text());
+						var existencia = limpiaValor($(this).find('td:eq(2)').text());
+						var fisico = limpiaValor($(this).find('td:eq(4)').text());
+						var diferencia = limpiaValor($(this).find('td:eq(5)').text());
+						var cantidadEntrada = $("#inputS_"+material).val();
+						var observacionEntrada = $("#textS_"+material).val();
+						var cantidadSalida = $("#inputF_"+material).val();
+						var observacionSalida = $("#textF_"+material).val();
+						array.push({"id": id,"existencia": existencia,"fisico": fisico,"diferencia": diferencia,"cantidadEntrada": cantidadEntrada,"observacionEntrada": observacionEntrada,"cantidadSalida": cantidadSalida,"observacionSalida": observacionSalida,"material": material});
+					});
+					var json = JSON.stringify(array);
+					console.log(json);
+					$.post( "{% url 'inventarioFisicoCierre' %}",{
+						json: json
+					})
+					.done(function(data, status) {
+			            setTimeout(function () {
+					    	swal(" El inventario se cerro correctamente");
+						}, 2000);
+			            $("#btnCerrar").hide();
+			        })
+			       	.error(function(data,status){
+			            setTimeout(function () {
+					    	swal("Error!", "Error en la petición al Guardar el Cierre de Inventario.", "error");
+						}, 1000);
+					})
+					
 				});
-			 	}
-			});
 		});
 	  
 	</script>

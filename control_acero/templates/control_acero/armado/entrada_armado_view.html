@@ -195,11 +195,11 @@
 							$('.cmbFolio').append('</optgroup>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Folio:" + e);
+		                swal("Error!", "Error al cargar Combo del Folio:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Folio" );
+				swal("Error!",  "Error en la petición del Folio","error");
 			});
 		}
 		mostrarFolio = function(){
@@ -211,11 +211,11 @@
 		            try {
 						$("#folio").html(data.folio);
 		            } catch (e) {
-		                alert("Error al cargar Combo del Fabricante:" + e);
+		                swal("Error!", "Error al cargar Combo del Fabricante:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Fabricante" );
+				swal("Error!",  "Error en la petición del Fabricante","error");
 			});
 		}
 		comboApoyo = function(){
@@ -229,11 +229,11 @@
 	                        $('.cmbApoyo').append('<option value="' + object.id + '">' + object.numero + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Apoyo:" + e);
+		                swal("Error!", "Error al cargar Combo del Apoyo:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Apoyo" );
+				swal("Error!",  "Error en la petición del Apoyo","error");
 			});
 		}
 		comboElemento = function(){
@@ -247,11 +247,11 @@
 	                        $('.cmbElemento').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Elemento:" + e);
+		                swal("Error!", "Error al cargar Combo del Elemento:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Elemento" );
+				swal("Error!",  "Error en la petición del Elemento","error");
 			});
 		}
 		materialRecepcionado = function(folio){
@@ -284,11 +284,11 @@
 	                	$("#txtElemento").val(object.elementoId);
 	                });
 	            } catch (e) {
-	                alert("Error al cargar el Material Recepcionado:" + e);
+	                swal("Error!", "Error al cargar el Material Recepcionado:" + e,"error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Material Recepcionado" );
+				swal("Error!",  "Error en la petición del Material Recepcionado","error");
 			});
 			$("#tablaMaterial tbody").append(tabla);
 			$('[data-toggle="toolinfo"]').tooltip();
@@ -304,11 +304,11 @@
 	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Frente:" + e);
+		                swal("Error!", "Error al cargar Combo del Frente:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Frente" );
+				swal("Error!",  "Error en la petición del Frente","error");
 			});
 		}
 		comboFuncion = function(){
@@ -324,20 +324,15 @@
 	                        $('.cmbFuncion').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Fabricante:" + e);
+		                swal("Error!", "Error al cargar Combo del Fabricante:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Fabricante" );
+				swal("Error!",  "Error en la petición del Fabricante","warning");
 			});
 		}
 		agregarAsignacion = function(posicion){
-			
-			bootbox.confirm("¿Estás seguro de realizar esta acción, posteriormente no podrás realizar ningún cambio?", function(result) {
-
-				if(result){
-					$( "#add_"+posicion ).prop( "disabled", true );
-					$( "#addDiferencia_"+posicion ).prop( "disabled", true );
+					
 					var cantidadAsignada = $("#row_"+posicion).val();
 					var cantidadReal = $("#row_"+posicion).data("cantidadreal");
 					var idMaterial = $("#row_"+posicion).data("idmaterial");
@@ -353,15 +348,31 @@
 					
 					var tabla = '';
 						if(bandera == 0){
-							tabla += '<tr>';
-								tabla += '<td>'+materialNombre+'</td>';
-								tabla += '<td class="success milesLimpio">'+Math.floor(cantidadReal)+'</td>';
+							swal({
+
+								  title: "¿Está seguro que el material se encuentra completo?",
+								  text: "No se podrá modificar el registro posteriormente",
+								  type: "warning",
+								   showCancelButton: true,
+				  					closeOnConfirm: true
+							},
+							function() {
 								
-								tabla += '<td style="display:none;"><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
-							tabla += '</tr>';
-							$("#tablaMaterialDetalle").append(tabla);
-							$("#detalleRecepcion").show("slide");
-							$("#botones").show("slide");
+									tabla += '<tr>';
+										tabla += '<td>'+materialNombre+'</td>';
+										tabla += '<td class="success milesLimpio">'+Math.floor(cantidadReal)+'</td>';
+										
+										tabla += '<td style="display:none;"><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
+									tabla += '</tr>';
+									
+									$("#tablaMaterialDetalle").append(tabla);
+									$("#detalleRecepcion").show("slide");
+									$("#botones").show("slide");
+								
+								$( "#add_"+posicion ).prop( "disabled", true );
+								$( "#addDiferencia_"+posicion ).prop( "disabled", true );
+							
+							});
 						}else{
 							$( "#add_"+posicion ).prop( "disabled", false );
 							$( "#addDiferencia_"+posicion ).prop( "disabled", false );
@@ -370,9 +381,10 @@
 							});
 							pesoRealCalculado = parseFloat(cantidadReal) - parseFloat(sumaTotalCalculado);
 							if(pesoRealCalculado < 0){
-								mensajeWarning("El Material Faltante agregado es mayor a la Cantidad del Material");
+								swal("Error!", "El Material Faltante agregado es mayor a la Cantidad del Material","error");
 								return false;
 							}
+							
 							console.log(piezas, cantidadAsignada, cantidadReal);
 							tabla += '<tr class="danger">';
 								tabla += '<td>'+materialNombre+'</td>';
@@ -409,21 +421,20 @@
 							$("#suma_"+idMaterial).remove();	
 							$("#tablaResumenFaltante").append(tablaFaltante);
 							$("#resumenFaltante").show("slide");
+					
 
-
-						}
-							
-
-				}
-				
-
-			});
-
-			
+			}
 		}
 		agregarDiferencia = function(posicion){
-			bootbox.confirm("¿Estás seguro que deseas agregar material faltante?", function(result) {
-				if(result){
+			swal({
+
+				  title: "¿Estás seguro que deseas agregar material faltante?",
+				  text: "No se podrá modificar el registro posteriormente",
+				  type: "warning",
+				  showCancelButton: true,
+				  closeOnConfirm: true
+			},
+			function() {
 					$("#asignado_"+posicion).show('slide');
 					$("#longitud_"+posicion).show('slide');
 					$("#piezas_"+posicion).show('slide');
@@ -432,8 +443,7 @@
 					$("#btnCancelarDif_"+posicion).show('slide');
 					$("#txtBandera_"+posicion).val(1);
 					$("#add_"+posicion).text("Agregar Material Faltante");
-				}
-			});
+				});
 		}
 		cancelarDiferencia = function(posicion){
 			$("#asignado_"+posicion).hide('slide');
@@ -464,7 +474,7 @@
 	                	total = parseFloat(factor) * parseFloat(longitud) * parseFloat(piezas);
 	                });
 	            } catch (e) {
-	                alert("Error al cargar elemento Material:" + e);
+	                swal("Error!", "Error al cargar elemento Material:" + e,"error");
 	            }
 	        });
 	        $("#row_"+indice).val(total.toFixed(2));
@@ -477,15 +487,15 @@
 			var proveedor = $("#cmbFuncion").val();
 
 			if(remision==0){
-				mensajeWarning("<strong>Debes elegir una Remisión.</strong>");
+				swal("Error!", "Debes elegir una Remisión.","error");
 				return false;
 			}
 			if(proveedor==0){
-				mensajeWarning("<strong>Debes elegir un Proveedor de Armado.</strong>");
+				swal("Error!", "Debes elegir un Proveedor de Armado.","error");
 				return false;
 			}
 			if(folio==0){
-				mensajeWarning("<strong>Debes elegir un Folio.</strong>");
+				swal("Error!", "Debes elegir un Folio.","error");
 				return false;
 			}
 			var tabla = '';
@@ -502,8 +512,16 @@
 			$("#detalleMaterial").show("slide");
 		});
 		$( "#btnCancelar" ).click(function() {
-			bootbox.confirm("¿Estás seguro de Cancelar. Todos los datos capturados se eliminarán?.", function(result) {
-				if(result){
+			swal({
+
+				  title: "¿Estás seguro de Cancelar?.",
+				  text: "¡Todos los datos capturados se eliminarán!",
+				  type: "warning",
+				  showCancelButton: true,
+				  closeOnConfirm: true
+			},
+			function() {
+			
 					$("#tablaMaterial tbody").empty();
 					$("#tablaMaterialDetalle tbody").empty();
 					$("#tablaMaterialFaltante tbody").empty();
@@ -513,12 +531,11 @@
 					$("#detalleFaltante").hide("slide");
 					$("#detalleHabilitado").hide("slide");
 					$("#botones").hide("slide");
-				}
+			
 			});
 		});
 		$( "#btnGuardar" ).click(function() {
-			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
-				if(result){
+
 					var array = [];
 					var arrayFaltante = [];
 					var remision = $("#remision").val();
@@ -560,32 +577,42 @@
 					});
 					var json = JSON.stringify(array);
 					var jsonFaltante = JSON.stringify(arrayFaltante);
-					$.post( "{% url 'entradaArmadoSave' %}",{
-						remision: remision,
-						funcion: funcion,
-						folio: folio,
-						apoyo: apoyo,
-						elemento: elemento,
-						htmlMail: htmlMail,
-						htmlMailFaltante: htmlMailFaltante,
-						json: json,
-						jsonFaltante: jsonFaltante
+					swal({
+
+						  title: "¿Está seguro que la información capturada es la correcta?",
+						  text: "No se podrá modificar el registro posteriormente",
+						  type: "warning",
+						  showCancelButton: true,
+						  closeOnConfirm: true
+
 					},
-					function(data, status) {
-				            try {
-				            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-				            	$("#folio").html(data.folio);
-				            	materialRecepcionado(folio);
-				            } catch (e) {
-				                alert("Error al cargar Guardar la información:" + e);
-				            }
-					})
-					.fail(function() {
-						mensajeWarning( "Error en la petición Guardar la información" );
+					function(){
+
+						$.post( "{% url 'entradaArmadoSave' %}",{
+							remision: remision,
+							funcion: funcion,
+							folio: folio,
+							apoyo: apoyo,
+							elemento: elemento,
+							htmlMail: htmlMail,
+							htmlMailFaltante: htmlMailFaltante,
+							json: json,
+							jsonFaltante: jsonFaltante
+						})
+						.done(function(data, status) {
+							setTimeout(function () {
+					    		swal("La información se guardo correctamente y se genero el Folio "+data.folio);
+							}, 2000);
+				              	materialRecepcionado(folio);
+				        })
+				        .error(function(data, status){
+							setTimeout(function () {
+					    	swal("Error!", "Error en la petición al Guardar Recepción en Frente de Trabajo.", "error");
+						}, 1000);
 					});
+					
 					$("#botones").hide("slide");
 					$("#detalleMaterial").hide("slide");
-				}
 			});
 		});
 	    $(function () {

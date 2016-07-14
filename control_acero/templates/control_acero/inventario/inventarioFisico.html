@@ -147,11 +147,11 @@
 								+ '</div>';
 	                });
 	            } catch (e) {
-	                mensajeWarning("Error al cargar Varillas :" + e);
+	                swal("Error!","Error al cargar Varillas :" + e,"error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición carga Varillas" );
+				swal("Error!", "Error en la petición carga Varillas","error" );
 			});
 			$("#divVarillasCheck").show("slide");
 		    $("#divCantidades").append(html);
@@ -233,18 +233,17 @@
                     tabla += '</tr>';
                         
 	            } catch (e) {
-	                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
+	                swal("Error!","Error al cargar al Guardar Recepción de Material de Fabricante:" + e,"error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+				swal("Error!", "Error en la petición al Guardar Recepción de Material de Fabricante","error" );
 			});
 			$("#tablaRemisiones tbody").append(tabla);
 			$("#tablaRemisionReal tbody").append(tablaRemisionReal);
 		};
 		$( "#btn2" ).click(function() {
-			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
-			if(result){
+
 	        	var datos = [];
 	        	var materialDet = 0;
 	        	var pesoDet = 0;
@@ -253,46 +252,55 @@
 	        	var html = '';
 	        	var fisico = 0;
 	        	var pesoFisico = 0;
-	        	
-				$(":input[class=dataVarilla]").each(function(index, element) {
-					var material = $(this).data("material");
-					var materialnombre = $(this).data("materialnombre");
-					var peso = $(this).data("peso");
-					var longitud = $(this).data("longitud");
-					pesoSistema = $("#txtPeso_"+material).val();
-					if(materialDet != parseInt(material) && materialDet != 0){
-						pesoDet = 0;
-					}
-					pesoDet += peso;
-					materialDet = parseInt(material);
-					resta = parseInt(pesoDet) - parseInt(pesoSistema);
-					console.log(pesoDet);
-					console.log(pesoSistema);
-					console.log(resta);
-					$(".fisico_"+material).remove();
-					$(".default_"+material).remove();
-					if( $(".row_"+material).length ){
-						$(".rowtd_"+material).remove();
-						$(".row_"+material).append('<td class="rowtd_'+material+' milesLimpio">'+pesoDet+'</td>');
-						if(resta > 0){
-							$(".row_"+material).append('<td class="rowtd_'+material+' success milesLimpio">'+parseInt(resta)+'</td>');
-						}else{
-							$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+parseInt(resta)+'</td>');
+	        	swal({
+
+				  title: "¿Está seguro que la información fisica por varilla son correctas?",
+				  text: "No se podrá modificar el registro posteriormente",
+				  type: "warning",
+				  showCancelButton: true,
+				  closeOnConfirm: true,
+				  showLoaderOnConfirm: true
+				},
+				function(){
+					$(":input[class=dataVarilla]").each(function(index, element) {
+						var material = $(this).data("material");
+						var materialnombre = $(this).data("materialnombre");
+						var peso = $(this).data("peso");
+						var longitud = $(this).data("longitud");
+						pesoSistema = $("#txtPeso_"+material).val();
+						if(materialDet != parseInt(material) && materialDet != 0){
+							pesoDet = 0;
 						}
-					}else{
-						$(".non").remove();
-						html += '<tr class="danger non row_faltante_'+material+'">';
-							html += '<td style="display:none;">'+material+'</td>';
-							html += '<td>'+materialnombre+'</td>';
-							html += '<td>0</td>';
-							html += '<td class="milesLimpio">'+pesoDet+'</td>';
-							html += '<td class="milesLimpio">'+pesoDet+'</td>';
-						html += '</tr>';
-						$("#tablaRemisionReal tbody").append(html);
-					}
-				});
-				guardaInventario();
-					}
+						pesoDet += peso;
+						materialDet = parseInt(material);
+						resta = parseInt(pesoDet) - parseInt(pesoSistema);
+						console.log(pesoDet);
+						console.log(pesoSistema);
+						console.log(resta);
+						$(".fisico_"+material).remove();
+						$(".default_"+material).remove();
+						if( $(".row_"+material).length ){
+							$(".rowtd_"+material).remove();
+							$(".row_"+material).append('<td class="rowtd_'+material+' milesLimpio">'+pesoDet+'</td>');
+							if(resta > 0){
+								$(".row_"+material).append('<td class="rowtd_'+material+' success milesLimpio">'+parseInt(resta)+'</td>');
+							}else{
+								$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+parseInt(resta)+'</td>');
+							}
+						}else{
+							$(".non").remove();
+							html += '<tr class="danger non row_faltante_'+material+'">';
+								html += '<td style="display:none;">'+material+'</td>';
+								html += '<td>'+materialnombre+'</td>';
+								html += '<td>0</td>';
+								html += '<td class="milesLimpio">'+pesoDet+'</td>';
+								html += '<td class="milesLimpio">'+pesoDet+'</td>';
+							html += '</tr>';
+							$("#tablaRemisionReal tbody").append(html);
+						}
+					});
+					guardaInventario();
+				
 			});
 		});
 		guardaInventario = function () {
@@ -345,15 +353,17 @@
 			},
 			function(data, status) {
 	            try {
-	            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-	            	$("#folio").html(data.folio);
+	            	setTimeout(function () {
+					    swal("La información se guardo correctamente y se genero el Folio "+data.folio);
+					}, 2000);
+	            	
 	            	$(".eliminar").remove();
 	            } catch (e) {
-	                alert("Error al cargar Guardar la información:" + e);
+	                swal("Error!","Error al cargar Guardar la información:" + e,"error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la guardar Inventario" );
+				swal("Error!", "Error en la guardar Inventario","error" );
 			});
 			$("#divRemisionReal").show("slide");
 			$("#btn1").hide("slide");
@@ -419,7 +429,7 @@
 				
 			});
 			if(tabla.length==0){
-				mensajeWarning("Campos vacios");
+				swal("Error!","Campos vacios","error");
 				return false;
 			}
 			else{
@@ -455,11 +465,11 @@
 						$("#folio").html(data.folio);
 						//$("#fechaRemision").html(data.date);
 		            } catch (e) {
-		                alert("Error al cargar el Folio:" + e);
+		                swal("Error!","Error al cargar el Folio:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Folio" );
+				swal("Error!", "Error en la petición del Folio","error" );
 			});
 		}
 		function cantidadMaterial (id){

@@ -82,11 +82,11 @@
 		            try {
 						$("#folio").html(data.folio);
 		            } catch (e) {
-		                alert("Error al cargar Combo del Fabricante:" + e);
+		                swal("Error!","Error al cargar Combo del Fabricante:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Fabricante" );
+				swal("Error!", "Error en la petición del Fabricante","error");
 			});
 		}
 
@@ -104,11 +104,11 @@
 	                        $('.cmbApoyo').append('<option value="' + object.id + '">' + object.numero + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Apoyo:" + e);
+		                swal("Error!","Error al cargar Combo del Apoyo:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Apoyo" );
+				swal("Error!","Error en la petición del Apoyo","error");
 			});
 		}
 		comboElemento = function(){
@@ -122,11 +122,11 @@
 	                        $('.cmbElemento').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Elemento:" + e);
+		                swal("Error!","Error al cargar Combo del Elemento:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Elemento" );
+				swal("Error!","Error en la petición del Elemento","error");
 			});
 		}
 		materialRecepcionado = function(){
@@ -150,11 +150,11 @@
 	                	idTabla++;
 	                });
 	            } catch (e) {
-	                alert("Error al cargar el Material Recepcionado:" + e);
+	                swal("Error!","Error al cargar el Material Recepcionado:" + e,"error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Material Recepcionado" );
+				swal("Error!", "Error en la petición del Material Recepcionado","error");
 			});
 			$("#tablaMaterial tbody").append(tabla);
 		}
@@ -169,12 +169,12 @@
 			
 			
 			if(asignado <= 0){
-				mensajeWarning("Debes capturar un peso de salida diferente a cero");
+				swal("Error!","Debes capturar un peso de salida diferente a cero","error");
 				return false;
 			}
 			
 			if(pesoRestante < 0){
-				mensajeWarning("No debe exceder el peso existente ");
+				swal("Error!","No debe exceder el peso existente ","error");
 				return false;
 			}
 			$("#limpia_"+idmaterial).remove();
@@ -202,24 +202,23 @@
 	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Frente:" + e);
+		                swal("Error!","Error al cargar Combo del Frente:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Frente" );
+				swal("Error!", "Error en la petición del Frente","warning" );
 			});
 		}
 		$( "#cmbFrente" ).change(function() {
 			var value = this.value;
-			comboApoyo(value);
+			comboApoyo(value,"error");
 		});
 
 		function eliminar (a){
 			$(a).closest("tr").remove();
 		}
 		$( "#btnGuardar" ).click(function() {
-			bootbox.confirm("¿Estás seguro que la información de salida es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
-				if(result){
+			
 					var array = [];
 					var apoyo = $("#cmbApoyo").val();
 					var elemento = $("#cmbElemento").val();
@@ -227,15 +226,15 @@
 					var htmlMail = $("#tablaMaterialDetalle").html();
 
 					if(frente == 0){
-						mensajeWarning("<strong>Debes elegir una Frente.</strong>");
+						swal("Error!","Debes elegir una Frente.","error");
 						return false;
 					}
 					if(apoyo == 0){
-						mensajeWarning("<strong>Debes elegir un Apoyo.</strong>");
+						swal("Error!","Debes elegir un Apoyo.","error");
 						return false;
 					}
 					if(elemento == 0){
-						mensajeWarning("<strong>Debes elegir un Elemento.</strong>");
+						swal("Error!","Debes elegir un Elemento.","error");
 						return false;
 					}
 					$("input.dataAsignacion[type=text]").each(function(index, element) {
@@ -252,37 +251,46 @@
 						var json = JSON.stringify(array);
 					}
 					else{
-						mensajeWarning("Debes asignar peso");
+						swal("Error!","Debes asignar peso","error");
 						return false;
 					}
-					$.post( "{% url 'salidaHabilitadoSave' %}",{
-						apoyo: apoyo,
-						elemento: elemento,
-						frente: frente,
-						htmlMail: htmlMail,
-						json: json
-					},
-					function(data, status) {
-				            try {
-				            		mensajeSuccess("<b>"+data.mensaje+"</b>");
-					            	materialRecepcionado();
-					            	$("#folio").html(data.folio);
-					            	$("#btnGuardar").hide('slide');
-					            	$(".eliminar").hide("slide");
-				            	
-				            	
-				            } catch (e) {
-				                alert("Error al cargar Guardar la información:" + e);
-				            }
-					})
-					.fail(function() {
-						mensajeWarning( "Error en la petición Guardar la información" );
-					});
-				}
-			});
+					swal({
 
-			
+						  title: "¿Está seguro que la información capturada es la correcta?",
+						  text: "No se podrá modificar el registro posteriormente",
+						  type: "warning",
+						  showCancelButton: true,
+						  closeOnConfirm: false,
+						  showLoaderOnConfirm: true
+					},
+					function(){
+						$.post( "{% url 'salidaHabilitadoSave' %}",{
+							apoyo: apoyo,
+							elemento: elemento,
+							frente: frente,
+							htmlMail: htmlMail,
+							json: json
+						})
+						.done(function(data, status) {
+					            setTimeout(function () {
+					    			swal("La información se guardo correctamente y se genero el Folio "+data.folio);
+									}, 2000);
+					            		
+						            	materialRecepcionado();
+						            	$("#folio").html(data.folio);
+						            	$("#btnGuardar").hide('slide');
+						            	$(".eliminar").hide("slide");
+					            	
+					            	
+					            })
+						.error(function(data,status){
+									setTimeout(function () {
+					   					 swal("Error!", "Error en la petición al Guardar la Salida de Material Habilitado.", "error");
+										}, 1000);
+				});
+			});
 		});
+			
 	    $(function () {
 	    	mostrarFolio();
 	    	comboApoyo();

@@ -94,11 +94,11 @@
 						//$("#fechaRemision").html(data.date);
 						
 		            } catch (e) {
-		                alert("Error al cargar el Folio:" + e);
+		                swal("Error!","Error al cargar el Folio:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Folio" );
+				swal("Error!", "Error en la petición del Folio","error");
 			});
 		}
 		comboFuncion = function(){
@@ -116,11 +116,11 @@
 	                        
 	                    
 		            } catch (e) {
-		                alert("Error al cargar Combo del Fabricante:" + e);
+		                swal("Error!", "Error al cargar Combo del Fabricante:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Fabricante" );
+				swal("Error!", "Error en la petición del Fabricante","error");
 			});
 		}
 		comboFrente = function(){
@@ -134,11 +134,12 @@
 	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Frente:" + e);
+		                swal("Error!", "Error al cargar Combo del Frente:" + e, "error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Frente" );
+				//mensajeWarning( "Error en la petición del Frente" );
+				swal("Error!", "Error en la petición del Frente.", "error");
 			});
 		}
 		$( "#agregarVarillas" ).click(function() {
@@ -151,19 +152,23 @@
 			
 
 			if(orden == 0){
-				mensajeWarning("<strong>Debes elegir una Orden de Compra.</strong>");
+				//mensajeWarning("<strong>Debes elegir una Orden de Compra.</strong>");
+				swal("Error!", "Debes elegir una Orden de Compra.", "error");
 				return false;
 			}
 			if(remision == 0){
-				mensajeWarning("<strong>Debes elegir una Remisión.</strong>");
+				//mensajeWarning("<strong>Debes elegir una Remisión.</strong>");
+				swal("Error!", "Debes elegir una Remisión.", "error");
 				return false;
 			}
 			if(proveedor == 0){
-				mensajeWarning("<strong>Debes elegir un Proveedor de Acero.</strong>");
+				//mensajeWarning("<strong>Debes elegir un Proveedor de Acero.</strong>");
+				swal("Error!", "Debes elegir un Proveedor de Acero.", "error");
 				return false;
 			}
 			if(fechaRemision == 0){
-				mensajeWarning("<strong>Debes elegir una Fecha de Remisión.</strong>");
+				//mensajeWarning("<strong>Debes elegir una Fecha de Remisión.</strong>");
+				swal("Error!", "Debes elegir una Fecha de Remisión.", "error");
 				return false;
 			}
 			
@@ -209,11 +214,13 @@
 								
 	                });
 	            } catch (e) {
-	                mensajeWarning("Error al cargar Varillas :" + e);
+	                //mensajeWarning("Error al cargar Varillas :" + e);
+	                swal("Error!", "Error al cargar Varillas : "+e, "error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición carga Varillas" );
+				swal("Error!", "Error en la petición carga Varillas", "error");
+				//mensajeWarning( "Error en la petición carga Varillas" );
 			});
 			$("#divTituloVarillas").show("slide");
 			$("#divVarillasCheck").show("slide");
@@ -272,7 +279,7 @@
 				
 			});
 			if(tabla.length==0){
-				mensajeWarning("Campos vacios");
+				swal("Error!", "Debes asignar peso.", "error");
 				return false;
 			}
 			else{
@@ -315,7 +322,8 @@
 				
 			});
 			if(datos.length==0){
-				mensajeWarning("Debes asignar peso");
+				//mensajeWarning("Debes asignar peso");
+				swal("Error!", "Debes asignar peso.", "error");
 				return false;
 			}
 			else{
@@ -326,9 +334,9 @@
 
 				  title: "¿Está seguro que la información capturada es la correcta?",
 				  text: "No se podrá modificar el registro posteriormente",
-				  type: "info",
+				  type: "warning",
 				  showCancelButton: true,
-				  closeOnConfirm: false,
+				  closeOnConfirm: true,
 				  showLoaderOnConfirm: true
 			},
 			function(){
@@ -362,9 +370,9 @@
 			    })
 	            .error(function(data, status){
 					setTimeout(function () {
-					    swal("Error!", "Error en la petición al Guardar Recepción de Material de Fabricante.", "warning");
+					    swal("Error!", "Error en la petición al Guardar Recepción de Material de Fabricante.", "error");
 					}, 1000);
-	                mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+	                //mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
 	           	});
 			});
 		});

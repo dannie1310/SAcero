@@ -145,11 +145,11 @@
 	                        }
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Fabricante:" + e);
+		                swal("Error!","Error al cargar Combo del Fabricante:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Fabricante" );
+				swal("Error!", "Error en la petición del Fabricante","error");
 			});
 		}
 
@@ -165,11 +165,11 @@
 	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Frente:" + e);
+		                swal("Error!","Error al cargar Combo del Frente:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Frente" );
+				swal("Error!", "Error en la petición del Frente","error");
 			});
 		}
 
@@ -185,11 +185,11 @@
 	                        $('.cmbTaller').append('<option value="' + object.id + '">' + object.nombre + '</option>');
 	                    });
 		            } catch (e) {
-		                alert("Error al cargar Combo del Taller:" + e);
+		                swal("Error!","Error al cargar Combo del Taller:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del Taller" );
+				swal("Error!", "Error en la petición del Taller","error");
 			});
 		}
 		
@@ -529,7 +529,7 @@
 								 $("#btnExcel").show('slide');
 								$("#divDiferencia").show('slide');
 		                 	}
-
+		                 	
 		                });
 						$.each(data.entrada, function (count, object) {
 									//console.log(object);
@@ -652,11 +652,11 @@
 	                    		 }
 		                 });
 		        } catch (e) {
-	                mensajeWarning("Consulta invalida");
+	                swal("Error!","Consulta invalida","error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del reporte" );
+				swal("Error!", "Error en la petición del reporte","error");
 			});
 			tobody+='<tr>';
 			headTT+='<tr>';
@@ -729,11 +729,11 @@
 	            	filename = data.filename;
 	            	generarExcel(filename);
 		        } catch (e) {
-	                mensajeWarning("Consulta invalida");
+	                swal("Error!","Consulta invalida","error");
 	            }
 			})
 			.fail(function() {
-				mensajeWarning( "Error en la petición del reporte" );
+				swal("Error!", "Error en la petición del reporte","error");
 			});
 			console.log("test");
 		});
