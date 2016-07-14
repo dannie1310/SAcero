@@ -298,85 +298,76 @@
 			}
 		});
 		$( "#btnSolicitar" ).click(function() {
+			var orden = $("#cmbOrden").val();
+			var remision = $("#remision").val();
+			var htmlMail = $("#tablaApoyoElemento").html();
+			var funcion = $("#cmbFuncion").val();
+			var funcionHabilitado = $("#cmbFuncionHabilitado").val();
+			var fechaRemision = $("#fechaRemision").val();
+			var pesoTara = $("#txtTara").val();
+			var pesoBruto = $("#txtPesoBruto").val();
+			var pesoTotal = $("#txtPesoTotal").val();
+        	var datos = [];
+        	
+			$(":input[class=dataVarilla]").each(function(index, element) {
+
+				datos.push({"data": this.value});
 				
-				var orden = $("#cmbOrden").val();
-					var remision = $("#remision").val();
-					var htmlMail = $("#tablaApoyoElemento").html();
-					var funcion = $("#cmbFuncion").val();
-					var funcionHabilitado = $("#cmbFuncionHabilitado").val();
-					var fechaRemision = $("#fechaRemision").val();
-					var pesoTara = $("#txtTara").val();
-					var pesoBruto = $("#txtPesoBruto").val();
-					var pesoTotal = $("#txtPesoTotal").val();
-		        	var datos = [];
-		        	
-					$(":input[class=dataVarilla]").each(function(index, element) {
+			});
+			if(datos.length==0){
+				mensajeWarning("Debes asignar peso");
+				return false;
+			}
+			else{
+			var json = JSON.stringify(datos);
 
-						datos.push({"data": this.value});
-						
-					});
-					if(datos.length==0){
-						mensajeWarning("Debes asignar peso");
-						return false;
-					}
-					else{
-					var json = JSON.stringify(datos);
+			}
+			swal({
 
-					}
-					swal({
-
-						  title: "¿Está seguro que la información capturada es la correcta?",
-						  text: "No se podrá modificar el registro posteriormente",
-						  type: "info",
-						  showCancelButton: true,
-						  closeOnConfirm: false,
-						  showLoaderOnConfirm: true
-					},
-					function(){
-						console.log("confirmado");
-
-					
-					$.post( "{% url 'recepcionMaterialSave' %}",{
-					        		remision: remision,
-					        		idOrden: orden,
-					        		//idFrente: frente,
-					        		funcion: funcion,
-					        		funcionHabilitado: funcionHabilitado,
-					        		fechaRemision: fechaRemision,
-					        		pesoTara: pesoTara,
-					        		pesoBruto: pesoBruto,
-					        		pesoTotal: pesoTotal,
-					        		htmlMail: htmlMail,
-					        		json: json
-								})
-					.done(function(data, status) {
-				            
-				           sweetAlert( {title: "Guardado!",  
-                                    text: data.mensaje,  
-                                    type: "success" 
-                                   },
-				           		function(){
-				           			setTimeout(function () {
-    									swal("Ajax request finished!");
- 									 }, 1000);
-				    //         	$("#folio").html(data.folio);
-								// $("#btnSolicitar").hide("slide");
-								// $("#btnCancelar").hide("slide");
-								// $("#divTituloVarillas").hide("slide");
-								// $("#divVarillasCheck").hide("slide");
-								// $("#btnAgregaVarilla").hide("slide");
-								// $("#divCantidades").hide("slide");
-								// $("#agregarVarillas").hide("slide");
-								// $(".eliminar").hide();
-								// backToTop();
-				            	
-				            });
-				       		})
-				            .error(function(data, status){
-				                swal.showInputError("Error al cargar al Guardar Recepción de Material de Fabricante:");
-				           	});
-						});
-					});
+				  title: "¿Está seguro que la información capturada es la correcta?",
+				  text: "No se podrá modificar el registro posteriormente",
+				  type: "info",
+				  showCancelButton: true,
+				  closeOnConfirm: false,
+				  showLoaderOnConfirm: true
+			},
+			function(){
+				$.post( "{% url 'recepcionMaterialSave' %}",{
+				        		remision: remision,
+				        		idOrden: orden,
+				        		//idFrente: frente,
+				        		funcion: funcion,
+				        		funcionHabilitado: funcionHabilitado,
+				        		fechaRemision: fechaRemision,
+				        		pesoTara: pesoTara,
+				        		pesoBruto: pesoBruto,
+				        		pesoTotal: pesoTotal,
+				        		htmlMail: htmlMail,
+				        		json: json
+							})
+				.done(function(data, status) {
+					setTimeout(function () {
+					    swal("La información se guardo correctamente y se genero el Folio "+data.folio);
+					}, 2000);
+					$("#folio").html(data.folio);
+					$("#btnSolicitar").hide("slide");
+					$("#btnCancelar").hide("slide");
+					$("#divTituloVarillas").hide("slide");
+					$("#divVarillasCheck").hide("slide");
+					$("#btnAgregaVarilla").hide("slide");
+					$("#divCantidades").hide("slide");
+					$("#agregarVarillas").hide("slide");
+					$(".eliminar").hide();
+					backToTop();
+			    })
+	            .error(function(data, status){
+					setTimeout(function () {
+					    swal("Error!", "Error en la petición al Guardar Recepción de Material de Fabricante.", "warning");
+					}, 1000);
+	                mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+	           	});
+			});
+		});
 					
 				
 		
