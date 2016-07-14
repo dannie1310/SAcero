@@ -104,6 +104,9 @@ urlpatterns = [
     url(r'^catalogos/transportes/new/$', views.transportesNewView, name='transportesNewView'),
     url(r'^catalogos/transportes/(?P<pk>[0-9]+)/edit/$', views.transportesEditView, name='transportesEditView'),
 
+    url(r'^catalogos/movimientos/$', views.movimientosView, name='movimientosView'),
+    url(r'^catalogos/movimientos/(?P<pk>[0-9]+)/detalle/$', views.movimientosDetalleView, name='movimientosDetalleView'),
+
     url(r'^inventario/$', views.inventario, name='inventario'),
     url(r'^inventario/remision/$', views.inventarioRemision, name='inventarioRemision'),
     url(r'^inventario/fisico/save/$', views.inventarioFisicoSave, name='inventarioFisicoSave'),

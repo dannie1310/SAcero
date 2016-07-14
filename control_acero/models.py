@@ -369,6 +369,7 @@ class Remision(models.Model):
 	        ("view_armado_recepcion", "Puede Visualizar Armado Recepcion"),
 	        ("view_inventario_fisico", "Puede Visualizar el Inventario Fisico"),
 	        ("view_reportes", "Puede Visualizar Reportes"),
+	        ("view_movimientos", "Puede Visualizar los Movimientos Realizados")
 	    )
 
 class RemisionDetalle(models.Model):

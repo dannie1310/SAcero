@@ -203,6 +203,8 @@
 			$("#row_"+material).find('td:eq(5)').text(operacion);
 		}
 		$( "#btnCerrar" ).click(function() {
+			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
+			if(result){
 			var array = [];
 			$(".trrow").each(function(index, element) {
 				var material = $(this).data("material");
@@ -231,7 +233,10 @@
 			})
 			.fail(function() {
 				mensajeWarning( "Error en la guardar Inventario" );
+				});
+			 	}
 			});
 		});
+	  
 	</script>
 {% endblock %}

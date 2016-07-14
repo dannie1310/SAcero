@@ -1,0 +1,227 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	MOVIMIENTO DETALLE
+{% endblock %}
+{% block content %}
+	{% load humanize %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Nombre de Usuario</th>
+					<th class="text-center">Fecha de Movimiento</th>
+					<th class="text-center">Modulo Modificado</th>
+					
+
+				</tr>
+			</thead>
+			<tbody>
+		{% for a in detalles %}
+			<tr>
+			    	<td>{{ a.user__first_name }} {{a.user__last_name }}</td>
+				    <td>{{ a.fechaRegistro }}</td>
+				    <td>{{ a.modulo__descripcion }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>	
+	</div>
+	
+	<div class="col-xs-12">
+		<table class="table table-hover">
+		{% if modulo == 1 %}
+			<thead>
+				<tr>
+					<th class="text-center">Folio</th>
+					<th class="text-center">Taller de Habilitado</th>
+					<th class="text-center">Proveedor de Acero</th>
+					<th class="text-center">Num. de Orden</th>
+					<th class="text-center">Num. de Remision</th>
+					<th class="text-center">Peso Total</th>
+				</tr>
+			</thead>
+			<tbody>
+		{% for a in afectado %}
+			<tr>
+				<td>{{ a.remisiondetalle__folio }}</td>
+				<td>{{a.tallerAsignado__nombre}}</td>
+				    <td>{{ a.funcion__proveedor }}</td>
+				    <td>{{ a.idOrden }}</td>
+				    <td>{{ a.remision }}</td>
+				    <td> {{a.pesoNeto |floatformat|intcomma}} </td>
+			</tr>
+
+		{% endfor %}
+			</tbody>
+			
+		{% elif modulo == 2 %}
+
+
+			<thead>
+				<tr>
+					<th class="text-center">Folio</th>
+					<th class="text-center">Taller de Habilitado</th>
+					<th class="text-center">Fecha de Registro</th>
+					<th class="text-center">Frente de Trabajo Asignado</th>
+					<th class="text-center">Numero de Apoyo</th>
+					<th class="text-center">Elemento</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+			
+			{% for x in datos %}
+				<tr>
+					<td>{{ x.folio }}</td>
+						<td>{{x.tallerAsignado__nombre}}</td>
+					    <td>{{ x.fechaRegistro }}</td>
+					    <td>{{ x.frente__nombre }}</td>
+					    <td>{{ x.apoyo__numero }}</td>
+					    <td> {{ x.elemento__nombre }} </td>
+
+				</tr>
+				
+			{% endfor %}
+			</tbody>
+			</table>
+		
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						
+						<th class="text-center">Varilla Habilitada</th>
+						<th class="text-center">Cantidad Asignada</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+				{% for a in afectado %}
+					<tr>
+						<td> {{ a.material__nombre }} </td>
+						<td> {{a.cantidadAsignada |floatformat|intcomma}} </td>
+						
+					</tr>
+				{% endfor %}
+			{% elif modulo == 3 %}
+				<thead>
+				<tr>
+					<th class="text-center">Folio</th>
+					<th class="text-center">Fecha Registro</th>
+					<th class="text-center">Armador Asignado</th>
+					<th class="text-center">Frente Asignado</th>
+					<th class="text-center">Apoyo</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for a in datos %}
+					<tr>					
+						<td>{{a.folio}}</td>
+						<td>{{a.fechaRegistro}}</td>
+						<td>{{a.funcion__proveedor}}</td>
+						<td>{{a.frente__nombre}}</td>
+						<td>{{a.apoyo__numero}}</td>					
+					</tr>
+				{% endfor %}	
+				</tbody>
+				</table>
+		
+			<table class="table table-hover">
+				
+				<thead>
+					<tr>
+						
+						<th class="text-center">Varilla Habilitada</th>
+						<th class="text-center">Cantidad Recibida</th>
+						<th class="text-center">Nomenclatura</th>
+						<th class="text-center">Longitud</th>
+						<th class="text-center">Piezas</th>
+						<th class="text-center">Peso</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+				{% for a in afectado %}
+				<tr>					
+						<td>{{a.material__nombre}}</td>
+						<td>{{a.cantidadAsignada|floatformat|intcomma}}</td>
+						<td>{{a.entradadetalle__nomenclatura|default_if_none:"-"}}</td>
+						<td>{{a.entradadetalle__longitud|default_if_none:"-"}}</td>
+						<td>{{a.entradadetalle__piezas|default_if_none:"-"|intcomma}}</td>
+						<td>{{a.entradadetalle__calculado|default_if_none:"-"|intcomma}}</td>					
+				</tr>
+				</tbody>
+					
+				{% endfor %}	
+
+			{% elif modulo == 4 %} <!--creacion inventario -->
+				<thead>
+				<tr>
+					<th class="text-center">Folio</th>
+					<th class="text-center">Taller de Habilitado</th>
+					<th class="text-center">Fecha de Registro</th>
+					<th class="text-center">Varilla</th>
+					<th class="text-center">Peso Existente</th>
+					<th class="text-center">Peso Fisico</th>
+					<th class="text-center">Peso Diferencia</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for a in afectado %}
+					<tr>
+						<td>{{ a.folio }}</td>
+						<td>{{a.tallerAsignado__nombre}}</td>
+						    <td>{{ a.fechaRegistro }}</td>
+						    <td>{{ a.inventariofisicodetalle__material__nombre }}</td>
+						    <td>{{ a.inventariofisicodetalle__pesoExistencia |floatformat| intcomma }}</td>
+						    <td> {{ a.inventariofisicodetalle__pesoFisico |floatformat| intcomma }} </td>
+						    <td> {{ a.inventariofisicodetalle__diferencia|floatformat| intcomma }}</td>
+					</tr>
+
+				{% endfor %}
+				</tbody>
+
+			{% elif modulo == 5 %} <!--creacion inventario Cierre -->
+				<thead>
+				<tr>
+					<th class="text-center">Folio</th>
+					<th class="text-center">Taller de Habilitado</th>
+					<th class="text-center">Fecha de Registro</th>
+					<th class="text-center">Varilla</th>
+					<th class="text-center">Peso Existente</th>
+					<th class="text-center">Peso Fisico</th>
+					<th class="text-center">Peso Diferencia</th>
+					<th class="text-center">Ajuste de Entrada</th>
+					<th class="text-center">Observacion</th>
+					<th class="text-center">Ajuste de Salida</th>
+					<th class="text-center">Observacion</th>
+
+
+				</tr>
+				</thead>
+				<tbody>
+				{% for a in afectado %}
+					<tr>
+						<td>{{ a.folio }}</td>
+						<td>{{a.tallerAsignado__nombre}}</td>
+						    <td>{{ a.fechaRegistro }}</td>
+						    <td>{{ a.inventariofisicodetallecierre__material__nombre }}</td>
+						    <td>{{ a.inventariofisicodetallecierre__pesoExistencia |floatformat| intcomma }}</td>
+						    <td> {{ a.inventariofisicodetallecierre__pesoFisico |floatformat| intcomma }} </td>
+						    <td> {{ a.inventariofisicodetallecierre__diferencia|floatformat| intcomma }}</td>
+						    <td> {{ a.inventariofisicodetallecierre__cantidadEntrada|floatformat| intcomma }}</td>
+						    <td> {{ a.inventariofisicodetallecierre__observacionEntrada}}</td>
+						    <td> {{ a.inventariofisicodetallecierre__cantidadSalida|floatformat| intcomma }}</td>
+						    <td> {{ a.inventariofisicodetallecierre__observacionSalida }}</td>
+					</tr>
+
+				{% endfor %}
+				</tbody>
+
+
+		{% endif %}
+	</table>
+	</div>
+	<div class="col-xs-12 text-left">
+		<button type="submit" class="btn btn-info"><a href="{% url 'movimientosView' %}"><font color="FFFFFF"> << Regresar </font></a></button>
+	</div>
+{% endblock %}

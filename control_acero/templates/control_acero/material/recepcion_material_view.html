@@ -298,9 +298,8 @@
 			}
 		});
 		$( "#btnSolicitar" ).click(function() {
-			bootbox.confirm("¿Estás seguro que la información capturada es la correcta, debido a que no se podrán realizar cambios posteriores?.", function(result) {
-				if(result){
-					var orden = $("#cmbOrden").val();
+				
+				var orden = $("#cmbOrden").val();
 					var remision = $("#remision").val();
 					var htmlMail = $("#tablaApoyoElemento").html();
 					var funcion = $("#cmbFuncion").val();
@@ -324,6 +323,19 @@
 					var json = JSON.stringify(datos);
 
 					}
+					swal({
+
+						  title: "¿Está seguro que la información capturada es la correcta?",
+						  text: "No se podrá modificar el registro posteriormente",
+						  type: "info",
+						  showCancelButton: true,
+						  closeOnConfirm: false,
+						  showLoaderOnConfirm: true
+					},
+					function(){
+						console.log("confirmado");
+
+					
 					$.post( "{% url 'recepcionMaterialSave' %}",{
 					        		remision: remision,
 					        		idOrden: orden,
@@ -336,30 +348,38 @@
 					        		pesoTotal: pesoTotal,
 					        		htmlMail: htmlMail,
 					        		json: json
-								},
-					function(data, status) {
-				            try {
-				            	mensajeSuccess("<b>"+data.mensaje+"</b>");
-				            	$("#folio").html(data.folio);
-								$("#btnSolicitar").hide("slide");
-								$("#btnCancelar").hide("slide");
-								$("#divTituloVarillas").hide("slide");
-								$("#divVarillasCheck").hide("slide");
-								$("#btnAgregaVarilla").hide("slide");
-								$("#divCantidades").hide("slide");
-								$("#agregarVarillas").hide("slide");
-								$(".eliminar").hide();
-								backToTop();
-				            } catch (e) {
-				                alert("Error al cargar al Guardar Recepción de Material de Fabricante:" + e);
-				            }
-					})
-					.fail(function() {
-						mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
-					});	
-				}
-			});
-		});
+								})
+					.done(function(data, status) {
+				            
+				           sweetAlert( {title: "Guardado!",  
+                                    text: data.mensaje,  
+                                    type: "success" 
+                                   },
+				           		function(){
+				           			setTimeout(function () {
+    									swal("Ajax request finished!");
+ 									 }, 1000);
+				    //         	$("#folio").html(data.folio);
+								// $("#btnSolicitar").hide("slide");
+								// $("#btnCancelar").hide("slide");
+								// $("#divTituloVarillas").hide("slide");
+								// $("#divVarillasCheck").hide("slide");
+								// $("#btnAgregaVarilla").hide("slide");
+								// $("#divCantidades").hide("slide");
+								// $("#agregarVarillas").hide("slide");
+								// $(".eliminar").hide();
+								// backToTop();
+				            	
+				            });
+				       		})
+				            .error(function(data, status){
+				                swal.showInputError("Error al cargar al Guardar Recepción de Material de Fabricante:");
+				           	});
+						});
+					});
+					
+				
+		
 		$( "#btnCancelar" ).click(function() {
 			$("#cmbOrden").val(' ');
 			$("#cmbFuncion").val(0);

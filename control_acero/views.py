@@ -546,6 +546,129 @@ def transportesEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/transportes/transporte_edit.html', {'form': form})
 
+def movimientosView(request):
+
+	movimientos_list = Bitacora.objects.values("id",
+										"accion",
+										"observacion",
+										"estatus",
+										"id_afectado",
+										"fechaRegistro",
+										"modulo__id",
+										"modulo__descripcion",
+										"user__id",
+										"user__first_name",
+										"user__last_name")\
+								.filter(
+										estatus = 1
+										)\
+								.order_by("id")
+
+	paginator = Paginator(movimientos_list, 10)
+	page = request.GET.get('page')
+	try:
+		movimientos = paginator.page(page)
+	except PageNotAnInteger:
+		movimientos = paginator.page(1)
+	except EmptyPage:
+		movimientos = paginator.page(paginator.num_pages)
+	return render(request,'control_acero/catalogos/movimientos/movimiento.html', {"movimientos": movimientos})
+
+def movimientosDetalleView(request, pk):
+	folios=0
+	movimiento = get_object_or_404(Bitacora, pk=pk)
+	detalle = Bitacora.objects.values("id",
+										"accion",
+										"observacion",
+										"id_afectado",
+										"fechaRegistro",
+										"modulo__id",
+										"modulo__descripcion",
+										"user__id",
+										"user__first_name",
+										"user__last_name")\
+									.filter(id=movimiento.id);
+	
+	modulo = detalle[0]["modulo__id"]
+	idAfectado = detalle[0]["id_afectado"]
+	print idAfectado
+	if modulo == 1 :
+		datos = Remision.objects.values("id",
+									    "idOrden",
+									    "remision",
+									    "funcion__proveedor",
+									    "remisiondetalle__folio",
+									    "remisiondetalle__material__nombre",
+									    "remisiondetalle__peso",
+									    "remisiondetalle__longitud",
+									    "pesoNeto",
+									    "tallerAsignado__nombre")\
+				.filter(id=idAfectado)
+	if modulo == 2 :
+		folios = Salida.objects.values(
+										"fechaRegistro",
+										"apoyo__numero",
+										"tallerAsignado__nombre",
+										"frente__nombre",
+										"elemento__nombre",
+										"folio")\
+				.filter(id=idAfectado)
+		folio = folios[0]["folio"]
+		datos = Salida.objects.values(
+										"material__nombre",
+										"cantidadAsignada")\
+				.filter(folio=folio)
+	if modulo== 3 :
+		folios = Entrada.objects.values("folio",
+										"elemento__nombre",
+										"remision",
+										"fechaRegistro",
+										"apoyo__numero",
+										"frente__nombre",
+										"funcion__proveedor").filter(id=idAfectado)
+		folio = folios[0]["folio"]
+		datos = Entrada.objects.values("cantidadAsignada",
+										"material__nombre",
+										"cantidadReal",
+										"entradadetalle__nomenclatura",
+										"entradadetalle__longitud",
+										"entradadetalle__piezas",
+										"entradadetalle__calculado")\
+				.filter(folio=folio)\
+				.order_by("material_id")
+
+		
+	if modulo == 4 :
+		datos = InventarioFisico.objects.values( "folio",
+													"fechaRegistro",
+													"tallerAsignado__nombre",
+													"totalExistencias",
+													"inventariofisicodetalle__pesoExistencia",
+													"inventariofisicodetalle__pesoFisico",
+													"inventariofisicodetalle__diferencia",
+													"inventariofisicodetalle__material__nombre")\
+		.filter(id=idAfectado)
+
+	if modulo == 5 :
+		datos = InventarioFisico.objects.values( "folio",
+													"fechaRegistro",
+													"tallerAsignado__nombre",
+													"totalExistencias",
+													"inventariofisicodetallecierre__pesoExistencia",
+													"inventariofisicodetallecierre__pesoFisico",
+													"inventariofisicodetallecierre__diferencia",
+													 "inventariofisicodetallecierre__cantidadEntrada",
+													 "inventariofisicodetallecierre__observacionEntrada",
+													 "inventariofisicodetallecierre__cantidadSalida",
+													 "inventariofisicodetallecierre__observacionSalida",
+													 "inventariofisicodetallecierre__material__nombre")\
+		.filter(id=idAfectado)
+	print "datosss::   "
+	print datos	
+	template = 'control_acero/catalogos/movimientos/movimientoDetalle.html'
+	
+	return render(request, template, {"movimiento": movimiento, "detalles": detalle, "afectado" : datos, "modulo": modulo, "datos": folios})
+
 def inventario(request):
 	inventario_list = InventarioFisico.objects.filter(estatus=1)
 	paginator = Paginator(inventario_list, 10)
@@ -2075,10 +2198,6 @@ def armadoAsignacionView(request):
 
 def colocadoRecepcionView(request):
 	template = 'control_acero/colocado/colocado_recepcion.html'
-	return render(request, template)
-
-def movimientosView(request):
-	template = 'control_acero/inventario/movimientos.html'
 	return render(request, template)
 
 def fisicoView(request):
@@ -4721,3 +4840,4 @@ def descargaExcel(request, filename):
 	response = HttpResponse(out_content,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 	response['Content-Disposition'] = 'attachment; filename=%s.xlsx' % filename
 	return response
+ 

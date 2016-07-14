@@ -45,7 +45,9 @@
 
 
         <link href="{% static 'bootstrap-duallistbox-master/bootstrap-duallistbox.css' %}" rel="stylesheet" />
-        
+
+        <!-- Sweet Alert -->
+        <link rel="stylesheet" href="{% static 'sweetalert/dist/sweetalert.css'%}" />
 
         <script src="{% static 'js/respond.min.js' %}"></script>
 
@@ -61,6 +63,9 @@
 
         <!-- PLUGIN UPLOAD FILE-->
         <script src="{% static 'uploadFile4.0.10/js/jquery.uploadfile.min.js' %}"></script>
+
+        <!-- Sweet Alert -->
+        <script src="{% static 'sweetalert/dist/sweetalert.min.js'%}"></script>
 
         <!-- PLUGIN MAGNIFIC POPUP -->
         <script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
@@ -219,8 +224,8 @@
                 <div class="navbar-header">
 
                     <a class="navbar-brand home" href="{% url 'principalView' %}" data-animate-hover="bounce">
-                        <img src="{% static 'img/loader.gif' %}" alt="Obaju logo" class="hidden-xs">
-                        <img src="{% static 'img/loader.gif' %}" alt="Obaju logo" class="visible-xs"><span class="sr-only">Obaju - go to homepage</span>
+                        <img src="{% static 'img/hs.png' %}" alt="Obaju logo" class="hidden-xs">
+                        <img src="{% static 'img/hs.png' %}" alt="Obaju logo" class="visible-xs"><span class="sr-only">Obaju - go to homepage</span>
                     </a>
                     <div class="navbar-buttons">
                         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
@@ -235,7 +240,7 @@
                     <ul class="nav navbar-nav navbar-left">
                         <li class="active"><a href="{% url 'principalView' %}">INICIO</a>
                         </li>
-                        {% if perms.control_acero.add_materiales or perms.control_acero.add_despieces or perms.control_acero.add_elementos or .control_acero.add_apoyos or perms.control_acero.add_frentes or perms.control_acero.add_proveedores or perms.control_acero.add_talleres or perms.control_acero.add_transportes %}
+                        {% if perms.control_acero.add_materiales or perms.control_acero.add_despieces or perms.control_acero.add_elementos or .control_acero.add_apoyos or perms.control_acero.add_frentes or perms.control_acero.add_proveedores or perms.control_acero.add_talleres or perms.control_acero.add_transportes or perms.control_acero.view_movimientos %}
                         <li class="dropdown yamm-fw">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200">CATALOGO <b class="caret"></b></a>
                             <ul class="dropdown-menu">
@@ -244,6 +249,10 @@
                                         <div class="row">
                                             <div class="col-sm-3">
                                                 <ul>
+                                                {% if perms.control_acero.view_movimientos %}
+                                                    <li><a href="{% url 'movimientosView' %}">Consulta de Movimientos </a>
+                                                    </li>
+                                                {% endif %}
                                                 {% if perms.control_acero.add_materiales %}
                                                     <li><a href="{% url 'materialesView' %}">Registro de Materiales(Varillas) </a>
                                                     </li>
