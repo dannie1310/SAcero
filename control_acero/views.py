@@ -4287,7 +4287,7 @@ def excelReportes(request, array):
 	filename = "Suministro_%s" % random
 	ext = ".xlsx"
 	path = "control_acero/static/excel/"
-	workbook = xlsxwriter.Workbook(path+filename+ext)
+	workbook = xlsxwriter.Workbook(filename+ext)
 	worksheet = workbook.add_worksheet()
 	bold14 = workbook.add_format({'bold': True, 'font_size': 12, 'align': 'center'})
 	worksheet.set_column('A:J', 25)
@@ -4496,7 +4496,7 @@ def excelReportesEntrada(request,array):
 	filename = "Suministro_%s" % random
 	ext = ".xlsx"
 	path = "control_acero/static/excel/"
-	workbook = xlsxwriter.Workbook(path+filename+ext)
+	workbook = xlsxwriter.Workbook(filename+ext)
 	worksheet = workbook.add_worksheet()
 	bold14 = workbook.add_format({'bold': True, 'font_size': 12, 'align': 'center'})
 	worksheet.set_column('A:I', 20)
@@ -4833,7 +4833,7 @@ def excelReportesEntrada(request,array):
 def descargaExcel(request, filename):
 	path = "control_acero/static/excel/"
 	ext = ".xlsx"
-	excel = open(path + filename + ext, "rb")
+	excel = open(filename + ext, "rb")
 	output = StringIO.StringIO(excel.read())
 	out_content = output.getvalue()
 	output.close()
