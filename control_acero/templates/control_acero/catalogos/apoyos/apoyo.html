@@ -21,21 +21,31 @@
 			</tbody>
 		</table>
 
-		<div class="pagination">
-		    <span class="step-links">
+		<div class="col-md-12">
+	        <ul class="pagination">
 		        {% if apoyos.has_previous %}
-		            <a href="?page={{ apoyos.previous_page_number }}">previous</a>
+		            <li>
+		            	<a href="?page=1"> Principio </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ apoyos.previous_page_number }}"> << </a>
+		            </li>
 		        {% endif %}
-
-		        <span class="current">
-		            Page {{ apoyos.number }} of {{ apoyos.paginator.num_pages }}.
-		        </span>
-
+				{% for page in apoyos.paginator.page_range %}
+	            	<li class="{% if apoyos.number == page %}active{% endif %}">
+	            		<a href="?page={{ page }}">{{ page }}</a>
+	            	</li>
+				{% endfor %}
 		        {% if apoyos.has_next %}
-		            <a href="?page={{ apoyos.next_page_number }}">next</a>
+		        	<li>
+		            	<a href="?page={{ apoyos.next_page_number }}"> >> </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ apoyos.paginator.num_pages }}"> Fin </a>
+		            </li>
 		        {% endif %}
-		    </span>
-		</div>
+	        </ul>
+	    </div>
 	</div>
 	<div class="col-xs-12">
 		<form action="{% url 'apoyosNewView' %}">

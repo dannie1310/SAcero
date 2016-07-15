@@ -27,21 +27,31 @@
 			</tbody>
 		</table>
 
-		<div class="pagination">
-		    <span class="step-links">
+		<div class="col-md-12">
+	        <ul class="pagination">
 		        {% if talleres.has_previous %}
-		            <a href="?page={{ talleres.previous_page_number }}">previous</a>
+		            <li>
+		            	<a href="?page=1"> Principio </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ talleres.previous_page_number }}"> << </a>
+		            </li>
 		        {% endif %}
-
-		        <span class="current">
-		            Page {{ talleres.number }} of {{ talleres.paginator.num_pages }}.
-		        </span>
-
+				{% for page in talleres.paginator.page_range %}
+	            	<li class="{% if talleres.number == page %}active{% endif %}">
+	            		<a href="?page={{ page }}">{{ page }}</a>
+	            	</li>
+				{% endfor %}
 		        {% if talleres.has_next %}
-		            <a href="?page={{ talleres.next_page_number }}">next</a>
+		        	<li>
+		            	<a href="?page={{ talleres.next_page_number }}"> >> </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ talleres.paginator.num_pages }}"> Fin </a>
+		            </li>
 		        {% endif %}
-		    </span>
-		</div>
+	        </ul>
+	    </div>
 	</div>
 	<div class="col-xs-12">
 		<form action="{% url 'talleresNewView' %}">
