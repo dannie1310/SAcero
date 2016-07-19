@@ -5,36 +5,40 @@
 {% block content %}
 	<div class="col-xs-12">
 		<div class="col-md-12">
-			<div class="form-group col-md-6 text-left alert-info">
-				<h3> Folio: <span id="folio"></span></h3>
-			</div>
+			
 			{% if request.session.nombreTaller > 0 %}
-				<div class="form-group col-md-6 text-left alert-info">
+				<div class="form-group col-md-6 text-center alert-info">
 					<h3> Taller Asignado: {{ request.session.nombreTaller }}</h3>
 				</div>
 			{% else %}
-				<div class="form-group col-md-6 text-left alert-info">
+				<div class="form-group col-md-6 text-center alert-info">
 					<h3> No cuentas con Taller Asignado</h3>
 				</div>
 			{% endif %}
-			<div class="form-group col-md-6">
-				<label  class="control-label" for="cmbOrden">Digitar Orden de Compra:</label>
-				<input type="number" name="cmbOrden" id="cmbOrden" class="cmbOrden form-control"/>
-			</div>
-			<div class="form-group col-md-6">
-				<label  class="control-label" for="remision">Agregar Remisión:</label>
-				<input type="number" class="form-control" name="remision" id="remision"></input>
+			<!-- <div class="form-group col-md-6 text-center alert-info">
+				<h3>{% now "d-m-Y" %}</h3>
+			</div> -->
+			<div class="form-group col-md-6 text-center alert-info">
+				<h3> Folio: <span id="folio"></span></h3>
 			</div>
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="cmbFuncion">Seleccionar Proveedor de Acero (Fabricante):</label>
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
-			
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="remision">Agregar Remisión:</label>
+				<input type="number" class="form-control" name="remision" id="remision"></input>
+			</div>
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
 				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision" value="{% now "d/m/Y" %}"></input>
 			</div>
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="cmbOrden">Digitar Orden de Compra:</label>
+				<input type="number" name="cmbOrden" id="cmbOrden" class="cmbOrden form-control"/>
+			</div>			
+			
 		</div>
 		<div class="col-md-12">
 			<button type="button" class="btn btn-success" name="agregarVarillas" id="agregarVarillas">Registrar Cargamento</button>
@@ -66,13 +70,22 @@
 				<tbody>
 					
 				</tbody>
-				<tfoot>
+			</table>
+		</div>
+		<div style="display:none;" id="divTotales" class="col-md-12 table-responsive">
+			<table id="tablatotales" class="table table-hover">
+				<thead>
 					<tr>
-						<th class="col-md-2">Peso Total</th>
-						<th class="col-md-4"><div id="divPesoTotal"></div><input type="hidden" name="txtPesoTotal" id="txtPesoTotal" /></th>
-						<th class="col-md-4"><div id="divPesoTonelada"></div></th>
+						<th class="text-center"></th>
+						<th class="text-center">Piezas</th>
+						<th class="text-center">Peso Total en Kg</th>
+						<th class="text-center">Peso Total en TON</th>
 					</tr>
-				</tfoot>
+				</thead>
+				<tbody>
+					
+				</tbody>
+				
 			</table>
 		</div>
 		<div style="display:none;" id="divDetalleSolicita" class="col-md-6 text-center">
@@ -231,6 +244,7 @@
 		$( "#btnAgregaVarilla" ).click(function() {
 			$("#divPesoTotal").empty();
 			$("#divPesoTonelada").empty();
+			$("#tablatotales tbody").empty();
 			$("#txtPesoTotal").empty();
 			var tabla = '';
 			var idMaterial = 0;
@@ -249,6 +263,8 @@
 			var flag = 0;
 			var tonHtml = '';
 			var pesoTd = 0;
+			var piezas=0;
+			var tablaTotales='';
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
@@ -262,11 +278,11 @@
 				if(cantidadMaterial != 0){
 					tabla += '<tr  class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
-								+'<td class="text-center milesLimpio">'+parseInt(pesoMaterial)+'</td>'
+								+'<td class="text-center milesLimpio piezasT">'+parseInt(pesoMaterial)+'</td>'
 								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
-								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
 								+'<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);" data-eliminar="0"></span></td>'
+								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td style="display:none" class="text-center">'
 									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
 								+'</td>'
@@ -288,6 +304,9 @@
 				$('.pesoTotal').each(function(i, obj) {
 					pesoTd += parseFloat($(this).text());
 				});
+				$('.piezasT').each(function(i,obj){
+					piezas += parseFloat($(this).text());
+				})
 				if(pesoTotal >= 1000){
 					ton = pesoTd / 1000;
 					tonHtml += ton.toFixed(2);
@@ -295,13 +314,17 @@
 				$("#divDetalle").show("slide");
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
-			    
-				$("#divPesoTotal").append('<span class="milesLimpio">'+Math.floor(pesoTd)+'</span>');
-				$("#divPesoTotal").append('<span> Kg</span>');
-				$("#divPesoTonelada").append('<span class="milesLimpio">'+Math.floor(tonHtml)+'</span>');
-				$("#divPesoTonelada").append('<span> Ton</span>');
-				$("#txtPesoTotal").val(pesoTd.toFixed(4));
-				
+			    console.log(piezas);
+			    console.log(pesoTd);
+			    tablaTotales+='<tr>'
+			    			+'<td class="text-center">Peso Total</td>' 
+			    			+'<td class="milesLimpio text-center">'+Math.floor(piezas)+'</td>'
+			    			+'<td class="milesLimpio text-center">'+Math.floor(pesoTd)+'</td>'
+			    			+'<td class="milesLimpio text-center">'+Math.floor(tonHtml)+'</td>'
+			    			+'</tr>';
+						
+			    $("#tablatotales").append(tablaTotales);
+				$("#divTotales").show("slide");
 			}
 		});
 		$( "#btnSolicitar" ).click(function() {

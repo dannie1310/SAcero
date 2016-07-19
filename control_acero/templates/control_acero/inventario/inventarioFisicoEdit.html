@@ -5,9 +5,7 @@
 {% block content %}
 	{% load humanize %}
 	<div class="col-xs-12">
-		<div class="form-group col-md-6 text-left alert-info">
-			<h3> Folio: {{ inventario.folio }}</h3>
-		</div>
+		
 		{% if request.session.nombreTaller > 0 %}
 			<div class="form-group col-md-6 text-center alert-info">
 				<h3> INVENTARIO DEL {{ request.session.nombreTaller }}</h3>
@@ -17,6 +15,9 @@
 				<h3> No cuentas con Taller Asignado</h3>
 			</div>
 		{% endif %}
+		<div class="form-group col-md-6 text-center alert-info">
+			<h3> Folio: {{ inventario.folio }}</h3>
+		</div>
 		<div class="col-md-12 table-responsive">
 			<table id="tablaRemisiones" class="table table-hover">
 				<thead>

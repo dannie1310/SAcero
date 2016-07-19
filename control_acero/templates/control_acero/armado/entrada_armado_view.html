@@ -13,11 +13,12 @@
 			<h3> NO TIENES FRENTE DE TRABAJO ASIGNADO</h3>
 		</div>
 		{% endif %}
-		<div class="form-group col-md-6 text-center alert-info">
-			<h3> Folio: <span id="folio"></span></h3>
-		</div>
+		
 		<div class="form-group col-md-6 text-center alert-info">
 			<h3> Reponsable: {{ user.get_username }}</h3>
+		</div>
+		<div class="form-group col-md-6 text-center alert-info">
+			<h3> Folio: <span id="folio"></span></h3>
 		</div>
 		<div class="form-group col-md-6">
 			<label  class="control-label" for="remision">Agregar Remisión:</label>
@@ -211,11 +212,11 @@
 		            try {
 						$("#folio").html(data.folio);
 		            } catch (e) {
-		                swal("Error!", "Error al cargar Combo del Fabricante:" + e,"error");
+		                swal("Error!", "Error al mostrar folio:" + e,"error");
 		            }
 			})
 			.fail(function() {
-				swal("Error!",  "Error en la petición del Fabricante","error");
+				swal("Error!",  "Error al mostrar folio","error");
 			});
 		}
 		comboApoyo = function(){

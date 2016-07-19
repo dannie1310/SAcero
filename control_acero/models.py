@@ -146,6 +146,7 @@ class Frente(models.Model):
 	nombre = models.CharField(max_length=100)
 	identificacion = models.CharField(max_length=100)
 	ubicacion = models.CharField(max_length=100)
+	ideFolio = models.CharField(max_length=20, null=True)
 	kilometros = models.FloatField(default=0)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
@@ -277,6 +278,7 @@ class InventarioFisicoDetalle(models.Model):
 	pesoExistencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoFisico = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	diferencia = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	referencia = models.CharField(max_length=25, null=True)
 	EXISTENCIA = (
 	    (0, 'Existente'),
 	    (1, 'Inexistente'),
@@ -302,6 +304,9 @@ class InventarioFisicoDetalleCierre(models.Model):
 	observacionEntrada = models.CharField(max_length=150,null=True)
 	cantidadSalida = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	observacionSalida = models.CharField(max_length=150,null=True)
+	numFolio = models.IntegerField(null=True)
+	folio = models.CharField(max_length=20,null=True)
+	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoInventarioCierre')
 	EXISTENCIA = (
 	    (0, 'Existente'),
 	    (1, 'Inexistente'),
@@ -369,7 +374,8 @@ class Remision(models.Model):
 	        ("view_armado_recepcion", "Puede Visualizar Armado Recepcion"),
 	        ("view_inventario_fisico", "Puede Visualizar el Inventario Fisico"),
 	        ("view_reportes", "Puede Visualizar Reportes"),
-	        ("view_movimientos", "Puede Visualizar los Movimientos Realizados")
+	        ("view_movimientos", "Puede Visualizar los Movimientos Realizados"),
+	        ("closing_inventarios", "Puede Ajustar un Inventario Fisico")
 	    )
 
 class RemisionDetalle(models.Model):
