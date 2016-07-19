@@ -1226,7 +1226,8 @@ def inventarioFisicoSave(request):
 	respuestaRemisiones = request.POST.get('jsonRemisiones')
 	respuestaRemisionesInventario = request.POST.get('jsonRemisionesInventario')
 	respuestaRemisionesSalidas= request.POST.get('jsonSalidas')
-
+	observacion = request.POST.get('jsonObservaciones')
+	
 	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
@@ -1250,22 +1251,26 @@ def inventarioFisicoSave(request):
 	json_object = json.loads(respuesta)
 	for data in json_object:
 		material = data["materialId"]
-		referencia = data["referencia"]
-		print referencia
 		pesoExistencia = data["existencias"]
 		pesoFisico = data["existenciaFisica"]
 		diferencia = data["diferencia"]
 		tipo = data["bandera"]
-		inventarioFisicoD = InventarioFisicoDetalle.objects\
-							.create(
-									inventarioFisico_id = inventarioFisico.pk,
-									material_id = material,
-									pesoExistencia = pesoExistencia,
-									pesoFisico = pesoFisico,
-									diferencia = diferencia,
-									tipoExistencia = tipo,
-									referencia = referencia
-									)
+		json_observaciones = json.loads(observacion)
+		
+		for r in json_observaciones:
+			
+			if material == r["id"]:
+				referencia = r["observacion"]
+				inventarioFisicoD = InventarioFisicoDetalle.objects\
+									.create(
+											inventarioFisico_id = inventarioFisico.pk,
+											material_id = material,
+											pesoExistencia = pesoExistencia,
+											pesoFisico = pesoFisico,
+											diferencia = diferencia,
+											tipoExistencia = tipo,
+											referencia = referencia
+											)
 	json_remisiones = json.loads(respuestaRemisiones)
 	for data1 in json_remisiones:
 		RemisionDetalle.objects.filter(id=data1).update(estatusInventario=1, folioInventario = numFolioInt)
@@ -2242,7 +2247,7 @@ def comboTaller(request):
 	data = []
 
 	f = request.POST.get('funcion', 0)
-	print f
+	
 	talleres = Taller.objects.all()\
 								.filter(
 										funcion_id = f,

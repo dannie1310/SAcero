@@ -268,13 +268,19 @@
 				},
 				function(){
 					var observacion = 0;
+					var array =[];
 					$(":input[class=dataVarilla]").each(function(index, element) {
 						var material = $(this).data("material");
 						var materialnombre = $(this).data("materialnombre");
 						var peso = $(this).data("peso");
 						var longitud = $(this).data("longitud");
 						observacion = $(this).data("observacion");
+						
+
 						pesoSistema = $("#txtPeso_"+material).val();
+
+						array.push({"id":parseInt(material),"observacion":observacion});
+
 						if(materialDet != parseInt(material) && materialDet != 0){
 							pesoDet = 0;
 						}
@@ -304,8 +310,8 @@
 							$("#tablaRemisionReal tbody").append(html);
 						}
 					});
-					guardaInventario(observacion);
-					
+					guardaInventario(array);
+					console.log(array);
 				
 			});
 		});
@@ -321,6 +327,7 @@
 			var folioSalida = 0;
 			var pesoSalida = 0;
 			var totalexistencia = 0;
+
 			$(":input[class=detallePeso]").each(function(index, element) {
 				folioEntrada = $(this).data("folioentrada");
 				pesoEntrada = $(this).data("pesoentrada");
@@ -333,16 +340,17 @@
 				existencias = limpiaValor($(this).find('td:eq(2)').text());
 				existenciaFisica = limpiaValor($(this).find('td:eq(4)').text());
 				diferencia = limpiaValor($(this).find('td:eq(5)').text());
-				array.push({"materialId": parseInt(materialId), "referencia": obs, "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 0});
+				array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 0});
 			});
 			$('.non').each(function () {
 				materialId = $(this).find('td:eq(0)').text();
 				existencias = limpiaValor($(this).find('td:eq(2)').text());
 				existenciaFisica = limpiaValor($(this).find('td:eq(3)').text());
 				diferencia = limpiaValor($(this).find('td:eq(4)').text());
-				array.push({"materialId": parseInt(materialId), "referencia": observacion, "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 1});
+				array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 1});
 			});
 			var json = JSON.stringify(array);
+			var jsonObservaciones = JSON.stringify(obs);
 			var jsonRemisiones = JSON.stringify(arrayRemisiones);
 			var jsonRemisionesInventario = JSON.stringify(arrayRemisionesInventario);
 			var jsonSalidas = JSON.stringify(arraySalidas);
@@ -356,7 +364,8 @@
 				json: json,
 				jsonRemisiones: jsonRemisiones,
 				jsonRemisionesInventario: jsonRemisionesInventario,
-				jsonSalidas: jsonSalidas
+				jsonSalidas: jsonSalidas,
+				jsonObservaciones: jsonObservaciones
 			},
 			function(data, status) {
 	            try {
