@@ -111,7 +111,8 @@ urlpatterns = [
     url(r'^inventario/remision/$', views.inventarioRemision, name='inventarioRemision'),
     url(r'^inventario/fisico/save/$', views.inventarioFisicoSave, name='inventarioFisicoSave'),
     url(r'^inventario/fisico/(?P<pk>[0-9]+)/edit/$', views.inventarioFisicoEditView, name='inventarioFisicoEditView'),
-    url(r'^inventario/fisico/(?P<pk>[0-9]+)/cierre/$', views.inventarioFisicoCierreView, name='inventarioFisicoCierreView'),
+    url(r'^inventario/fisico/cierre/$', views.inventarioFisicoCierreView, name='inventarioFisicoCierreView'),
+    url(r'^inventario/fisico/cierre/detalle/$', views.inventarioFisicoCierreDetalle, name='inventarioFisicoCierreDetalle'),
     url(r'^descarga/excel/(?P<filename>[\w\-]+)/$', views.descargaExcel, name='descargaExcel'),
-    url(r'^inventario/fisico/cierre/$', views.inventarioFisicoCierre, name='inventarioFisicoCierre'),
+    url(r'^inventario/fisico/cierre/save/$', views.inventarioFisicoCierreSave, name='inventarioFisicoCierreSave'),
 ]
