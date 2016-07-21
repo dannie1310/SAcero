@@ -3390,10 +3390,10 @@ def inventarioFisicoCierreSave(request):
 	json_object = json.loads(respuesta)
 	inventarioremisiondetalle__estatusInventario = 0
 
-	print "***************"
+	
 	for data in json_object:
 		idC= data["id"]
-		print idC
+		
 	RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
 	InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
 	Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
@@ -3544,8 +3544,8 @@ def inventarioFisicoCierreSave(request):
 						folio = numFolio,
 						tallerAsignado_id = request.session["idTaller"]
 					)
-	InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)
-	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=idInventario, observacion="El id guardado es de inventario cierre", estatus=1, modulo_id=5, user_id=request.user.id)
+	InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
+	bitacora = Bitacora.objects.create(accion="Cierre", id_afectado=idInventario, observacion="El id guardado es de inventario cierre", estatus=1, modulo_id=5, user_id=request.user.id)
 	mensaje = {"estatus":"ok", "mensaje":"El inventario se ha modificado y cerrado Correctamente.  Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	return JsonResponse(array)

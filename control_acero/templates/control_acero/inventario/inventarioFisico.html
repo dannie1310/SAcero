@@ -227,14 +227,16 @@
                     });
                     foliosSalida = jQuery.unique(arrayFolioSalida).length;
                     var pesoRemisionDetalle = Math.floor(pesoSalida) + Math.floor(existenciaEntradas);
+                    console.log(pesoSalida, existenciaEntradas);
                     var pesoInventarioDetalle = Math.floor(existenciaEntradas);
+                    console.log(existenciaEntradas);
                     tabla += '<tr>';
                     	tabla += '<td class="col-md-2">'+foliosRemision+'</td>';
                     	tabla += '<td class="col-md-2">'+(pesoRemisionDetalle/1000)+'</td>';
                     	tabla += '<td class="col-md-2">'+foliosSalida+'</td>';
                     	tabla += '<td class="col-md-2">'+(pesoSalida/1000)+'</td>';
                     	tabla += '<td class="col-md-4">'+(pesoInventarioDetalle/1000)+' Ton</td>';
-                    	tabla += '<td style="display:none;"><input type="text" class="detallePeso" data-folioentrada="'+foliosRemision+'" data-pesoentrada="'+pesoRemision+'" data-foliosalida="'+foliosSalida+'" data-pesosalida="'+pesoSalida+'" data-totalexistencia="'+pesoInventario+'"></td>';
+                    	tabla += '<td style="display:none;"><input type="text" class="detallePeso" data-folioentrada="'+foliosRemision+'" data-pesoentrada="'+pesoRemisionDetalle+'" data-foliosalida="'+foliosSalida+'" data-pesosalida="'+pesoSalida+'" data-totalexistencia="'+pesoInventarioDetalle+'"></td>';
                     tabla += '</tr>';
                         
 	            } catch (e) {
@@ -311,7 +313,7 @@
 						}
 					});
 					guardaInventario(array);
-					console.log(array);
+					//console.log(array);
 				
 			});
 		});
@@ -334,6 +336,7 @@
 				folioSalida = $(this).data("foliosalida");
 				pesoSalida = $(this).data("pesosalida");
 				totalexistencia = $(this).data("totalexistencia");
+				console.log(folioEntrada, pesoEntrada, folioSalida, pesoSalida, totalexistencia);
 			});
 			$('.real').each(function () {
 				materialId = $(this).find('td:eq(0)').text();
