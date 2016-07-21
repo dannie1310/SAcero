@@ -872,6 +872,7 @@ def recepcionMaterialSave(request):
 		cantidadMaterial= splitData[3]
 		pesoMaterial = splitData[4]
 		longitud = splitData[5]
+		tipo =splitData[6]
 		pd = RemisionDetalle.objects\
 							.create(
 									remision_id=p.pk,
@@ -882,7 +883,8 @@ def recepcionMaterialSave(request):
 									cantidad=cantidadMaterial,
 									longitud=longitud,
 									folio = numFolio,
-									numFolio = numFolioInt
+									numFolio = numFolioInt,
+									estatusTipo =tipo
 									)
 		ird = InventarioRemisionDetalle.objects\
 							.create(
@@ -1305,6 +1307,7 @@ def inventarioFisicoSave(request):
 			
 			if material == r["id"]:
 				referencia = r["observacion"]
+				tipo = r["tipo"]
 				inventarioFisicoD = InventarioFisicoDetalle.objects\
 									.create(
 											inventarioFisico_id = inventarioFisico.pk,
@@ -1313,7 +1316,8 @@ def inventarioFisicoSave(request):
 											pesoFisico = pesoFisico,
 											diferencia = diferencia,
 											tipoExistencia = tipo,
-											referencia = referencia
+											referencia = referencia,
+											estatusTipoV = tipo
 											)
 	json_remisiones = json.loads(respuestaRemisiones)
 	for data1 in json_remisiones:

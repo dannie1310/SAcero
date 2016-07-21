@@ -284,6 +284,13 @@ class InventarioFisicoDetalle(models.Model):
 	    (1, 'Inexistente'),
 	)
 	tipoExistencia = models.IntegerField(choices=EXISTENCIA, default=0)
+	ESTATUSTIPOV = (
+	    (0, 'No'),
+	    (1, 'No Habilitada'),
+	    (2, 'Proceso'),
+	    (3, 'Habilitada'),
+	)
+	estatusTipoV = models.IntegerField(choices=ESTATUSTIPOV, default=0)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -399,6 +406,12 @@ class RemisionDetalle(models.Model):
 	)
 	estatusInventario = models.IntegerField(choices=ESTATUSINVENTARIO, default=0)
 	folioInventario = models.IntegerField(null=True)
+	ESTATUSTIPO = (
+	    (0, 'No'),
+	    (1, 'Recta'),
+	    (2, 'Rollo'),
+	)
+	estatusTipo = models.IntegerField(choices=ESTATUSTIPO, default=0)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
