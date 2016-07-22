@@ -67,7 +67,6 @@
 						<th class="text-center">Material</th>
 						<th class="text-center">Existencias del Sistema</th>
 						<th class="text-center">Existencias Física</th>
-						<th class="text-center">Referencia</th>
 						<th class="text-center">Diferencia</th>
 
 					</tr>
@@ -103,7 +102,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-12 text-center">
+		<div style="display:none;" id="btnCierre" class="col-md-12 text-center">
 			<button type="button" class="btn btn-success" name="btnCerrar" id="btnCerrar">Cerrar Inventario</button>
 		</div>
 	</div>
@@ -153,7 +152,6 @@
 	                					tabla += '<td>'+obj.material+'</td>';
 	                					tabla += '<td class="milesLimpio">'+Math.floor(obj.pesoExistencia)+'</td>';
 	                					tabla += '<td class="milesLimpio">'+Math.floor(obj.pesoFisico)+'</td>';
-	                					tabla += '<td>'+obj.referencia+'</td>';
 	                					tabla += '<td>'+i+'</td>';
 	                					tabla+='<td style="display:none;"><input type="text" class="form-control dataAsignacion" data-folio="'+object.folio+'" data-id="'+object.id+'" data-idmaterial="'+obj.idMaterial+'" data-material="'+obj.material+'" data-sistema="'+obj.pesoExistencia+'" data-fisico="'+obj.pesoFisico+'" data-diferencia="'+i+'" data-count="'+count+'" value="'+object.folio+'" /></td>';
 	                			tabla += '</tr>'
@@ -162,7 +160,7 @@
 	              
 	                   	});
 	                	
-						tabla +='<tr><th class="text-center" colspan="6"><button type="button" class="btn btn-info" name="btnAceptar" id="btnAceptar" onClick="agregaDetalle('+count+');">'+object.folio+'</button></th>';	
+						tabla +='<tr><th class="text-center" colspan="6"><button type="button" class="btn btn-info" name="btnAceptar" id="btnAceptar" onClick="agregaDetalle('+count+');">Ajustar</button></th>';	
 						tabla +='</tr>';
 						$("#tablaFolio tbody").append(tabla);
 						tabla = '';
@@ -183,6 +181,7 @@
 		agregaDetalle = function(posicion){
 			//console.log(posicion);
 			$("#tablaRemisionRealEdit tbody").empty();
+			$("#btnCierre").show("slide");
 			var tabla='';
 			$("input.dataAsignacion[type=text]").each(function(index, element) {
 				
@@ -229,6 +228,7 @@
 			}); 
 			$("#tablaRemisionRealEdit tbody").append(tabla);
 			$("#divRemisionRealEdit").show("slide");
+
 		}
 
 		ajusteSistema = function(material){
@@ -268,7 +268,7 @@
 			$("#row_"+material).find('td:eq(3)').text(operacion);
 		}
 		$( "#btnCerrar" ).click(function() {
-			var htmlcontent = '<div class="col-md-12 table-responsive"><table class="table table-hover"><tbody>';
+			var htmlcontent = '<div class="col-md-12 table-responsive"><table class="table table-hover"><thead><tr><th class="text-center" colspan="6">Los saldos iniciales para el siguiente periodo son:</th></tr></thead><tbody>';
 			swal({
 				  title: "¿Está seguro que los ajustes realizados en este inventario son correctos?",
 				  text: "No se podrá modificar el registro posteriormente",
@@ -307,7 +307,7 @@
 			            setTimeout(function () {
 			            	htmlcontent+='</tbody></table></div>';
 					    	swal({
-			            	title: "Se creo el folio de ajuste: "+data.folio+".  Los saldos iniciales para el siguiente periodo son:",
+			            	title: "Se creo el folio de ajuste: "+data.folio,
 			            	text : htmlcontent,
 			            	html :true
 			            		});

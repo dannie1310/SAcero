@@ -206,7 +206,6 @@
                     		tablaRemisionReal += '<td style="display:none;"><input type="text" name="txtPeso_'+object.materialId+'" id="txtPeso_'+object.materialId+'" value="'+existenciaSistema+'" /></td>';
                     		tablaRemisionReal += '<td class="default_'+object.materialId+'">0</td>';
                     		tablaRemisionReal += '<td class="default_'+object.materialId+'">'+-Math.abs(existenciaSistema);+'</td>';
-                    		tablaRemisionReal+='<td style="display:none;"><input type="text" class="form-control dataAsignacion" data-pesosistema="'+object.peso+'"  data-idmaterial="'+object.materialId+'" data-material="'+object.material+'" /></td>';
                     	tablaRemisionReal += '</tr>';
                     });
                     $.each(data.remisiones, function (count, object) {
@@ -273,10 +272,6 @@
 				function(){
 					var observacion = 0;
 					var array =[];
-					var pesos=[];
-
-					
-
 					$(":input[class=dataVarilla]").each(function(index, element) {
 						var material = $(this).data("material");
 						var materialnombre = $(this).data("materialnombre");
@@ -286,47 +281,48 @@
 						observacion = $(this).data("observacion");
 						tipo = $("#tipoVarilla_"+material).val();
 						tipoText = $("#tipoVarilla_"+material+" option:selected").text();
-						console.log("tabla datos ", material, peso,longitud, tipoText);
+						///console.log("tipo ", tipoText);
+
+						pesoSistema = $("#txtPeso_"+material).val();
 
 						array.push({"id":parseInt(material),"longitud":longitud, "peso":peso, "piezas":piezas, "observacion":observacion, "tipo": parseInt(tipo)});
-						
-					});
-					var i=0;
-					var aux= array;
-					var flag=0;
-					console.log("copia ",aux)
-					var id =0;
-					var pesoSistema = 0;	
-					$.each(aux, function (count, object) {
-						as= object.id;
 
-						$("input.dataAsignacion[type=text]").each(function(index, element) {
-							id = $(this).data("idmaterial");
-							pesoSistema =  $(this).data("pesosistema");
-							if(i==0){
-								pesos.push({"id":id,"pesosistema":pesoSistema});
-							}
-							if(id==as){
-								flag=1	
-							}
-						});
-						i=i+1;
-						if(flag == 0){
-							pesos.push({"id":as,"pesosistema":0});
+						if(materialDet != parseInt(material) && materialDet != 0){
+							pesoDet = 0;
 						}
-						flag = 0;
+						pesoDet += peso;
+						materialDet = parseInt(material);
+						resta = parseInt(pesoDet) - parseInt(pesoSistema);
 						
-						
+						$(".fisico_"+material).remove();
+						$(".default_"+material).remove();
+						if( $(".row_"+material).length ){
+							$(".rowtd_"+material).remove();
+							$(".row_"+material).append('<td class="rowtd_'+material+' milesLimpio">'+pesoDet+'</td>');
+							if(resta > 0){
+								$(".row_"+material).append('<td class="rowtd_'+material+' success milesLimpio">'+parseInt(resta)+'</td>');
+							}else{
+								$(".row_"+material).append('<td class="rowtd_'+material+' danger">'+parseInt(resta)+'</td>');
+							}
+						}else{
+							$(".non").remove();
+							html += '<tr class="danger non row_faltante_'+material+'">';
+								html += '<td style="display:none;">'+material+'</td>';
+								html += '<td>'+materialnombre+'</td>';
+								html += '<td>0</td>';
+								html += '<td class="milesLimpio">'+pesoDet+'</td>';
+								html += '<td class="milesLimpio">'+pesoDet+'</td>';
+							html += '</tr>';
+							$("#tablaRemisionReal tbody").append(html);
+						}
 					});
-					guardaInventario(array, pesos);
+					guardaInventario(array);
 					/////console.log(array);
 				
 			});
 		});
-		guardaInventario = function (observacion,pesos) {
-			$("#tablaRemisionReal tbody").empty();
+		guardaInventario = function (observacion) {
 			var obs=observacion;
-			var real =pesos;
 			var materialId = 0;
 			var existencias = 0;
 			var existenciaFisica = 0;
@@ -337,7 +333,6 @@
 			var folioSalida = 0;
 			var pesoSalida = 0;
 			var totalexistencia = 0;
-			var tabla='';
 
 			$(":input[class=detallePeso]").each(function(index, element) {
 				folioEntrada = $(this).data("folioentrada");
@@ -347,60 +342,46 @@
 				totalexistencia = $(this).data("totalexistencia");
 				///console.log(folioEntrada, pesoEntrada, folioSalida, pesoSalida, totalexistencia);
 			});
-			// $('.real').each(function () {
-			// 	materialId = $(this).find('td:eq(0)').text();
-			// 	existencias = limpiaValor($(this).find('td:eq(2)').text());
-			// 	existenciaFisica = limpiaValor($(this).find('td:eq(4)').text());
-			// 	diferencia = limpiaValor($(this).find('td:eq(5)').text());
-			// 	array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 0});
-			// });
-			// $('.non').each(function () {
-			// 	materialId = $(this).find('td:eq(0)').text();
-			// 	existencias = limpiaValor($(this).find('td:eq(2)').text());
-			// 	existenciaFisica = limpiaValor($(this).find('td:eq(3)').text());
-			// 	diferencia = limpiaValor($(this).find('td:eq(4)').text());
-			// 	array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 1});
-			// });
-			//var json = JSON.stringify(array);
+			$('.real').each(function () {
+				materialId = $(this).find('td:eq(0)').text();
+				existencias = limpiaValor($(this).find('td:eq(2)').text());
+				existenciaFisica = limpiaValor($(this).find('td:eq(4)').text());
+				diferencia = limpiaValor($(this).find('td:eq(5)').text());
+				array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 0});
+			});
+			$('.non').each(function () {
+				materialId = $(this).find('td:eq(0)').text();
+				existencias = limpiaValor($(this).find('td:eq(2)').text());
+				existenciaFisica = limpiaValor($(this).find('td:eq(3)').text());
+				diferencia = limpiaValor($(this).find('td:eq(4)').text());
+				array.push({"materialId": parseInt(materialId), "existencias": parseInt(existencias), "existenciaFisica": parseInt(existenciaFisica), "diferencia": parseInt(diferencia), "bandera": 1});
+			});
+			var json = JSON.stringify(array);
 			var jsonObservaciones = JSON.stringify(obs);
-			var jsonReal = JSON.stringify(real);
-			// var jsonRemisiones = JSON.stringify(arrayRemisiones);
-			// var jsonRemisionesInventario = JSON.stringify(arrayRemisionesInventario);
-			// var jsonSalidas = JSON.stringify(arraySalidas);
-			// var jsonSalidasInventario = JSON.stringify(arraySalidasInventario);
-			// console.log(json);
+			var jsonRemisiones = JSON.stringify(arrayRemisiones);
+			var jsonRemisionesInventario = JSON.stringify(arrayRemisionesInventario);
+			var jsonSalidas = JSON.stringify(arraySalidas);
+			var jsonSalidasInventario = JSON.stringify(arraySalidasInventario);
+			console.log(json);
 			console.log(jsonObservaciones);
-			console.log(jsonReal);
-			// console.log(jsonRemisiones);
-			// console.log(jsonRemisionesInventario);
-			// console.log(jsonSalidas);
-			// console.log(jsonSalidasInventario);
+			console.log(jsonRemisiones);
+			console.log(jsonRemisionesInventario);
+			console.log(jsonSalidas);
+			console.log(jsonSalidasInventario);
 			$.post( "{% url 'inventarioFisicoSave' %}",{
 				folioEntrada: folioEntrada,
 				pesoEntrada: pesoEntrada,
 				folioSalida: folioSalida,
 				pesoSalida: pesoSalida,
 				totalexistencia: totalexistencia,
-				jsonObservaciones: jsonObservaciones,
-				jsonReal:jsonReal
+				json: json,
+				jsonRemisiones: jsonRemisiones,
+				jsonRemisionesInventario: jsonRemisionesInventario,
+				jsonSalidas: jsonSalidas,
+				jsonObservaciones: jsonObservaciones
 			},
 			function(data, status) {
 	            try {
-	            	$.each(data.data, function (count, object) {
-	            		console.log(object);
-	            		tabla+='<tr>'
-	            				+'<td class="text-center">'+object.nombre+'</td>'
-	            				+'<td class="text-center milesLimpio">'+Math.floor(object.existencia)+'</td>'
-	            				+'<td class="text-center milesLimpio">'+Math.floor(object.fisico)+'</td>';
-	            				if(object.diferencia < 0){
-	            					tabla+='<td class="text-center danger">'+object.diferencia+'</td>'
-	            				}
-	            				else{
-	            					tabla+='<td class="text-center  success">'+object.diferencia+'</td>'
-	            				}
-	            				
-	            				tabla+='</tr>'
-	            	});
 	            	setTimeout(function () {
 					    swal("La información se guardo correctamente y se genero el Folio "+data.folio);
 					}, 2000);
@@ -414,7 +395,6 @@
 				swal("Error!", "Error en la guardar Inventario","error" );
 			});
 			$("#divRemisionReal").show("slide");
-			$("#tablaRemisionReal tbody").append(tabla);
 			$("#btn1").hide("slide");
 			$("#divVarillasCheck").hide("slide");
 			$("#divCantidades").hide("slide");
@@ -449,7 +429,6 @@
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
 				cantidadMaterialReal = $("#count"+idMaterial).val();
-				cantidadMaterialReal =limpiaValor(cantidadMaterialReal);
 				cantidadMaterial = limpiaValor(cantidadMaterial);
 				longitud = $("#txt"+idMaterial+"Longitud").val();
 				tipoVarilla = $("#tipoVarilla_"+idMaterial).val();

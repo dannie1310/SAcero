@@ -724,8 +724,7 @@ def inventarioFisicoCierreDetalle(request):
 												"material__nombre",
 												"material_id",
 												"pesoExistencia",
-												"pesoFisico",
-												"referencia").filter(inventarioFisico_id=i.id, estatus=1).distinct().order_by("inventarioFisico_id")
+												"pesoFisico").filter(inventarioFisico_id=i.id, estatus=1).distinct().order_by("inventarioFisico_id").order_by("material_id")
 		
 		for d in detalle :
 			resultado2={
@@ -734,8 +733,7 @@ def inventarioFisicoCierreDetalle(request):
 				"material": d["material__nombre"],
 				"idMaterial": d["material_id"],
 				"pesoExistencia": d["pesoExistencia"],
-				"pesoFisico":d["pesoFisico"],
-				"referencia":d["referencia"]
+				"pesoFisico":d["pesoFisico"]
 			}
 			
 			data2.append(resultado2)
@@ -1263,16 +1261,18 @@ def inventarioFisicoSave(request):
 	mensaje = {}
 	data = []
 	numFolio = 0
+	flag = 0
 	folioEntrada = request.POST.get('folioEntrada')
 	pesoEntrada = request.POST.get('pesoEntrada')
 	folioSalida = request.POST.get('folioSalida')
 	pesoSalida = request.POST.get('pesoSalida')
 	totalexistencia = request.POST.get('totalexistencia')
-	respuesta = request.POST.get('json')
-	respuestaRemisiones = request.POST.get('jsonRemisiones')
-	respuestaRemisionesInventario = request.POST.get('jsonRemisionesInventario')
-	respuestaRemisionesSalidas= request.POST.get('jsonSalidas')
+	#respuesta = request.POST.get('json')
+	# respuestaRemisiones = request.POST.get('jsonRemisiones')
+	# respuestaRemisionesInventario = request.POST.get('jsonRemisionesInventario')
+	# respuestaRemisionesSalidas= request.POST.get('jsonSalidas')
 	observacion = request.POST.get('jsonObservaciones')
+	real =request.POST.get('jsonReal')
 	
 	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
@@ -1294,46 +1294,125 @@ def inventarioFisicoSave(request):
 				tallerAsignado_id = request.session["idTaller"]
 				)
 	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=inventarioFisico.pk, observacion="El id guardado es del inventario fisico", estatus=1, modulo_id=4, user_id=request.user.id)
-	json_object = json.loads(respuesta)
-	for data in json_object:
-		material = data["materialId"]
-		pesoExistencia = data["existencias"]
-		pesoFisico = data["existenciaFisica"]
-		diferencia = data["diferencia"]
-		tipo = data["bandera"]
-		json_observaciones = json.loads(observacion)
+	# json_object = json.loads(respuesta)
+	# for data in json_object:
+	# 	material = data["materialId"]
+	# 	pesoExistencia = data["existencias"]
+	# 	pesoFisico = data["existenciaFisica"]
+	# 	diferencia = data["diferencia"]
+	# 	tipo = data["bandera"]
+	json_observaciones = json.loads(observacion)
 		
-		for r in json_observaciones:
+	for r in json_observaciones:
+		
+		material = r["id"]
+		peso = r["peso"]
+		longitud = r["longitud"]
+		piezas = r["piezas"]
+		referencia = r["observacion"]
+		tipo = r["tipo"]
+		if peso!=0:
+			inventarioFisicoC = InventarioFisicoDetalleCompleto.objects\
+										.create(
+												material_id = material,
+												peso = peso,
+												longitud = longitud,
+												piezas = piezas,
+												referencia = referencia,
+												estatusTipoV = tipo
+												)
+	inventariocompleto= InventarioFisicoDetalleCompleto.objects\
+							.values("material__id",
+									"material__nombre")\
+							.annotate(pesomaterial = Sum("peso"))\
+							.filter(estatusDetalle=0)\
+							.order_by("material__id")
+
+	json_reales = json.loads(real)
+	flag=0;
+
+	for real in json_reales:
+		print real
+		flag=0
+		idR = real["id"]
+		pesoR = real["pesosistema"]
+		
+		
+		for ic in inventariocompleto:
+			idM= ic["material__id"]
+			pesoM = ic["pesomaterial"]
+			nombre = ic["material__nombre"]
 			
-			if material == r["id"]:
-				referencia = r["observacion"]
-				tipo = r["tipo"]
-				inventarioFisicoD = InventarioFisicoDetalle.objects\
+			
+			if idM == idR:
+				
+				diferencia=float(pesoM)-float(pesoR) 
+				
+				inventarioDetalle = InventarioFisicoDetalle.objects\
 									.create(
-											inventarioFisico_id = inventarioFisico.pk,
-											material_id = material,
-											pesoExistencia = pesoExistencia,
-											pesoFisico = pesoFisico,
-											diferencia = diferencia,
-											tipoExistencia = tipo,
-											referencia = referencia,
-											estatusTipoV = tipo
-											)
-	json_remisiones = json.loads(respuestaRemisiones)
-	for data1 in json_remisiones:
-		RemisionDetalle.objects.filter(id=data1).update(folioInventario = numFolioInt)
-		#RemisionDetalle.objects.filter(id=data1).update(estatusInventario=1, folioInventario = numFolioInt)
+										pesoExistencia = pesoR,
+										pesoFisico = pesoM,
+										diferencia = diferencia,
+										material_id= idR,
+										inventarioFisico_id = inventarioFisico.pk,
+									)
+				InventarioFisicoDetalleCompleto.objects.filter(estatusDetalle = 0).update(InventarioFisicoDetalle_id = inventarioDetalle.pk, estatusDetalle = 1)
+				resultado = {
+						"id":idM,
+						"nombre":nombre,
+						"existencia":pesoR,
+						"fisico":pesoM,
+						"diferencia":diferencia
+						}
+				data.append(resultado)
+				flag=1
+			
+		if flag==0:
+			
+			diferencia=0-float(pesoR)
+			material = Material.objects.values("nombre").filter(id=idR);	
+			for m in material:
+				nombre=m["nombre"]
+			
+			inventarioD = InventarioFisicoDetalle.objects\
+									.create(
+										pesoExistencia = pesoR,
+										pesoFisico = 0,
+										diferencia = diferencia,
+										material_id= idR,
+										inventarioFisico_id = inventarioFisico.pk,
+									)
+				#InventarioFisicoDetalleCompleto.objects.filter(material_id = idR).update(InventarioFisicoDetalle_id = inventarioD.pk, estatusDetalle = 1)
+			resultado = {
+						"id":idR,
+						"nombre":nombre,
+						"existencia":pesoR,
+						"fisico":0,
+						"diferencia":diferencia
+						}
+			data.append(resultado)
+		
+		
 
-	json_remisionesInventario = json.loads(respuestaRemisionesInventario)
-	for data2 in json_remisionesInventario:
-		InventarioRemisionDetalle.objects.filter(id=data2).update(folioInventario = numFolioInt)
+					
+				
 
-	json_salidas = json.loads(respuestaRemisionesSalidas)
-	for data3 in json_salidas:
-		Salida.objects.filter(id=data3).update(folioInventario = numFolioInt)
+	# json_remisiones = json.loads(respuestaRemisiones)
+	# for data1 in json_remisiones:
+	# 	RemisionDetalle.objects.filter(id=data1).update(folioInventario = numFolioInt)
+	# 	#RemisionDetalle.objects.filter(id=data1).update(estatusInventario=1, folioInventario = numFolioInt)
+
+	# json_remisionesInventario = json.loads(respuestaRemisionesInventario)
+	# for data2 in json_remisionesInventario:
+	# 	InventarioRemisionDetalle.objects.filter(id=data2).update(folioInventario = numFolioInt)
+
+	# json_salidas = json.loads(respuestaRemisionesSalidas)
+	# for data3 in json_salidas:
+	# 	Salida.objects.filter(id=data3).update(folioInventario = numFolioInt)
 
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	array["data"]=data
 	mailHtmlIF(request,numFolioInt)
 	return JsonResponse(array)
 
