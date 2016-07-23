@@ -220,6 +220,13 @@
 										+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="0"></input>'
 										+ '<div class="input-group-addon">Pieza(s)</div>'
 									+ '</div>'
+									+ '<label class="control-label" for="tipoVarilla">Tipo de Varilla</label>'
+									+ '<div>'
+										+'<select class="form-control" name="tipoVarilla_'+object.idMaterial+'" id="tipoVarilla_'+object.idMaterial+'">'
+											+'<option value="1">Recta</option>'
+											+'<option value="2">Rollo</option>'
+										+'</select>'
+									+ '</div>'
 									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Original" id="txt'+object.idMaterial+'Original" value="'+conversionInicial.toFixed(4)+'"></input>'
 									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'Conversion" id="txt'+object.idMaterial+'Conversion" value="'+object.conversion+'"></input>'
 									+ '<hr style="width: 100%; color: black; height: 1px; background-color:black;" />'
@@ -268,6 +275,9 @@
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
 				cantidadMaterial = $("#count"+idMaterial).val();
+				tipo = $("#tipoVarilla_"+idMaterial).val();
+				tipoText = $("#tipoVarilla_"+idMaterial+" option:selected").text();
+				console.log("tipo ", tipoText);
 				cantidadMaterialReal = $("#count"+idMaterial).val();
 				cantidadMaterial = limpiaValor(cantidadMaterial);
 				longitud = $("#txt"+idMaterial+"Longitud").val();
@@ -281,10 +291,11 @@
 								+'<td class="text-center milesLimpio piezasT">'+parseInt(pesoMaterial)+'</td>'
 								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
+								+'<td class="text-center">'+tipoText+'</td>'
 								+'<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);" data-eliminar="0"></span></td>'
 								+'<td style="display:none;" class="text-center pesoTotal">'+pesoTotalReal.toFixed(2)+'</td>'
 								+'<td style="display:none" class="text-center">'
-									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'" />'
+									+'<input type="hidden" class="dataVarilla" name="txtVarilla" id="txtVarilla" value="'+apoyo+'|'+elemento+'|'+idMaterial+'|'+pesoMaterial+'|'+cantidadMaterial+'|'+longitud+'|'+tipo+'" />'
 								+'</td>'
 							+'</tr>';
 					$("#count"+idMaterial).val(0);
