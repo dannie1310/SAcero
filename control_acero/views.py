@@ -1273,15 +1273,28 @@ def inventarioFisicoSave(request):
 	# respuestaRemisionesSalidas= request.POST.get('jsonSalidas')
 	observacion = request.POST.get('jsonObservaciones')
 	real =request.POST.get('jsonReal')
-	
+
+	conteo = 1
+	estatus = 1
+	conteoInt = 0
+	numFolioInt = 1
 	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	p = request.session["proveedorTaller"]	
 	if folio.exists():
 		numFolio = folio[0].numFolio
-	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
-	ident= request.session["proveedorTaller"]
-	numFolio = "LIF-"+ident+"-"+numFolio
+		conteo = folio[0].numConteo
+		estatus = folio[0].estatusRegistro
+	if estatus == 0:
+		conteo = int(conteo) + 1
+	else:
+		conteo = 1
+		numFolioInt = int(numFolio)+1
+	conteoInt = str(conteo)
+	numFolio = "%03d" % (numFolioInt,)
+	numFolio = "LIF-"+p+"-"+numFolio+"-"+conteoInt
 	numFolio = numFolio.encode('utf-8')
+	print "PPP"
+	print conteo
 	inventarioFisico = InventarioFisico.objects\
 		.create(
 				noEntradas = folioEntrada,
@@ -1291,7 +1304,8 @@ def inventarioFisicoSave(request):
 				totalExistencias = totalexistencia,
 				folio = numFolio,
 				numFolio = numFolioInt,
-				tallerAsignado_id = request.session["idTaller"]
+				tallerAsignado_id = request.session["idTaller"],
+				numConteo=conteo
 				)
 	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=inventarioFisico.pk, observacion="El id guardado es del inventario fisico", estatus=1, modulo_id=4, user_id=request.user.id)
 	# json_object = json.loads(respuesta)
@@ -1452,13 +1466,24 @@ def foliosMostrar(request):
 		numFolio = "%04d" % (numFolioInt,)
 		numFolio = "EMA-"+p+"-"+numFolio
 	if int(modulo) == 4:
+		conteo = 1
+		estatus = 1
+		conteoInt = 0
+		numFolioInt = 1
 		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
-		p = request.session["proveedorTaller"]
+		p = request.session["proveedorTaller"]	
 		if folio.exists():
 			numFolio = folio[0].numFolio
-		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
-		numFolio = "LIF-"+p+"-"+numFolio
+			conteo = folio[0].numConteo
+			estatus = folio[0].estatusRegistro
+		if estatus == 0 and conteo<=2:
+			conteo = int(conteo) + 1
+		else:
+			conteo = 1
+			numFolioInt = int(numFolio)+1
+		conteoInt = str(conteo)
+		numFolio = "%03d" % (numFolioInt,)
+		numFolio = "LIF-"+p+"-"+numFolio+"-"+conteoInt
 	if int(modulo) == 5:
 		print modulo
 		folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
@@ -3347,7 +3372,12 @@ def reporteConsulta(request):
 
 
 def inventarioFisicoView(request):
-	inventarioFisicoAnterior = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],estatusRegistro = 0)
+	i=1
+	inventarioFisicoAnterior = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro = 0)
+	# folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	# id = folio[0].numFolio
+	# if folio.exists():
+	# 	i=folio[0].numConteo
 	template = 'control_acero/inventario/inventarioFisico.html'
 	return render(request, template, {"inventarioFisicoAnterior":inventarioFisicoAnterior})
 
