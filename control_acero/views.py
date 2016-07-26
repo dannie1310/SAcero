@@ -1278,7 +1278,8 @@ def inventarioFisicoSave(request):
 	estatus = 1
 	conteoInt = 0
 	numFolioInt = 1
-	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	#folio---
+	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"],estatusRegistro=0).order_by("-numFolio")[:1]
 	p = request.session["proveedorTaller"]	
 	if folio.exists():
 		numFolio = folio[0].numFolio
@@ -1293,8 +1294,8 @@ def inventarioFisicoSave(request):
 	numFolio = "%03d" % (numFolioInt,)
 	numFolio = "LIF-"+p+"-"+numFolio+"-"+conteoInt
 	numFolio = numFolio.encode('utf-8')
-	print "PPP"
-	print conteo
+	
+
 	inventarioFisico = InventarioFisico.objects\
 		.create(
 				noEntradas = folioEntrada,
@@ -1406,11 +1407,57 @@ def inventarioFisicoSave(request):
 						}
 			data.append(resultado)
 		
-		
+	print "***++"
+	print conteo
+	margen = 0
+	error = 0
+	idIF = 0
+	estatusCierre = 0
+	if conteo == 2:
+		detalle = InventarioFisicoDetalle.objects.values(
+														"id",
+														"pesoExistencia",
+														"pesoFisico",
+														"diferencia",
+														"inventarioFisico_id",
+														"material_id",
+														"material__nombre"
+													)\
+												.filter(inventarioFisico__estatusRegistro=0)\
+												.order_by("inventarioFisico_id")
+
 
 					
-				
+		#print detalle		
+		for d in detalle:
+			print d["inventarioFisico_id"]
+			print d["pesoExistencia"]
+			print d["pesoFisico"]
+			idIF=d["inventarioFisico_id"]
+			fisico = int(d["pesoFisico"])
+			margen = int(d["pesoExistencia"]) * 0.03
+			print margen
+			margenNeg = int(d["pesoExistencia"]) - margen
+			
+			margenPos = int(d["pesoExistencia"]) + margen
+			print margenPos
+			print margenNeg
+			if  margenNeg >= fisico or fisico <= margenPos:
+				print "si entra en el margen "
+			else: 
+				print "NO entra en el margen "
+				error = 1
+		if error == 0:
+			print "cierre automatico"
+			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
+			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
 
+			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
+			estatusCierre = 1
+		else:
+			print "3er inventario"
 	# json_remisiones = json.loads(respuestaRemisiones)
 	# for data1 in json_remisiones:
 	# 	RemisionDetalle.objects.filter(id=data1).update(folioInventario = numFolioInt)
@@ -1424,7 +1471,7 @@ def inventarioFisicoSave(request):
 	# for data3 in json_salidas:
 	# 	Salida.objects.filter(id=data3).update(folioInventario = numFolioInt)
 
-	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
+	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio, "estatusCierre": estatusCierre}
 	array = mensaje
 	array["data"]=data
 	mailHtmlIF(request,numFolioInt)
