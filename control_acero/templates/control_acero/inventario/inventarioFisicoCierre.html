@@ -100,8 +100,8 @@
 		<div style="display:none;" id="btnCierre" class="col-md-12 text-center">
 			
 			<form action="{% url 'inventarioFisicoCierreAjusteView' %}">
-			<button type="submit" class="btn btn-primary">Cerrar Inventario</button>
-		</form>
+				<button type="submit" class="btn btn-primary">Cerrar Inventario</button>
+			</form>
 		</div>
 
 	</div>
@@ -378,6 +378,7 @@
 	            try {
 	            	$.each(data.data, function (count, object) {
 	            		console.log(object);
+	            		console.log (data.estatusCierre);
 	            		tabla+='<tr>'
 	            				+'<td class="text-center">'+object.nombre+'</td>'
 	            				+'<td class="text-center milesLimpio">'+Math.floor(object.existencia)+'</td>'
@@ -394,7 +395,7 @@
 	            			cierre = 'Cierre automatico';
 	            		}
 	            		else{
-	            			$("#btnCerrar").show("slide");
+	            			$("#btnCierre").show("slide");
 	            		}
 	            	});
 	            	setTimeout(function () {

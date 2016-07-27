@@ -1,18 +1,21 @@
 {% extends 'control_acero/layout.html' %}
 {% block title_module %}
-	LEVANTAMIENTO DE INVENTARIO FISICO
+	LEVANTAMIENTO DE AJUSTE DE INVENTARIO FISICO
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
-		<div class="form-group col-md-6 text-left alert-info">
+		<div class="form-group col-md-6 text-center alert-info">
 			<h3> Folio: {{ inventario.folio }}</h3>
 		</div>
+		<div class="form-group col-md-6 text-left alert-info">
+			<h3> Folio de Ajuste: <span id="folio"></span></h3>
+		</div>
 		{% if request.session.nombreTaller > 0 %}
-			<div class="form-group col-md-6 text-center alert-info">
+			<div class="form-group col-md-12 text-center alert-info">
 				<h3> INVENTARIO DEL {{ request.session.nombreTaller }}</h3>
 			</div>
 		{% else %}
-			<div class="form-group col-md-6 text-center alert-info">
+			<div class="form-group col-md-12 text-center alert-info">
 				<h3> No cuentas con Taller Asignado</h3>
 			</div>
 		{% endif %}
@@ -228,12 +231,12 @@
 					});
 					var json = JSON.stringify(array);
 					console.log(json);
-					$.post( "{% url 'inventarioFisicoCierre' %}",{
+					$.post( "{% url 'inventarioFisicoCierreSave' %}",{
 						json: json
 					})
 					.done(function(data, status) {
 			            setTimeout(function () {
-					    	swal(" El inventario se cerro correctamente");
+					    	swal(" El inventario se cerró y se genero el Folio "+data.folio);
 						}, 2000);
 			            $("#btnCerrar").hide();
 			        })
@@ -245,6 +248,25 @@
 					
 				});
 		});
-	  
+	  	mostrarFolio = function(){
+			var modulo = 5;
+			$.post( "{% url 'foliosMostrar' %}",{
+				modulo: modulo
+			},
+			function(data, status) {
+		            try {
+						$("#folio").html(data.folio);
+						//$("#fechaRemision").html(data.date);
+		            } catch (e) {
+		                swal("Error!","Error al cargar el Folio:" + e,"error");
+		            }
+			})
+			.fail(function() {
+				swal("Error!", "Error en la petición del Folio","error" );
+			});
+		}
+		$(function () {
+	    	mostrarFolio();
+	    });
 	</script>
 {% endblock %}

@@ -705,9 +705,12 @@ def inventarioFisicoCierreView(request):
 	totales = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],id=idI);
 	return render(request, template, {"totales": totales})
 def inventarioFisicoCierreAjusteView(request):
-	inr = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],estatusRegistro=0).distinct()
-	template = 'control_acero/inventario/inventarioFisicoCierre.html'
+	inr = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro=0).order_by("-numConteo").order_by("-id")[:1]
+	print "AQUI"
+	print inr.query
+	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
 	idI = inr[0].id
+	print idI
 	inventario = get_object_or_404(InventarioFisico, pk=idI)
 	inventarioDetalle = InventarioFisicoDetalle.objects.filter(inventarioFisico_id=idI);
 	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
@@ -866,7 +869,7 @@ def recepcionMaterialSave(request):
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "%03d" % (numFolioInt,)
 	ident= request.session["proveedorTaller"]
 	numFolio = "RMH-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
@@ -1015,7 +1018,7 @@ def salidaHabilitadoSave(request):
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "%03d" % (numFolioInt,)
 	ident= request.session["proveedorTaller"]
 	numFolio = "SMH-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
@@ -1179,7 +1182,7 @@ def entradaArmadoSave(request):
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "%03d" % (numFolioInt,)
 	ident= request.session["ideF"]
 	numFolio = "EMA-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
@@ -1286,7 +1289,7 @@ def inventarioFisicoSave(request):
 	conteoInt = 0
 	numFolioInt = 0
 	#folio---
-	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio").order_by("-id")[:1]
 	p = request.session["proveedorTaller"]	
 	if folio.exists():
 		numFolio = folio[0].numFolio
@@ -1444,7 +1447,7 @@ def inventarioFisicoSave(request):
 			margenPos = int(d["pesoExistencia"]) + margen
 			print margenPos
 			print margenNeg
-			if  margenNeg >= fisico or fisico <= margenPos:
+			if  margenNeg <= fisico and fisico <= margenPos:
 				print "si entra en el margen "
 			else: 
 				print "NO entra en el margen "
@@ -1491,7 +1494,7 @@ def inventarioFisicoSave(request):
 			margenPos = int(d["pesoExistencia"]) + margen
 			print margenPos
 			print margenNeg
-			if  margenNeg >= fisico or fisico <= margenPos:
+			if  margenNeg <= fisico and fisico <= margenPos:
 				print "si entra en el margen "
 			else: 
 				print "NO entra en el margen "
@@ -1530,7 +1533,7 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "RMH-"+p+"-"+numFolio
 		print request.session["proveedorTaller"]
 		print request.session['idfuncion']
@@ -1540,7 +1543,7 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "SMH-"+p+"-"+numFolio
 	if int(modulo) == 3:
 		folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
@@ -1548,14 +1551,14 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "EMA-"+p+"-"+numFolio
 	if int(modulo) == 4:
 		conteo = 1
 		estatus = 1
 		conteoInt = 0
 		numFolioInt = 1
-		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio").order_by("-id")[:1]
 		p = request.session["proveedorTaller"]	
 		print folio.query
 		if folio.exists():
@@ -1582,7 +1585,7 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "IFA-"+p+"-"+numFolio
 
 	mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
@@ -3611,7 +3614,7 @@ def inventarioFisicoCierreSave(request):
 		existencia = data["existencia"]
 		fisico = data["fisico"]
 		diferencia = data["diferencia"]
-		folio = data["folio"]
+
 		ifd = InventarioFisicoDetalle.objects.get(pk=idCierre)
 		idInventario = ifd.inventarioFisico_id
 		print diferencia
@@ -3728,7 +3731,7 @@ def inventarioFisicoCierreSave(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		ident= request.session["proveedorTaller"]
 		numFolio = "IFA-"+ident+"-"+numFolio
 		numFolio = numFolio.encode('utf-8')
