@@ -704,13 +704,23 @@ def inventarioFisicoCierreView(request):
 	idI = inventario[0].id
 	totales = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],id=idI);
 	return render(request, template, {"totales": totales})
-	
+def inventarioFisicoCierreAjusteView(request):
+	inr = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],estatusRegistro=0).distinct()
+	template = 'control_acero/inventario/inventarioFisicoCierre.html'
+	idI = inr[0].id
+	inventario = get_object_or_404(InventarioFisico, pk=idI)
+	inventarioDetalle = InventarioFisicoDetalle.objects.filter(inventarioFisico_id=idI);
+	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
+	#inventario = InventarioFisico.objects.filter(id=pk, estatus=1)
+	return render(request, template, {"inventario": inventario, "detalles": inventarioDetalle})
+######################################################	
 def inventarioFisicoCierreDetalle(request):
 	array = {}
 	mensaje = {}
 	data = []
 	data2 = []
-	inventario = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],estatusRegistro=0).order_by("id")
+	idInventario = request.GET.get('idInventario')
+	inventario = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],id=idInventario).order_by("id")
 	for i in inventario:
 		resultado={
 				"id":i.id,
@@ -724,7 +734,7 @@ def inventarioFisicoCierreDetalle(request):
 												"material__nombre",
 												"material_id",
 												"pesoExistencia",
-												"pesoFisico").filter(inventarioFisico_id=i.id, estatus=1).distinct().order_by("inventarioFisico_id").order_by("material_id")
+												"pesoFisico").filter(inventarioFisico_id=idInventario, estatus=1).distinct().order_by("inventarioFisico_id").order_by("material_id")
 		
 		for d in detalle :
 			resultado2={
@@ -1267,26 +1277,24 @@ def inventarioFisicoSave(request):
 	folioSalida = request.POST.get('folioSalida')
 	pesoSalida = request.POST.get('pesoSalida')
 	totalexistencia = request.POST.get('totalexistencia')
-	#respuesta = request.POST.get('json')
-	# respuestaRemisiones = request.POST.get('jsonRemisiones')
-	# respuestaRemisionesInventario = request.POST.get('jsonRemisionesInventario')
-	# respuestaRemisionesSalidas= request.POST.get('jsonSalidas')
+	idInvF=0
 	observacion = request.POST.get('jsonObservaciones')
 	real =request.POST.get('jsonReal')
 
 	conteo = 1
 	estatus = 1
 	conteoInt = 0
-	numFolioInt = 1
+	numFolioInt = 0
 	#folio---
-	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"],estatusRegistro=0).order_by("-numFolio")[:1]
+	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	p = request.session["proveedorTaller"]	
 	if folio.exists():
 		numFolio = folio[0].numFolio
 		conteo = folio[0].numConteo
 		estatus = folio[0].estatusRegistro
-	if estatus == 0:
+	if estatus == 0 and conteo <= 2:
 		conteo = int(conteo) + 1
+		numFolioInt = int(numFolio)
 	else:
 		conteo = 1
 		numFolioInt = int(numFolio)+1
@@ -1309,13 +1317,7 @@ def inventarioFisicoSave(request):
 				numConteo=conteo
 				)
 	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=inventarioFisico.pk, observacion="El id guardado es del inventario fisico", estatus=1, modulo_id=4, user_id=request.user.id)
-	# json_object = json.loads(respuesta)
-	# for data in json_object:
-	# 	material = data["materialId"]
-	# 	pesoExistencia = data["existencias"]
-	# 	pesoFisico = data["existenciaFisica"]
-	# 	diferencia = data["diferencia"]
-	# 	tipo = data["bandera"]
+
 	json_observaciones = json.loads(observacion)
 		
 	for r in json_observaciones:
@@ -1447,7 +1449,7 @@ def inventarioFisicoSave(request):
 			else: 
 				print "NO entra en el margen "
 				error = 1
-		if error == 0:
+		if error == 0 :
 			print "cierre automatico"
 			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
 			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
@@ -1458,20 +1460,56 @@ def inventarioFisicoSave(request):
 			estatusCierre = 1
 		else:
 			print "3er inventario"
-	# json_remisiones = json.loads(respuestaRemisiones)
-	# for data1 in json_remisiones:
-	# 	RemisionDetalle.objects.filter(id=data1).update(folioInventario = numFolioInt)
-	# 	#RemisionDetalle.objects.filter(id=data1).update(estatusInventario=1, folioInventario = numFolioInt)
 
-	# json_remisionesInventario = json.loads(respuestaRemisionesInventario)
-	# for data2 in json_remisionesInventario:
-	# 	InventarioRemisionDetalle.objects.filter(id=data2).update(folioInventario = numFolioInt)
 
-	# json_salidas = json.loads(respuestaRemisionesSalidas)
-	# for data3 in json_salidas:
-	# 	Salida.objects.filter(id=data3).update(folioInventario = numFolioInt)
+	if conteo == 3:
+		detalle = InventarioFisicoDetalle.objects.values(
+														"id",
+														"pesoExistencia",
+														"pesoFisico",
+														"diferencia",
+														"inventarioFisico_id",
+														"material_id",
+														"material__nombre"
+													)\
+												.filter(inventarioFisico__estatusRegistro=0, inventarioFisico_id = inventarioFisico.pk)\
+												.order_by("inventarioFisico_id")
 
-	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio, "estatusCierre": estatusCierre}
+
+					
+		#print detalle		
+		for d in detalle:
+			print d["inventarioFisico_id"]
+			print d["pesoExistencia"]
+			print d["pesoFisico"]
+			idIF=d["inventarioFisico_id"]
+			fisico = int(d["pesoFisico"])
+			margen = int(d["pesoExistencia"]) * 0.03
+			print margen
+			margenNeg = int(d["pesoExistencia"]) - margen
+			
+			margenPos = int(d["pesoExistencia"]) + margen
+			print margenPos
+			print margenNeg
+			if  margenNeg >= fisico or fisico <= margenPos:
+				print "si entra en el margen "
+			else: 
+				print "NO entra en el margen "
+				error = 1
+		if error == 0 :
+			print "cierre automatico"
+			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
+			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+
+			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
+			estatusCierre = 1
+		else:
+			print "3er inventario"
+			idInvF=inventarioFisico.pk
+
+	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio, "estatusCierre": estatusCierre, "inventarioAjuste": idInvF}
 	array = mensaje
 	array["data"]=data
 	mailHtmlIF(request,numFolioInt)
@@ -1519,16 +1557,22 @@ def foliosMostrar(request):
 		numFolioInt = 1
 		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 		p = request.session["proveedorTaller"]	
+		print folio.query
 		if folio.exists():
 			numFolio = folio[0].numFolio
 			conteo = folio[0].numConteo
 			estatus = folio[0].estatusRegistro
-		if estatus == 0 and conteo<=2:
+			print conteo
+
+		if estatus == 0 and conteo <=2:
 			conteo = int(conteo) + 1
+			numFolioInt = int(numFolio)
+			print "aqui"
 		else:
 			conteo = 1
 			numFolioInt = int(numFolio)+1
 		conteoInt = str(conteo)
+		print conteo
 		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "LIF-"+p+"-"+numFolio+"-"+conteoInt
 	if int(modulo) == 5:

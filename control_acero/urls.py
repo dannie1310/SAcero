@@ -115,4 +115,5 @@ urlpatterns = [
     url(r'^inventario/fisico/cierre/detalle/$', views.inventarioFisicoCierreDetalle, name='inventarioFisicoCierreDetalle'),
     url(r'^descarga/excel/(?P<filename>[\w\-]+)/$', views.descargaExcel, name='descargaExcel'),
     url(r'^inventario/fisico/cierre/save/$', views.inventarioFisicoCierreSave, name='inventarioFisicoCierreSave'),
+     url(r'^inventario/fisico/cierre/ajuste/$', views.inventarioFisicoCierreAjusteView, name='inventarioFisicoCierreAjusteView'),
 ]
