@@ -668,8 +668,7 @@ def movimientosDetalleView(request, pk):
 													 "inventariofisicodetallecierre__observacionSalida",
 													 "inventariofisicodetallecierre__material__nombre")\
 		.filter(id=idAfectado)
-	print "datosss::   "
-	print datos	
+	
 	template = 'control_acero/catalogos/movimientos/movimientoDetalle.html'
 	
 	return render(request, template, {"movimiento": movimiento, "detalles": detalle, "afectado" : datos, "modulo": modulo, "datos": folios})
@@ -680,7 +679,7 @@ def inventario(request):
 	ajuste = InventarioFisico.objects.filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro=0)
 	for r in ajuste:
 		i=i+1
-	paginator = Paginator(inventario_list, 10)
+	paginator = Paginator(inventario_list, 20)
 	page = request.GET.get('page')
 	try:
 		inventario = paginator.page(page)
@@ -712,7 +711,13 @@ def inventarioFisicoCierreAjusteView(request):
 	idI = inr[0].id
 	#print idI
 	inventario = get_object_or_404(InventarioFisico, pk=idI)
-	inventarioDetalle = InventarioFisicoDetalle.objects.filter(inventarioFisico_id=idI);
+	inventarioDetalle = InventarioFisicoDetalle.objects.values("id",
+														"pesoExistencia",
+														"pesoFisico",
+														"diferencia",
+														"inventarioFisico_id",
+														"material_id",
+														"material__nombre").filter(inventarioFisico_id=idI);
 	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
 	#inventario = InventarioFisico.objects.filter(id=pk, estatus=1)
 	return render(request, template, {"inventario": inventario, "detalles": inventarioDetalle})
@@ -1320,7 +1325,7 @@ def inventarioFisicoSave(request):
 				numConteo=conteo
 				)
 	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=inventarioFisico.pk, observacion="El id guardado es del inventario fisico", estatus=1, modulo_id=4, user_id=request.user.id)
-
+	idFolioFisico=inventarioFisico.pk;
 	json_observaciones = json.loads(observacion)
 		
 	for r in json_observaciones:
@@ -1515,7 +1520,7 @@ def inventarioFisicoSave(request):
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio, "estatusCierre": estatusCierre, "inventarioAjuste": idInvF}
 	array = mensaje
 	array["data"]=data
-	mailHtmlIF(request,numFolioInt)
+	mailHtmlIF(request,idFolioFisico)
 	return JsonResponse(array)
 
 def foliosMostrar(request):
@@ -3631,8 +3636,7 @@ def inventarioFisicoCierreSave(request):
 		if cantidadEntrada:
 			cantidadEntrada
 			p = Remision.objects\
-				.create(idOrden=1,
-						pesoNeto=cantidadEntrada,
+				.create(pesoNeto=cantidadEntrada,
 						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
 						estatus=1,
 						ajuste_id=idInventario,
@@ -3997,6 +4001,7 @@ def mailHtml(request, folio):
 											"fechaRegistro",
 											"funcion_id",
 											"funcion__proveedor",
+											"pesoNeto",
 											"remisiondetalle__material__nombre",
 											"remisiondetalle__peso",
 											"remisiondetalle__longitud",
@@ -4051,7 +4056,7 @@ def mailHtml(request, folio):
 	remision = remisiones[0]["remision"]
 	fechaRemision = remisiones[0]["fechaRemision"]
 	fechaRegistro = remisiones[0]["fechaRegistro"]
-
+	pesoTotal= remisiones[0]["pesoNeto"]
 	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
 	header = "RECEPCION DEL MATERIAL"
 	body = ""
@@ -4091,6 +4096,13 @@ def mailHtml(request, folio):
 				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
 			)
 	body += tablaDetalle
+	body += """
+			<br />
+			<h4>Peso Total por Folio:  %d </h4>
+			""" %\
+			(
+				pesoTotal
+				)
 	body += mailHtmlFooter()
 
 	for envioEmail in envioEmails:
@@ -4460,6 +4472,120 @@ def mailHtmlEA(request, folio):
 
 def mailHtmlIF(request, folio):
 	# Mail Inventariofisico
+	print "IF****"
+	print folio
+	cierre = ''
+	idfolio= int(folio)
+	inventario = InventarioFisico.objects.values(
+											"folio",
+											"fechaRegistro",
+											"tallerAsignado__nombre",
+											"estatusRegistro",
+											"inventariofisicodetalle__pesoExistencia",
+											"inventariofisicodetalle__pesoFisico",
+											"inventariofisicodetalle__diferencia",
+											"inventariofisicodetalle__material__nombre"
+										)\
+										.filter(
+											id = idfolio,
+											tallerAsignado_id = request.session['idTaller']
+										)\
+										.distinct()\
+										.order_by("inventariofisicodetalle__material__id")
+	tablaDetalle = ''
+	tablaDetalle += """\
+					
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #66cc00;'>
+								<th>Material</th>
+								<th>Peso existencia en el sistema</th>
+								<th>Peso existencias fisicas</th>
+								<th>Diferencia</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
+
+	for rem in inventario:
+
+		tablaDetalle += """\
+							<tr>
+								<td>%s</td>
+								<td>%d</td>
+								<td>%d</td>
+								<td>%d</td>
+							</tr>
+						"""%\
+						(
+							rem["inventariofisicodetalle__material__nombre"],
+							rem["inventariofisicodetalle__pesoExistencia"],
+							rem["inventariofisicodetalle__pesoFisico"],
+							rem["inventariofisicodetalle__diferencia"]
+						)
+
+	tablaDetalle += """\
+						</tbody>
+					</table>
+					<br />\
+					"""
+
+	folioStr = inventario[0]["folio"]
+	taller = inventario[0]["tallerAsignado__nombre"]
+	fechaRegistro = inventario[0]["fechaRegistro"]
+	if inventario[0]["estatusRegistro"]==1:
+			cierre = 'Cierre automatico - Inventario correcto'
+
+	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	header = "INVENTARIO FISICO"
+	body = ""
+	body += mailHtmlHeader(request)
+	body += """
+			<br />
+			<table rules="all" style="border-color: #666;" cellpadding="10">
+				<thead>
+					<tr style='background:#66cc00;'>
+						<th><strong> Folio </strong></th>
+						<th><strong> Taller de Habilitado </strong></th>
+						<th><strong> Fecha Creacion </strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>%s</strong></td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>
+				</tbody>
+			</table>
+			<br />
+			""" %\
+			(
+				folioStr,
+				taller,
+				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
+			)
+	body += """
+			<br />
+			<h2> <strong> %s </strong>  </h2>
+			<br />
+			""" %\
+			(
+				cierre
+				)
+	body += tablaDetalle
+	body += mailHtmlFooter()
+
+	for envioEmail in envioEmails:
+		mail(header, body, envioEmail.email)
+
+	return True
+
+def mailHtmlIFA(request, folio):
+	# Mail InventariofisicoAjuste
+	print "IF****"
+	print folio
+	idfolio= int(folio)
 	inventario = InventarioFisico.objects.values(
 											"folio",
 											"fechaRegistro",
@@ -4470,7 +4596,7 @@ def mailHtmlIF(request, folio):
 											"inventariofisicodetalle__material__nombre"
 										)\
 										.filter(
-											numFolio = folio,
+											id = idfolio,
 											tallerAsignado_id = request.session['idTaller']
 										)\
 										.distinct()\

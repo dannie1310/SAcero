@@ -352,7 +352,7 @@ class InventarioFisicoDetalleCierre(models.Model):
 		return unicode(self.estatus)
 
 class Remision(models.Model):
-	idOrden = models.IntegerField()
+	idOrden = models.CharField(max_length=20,null=True)
 	remision = models.IntegerField(null=True)
 	funcion = models.ForeignKey(Funcion, null=True)
 	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignado')

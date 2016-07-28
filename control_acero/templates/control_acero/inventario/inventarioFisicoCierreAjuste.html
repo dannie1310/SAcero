@@ -71,26 +71,32 @@
 				</thead>
 				<tbody>
 					{% for detalle in detalles %}
-						{% if detalle.tipoExistencia == 0 %}
-						<tr>
-							<td>{{ detalle.material_id }}</td>
-							<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
-							<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
-							{% if detalle.diferencia|length >= 0 %}
-								<td class="success">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
-							{% endif %}
-							{% if detalle.diferencia|length < 0 %}
-								<td class="danger milesLimpio">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
-							{% endif %}
+						
+						{% if detalle.diferencia >= 0 %}
+								<tr class="success">
+									<td>{{ detalle.material__nombre }}</td>
+									<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+									<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+								
+									<td >{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+						{% endif %}
+						{% if detalle.diferencia < 0 %}
+								<tr class="danger">
+									<td>{{ detalle.material__nombre }}</td>
+									<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+									<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+								
+									<td >{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+						{% endif %}
 						</tr>
-						{% else %}
-						<tr class="danger">
-							<td>{{ detalle.material_id }}</td>
+						
+						<!-- <tr class="danger">
+							<td>{{ detalle.material__nombre }}</td>
 							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
 							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
 							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
-						</tr>
-						{% endif %}
+						</tr> -->
+						
 					{% endfor %}
 				</tbody>
 			</table>
@@ -112,42 +118,20 @@
 				</thead>
 				<tbody>
 					{% for detalle in detalles %}
-						{% if detalle.tipoExistencia == 0 %}
-						<tr class="trrow" id="row_{{ detalle.material_id  }}" data-material="{{ detalle.material_id  }}">
-							<td style="display: none;">{{ detalle.id }}</td>
-							<td>{{ detalle.material_id }}</td>
-							<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
-							<td style="display: none;">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
-							<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
-							{% if detalle.diferencia|length >= 0 %}
-								<td class="success">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
-							{% endif %}
-							{% if detalle.diferencia|length < 0 %}
-								<td class="danger milesLimpio">{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
-							{% endif %}
-							<td>
-								<div id="col-md-6">
-									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanS_{{ detalle.material_id }}" id="spanS_{{ detalle.material_id }}" onClick="ajusteSistema({{ detalle.material_id }});"></span>
-									<input style="display: none;" type="number" class="form-control cantidadEntrada" name="inputS_{{ detalle.material_id }}" id="inputS_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaSistema({{ detalle.material_id }});"></input>
-									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionEntrada" name="textS_{{ detalle.material_id }}" id="textS_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
-								</div>
-							</td>
-							<td>
-								<div id="col-md-6">
-									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanF_{{ detalle.material_id }}" id="spanF_{{ detalle.material_id }}" onClick="ajusteFisico({{ detalle.material_id }});"></span>
-									<input style="display: none;" type="number" class="form-control cantidadSalida" name="inputF_{{ detalle.material_id }}" id="inputF_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaFisico({{ detalle.material_id }});"></input>
-									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionSalida" name="textF_{{ detalle.material_id }}" id="textF_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
-								</div>
-							</td>
-						</tr>
+						{% if detalle.diferencia >= 0 %}
+						
+						<tr class="success trrow" id="row_{{ detalle.material_id  }}" data-material="{{ detalle.material_id  }}">
+
 						{% else %}
 						<tr class="danger trrow" id="row_{{ detalle.material_id  }}" data-material="{{ detalle.material_id  }}">
+						{% endif %}
 							<td style="display: none;">{{ detalle.id }}</td>
-							<td>{{ detalle.material_id }}</td>
+							<td>{{ detalle.material__nombre}}</td>
 							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
 							<td style="display: none;">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
 							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
 							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+							{% if detalle.diferencia > 0 %}
 							<td>
 								<div id="col-md-6">
 									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanS_{{ detalle.material_id }}" id="spanS_{{ detalle.material_id }}" onClick="ajusteSistema({{ detalle.material_id }});"></span>
@@ -156,14 +140,34 @@
 								</div>
 							</td>
 							<td>
+								<div style="display: none;" id="col-md-6">
+									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanF_{{ detalle.material_id }}" id="spanF_{{ detalle.material_id }}" onClick="ajusteFisico({{ detalle.material_id }});"></span>
+									<input style="display: none;" type="number" class="form-control cantidadSalida" name="inputF_{{ detalle.material_id }}" id="inputF_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaFisico({{ detalle.material_id }});" value=""></input>
+									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionSalida" name="textF_{{ detalle.material_id }}" id="textF_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
+								</div>
+							</td>
+							{% endif %}
+							{% if detalle.diferencia < 0 %}
+							<td>
+								<div style="display: none;"  id="col-md-6">
+									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanS_{{ detalle.material_id }}" id="spanS_{{ detalle.material_id }}" onClick="ajusteSistema({{ detalle.material_id }});"></span>
+									<input style="display: none;" type="number" class="form-control cantidadEntrada" name="inputS_{{ detalle.material_id }}" id="inputS_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaSistema({{ detalle.material_id }});" value=""></input>
+									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionEntrada" name="textS_{{ detalle.material_id }}" id="textS_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
+								</div>
+							</td>
+
+							<td>
 								<div id="col-md-6">
 									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanF_{{ detalle.material_id }}" id="spanF_{{ detalle.material_id }}" onClick="ajusteFisico({{ detalle.material_id }});"></span>
 									<input style="display: none;" type="number" class="form-control cantidadSalida" name="inputF_{{ detalle.material_id }}" id="inputF_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaFisico({{ detalle.material_id }});"></input>
 									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionSalida" name="textF_{{ detalle.material_id }}" id="textF_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
 								</div>
 							</td>
+							
 						</tr>
+
 						{% endif %}
+						
 					{% endfor %}
 				</tbody>
 			</table>
@@ -206,6 +210,8 @@
 			$("#row_"+material).find('td:eq(5)').text(operacion);
 		}
 		$( "#btnCerrar" ).click(function() {
+			var htmlcontent = '<div class="col-md-12 table-responsive"><table class="table table-hover"><thead><tr><th class="text-center" colspan="6">Los saldos iniciales para el siguiente periodo son:</th></tr></thead><tbody>';
+
 			swal({
 
 				  title: "¿Está seguro que los ajustes realizados en este inventario son correctos?",
@@ -218,6 +224,7 @@
 				function(){
 					var array = [];
 					$(".trrow").each(function(index, element) {
+						var nombre = limpiaValor($(this).find('td:eq(1)').text());
 						var material = $(this).data("material");
 						var id = limpiaValor($(this).find('td:eq(0)').text());
 						var existencia = limpiaValor($(this).find('td:eq(2)').text());
@@ -228,6 +235,7 @@
 						var cantidadSalida = $("#inputF_"+material).val();
 						var observacionSalida = $("#textF_"+material).val();
 						array.push({"id": id,"existencia": existencia,"fisico": fisico,"diferencia": diferencia,"cantidadEntrada": cantidadEntrada,"observacionEntrada": observacionEntrada,"cantidadSalida": cantidadSalida,"observacionSalida": observacionSalida,"material": material});
+						htmlcontent+='<tr><td>'+nombre+'</td><td class="milesLimpio">'+existencia+'</td></tr>'
 					});
 					var json = JSON.stringify(array);
 					console.log(json);
@@ -236,7 +244,13 @@
 					})
 					.done(function(data, status) {
 			            setTimeout(function () {
-					    	swal(" El inventario se cerró y se genero el Folio "+data.folio);
+			            	htmlcontent+='</tbody></table></div>';
+					    	swal({
+			            	title: "Se creo el folio de ajuste: "+data.folio,
+			            	text : htmlcontent,
+			            	html :true
+			            		});
+							
 						}, 2000);
 			            $("#btnCerrar").hide();
 			        })

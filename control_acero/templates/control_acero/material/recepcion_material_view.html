@@ -26,18 +26,26 @@
 				<select name="cmbFuncion" id="cmbFuncion" class="cmbFuncion form-control">
 				</select>
 			</div>
-			<div class="form-group col-md-6">
+			<!-- <div class="form-group col-md-6">
 				<label  class="control-label" for="remision">Agregar Remisión:</label>
 				<input type="number" class="form-control" name="remision" id="remision"></input>
+			</div> -->
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="remision">Agregar Remisión:</label>
+				<input type="number" data-toggle="tooltip" data-placement="bottom" title="Agrega Remisión" class="form-control" name="remision" id="remision"></input>
 			</div>
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
 				<input type="text" class="calendario form-control" name="fechaRemision" id="fechaRemision" value="{% now "d/m/Y" %}"></input>
 			</div>
+			<!-- <div class="form-group col-md-6">
+				<label  class="control-label" for="cmbOrden">Digitar Número de Orden de Compra ó Contrato ó Cliente:</label>
+				<input type="text" name="cmbOrden" id="cmbOrden" class="cmbOrden form-control"/>
+			</div> -->	
 			<div class="form-group col-md-6">
-				<label  class="control-label" for="cmbOrden">Digitar Orden de Compra:</label>
-				<input type="number" name="cmbOrden" id="cmbOrden" class="cmbOrden form-control"/>
-			</div>			
+				<label  class="control-label" for="cmbOrden">Digitar de Orden de Compra ó Contrato ó Cliente:</label>
+				<input type="text" data-toggle="tooltip" data-placement="bottom" title="Digitar Orden de Compra ó Contrato ó Cliente" class="form-control" name="cmbOrden" id="cmbOrden"></input>
+			</div>		
 			
 		</div>
 		<div class="col-md-12">
@@ -136,25 +144,7 @@
 				swal("Error!", "Error en la petición del Fabricante","error");
 			});
 		}
-		comboFrente = function(){
-			$.post( "{% url 'comboFrente' %}",{
-			},
-			function(data, status) {
-		            try {
-		                $('.cmbFrente').empty();
-		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
-	                    $.each(data.data, function (count, object) {
-	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
-	                    });
-		            } catch (e) {
-		                swal("Error!", "Error al cargar Combo del Frente:" + e, "error");
-		            }
-			})
-			.fail(function() {
-				//mensajeWarning( "Error en la petición del Frente" );
-				swal("Error!", "Error en la petición del Frente.", "error");
-			});
-		}
+		
 		$( "#agregarVarillas" ).click(function() {
 			$("#divVarillasCheck").empty();
 			$("#divCantidades").empty();
@@ -201,23 +191,23 @@
 	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
 									+ '<br /><label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 									+ '<div class="input-group">'
-										+ '<input class="form-control milesLimpio" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onkeyup="cantidadMaterial('+object.idMaterial+');" />'
+										+ '<input type="text"  data-toggle="toolinfo" data-placement="bottom" title="Ingresa el Peso" class="form-control milesLimpio text-uppercase" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onkeyup="cantidadMaterial('+object.idMaterial+');" />'
 										+ '<div class="input-group-addon">Kg</div>'
 									+ '</div>'
-									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumetrico</label>'
+									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumétrico</label>'
 									+ '<div class="input-group">'
-										+ '<input type="text" readonly disabled class="form-control" name="txt'+object.idMaterial+'Volumetrico" id="txt'+object.idMaterial+'Volumetrico" value="'+object.conversion+'"></input>'
+										+ '<input type="text" disabled  class="form-control" name="txt'+object.idMaterial+'Volumetrico" id="txt'+object.idMaterial+'Volumetrico" value="'+object.conversion+'"></input>'
 										+ '<div class="input-group-addon">Kg/ml</div>'
 									+ '</div>'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'Longitud">Longitud</label>'
 									+ '<div class="input-group">'
-										+ '<input type="number" min="1" class="form-control" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onkeyup="cantidadMaterial('+object.idMaterial+');"></input>'
+										+ '<input type="text" data-toggle="toolinfo" data-placement="bottom" title="Ingresa la Longitud" type="number" min="1" class="form-control text-uppercase" name="txt'+object.idMaterial+'Longitud" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'" onkeyup="cantidadMaterial('+object.idMaterial+');"></input>'
 										+ '<div class="input-group-addon">Mts</div>'
 									+ '</div>'
 									+ '<input type="hidden" disabled class="form-control" name="txt'+object.idMaterial+'LongitudOriginal" id="txt'+object.idMaterial+'Longitud" value="'+object.materialLongitud+'"></input>'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'">Piezas de Varilla</label>'
 									+ '<div class="input-group">'
-										+ '<input type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="0"></input>'
+										+ '<input type="text" readonly disabled data-toggle="toolinfo" data-placement="bottom" title="Piezas Calculadas" type="text" disabled class="form-control cantidadTotal" attrMaterial="'+object.nombreMaterial+'" attrIdMaterial="'+object.idMaterial+'" name="txt'+object.idMaterial+'" id="txt'+object.idMaterial+'" value="0"></input>'
 										+ '<div class="input-group-addon">Pieza(s)</div>'
 									+ '</div>'
 									+ '<label class="control-label" for="tipoVarilla">Tipo de Varilla</label>'
@@ -246,6 +236,7 @@
 			$("#divVarillasCheck").show("slide");
 		    $("#divCantidades").append(html);
 		    $("#divVarillasCheck").append(checks);
+		    $('[data-toggle="toolinfo"]').tooltip();
 		    $("#divCantidades").show("slide");
 		});
 		$( "#btnAgregaVarilla" ).click(function() {
@@ -277,7 +268,6 @@
 				cantidadMaterial = $("#count"+idMaterial).val();
 				tipo = $("#tipoVarilla_"+idMaterial).val();
 				tipoText = $("#tipoVarilla_"+idMaterial+" option:selected").text();
-				console.log("tipo ", tipoText);
 				cantidadMaterialReal = $("#count"+idMaterial).val();
 				cantidadMaterial = limpiaValor(cantidadMaterial);
 				longitud = $("#txt"+idMaterial+"Longitud").val();
@@ -322,6 +312,7 @@
 					ton = pesoTd / 1000;
 					tonHtml += ton.toFixed(2);
 				}
+				$("#txtPesoTotal").append(pesoTd);
 				$("#divDetalle").show("slide");
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
@@ -330,8 +321,8 @@
 			    tablaTotales+='<tr>'
 			    			+'<td class="text-center">Peso Total</td>' 
 			    			+'<td class="milesLimpio text-center">'+Math.floor(piezas)+'</td>'
-			    			+'<td class="milesLimpio text-center">'+Math.floor(pesoTd)+'</td>'
-			    			+'<td class="milesLimpio text-center">'+Math.floor(tonHtml)+'</td>'
+			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
+			    			+'<td class="text-center">'+tonHtml+'</td>'
 			    			+'</tr>';
 						
 			    $("#tablatotales").append(tablaTotales);
@@ -347,7 +338,11 @@
 			var fechaRemision = $("#fechaRemision").val();
 			var pesoTara = $("#txtTara").val();
 			var pesoBruto = $("#txtPesoBruto").val();
-			var pesoTotal = $("#txtPesoTotal").val();
+			var pesoTotal = 0;
+			$('.pesoTo').each(function(i,obj){
+					pesoTotal = limpiaValor($(this).text());
+			})
+			
         	var datos = [];
         	
 			$(":input[class=dataVarilla]").each(function(index, element) {

@@ -143,7 +143,7 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info milesLimpio">'+Math.floor(object.peso)+'</td>';
-	                		tabla +='<td><input type="text" class="form-control milesLimpio" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="" /></td>';
+	                		tabla +='<td><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Ingresa Peso de Salida" class="form-control milesLimpio" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="" /></td>';
 	                		//tabla +='<td><input type="text" class="form-control miles" value="0" /></td>';
 	                		tabla +='<td><button type="button" class="btn btn-info" name="btnAceptar" id="btnAceptar" onClick="agregaDetalle('+count+');">Aceptar Salida</button></td>';
 	                    tabla +='</tr>';
@@ -158,6 +158,7 @@
 				swal("Error!", "Error en la petición del Material Recepcionado","error");
 			});
 			$("#tablaMaterial tbody").append(tabla);
+			$('[data-toggle="toolinfo"]').tooltip();
 		}
 		agregaDetalle = function(posicion){
 			var asignado = $("#txtAsignado_"+posicion).val();
