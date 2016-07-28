@@ -706,11 +706,11 @@ def inventarioFisicoCierreView(request):
 	return render(request, template, {"totales": totales})
 def inventarioFisicoCierreAjusteView(request):
 	inr = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro=0).order_by("-numConteo").order_by("-id")[:1]
-	print "AQUI"
-	print inr.query
+	#print "AQUI"
+	#print inr.query
 	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
 	idI = inr[0].id
-	print idI
+	#print idI
 	inventario = get_object_or_404(InventarioFisico, pk=idI)
 	inventarioDetalle = InventarioFisicoDetalle.objects.filter(inventarioFisico_id=idI);
 	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
@@ -1560,7 +1560,7 @@ def foliosMostrar(request):
 		numFolioInt = 1
 		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio").order_by("-id")[:1]
 		p = request.session["proveedorTaller"]	
-		print folio.query
+		#print folio.query
 		if folio.exists():
 			numFolio = folio[0].numFolio
 			conteo = folio[0].numConteo
@@ -2847,7 +2847,7 @@ def reporteConsulta(request):
 												.order_by("material__id")
 
 
-		print total.query
+		#print total.query
 		for x in total:
 			
 			resultado = {
@@ -2937,7 +2937,7 @@ def reporteConsulta(request):
 												.order_by("material__id")
 
 
-		print total.query
+		#print total.query
 		for x in total:
 			
 			resultado = {
@@ -3596,7 +3596,7 @@ def inventarioFisicoCierreSave(request):
 	fechaRemision= '14/06/2016'
 	json_object = json.loads(respuesta)
 	inventarioremisiondetalle__estatusInventario = 0
-
+	cantidad=0
 	
 	for data in json_object:
 		idC= data["id"]
@@ -3605,7 +3605,16 @@ def inventarioFisicoCierreSave(request):
 	InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
 	Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
 	InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
-
+	numFolio=0
+	folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	if folio.exists():
+			numFolio = folio[0].numFolio
+	numFolioInt = int(numFolio)+1
+	numFolio = "%03d" % (numFolioInt,)
+	ident= request.session["proveedorTaller"]
+	numFolio = "IFA-"+ident+"-"+numFolio
+	numFolio = numFolio.encode('utf-8')
+	
 	for data in json_object:
 
 		print data
@@ -3653,6 +3662,7 @@ def inventarioFisicoCierreSave(request):
 			cantidadEntrada = 0
 		observacionEntrada = data["observacionEntrada"]
 		cantidadSalida = data["cantidadSalida"]
+		print cantidadSalida
 		if cantidadSalida:
 			cantidadReal = InventarioRemisionDetalle.objects\
 						.values(
@@ -3663,6 +3673,7 @@ def inventarioFisicoCierreSave(request):
 						.annotate(cantidadMaterial = Sum('cantidad'))\
 						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"], material_id = material)\
 						.order_by('material_id')
+
 			cantidad = cantidadReal[0]['pesoMaterial']
 			print "------"
 			print material
@@ -3726,15 +3737,7 @@ def inventarioFisicoCierreSave(request):
 			cantidadSalida = 0
 
 		observacionSalida = data["observacionSalida"]
-		numFolio=0
-		folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
-		if folio.exists():
-			numFolio = folio[0].numFolio
-		numFolioInt = int(numFolio)+1
-		numFolio = "%03d" % (numFolioInt,)
-		ident= request.session["proveedorTaller"]
-		numFolio = "IFA-"+ident+"-"+numFolio
-		numFolio = numFolio.encode('utf-8')
+		
 		ifdc = InventarioFisicoDetalleCierre.objects\
 				.create(
 						pesoExistencia = existencia,
