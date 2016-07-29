@@ -262,6 +262,7 @@
 			var tonHtml = '';
 			var pesoTd = 0;
 			var piezas=0;
+			var limpia=0;
 			var tablaTotales='';
 			$("input.cantidadTotal[type=text]").each(function(index, element) {
 				idMaterial = $(this).attr("attrIdMaterial");
@@ -304,29 +305,35 @@
 				$("#tablaApoyoElemento").append(tabla);
 				$('.pesoTotal').each(function(i, obj) {
 					pesoTd += parseFloat($(this).text());
+					console.log("peso ",pesoTd);
 				});
 				$('.piezasT').each(function(i,obj){
-					piezas += parseFloat($(this).text());
+					limpia=limpiaValor($(this).text());
+					piezas +=parseInt(limpia);
+					console.log("pis",piezas);
 				})
 				if(pesoTotal >= 1000){
 					ton = pesoTd / 1000;
-					tonHtml += ton.toFixed(2);
+					ton = ton.toFixed(2);;
+					tonHtml += parseFloat(ton);
+					console.log("ton",tonHtml);
 				}
 				$("#txtPesoTotal").append(pesoTd);
 				$("#divDetalle").show("slide");
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
-			    console.log(piezas);
+			    console.log("piezas",piezas);
 			    console.log(pesoTd);
-			    tablaTotales+='<tr>'
+			    tablaTotales='<tr>'
 			    			+'<td class="text-center">Peso Total</td>' 
-			    			+'<td class="milesLimpio text-center">'+Math.floor(piezas)+'</td>'
+			    			+'<td class="milesLimpio text-center">'+piezas+'</td>'
 			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
 			    			+'<td class="text-center">'+tonHtml+'</td>'
 			    			+'</tr>';
 						
 			    $("#tablatotales").append(tablaTotales);
 				$("#divTotales").show("slide");
+				tablaTotales='';
 			}
 		});
 		$( "#btnSolicitar" ).click(function() {
@@ -339,6 +346,9 @@
 			var pesoTara = $("#txtTara").val();
 			var pesoBruto = $("#txtPesoBruto").val();
 			var pesoTotal = 0;
+			var tablaTotales='';
+			
+				
 			$('.pesoTo').each(function(i,obj){
 					pesoTotal = limpiaValor($(this).text());
 			})
@@ -420,6 +430,7 @@
 			$("#divCantidades").hide();
 		    $("#divCantidadesBotones").hide();
 		    $("#divDetalle").hide('slide');
+		    $("#divTotales").hide("slide");
 		    $("#divDetalleSolicita").hide();
 		    $("#divDetalleCancelar").hide();
 		});
@@ -454,7 +465,40 @@
 			}
 		}
 		function eliminar (a){
+		
+			
 			$(a).closest("tr").remove();
+			$("#tablatotales tbody").empty();
+			var pesoTd=0;
+			var piezas=0;
+			var tonHtml=0;
+			var limpia=0;
+			var tablaTotales = '';
+			$('.pesoTotal').each(function(i, obj) {
+				pesoTd += parseFloat($(this).text());
+				});
+				$('.piezasT').each(function(i,obj){
+					limpia=limpiaValor($(this).text());
+					piezas +=parseInt(limpia);
+				})
+				if(pesoTd >= 1000){
+					ton = pesoTd / 1000;
+				
+					ton = ton.toFixed(2);;
+					tonHtml += parseFloat(ton);
+				
+				}
+				$("#txtPesoTotal").append(pesoTd);
+				
+			    tablaTotales='<tr>'
+			    			+'<td class="text-center">Peso Total</td>' 
+			    			+'<td class="milesLimpio text-center">'+piezas+'</td>'
+			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
+			    			+'<td class="text-center">'+tonHtml+'</td>'
+			    			+'</tr>';
+						
+			    $("#tablatotales tbody").append(tablaTotales);
+				$("#divTotales").show("slide");
 		}
 		
 
