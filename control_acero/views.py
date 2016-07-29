@@ -579,6 +579,51 @@ def movimientosView(request):
 		movimientos = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/movimientos/movimiento.html', {"movimientos": movimientos})
 
+def movimientosFecha(request):
+	array = {}
+	mensaje = {}
+	data = []
+	fecha = request.POST.get('fecha', '17/05/2016')
+	
+	fechaInicialFormat = datetime.strptime(fecha+" 00:00:00", '%d/%m/%Y %H:%M:%S')
+	fechaFinalFormat = datetime.strptime(fecha+" 23:59:59", '%d/%m/%Y %H:%M:%S')
+	movimientos = Bitacora.objects.values(
+											"id",
+											"accion",
+											"observacion",
+											"id_afectado",
+											"fechaRegistro",
+											"modulo__id",
+											"modulo__descripcion",
+											"user__id",
+											"user__first_name",
+											"user__last_name"
+										)\
+										.filter(		fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("id")
+	for m in movimientos:
+		fecha = m['fechaRegistro'].strftime("%d/%m/%Y")
+		respuesta={
+			"id":m["id"],
+			"accion":m["accion"],
+			"observacion":m["observacion"],
+			"id_afectado":m["id_afectado"],
+			"fechaRegistro":fecha,
+			"modulo__id":m["modulo__id"],
+			"descripcion":m["modulo__descripcion"],
+			"idUss":m["user__id"],
+			"nombre":m["user__first_name"],
+			"apellidos":m["user__last_name"]
+		}
+		data.append(respuesta)
+
+	array["data"]=data
+
+	return JsonResponse(array)
+
+
 def movimientosDetalleView(request, pk):
 	folios=0
 	movimiento = get_object_or_404(Bitacora, pk=pk)
@@ -3762,6 +3807,7 @@ def inventarioFisicoCierreSave(request):
 	bitacora = Bitacora.objects.create(accion="Cierre", id_afectado=idInventario, observacion="El id guardado es de inventario cierre", estatus=1, modulo_id=5, user_id=request.user.id)
 	mensaje = {"estatus":"ok", "mensaje":"El inventario se ha modificado y cerrado Correctamente.  Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	#mailHtmlIFA(request,ifdc.pk)
 	return JsonResponse(array)
 
 def inventarioRemision(request):
@@ -4583,7 +4629,7 @@ def mailHtmlIF(request, folio):
 
 def mailHtmlIFA(request, folio):
 	# Mail InventariofisicoAjuste
-	print "IF****"
+	print "IFA****"
 	print folio
 	idfolio= int(folio)
 	inventario = InventarioFisico.objects.values(

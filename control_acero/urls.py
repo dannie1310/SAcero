@@ -105,6 +105,7 @@ urlpatterns = [
     url(r'^catalogos/transportes/(?P<pk>[0-9]+)/edit/$', views.transportesEditView, name='transportesEditView'),
 
     url(r'^catalogos/movimientos/$', views.movimientosView, name='movimientosView'),
+    url(r'^catalogos/movimientos/fecha/$', views.movimientosFecha, name='movimientosFecha'),
     url(r'^catalogos/movimientos/(?P<pk>[0-9]+)/detalle/$', views.movimientosDetalleView, name='movimientosDetalleView'),
 
     url(r'^inventario/$', views.inventario, name='inventario'),
