@@ -11,8 +11,6 @@
 					<th class="text-center">Apellidos(s)</th>
 					<th class="text-center">Fecha de Movimiento</th>
 					<th class="text-center">Modulo afectado</th>
-					<th class="text-center">Observacion</th>
-					<th class="text-center">Accion</th>
 					<th class="text-center">Ver Detalle</th>
 
 				</tr>
@@ -25,8 +23,6 @@
 			    	<td>{{ a.user__last_name }}</td>
 			    	<td>{{ a.fechaRegistro }}</td>
 			    	<td>{{ a.modulo__descripcion }}</td>
-			    	<td>{{ a.observacion }}</td>
-			    	<td>{{ a.accion }} </td>
 			    	<td>
 				    	<a href="/control_acero/catalogos/movimientos/{{a.id}}/detalle/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
 				    </td>
