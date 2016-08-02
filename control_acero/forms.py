@@ -61,7 +61,7 @@ class FuncionForm(forms.ModelForm):
 class TallerForm(forms.ModelForm):
 	class Meta:
 		model = Taller
-		fields = ['nombre', 'estatus', 'ubicacion' ,'funcion', 'user']
+		fields = ['nombre', 'estatus', 'ubicacion' ,'funcion', 'proveedor', 'user']
 		exclude = ['estatus']
 
 class TransporteForm(forms.ModelForm):

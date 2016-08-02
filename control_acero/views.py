@@ -362,8 +362,8 @@ def despiecesEditView(request, pk):
 	return render(request, 'control_acero/catalogos/despieces/despiece_edit.html', {'form': form})
 
 def materialesView(request):
-	material_list = Material.objects.filter(estatus=1)
-	paginator = Paginator(material_list, 10)
+	material_list = Material.objects.filter(estatus=1).order_by("numero");
+	paginator = Paginator(material_list, 12)
 	page = request.GET.get('page')
 	try:
 		materiales = paginator.page(page)
@@ -480,6 +480,7 @@ def talleresView(request):
 						"id",
 						"nombre",
 						"ubicacion",
+						"proveedor",
 						"funcion__proveedor")\
 					.filter(estatus=1)
 	paginator = Paginator(talleres_list, 10)
@@ -986,7 +987,7 @@ def elementoMaterial(request):
 											'longitud',
 											'factor__pva',
 											'factor__factorPulgada',
-											'factor__pi').filter(id=material)
+											'factor__pi').filter(id=material).order_by("numero")
 	else:
 		elemento = Material.objects.values(
 										'id',
@@ -998,7 +999,7 @@ def elementoMaterial(request):
 										'longitud',
 										'factor__pva',
 										'factor__factorPulgada',
-										'factor__pi').filter()
+										'factor__pi').filter().order_by("numero")
 	#print elemento.query
 	for e in elemento:
 		diametro = e['diametro']
@@ -1007,7 +1008,9 @@ def elementoMaterial(request):
 		pi = e['factor__pi']
 		diametroMetro = diametro / 1000
 		factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
-		factorCalculadoDecimal = "%.4f" % factorCalculado
+		print diametroMetro
+		factorCalculadoDecimal = "%.3f" % factorCalculado
+		print factorCalculadoDecimal 
 		resultado = {
 						"idMaterial":e['id'],
 						"nombreMaterial":e['nombre'],

@@ -185,6 +185,7 @@
 			function(data, status) {
 	            try {
 	                $.each(data.data, function (count, object) {
+
 	                	conversionInicial = (object.conversion)*(object.materialLongitud);
 	                	
 	                	checks += '<div id="tablaVarillasCheck" class="col-md-3"><input onclick="muestraVarillas('+object.idMaterial+');" name="chk_'+object.idMaterial+'" id="chk_'+object.idMaterial+'" value="'+object.idMaterial+'" type="checkbox"> '+object.nombreMaterial+'</div>';
@@ -314,7 +315,7 @@
 				})
 				if(pesoTotal >= 1000){
 					ton = pesoTd / 1000;
-					ton = ton.toFixed(2);;
+					ton = ton.toFixed(2);
 					tonHtml += parseFloat(ton);
 					//console.log("ton",tonHtml);
 				}
