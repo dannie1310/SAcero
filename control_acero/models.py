@@ -251,6 +251,7 @@ class Folio(models.Model):
 class InventarioFisico(models.Model):
 	numFolio = models.IntegerField(null=True)
 	folio = models.CharField(max_length=20,null=True)
+	numConteo = models.IntegerField(null=True)
 	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoInventario')
 	noEntradas = models.IntegerField(null=True)
 	totalEntradas = models.IntegerField(null=True)
@@ -351,7 +352,7 @@ class InventarioFisicoDetalleCierre(models.Model):
 		return unicode(self.estatus)
 
 class Remision(models.Model):
-	idOrden = models.IntegerField()
+	idOrden = models.CharField(max_length=20,null=True)
 	remision = models.IntegerField(null=True)
 	funcion = models.ForeignKey(Funcion, null=True)
 	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignado')

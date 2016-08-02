@@ -203,10 +203,11 @@
      _________________________________________________________ -->
         <div id="top">
             <div class="container">
-                <div class="col-md-6" data-animate="fadeInDown">
+                <div class="col-md-12" data-animate="fadeInDown">
                     <ul class="menu">
                         <li><a href="#">Bienvenido {{ user.get_username }}</a>
                         </li>
+                        <li><a href="#">Fecha: {% now "d/m/Y" %}</a></li>
                         <li><a href="{% url 'logout' %}">Salir</a>
                         </li>
                     </ul>
@@ -247,7 +248,7 @@
                                 <li>
                                     <div class="yamm-content">
                                         <div class="row">
-                                            <div class="col-sm-3">
+                                            <div class="col-sm-12">
                                                 <ul>
                                                 {% if perms.control_acero.view_movimientos %}
                                                     <li><a href="{% url 'movimientosView' %}">Consulta de Movimientos </a>
@@ -257,10 +258,10 @@
                                                     <li><a href="{% url 'materialesView' %}">Registro de Materiales(Varillas) </a>
                                                     </li>
                                                 {% endif %}
-                                                {% if perms.control_acero.add_despieces %}
+                                                <!-- {% if perms.control_acero.add_despieces %}
                                                     <li><a href="{% url 'despiecesView' %}">Registro de Despieces</a>
                                                     </li>
-                                                {% endif %}
+                                                {% endif %} -->
                                                 {% if perms.control_acero.add_elementos %}
                                                     <li><a href="{% url 'elementosView' %}">Registro de Elementos</a>
                                                     </li>
@@ -281,10 +282,10 @@
                                                     <li><a href="{% url 'talleresView' %}">Registro de Talleres de Habilitado</a>
                                                     </li>
                                                 {% endif %}
-                                                {% if perms.control_acero.add_transportes %}
+                                                <!-- {% if perms.control_acero.add_transportes %}
                                                     <li><a href="{% url 'transportesView' %}">Registro de Transportes</a>
                                                     </li>
-                                                {% endif %}
+                                                {% endif %} -->
                                                 </ul> 
                                             </div>
                                         </div>

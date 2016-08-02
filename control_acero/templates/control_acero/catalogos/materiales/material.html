@@ -11,7 +11,6 @@
 					<th class="text-center">Peso (Kg) Metro Lineal Calculado</th>
 					<th class="text-center">Diametro en Milimetros</th>
 					<th class="text-center">Longitud</th>
-					<th class="text-center">Proveedor</th>
 					<th class="text-center">Tipo</th>
 					<th class="text-center">Acciones</th>
 				</tr>
@@ -23,7 +22,6 @@
 			    	<td>{{material.peso}}</td>
 			    	<td>{{material.diametro}}</td>
 			    	<td>{{material.longitud}}</td>
-			    	<td>{{material.proveedor}}</td>
 			    	<td>{{ material.get_tipo_display }}</td>
 			   
 			    	<td><a href="/control_acero/catalogos/materiales/{{material.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catalogos/materiales/delete/{{material.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>

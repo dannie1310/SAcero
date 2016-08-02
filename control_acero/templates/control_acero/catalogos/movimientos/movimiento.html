@@ -4,15 +4,26 @@
 {% endblock %}
 {% block content %}
 	<div class="col-xs-12">
-		<table class="table table-hover">
+		<div style="display:none;"  id="btnBuscar" class="col-md-12">
+			<div class="form-group col-md-6">
+				<label  class="control-label" for="fechaBusca">Fecha Final:</label>
+				<input type="text" class="calendario form-control" name="fechaBusca" id="fechaBusca" value="{% now "d/m/Y" %}"></input>
+			</div>
+			<br />
+			<div  class="form-group col-md-6">
+				<button type="button" class="btn btn-success" name="buscar" id="buscar">Buscar</button>
+			</div>
+		</div>
+		
+
+	<div id="divPrincipal" class="table-responsive col-md-12">
+		<table id="tabla1" class="table table-hover">
 			<thead>
 				<tr>
 					<th class="text-center">Nombre de Usuario</th>
 					<th class="text-center">Apellidos(s)</th>
 					<th class="text-center">Fecha de Movimiento</th>
 					<th class="text-center">Modulo afectado</th>
-					<th class="text-center">Observacion</th>
-					<th class="text-center">Accion</th>
 					<th class="text-center">Ver Detalle</th>
 
 				</tr>
@@ -25,8 +36,6 @@
 			    	<td>{{ a.user__last_name }}</td>
 			    	<td>{{ a.fechaRegistro }}</td>
 			    	<td>{{ a.modulo__descripcion }}</td>
-			    	<td>{{ a.observacion }}</td>
-			    	<td>{{ a.accion }} </td>
 			    	<td>
 				    	<a href="/control_acero/catalogos/movimientos/{{a.id}}/detalle/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
 				    </td>
@@ -34,8 +43,8 @@
 			{% endfor %}
 			</tbody>
 		</table>
-
-		<div class="col-md-12">
+		<div>
+		<div id="paginador" style= "display:none;" class="col-md-12">
 	        <ul class="pagination">
 		        {% if movimientos.has_previous %}
 		            <li>
@@ -61,4 +70,43 @@
 	        </ul>
 	    </div>
 	</div>
+	<script type="text/javascript">
+	$( "#buscar" ).click(function() {
+		var fecha = $("#fechaBusca").val();
+		//console.log(fecha);
+		$("#tabla1 tbody").empty();
+		var tabla='';
+		$.post( "{% url 'movimientosFecha' %}",{
+					fecha:fecha	
+			},
+			function(data, status) {
+	            try {
+	            if (data.data.length==0){
+	            	tabla='<tr><th class="text-center" colspan="5">No se encuentran registros con la fecha: ' +fecha+' </th></tr>'
+	            }
+
+	            	$.each(data.data, function (count, object) {
+	            		
+                    	console.log(object);
+                    	tabla+='<tr><td class="text-center">'+object.nombre+'</td>'
+					+'<td class="text-center">'+object.apellidos+'</td>'
+					+'<td class="text-center">'+object.fechaRegistro+'</td>'
+					+'<td class="text-center">'+object.descripcion+'</td>'
+					+'<td class="text-center"><a href="/control_acero/catalogos/movimientos/'+object.id+'/detalle/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a></td></tr>';
+                    });
+	            	
+		        } catch (e) {
+	                swal("Error!","Consulta invalida","error");
+	            }
+			})
+			.fail(function() {
+				swal("Error!", "Error no se encontro información ","error");
+			});
+			$("#tabla1").append(tabla);
+			$("#paginador").hide("slide");
+	});
+
+		$("#btnBuscar").show("slide");
+		$("#paginador").show("slide");
+	</script>
 {% endblock %}

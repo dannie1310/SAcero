@@ -261,7 +261,10 @@
 			},
 			function(data, status) {
 	            try {
-
+	            	
+	            	if (data.data.length==0){
+	            		tabla='<tr><th class="text-center" colspan="5">No se encuentran registros con esos datos de busqueda. </th></tr>'
+	            	}
 	                $.each(data.data, function (count, object) {
 	                	//console.log(data);
 	                	//console.log("Fabricante", tipo);
@@ -480,12 +483,23 @@
 								+'</tr>';
 
 	                        	tabla += '<tr>';
-	                        	tabla +='<td>'+object.folio+'</td>';
-	                        	tabla +='<td>'+object.taller+'</td>';
-	                        	tabla +='<td>'+object.fechaR+'</td>';
-	                        	tabla +='<td>'+object.frente+'</td>';
-	                        	tabla +='<td>'+object.apoyo+'</td>';
-	                    		tabla +='<td>'+object.elemento+'</td>';
+	                        	if(object.folio == null){
+	                        		tabla +='<td>Ajuste de Entrada</td>';
+	                        		tabla +='<td>'+object.taller+'</td>';
+		                        	tabla +='<td>'+object.fechaR+'</td>';
+		                        	tabla +='<td>Ajuste</td>';
+		                        	tabla +='<td>Ajuste</td>';
+		                    		tabla +='<td>Ajuste</td>';
+	                        	}
+	                        	else{
+	                        		tabla +='<td>'+object.folio+'</td>';
+		                        	tabla +='<td>'+object.taller+'</td>';
+		                        	tabla +='<td>'+object.fechaR+'</td>';
+		                        	tabla +='<td>'+object.frente+'</td>';
+		                        	tabla +='<td>'+object.apoyo+'</td>';
+		                    		tabla +='<td>'+object.elemento+'</td>';
+	                        	}
+	                        	
 	                    		tabla +='<td>'+object.material+'</td>';
 	                    		tabla +='<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>';
 	                    		
@@ -511,14 +525,25 @@
 								+'<th class="text-center">Peso Asignado en Kg</th>'
 								
 								+'</tr>';
-
-	                        	tabla += '<tr>';
-	                        	tabla +='<td>'+object.folio+'</td>';
-	                        	tabla +='<td>'+object.taller+'</td>';
-	                        	tabla +='<td>'+object.fechaR+'</td>';
-	                        	tabla +='<td>'+object.frente+'</td>';
-	                        	tabla +='<td>'+object.apoyo+'</td>';
-	                    		tabla +='<td>'+object.elemento+'</td>';
+								tabla += '<tr>';
+								if(object.folio == null){
+	                        		tabla +='<td>Ajuste de Entrada</td>';
+	                        		tabla +='<td>'+object.taller+'</td>';
+		                        	tabla +='<td>'+object.fechaR+'</td>';
+		                        	tabla +='<td>Ajuste</td>';
+		                        	tabla +='<td>Ajuste</td>';
+		                    		tabla +='<td>Ajuste</td>';
+	                        	}
+	                        	else{
+	                        		tabla +='<td>'+object.folio+'</td>';
+		                        	tabla +='<td>'+object.taller+'</td>';
+		                        	tabla +='<td>'+object.fechaR+'</td>';
+		                        	tabla +='<td>'+object.frente+'</td>';
+		                        	tabla +='<td>'+object.apoyo+'</td>';
+		                    		tabla +='<td>'+object.elemento+'</td>';
+	                        	}
+	                        	
+	                        	
 	                    		tabla +='<td>'+object.material+'</td>';
 	                    		tabla +='<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>';
 	                    		
@@ -549,17 +574,32 @@
 											+'</tr>';
 
 				                        	t += '<tr>';
-				                        	t +='<td>'+object.folio+'</td>';
-				                        	t +='<td>'+object.proveedor+'</td>';
-				                        	t +='<td>'+object.taller+'</td>';
-				                        	t +='<td>'+object.orden+'</td>';
-											t +='<td>'+object.remision+'</td>';
-				                    		t +='<td>'+object.material+'</td>';
-				                    		t +='<td class="milesLimpio">'+Math.floor(object.piezas)+'</td>';
-				                    		t +='<td>'+object.longitud+'</td>';
-				                    		
-				                    		t +='<td>'+object.fechaA+'</td>';
-				                    		t +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
+
+							                if(object.folio == null){
+				                        		t +='<td>Ajuste de Entrada</td>';
+				                        		t +='<td>Ajuste</td>';
+				                        		t +='<td>'+object.taller+'</td>';
+				                        		t +='<td>Ajuste</td>';
+												t +='<td>Ajuste</td>';
+												t +='<td>'+object.material+'</td>';
+					                    		t +='<td>Ajuste</td>';
+					                    		t +='<td>Ajuste</td>';
+					                    		t +='<td>'+object.fechaA+'</td>';
+					                    		t +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
+				                        	}
+				                        	else{
+				                        		t +='<td>'+object.folio+'</td>';
+				                        		t +='<td>'+object.proveedor+'</td>';
+				                        		t +='<td>'+object.taller+'</td>';
+				                        		t +='<td>'+object.orden+'</td>';
+												t +='<td>'+object.remision+'</td>';
+												t +='<td>'+object.material+'</td>';
+					                    		t +='<td class="milesLimpio">'+Math.floor(object.piezas)+'</td>';
+					                    		t +='<td>'+object.longitud+'</td>';
+					                    		t +='<td>'+object.fechaA+'</td>';
+					                    		t +='<td class="milesLimpio">'+Math.floor(object.peso)+'</td>';
+				                        	}
+				                        	
 				                    		t += '</tr>';
 				                    		$("#tituloE").show('slide');
 

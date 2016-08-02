@@ -16,7 +16,7 @@
 		<table class="table table-hover">
 			<thead>
 				<tr>
-					<th class="text-center">#</th>
+					<!-- <th class="text-center">#</th> -->
 					<th class="text-center">Folio</th>
 					<th class="text-center">Fecha de Registro</th>
 					<th class="text-center">Estatus del Inventario</th>
@@ -27,9 +27,29 @@
 			<tbody>
 			{% if inventario %}
 				{% for inv in inventario %}
+					{% if inv.estatusRegistro == 1%}
+						{% if inv.numConteo < 3%}
+							<tr style="display:none;">
+						{% else %}
+							<tr>
+						{% endif %}
+							
+				    		<td>{{inv.folio}}</td>
+				    		<td>{{inv.fechaRegistro}}</td>
+				    		<td class="danger">Cerrado</td>
+				    		<td>
+				    		<a href="/control_acero/inventario/fisico/{{inv.id}}/edit/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+				    		</td>
+				    		<td>
+							    		<span aria-hidden="true">El inventario ha sido cerrado</span>
+							 </td>
+
+				    	</tr>
+
+						
+					{% else %}
 					
 					<tr>
-						<td>{{inv.id}}</td>
 				    	<td>{{inv.folio}}</td>
 				    	<td>{{inv.fechaRegistro}}</td>
 				    	{% if inv.estatusRegistro == 0 %}
@@ -45,14 +65,37 @@
 						    {% if inv.estatusRegistro == 0 %}
 
 						    	{% if ajuste == 2 %}
-							    	<td>
-							    		<a href="/control_acero/inventario/fisico/cierre/"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></a>
-							    	</td>
+						    		{% if inv.numConteo < 2%}
+										<td><a href="/"><span class="" aria-hidden="false"></span></a>
+									    	</td>
+									{% else %}
+									<td>
+
+										<a href="/control_acero/inventario/fisico/cierre/"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></a>
+							    	</td>							
+							    	{% endif %}
+							    	
+							    		
 
 							    {% else %}
+								    {% if ajuste == 3 %}
+									    {% if inv.numConteo < 3%}
+											<td><a href="/"><span class="" aria-hidden="false"></span></a>
+									    	</td>
+										{% else %}
+												<td>
+										
+									    		<a href="/control_acero/inventario/fisico/cierre/ajuste/"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="false"></span></a>
+									    	</td>
+
+										{% endif %}
+							    		
+							    	{% else %}
 						    		<td>
 							    		<span aria-hidden="true">Debe realizar otro inventario fisico</span>
 							    	</td>
+
+							    	{% endif %}
 						    	{% endif %}
 						    {% else %}
 							    	<td>
@@ -66,7 +109,9 @@
 					    	</td>
 					    {% endif %}
 				   	</tr>
+				   	{% endif %}
 				{% endfor %}
+
 			{% else %}
 				<tr>
 					<th class="text-center" colspan="6"><h2>AUN NO SE HA REALIZADO LEVANTAMIENTO FISICO </h2></th>

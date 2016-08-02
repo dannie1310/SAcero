@@ -1,0 +1,60 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	CATALOGO DE MOVIMIENTO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="text-center">Nombre de Usuario</th>
+					<th class="text-center">Apellidos(s)</th>
+					<th class="text-center">Fecha de Movimiento</th>
+					<th class="text-center">Modulo afectado</th>
+					<th class="text-center">Ver Detalle</th>
+
+				</tr>
+			</thead>
+			<tbody>
+
+			{% for a in movimientos %}
+				<tr>
+			    	<td>{{ a.user__first_name}}</td>
+			    	<td>{{ a.user__last_name }}</td>
+			    	<td>{{ a.fechaRegistro }}</td>
+			    	<td>{{ a.modulo__descripcion }}</td>
+			    	<td>
+				    	<a href="/control_acero/catalogos/movimientos/{{a.id}}/detalle/"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+				    </td>
+			    </tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="col-md-12">
+	        <ul class="pagination">
+		        {% if movimientos.has_previous %}
+		            <li>
+		            	<a href="?page=1"> Principio </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ movimientos.previous_page_number }}"> << </a>
+		            </li>
+		        {% endif %}
+				{% for page in movimientos.paginator.page_range %}
+	            	<li class="{% if movimientos.number == page %}active{% endif %}">
+	            		<a href="?page={{ page }}">{{ page }}</a>
+	            	</li>
+				{% endfor %}
+		        {% if movimientos.has_next %}
+		        	<li>
+		            	<a href="?page={{ movimientos.next_page_number }}"> >> </a>
+		            </li>
+		            <li>
+		            	<a href="?page={{ movimientos.paginator.num_pages }}"> Fin </a>
+		            </li>
+		        {% endif %}
+	        </ul>
+	    </div>
+	</div>
+{% endblock %}

@@ -362,8 +362,8 @@ def despiecesEditView(request, pk):
 	return render(request, 'control_acero/catalogos/despieces/despiece_edit.html', {'form': form})
 
 def materialesView(request):
-	material_list = Material.objects.filter(estatus=1)
-	paginator = Paginator(material_list, 10)
+	material_list = Material.objects.filter(estatus=1).order_by("numero");
+	paginator = Paginator(material_list, 12)
 	page = request.GET.get('page')
 	try:
 		materiales = paginator.page(page)
@@ -476,7 +476,13 @@ def funcionesEditView(request, pk):
 	return render(request, 'control_acero/catalogos/funciones/funcion_edit.html', {'form': form})
 
 def talleresView(request):
-	talleres_list = Taller.objects.filter(estatus=1)
+	talleres_list = Taller.objects.values(
+						"id",
+						"nombre",
+						"ubicacion",
+						"proveedor",
+						"funcion__proveedor")\
+					.filter(estatus=1)
 	paginator = Paginator(talleres_list, 10)
 	page = request.GET.get('page')
 	try:
@@ -579,6 +585,51 @@ def movimientosView(request):
 		movimientos = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/movimientos/movimiento.html', {"movimientos": movimientos})
 
+def movimientosFecha(request):
+	array = {}
+	mensaje = {}
+	data = []
+	fecha = request.POST.get('fecha', '17/05/2016')
+	
+	fechaInicialFormat = datetime.strptime(fecha+" 00:00:00", '%d/%m/%Y %H:%M:%S')
+	fechaFinalFormat = datetime.strptime(fecha+" 23:59:59", '%d/%m/%Y %H:%M:%S')
+	movimientos = Bitacora.objects.values(
+											"id",
+											"accion",
+											"observacion",
+											"id_afectado",
+											"fechaRegistro",
+											"modulo__id",
+											"modulo__descripcion",
+											"user__id",
+											"user__first_name",
+											"user__last_name"
+										)\
+										.filter(		fechaRegistro__gte=fechaInicialFormat,
+														fechaRegistro__lte=fechaFinalFormat,
+														estatus=1)\
+												.order_by("id")
+	for m in movimientos:
+		fecha = m['fechaRegistro'].strftime("%d/%m/%Y")
+		respuesta={
+			"id":m["id"],
+			"accion":m["accion"],
+			"observacion":m["observacion"],
+			"id_afectado":m["id_afectado"],
+			"fechaRegistro":fecha,
+			"modulo__id":m["modulo__id"],
+			"descripcion":m["modulo__descripcion"],
+			"idUss":m["user__id"],
+			"nombre":m["user__first_name"],
+			"apellidos":m["user__last_name"]
+		}
+		data.append(respuesta)
+
+	array["data"]=data
+
+	return JsonResponse(array)
+
+
 def movimientosDetalleView(request, pk):
 	folios=0
 	movimiento = get_object_or_404(Bitacora, pk=pk)
@@ -668,8 +719,7 @@ def movimientosDetalleView(request, pk):
 													 "inventariofisicodetallecierre__observacionSalida",
 													 "inventariofisicodetallecierre__material__nombre")\
 		.filter(id=idAfectado)
-	print "datosss::   "
-	print datos	
+	
 	template = 'control_acero/catalogos/movimientos/movimientoDetalle.html'
 	
 	return render(request, template, {"movimiento": movimiento, "detalles": detalle, "afectado" : datos, "modulo": modulo, "datos": folios})
@@ -680,7 +730,7 @@ def inventario(request):
 	ajuste = InventarioFisico.objects.filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro=0)
 	for r in ajuste:
 		i=i+1
-	paginator = Paginator(inventario_list, 10)
+	paginator = Paginator(inventario_list, 20)
 	page = request.GET.get('page')
 	try:
 		inventario = paginator.page(page)
@@ -704,13 +754,32 @@ def inventarioFisicoCierreView(request):
 	idI = inventario[0].id
 	totales = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],id=idI);
 	return render(request, template, {"totales": totales})
-	
+def inventarioFisicoCierreAjusteView(request):
+	inr = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro=0).order_by("-numConteo").order_by("-id")[:1]
+	#print "AQUI"
+	#print inr.query
+	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
+	idI = inr[0].id
+	#print idI
+	inventario = get_object_or_404(InventarioFisico, pk=idI)
+	inventarioDetalle = InventarioFisicoDetalle.objects.values("id",
+														"pesoExistencia",
+														"pesoFisico",
+														"diferencia",
+														"inventarioFisico_id",
+														"material_id",
+														"material__nombre").filter(inventarioFisico_id=idI);
+	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
+	#inventario = InventarioFisico.objects.filter(id=pk, estatus=1)
+	return render(request, template, {"inventario": inventario, "detalles": inventarioDetalle})
+######################################################	
 def inventarioFisicoCierreDetalle(request):
 	array = {}
 	mensaje = {}
 	data = []
 	data2 = []
-	inventario = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],estatusRegistro=0).order_by("id")
+	idInventario = request.GET.get('idInventario')
+	inventario = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],id=idInventario).order_by("id")
 	for i in inventario:
 		resultado={
 				"id":i.id,
@@ -724,7 +793,7 @@ def inventarioFisicoCierreDetalle(request):
 												"material__nombre",
 												"material_id",
 												"pesoExistencia",
-												"pesoFisico").filter(inventarioFisico_id=i.id, estatus=1).distinct().order_by("inventarioFisico_id").order_by("material_id")
+												"pesoFisico").filter(inventarioFisico_id=idInventario, estatus=1).distinct().order_by("inventarioFisico_id").order_by("material_id")
 		
 		for d in detalle :
 			resultado2={
@@ -856,7 +925,7 @@ def recepcionMaterialSave(request):
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "%03d" % (numFolioInt,)
 	ident= request.session["proveedorTaller"]
 	numFolio = "RMH-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
@@ -918,7 +987,7 @@ def elementoMaterial(request):
 											'longitud',
 											'factor__pva',
 											'factor__factorPulgada',
-											'factor__pi').filter(id=material)
+											'factor__pi').filter(id=material).order_by("numero")
 	else:
 		elemento = Material.objects.values(
 										'id',
@@ -930,7 +999,7 @@ def elementoMaterial(request):
 										'longitud',
 										'factor__pva',
 										'factor__factorPulgada',
-										'factor__pi').filter()
+										'factor__pi').filter().order_by("numero")
 	#print elemento.query
 	for e in elemento:
 		diametro = e['diametro']
@@ -939,7 +1008,9 @@ def elementoMaterial(request):
 		pi = e['factor__pi']
 		diametroMetro = diametro / 1000
 		factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
-		factorCalculadoDecimal = "%.4f" % factorCalculado
+		print diametroMetro
+		factorCalculadoDecimal = "%.3f" % factorCalculado
+		print factorCalculadoDecimal 
 		resultado = {
 						"idMaterial":e['id'],
 						"nombreMaterial":e['nombre'],
@@ -1005,7 +1076,7 @@ def salidaHabilitadoSave(request):
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "%03d" % (numFolioInt,)
 	ident= request.session["proveedorTaller"]
 	numFolio = "SMH-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
@@ -1169,7 +1240,7 @@ def entradaArmadoSave(request):
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
+	numFolio = "%03d" % (numFolioInt,)
 	ident= request.session["ideF"]
 	numFolio = "EMA-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
@@ -1267,21 +1338,33 @@ def inventarioFisicoSave(request):
 	folioSalida = request.POST.get('folioSalida')
 	pesoSalida = request.POST.get('pesoSalida')
 	totalexistencia = request.POST.get('totalexistencia')
-	#respuesta = request.POST.get('json')
-	# respuestaRemisiones = request.POST.get('jsonRemisiones')
-	# respuestaRemisionesInventario = request.POST.get('jsonRemisionesInventario')
-	# respuestaRemisionesSalidas= request.POST.get('jsonSalidas')
+	idInvF=0
 	observacion = request.POST.get('jsonObservaciones')
 	real =request.POST.get('jsonReal')
-	
-	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+
+	conteo = 1
+	estatus = 1
+	conteoInt = 0
+	numFolioInt = 0
+	#folio---
+	folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio").order_by("-id")[:1]
+	p = request.session["proveedorTaller"]	
 	if folio.exists():
 		numFolio = folio[0].numFolio
-	numFolioInt = int(numFolio)+1
-	numFolio = "%04d" % (numFolioInt,)
-	ident= request.session["proveedorTaller"]
-	numFolio = "LIF-"+ident+"-"+numFolio
+		conteo = folio[0].numConteo
+		estatus = folio[0].estatusRegistro
+	if estatus == 0 and conteo <= 2:
+		conteo = int(conteo) + 1
+		numFolioInt = int(numFolio)
+	else:
+		conteo = 1
+		numFolioInt = int(numFolio)+1
+	conteoInt = str(conteo)
+	numFolio = "%03d" % (numFolioInt,)
+	numFolio = "LIF-"+p+"-"+numFolio+"-"+conteoInt
 	numFolio = numFolio.encode('utf-8')
+	
+
 	inventarioFisico = InventarioFisico.objects\
 		.create(
 				noEntradas = folioEntrada,
@@ -1291,16 +1374,11 @@ def inventarioFisicoSave(request):
 				totalExistencias = totalexistencia,
 				folio = numFolio,
 				numFolio = numFolioInt,
-				tallerAsignado_id = request.session["idTaller"]
+				tallerAsignado_id = request.session["idTaller"],
+				numConteo=conteo
 				)
 	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=inventarioFisico.pk, observacion="El id guardado es del inventario fisico", estatus=1, modulo_id=4, user_id=request.user.id)
-	# json_object = json.loads(respuesta)
-	# for data in json_object:
-	# 	material = data["materialId"]
-	# 	pesoExistencia = data["existencias"]
-	# 	pesoFisico = data["existenciaFisica"]
-	# 	diferencia = data["diferencia"]
-	# 	tipo = data["bandera"]
+	idFolioFisico=inventarioFisico.pk;
 	json_observaciones = json.loads(observacion)
 		
 	for r in json_observaciones:
@@ -1392,28 +1470,110 @@ def inventarioFisicoSave(request):
 						}
 			data.append(resultado)
 		
-		
+	print "***++"
+	print conteo
+	margen = 0
+	error = 0
+	idIF = 0
+	estatusCierre = 0
+	if conteo == 2:
+		detalle = InventarioFisicoDetalle.objects.values(
+														"id",
+														"pesoExistencia",
+														"pesoFisico",
+														"diferencia",
+														"inventarioFisico_id",
+														"material_id",
+														"material__nombre"
+													)\
+												.filter(inventarioFisico__estatusRegistro=0)\
+												.order_by("inventarioFisico_id")
+
 
 					
-				
+		#print detalle		
+		for d in detalle:
+			print d["inventarioFisico_id"]
+			print d["pesoExistencia"]
+			print d["pesoFisico"]
+			idIF=d["inventarioFisico_id"]
+			fisico = int(d["pesoFisico"])
+			margen = int(d["pesoExistencia"]) * 0.03
+			print margen
+			margenNeg = int(d["pesoExistencia"]) - margen
+			
+			margenPos = int(d["pesoExistencia"]) + margen
+			print margenPos
+			print margenNeg
+			if  margenNeg <= fisico and fisico <= margenPos:
+				print "si entra en el margen "
+			else: 
+				print "NO entra en el margen "
+				error = 1
+		if error == 0 :
+			print "cierre automatico"
+			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
+			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
 
-	# json_remisiones = json.loads(respuestaRemisiones)
-	# for data1 in json_remisiones:
-	# 	RemisionDetalle.objects.filter(id=data1).update(folioInventario = numFolioInt)
-	# 	#RemisionDetalle.objects.filter(id=data1).update(estatusInventario=1, folioInventario = numFolioInt)
+			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
+			estatusCierre = 1
+		else:
+			print "3er inventario"
 
-	# json_remisionesInventario = json.loads(respuestaRemisionesInventario)
-	# for data2 in json_remisionesInventario:
-	# 	InventarioRemisionDetalle.objects.filter(id=data2).update(folioInventario = numFolioInt)
 
-	# json_salidas = json.loads(respuestaRemisionesSalidas)
-	# for data3 in json_salidas:
-	# 	Salida.objects.filter(id=data3).update(folioInventario = numFolioInt)
+	if conteo == 3:
+		detalle = InventarioFisicoDetalle.objects.values(
+														"id",
+														"pesoExistencia",
+														"pesoFisico",
+														"diferencia",
+														"inventarioFisico_id",
+														"material_id",
+														"material__nombre"
+													)\
+												.filter(inventarioFisico__estatusRegistro=0, inventarioFisico_id = inventarioFisico.pk)\
+												.order_by("inventarioFisico_id")
 
-	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
+
+					
+		#print detalle		
+		for d in detalle:
+			print d["inventarioFisico_id"]
+			print d["pesoExistencia"]
+			print d["pesoFisico"]
+			idIF=d["inventarioFisico_id"]
+			fisico = int(d["pesoFisico"])
+			margen = int(d["pesoExistencia"]) * 0.03
+			print margen
+			margenNeg = int(d["pesoExistencia"]) - margen
+			
+			margenPos = int(d["pesoExistencia"]) + margen
+			print margenPos
+			print margenNeg
+			if  margenNeg <= fisico and fisico <= margenPos:
+				print "si entra en el margen "
+			else: 
+				print "NO entra en el margen "
+				error = 1
+		if error == 0 :
+			print "cierre automatico"
+			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
+			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+
+			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
+			estatusCierre = 1
+		else:
+			print "3er inventario"
+			idInvF=inventarioFisico.pk
+
+	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio, "estatusCierre": estatusCierre, "inventarioAjuste": idInvF}
 	array = mensaje
 	array["data"]=data
-	mailHtmlIF(request,numFolioInt)
+	mailHtmlIF(request,idFolioFisico)
 	return JsonResponse(array)
 
 def foliosMostrar(request):
@@ -1431,7 +1591,7 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "RMH-"+p+"-"+numFolio
 		print request.session["proveedorTaller"]
 		print request.session['idfuncion']
@@ -1441,7 +1601,7 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "SMH-"+p+"-"+numFolio
 	if int(modulo) == 3:
 		folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
@@ -1449,16 +1609,33 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "EMA-"+p+"-"+numFolio
 	if int(modulo) == 4:
-		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
-		p = request.session["proveedorTaller"]
+		conteo = 1
+		estatus = 1
+		conteoInt = 0
+		numFolioInt = 1
+		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio").order_by("-id")[:1]
+		p = request.session["proveedorTaller"]	
+		#print folio.query
 		if folio.exists():
 			numFolio = folio[0].numFolio
-		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
-		numFolio = "LIF-"+p+"-"+numFolio
+			conteo = folio[0].numConteo
+			estatus = folio[0].estatusRegistro
+			print conteo
+
+		if estatus == 0 and conteo <=2:
+			conteo = int(conteo) + 1
+			numFolioInt = int(numFolio)
+			print "aqui"
+		else:
+			conteo = 1
+			numFolioInt = int(numFolio)+1
+		conteoInt = str(conteo)
+		print conteo
+		numFolio = "%03d" % (numFolioInt,)
+		numFolio = "LIF-"+p+"-"+numFolio+"-"+conteoInt
 	if int(modulo) == 5:
 		print modulo
 		folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
@@ -1466,7 +1643,7 @@ def foliosMostrar(request):
 		if folio.exists():
 			numFolio = folio[0].numFolio
 		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
+		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "IFA-"+p+"-"+numFolio
 
 	mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
@@ -2728,7 +2905,7 @@ def reporteConsulta(request):
 												.order_by("material__id")
 
 
-		print total.query
+		#print total.query
 		for x in total:
 			
 			resultado = {
@@ -2818,7 +2995,7 @@ def reporteConsulta(request):
 												.order_by("material__id")
 
 
-		print total.query
+		#print total.query
 		for x in total:
 			
 			resultado = {
@@ -3343,11 +3520,19 @@ def reporteConsulta(request):
 		
 		#excelReportes(request,array)
 		return JsonResponse(array)
-	
+	else:
+		mensaje = {"estatus":"error", "mensaje":"Consulta invalida."}
+		array = mensaje
+		return JsonResponse(array)
 
 
 def inventarioFisicoView(request):
-	inventarioFisicoAnterior = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],estatusRegistro = 0)
+	i=1
+	inventarioFisicoAnterior = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro = 0)
+	# folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	# id = folio[0].numFolio
+	# if folio.exists():
+	# 	i=folio[0].numConteo
 	template = 'control_acero/inventario/inventarioFisico.html'
 	return render(request, template, {"inventarioFisicoAnterior":inventarioFisicoAnterior})
 
@@ -3472,7 +3657,7 @@ def inventarioFisicoCierreSave(request):
 	fechaRemision= '14/06/2016'
 	json_object = json.loads(respuesta)
 	inventarioremisiondetalle__estatusInventario = 0
-
+	cantidad=0
 	
 	for data in json_object:
 		idC= data["id"]
@@ -3481,7 +3666,16 @@ def inventarioFisicoCierreSave(request):
 	InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
 	Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
 	InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
-
+	numFolio=0
+	folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
+	if folio.exists():
+			numFolio = folio[0].numFolio
+	numFolioInt = int(numFolio)+1
+	numFolio = "%03d" % (numFolioInt,)
+	ident= request.session["proveedorTaller"]
+	numFolio = "IFA-"+ident+"-"+numFolio
+	numFolio = numFolio.encode('utf-8')
+	
 	for data in json_object:
 
 		print data
@@ -3490,7 +3684,7 @@ def inventarioFisicoCierreSave(request):
 		existencia = data["existencia"]
 		fisico = data["fisico"]
 		diferencia = data["diferencia"]
-		folio = data["folio"]
+
 		ifd = InventarioFisicoDetalle.objects.get(pk=idCierre)
 		idInventario = ifd.inventarioFisico_id
 		print diferencia
@@ -3498,8 +3692,7 @@ def inventarioFisicoCierreSave(request):
 		if cantidadEntrada:
 			cantidadEntrada
 			p = Remision.objects\
-				.create(idOrden=1,
-						pesoNeto=cantidadEntrada,
+				.create(pesoNeto=cantidadEntrada,
 						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
 						estatus=1,
 						ajuste_id=idInventario,
@@ -3529,6 +3722,7 @@ def inventarioFisicoCierreSave(request):
 			cantidadEntrada = 0
 		observacionEntrada = data["observacionEntrada"]
 		cantidadSalida = data["cantidadSalida"]
+		print cantidadSalida
 		if cantidadSalida:
 			cantidadReal = InventarioRemisionDetalle.objects\
 						.values(
@@ -3539,6 +3733,7 @@ def inventarioFisicoCierreSave(request):
 						.annotate(cantidadMaterial = Sum('cantidad'))\
 						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"], material_id = material)\
 						.order_by('material_id')
+
 			cantidad = cantidadReal[0]['pesoMaterial']
 			print "------"
 			print material
@@ -3602,15 +3797,7 @@ def inventarioFisicoCierreSave(request):
 			cantidadSalida = 0
 
 		observacionSalida = data["observacionSalida"]
-		numFolio=0
-		folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
-		if folio.exists():
-			numFolio = folio[0].numFolio
-		numFolioInt = int(numFolio)+1
-		numFolio = "%04d" % (numFolioInt,)
-		ident= request.session["proveedorTaller"]
-		numFolio = "IFA-"+ident+"-"+numFolio
-		numFolio = numFolio.encode('utf-8')
+		
 		ifdc = InventarioFisicoDetalleCierre.objects\
 				.create(
 						pesoExistencia = existencia,
@@ -3631,6 +3818,7 @@ def inventarioFisicoCierreSave(request):
 	bitacora = Bitacora.objects.create(accion="Cierre", id_afectado=idInventario, observacion="El id guardado es de inventario cierre", estatus=1, modulo_id=5, user_id=request.user.id)
 	mensaje = {"estatus":"ok", "mensaje":"El inventario se ha modificado y cerrado Correctamente.  Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
+	#mailHtmlIFA(request,ifdc.pk)
 	return JsonResponse(array)
 
 def inventarioRemision(request):
@@ -3870,6 +4058,7 @@ def mailHtml(request, folio):
 											"fechaRegistro",
 											"funcion_id",
 											"funcion__proveedor",
+											"pesoNeto",
 											"remisiondetalle__material__nombre",
 											"remisiondetalle__peso",
 											"remisiondetalle__longitud",
@@ -3924,7 +4113,7 @@ def mailHtml(request, folio):
 	remision = remisiones[0]["remision"]
 	fechaRemision = remisiones[0]["fechaRemision"]
 	fechaRegistro = remisiones[0]["fechaRegistro"]
-
+	pesoTotal= remisiones[0]["pesoNeto"]
 	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
 	header = "RECEPCION DEL MATERIAL"
 	body = ""
@@ -3964,6 +4153,13 @@ def mailHtml(request, folio):
 				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
 			)
 	body += tablaDetalle
+	body += """
+			<br />
+			<h4>Peso Total por Folio:  %d Kg </h4>
+			""" %\
+			(
+				pesoTotal
+				)
 	body += mailHtmlFooter()
 
 	for envioEmail in envioEmails:
@@ -4333,6 +4529,120 @@ def mailHtmlEA(request, folio):
 
 def mailHtmlIF(request, folio):
 	# Mail Inventariofisico
+	print "IF****"
+	print folio
+	cierre = ''
+	idfolio= int(folio)
+	inventario = InventarioFisico.objects.values(
+											"folio",
+											"fechaRegistro",
+											"tallerAsignado__nombre",
+											"estatusRegistro",
+											"inventariofisicodetalle__pesoExistencia",
+											"inventariofisicodetalle__pesoFisico",
+											"inventariofisicodetalle__diferencia",
+											"inventariofisicodetalle__material__nombre"
+										)\
+										.filter(
+											id = idfolio,
+											tallerAsignado_id = request.session['idTaller']
+										)\
+										.distinct()\
+										.order_by("inventariofisicodetalle__material__id")
+	tablaDetalle = ''
+	tablaDetalle += """\
+					
+					<table rules="all" style="border-color: #666;" cellpadding="10">
+						<thead>
+							<tr style='background: #66cc00;'>
+								<th>Material</th>
+								<th>Peso existencia en el sistema</th>
+								<th>Peso existencias fisicas</th>
+								<th>Diferencia</th>
+							</tr>
+						</thead>
+						<tbody>\
+						"""
+
+	for rem in inventario:
+
+		tablaDetalle += """\
+							<tr>
+								<td>%s</td>
+								<td>%d</td>
+								<td>%d</td>
+								<td>%d</td>
+							</tr>
+						"""%\
+						(
+							rem["inventariofisicodetalle__material__nombre"],
+							rem["inventariofisicodetalle__pesoExistencia"],
+							rem["inventariofisicodetalle__pesoFisico"],
+							rem["inventariofisicodetalle__diferencia"]
+						)
+
+	tablaDetalle += """\
+						</tbody>
+					</table>
+					<br />\
+					"""
+
+	folioStr = inventario[0]["folio"]
+	taller = inventario[0]["tallerAsignado__nombre"]
+	fechaRegistro = inventario[0]["fechaRegistro"]
+	if inventario[0]["estatusRegistro"]==1:
+			cierre = 'Cierre automatico - Inventario correcto'
+
+	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+	header = "INVENTARIO FISICO"
+	body = ""
+	body += mailHtmlHeader(request)
+	body += """
+			<br />
+			<table rules="all" style="border-color: #666;" cellpadding="10">
+				<thead>
+					<tr style='background:#66cc00;'>
+						<th><strong> Folio </strong></th>
+						<th><strong> Taller de Habilitado </strong></th>
+						<th><strong> Fecha Creacion </strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>%s</strong></td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>
+				</tbody>
+			</table>
+			<br />
+			""" %\
+			(
+				folioStr,
+				taller,
+				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
+			)
+	body += """
+			<br />
+			<h2> <strong> %s </strong>  </h2>
+			<br />
+			""" %\
+			(
+				cierre
+				)
+	body += tablaDetalle
+	body += mailHtmlFooter()
+
+	for envioEmail in envioEmails:
+		mail(header, body, envioEmail.email)
+
+	return True
+
+def mailHtmlIFA(request, folio):
+	# Mail InventariofisicoAjuste
+	print "IFA****"
+	print folio
+	idfolio= int(folio)
 	inventario = InventarioFisico.objects.values(
 											"folio",
 											"fechaRegistro",
@@ -4343,7 +4653,7 @@ def mailHtmlIF(request, folio):
 											"inventariofisicodetalle__material__nombre"
 										)\
 										.filter(
-											numFolio = folio,
+											id = idfolio,
 											tallerAsignado_id = request.session['idTaller']
 										)\
 										.distinct()\

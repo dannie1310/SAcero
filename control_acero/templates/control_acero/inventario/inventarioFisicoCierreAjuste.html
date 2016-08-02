@@ -1,0 +1,286 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	LEVANTAMIENTO DE AJUSTE DE INVENTARIO FISICO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="form-group col-md-6 text-center alert-info">
+			<h3> Folio: {{ inventario.folio }}</h3>
+		</div>
+		<div class="form-group col-md-6 text-left alert-info">
+			<h3> Folio de Ajuste: <span id="folio"></span></h3>
+		</div>
+		{% if request.session.nombreTaller > 0 %}
+			<div class="form-group col-md-12 text-center alert-info">
+				<h3> INVENTARIO DEL {{ request.session.nombreTaller }}</h3>
+			</div>
+		{% else %}
+			<div class="form-group col-md-12 text-center alert-info">
+				<h3> No cuentas con Taller Asignado</h3>
+			</div>
+		{% endif %}
+		<div class="col-md-12 table-responsive">
+			<table id="tablaRemisiones" class="table table-hover">
+				<thead>
+					<tr class="info">
+						<th class="text-center" colspan="2">Entradas</th>
+						<th class="text-center" colspan="2">Salidas</th>
+						<th class="text-center">Existencias</th>
+					</tr>
+					<tr>
+						<th class="text-center">No</th>
+						<th class="text-center">Toneladas</th>
+						<th class="text-center">No</th>
+						<th class="text-center">Toneladas</th>
+						<th class="text-center">Total Existencias</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							{{ inventario.noEntradas }}
+						</td>
+						<td>
+							{% widthratio inventario.totalEntradas 1000 1 %}
+						</td>
+						<td>
+							{{ inventario.noSalidas }}
+						</td>
+						<td>
+							{% widthratio inventario.totalSalidas 1000 1 %}
+						</td>
+						<td>
+							{% widthratio inventario.totalExistencias 1000 1 %}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="divRemisionReal" class="col-md-12 table-responsive table table-striped">
+			<table id="tablaRemisionReal" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center" colspan="6">Existencias del Sistema vs Físicas</th>
+					</tr>
+					<tr>
+						<th class="text-center">Material</th>
+						<th class="text-center">Existencias del Sistema</th>
+						<th class="text-center">Existencias Física</th>
+						<th class="text-center">Diferencia</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for detalle in detalles %}
+						
+						{% if detalle.diferencia >= 0 %}
+								<tr class="success">
+									<td>{{ detalle.material__nombre }}</td>
+									<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+									<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+								
+									<td >{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+						{% endif %}
+						{% if detalle.diferencia < 0 %}
+								<tr class="danger">
+									<td>{{ detalle.material__nombre }}</td>
+									<td class="milesLimpio">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+									<td class="milesLimpio">{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+								
+									<td >{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+						{% endif %}
+						</tr>
+						
+						<!-- <tr class="danger">
+							<td>{{ detalle.material__nombre }}</td>
+							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+						</tr> -->
+						
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div id="divRemisionRealEdit" class="col-md-12 table-responsive table table-striped">
+			<table id="tablaRemisionRealEdit" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="text-center" colspan="6">Edición del Inventario</th>
+					</tr>
+					<tr>
+						<th class="text-center">Material</th>
+						<th class="text-center">Existencias del Sistema</th>
+						<th class="text-center">Existencias Física</th>
+						<th class="text-center">Diferencia</th>
+						<th class="text-center">Ajuste de Entrada</th>
+						<th class="text-center">Ajuste de Salida</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for detalle in detalles %}
+						{% if detalle.diferencia >= 0 %}
+						
+						<tr class="success trrow" id="row_{{ detalle.material_id  }}" data-material="{{ detalle.material_id  }}">
+
+						{% else %}
+						<tr class="danger trrow" id="row_{{ detalle.material_id  }}" data-material="{{ detalle.material_id  }}">
+						{% endif %}
+							<td style="display: none;">{{ detalle.id }}</td>
+							<td>{{ detalle.material__nombre}}</td>
+							<td>{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+							<td style="display: none;">{{ detalle.pesoExistencia|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.pesoFisico|default_if_none:"0"|floatformat }}</td>
+							<td>{{ detalle.diferencia|default_if_none:"0"|floatformat }}</td>
+							{% if detalle.diferencia > 0 %}
+							<td>
+								<div id="col-md-6">
+									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanS_{{ detalle.material_id }}" id="spanS_{{ detalle.material_id }}" onClick="ajusteSistema({{ detalle.material_id }});"></span>
+									<input style="display: none;" type="number" class="form-control cantidadEntrada" name="inputS_{{ detalle.material_id }}" id="inputS_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaSistema({{ detalle.material_id }});"></input>
+									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionEntrada" name="textS_{{ detalle.material_id }}" id="textS_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
+								</div>
+							</td>
+							<td>
+								<div style="display: none;" id="col-md-6">
+									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanF_{{ detalle.material_id }}" id="spanF_{{ detalle.material_id }}" onClick="ajusteFisico({{ detalle.material_id }});"></span>
+									<input style="display: none;" type="number" class="form-control cantidadSalida" name="inputF_{{ detalle.material_id }}" id="inputF_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaFisico({{ detalle.material_id }});" value=""></input>
+									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionSalida" name="textF_{{ detalle.material_id }}" id="textF_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
+								</div>
+							</td>
+							{% endif %}
+							{% if detalle.diferencia < 0 %}
+							<td>
+								<div style="display: none;"  id="col-md-6">
+									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanS_{{ detalle.material_id }}" id="spanS_{{ detalle.material_id }}" onClick="ajusteSistema({{ detalle.material_id }});"></span>
+									<input style="display: none;" type="number" class="form-control cantidadEntrada" name="inputS_{{ detalle.material_id }}" id="inputS_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaSistema({{ detalle.material_id }});" value=""></input>
+									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionEntrada" name="textS_{{ detalle.material_id }}" id="textS_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
+								</div>
+							</td>
+
+							<td>
+								<div id="col-md-6">
+									<span class="glyphicon glyphicon-cog" aria-hidden="true" name="spanF_{{ detalle.material_id }}" id="spanF_{{ detalle.material_id }}" onClick="ajusteFisico({{ detalle.material_id }});"></span>
+									<input style="display: none;" type="number" class="form-control cantidadSalida" name="inputF_{{ detalle.material_id }}" id="inputF_{{ detalle.material_id }}" placeholder="Ingresa Cantidad" onKeyup="calculaFisico({{ detalle.material_id }});"></input>
+									<textarea style="display: none;" rows="4" cols="20" class="form-control observacionSalida" name="textF_{{ detalle.material_id }}" id="textF_{{ detalle.material_id }}" placeholder="Ingresa Observación"></textarea>
+								</div>
+							</td>
+							
+						</tr>
+
+						{% endif %}
+						
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div class="col-md-12 text-center">
+			<button type="button" class="btn btn-success" name="btnCerrar" id="btnCerrar">Cerrar Inventario</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		ajusteSistema = function(material){
+			$("#spanS_"+material).hide("slow");
+			$("#inputS_"+material).show("explode");
+			$("#textS_"+material).show("explode");
+		}
+		ajusteFisico = function(material){
+			$("#spanF_"+material).hide("slow");
+			$("#inputF_"+material).show("explode");
+			$("#textF_"+material).show("explode");
+		}
+		calculaSistema = function(material){
+			var ajuste = $("#inputS_"+material).val();
+			var existencia = limpiaValor($("#row_"+material).find('td:eq(3)').text());
+			var fisico = limpiaValor($("#row_"+material).find('td:eq(4)').text());
+			var diferencia = $("#row_"+material).find('td:eq(5)').text();
+			var sum = parseInt(ajuste) + parseInt(existencia);
+			console.log(ajuste, " ajuste ", existencia, "existencia", sum);
+			var operacion = parseInt(fisico) - parseInt(sum);
+			$("#row_"+material).find('td:eq(2)').text(sum);
+			$("#row_"+material).find('td:eq(5)').text(operacion);
+
+		}
+		calculaFisico = function(material){
+			var ajuste = $("#inputF_"+material).val();
+			var existencia = limpiaValor($("#row_"+material).find('td:eq(3)').text());
+			var fisico = limpiaValor($("#row_"+material).find('td:eq(4)').text());
+			var diferencia = $("#row_"+material).find('td:eq(5)').text();
+			var sum = parseInt(existencia) - parseInt(ajuste);
+			var operacion = parseInt(sum) - parseInt(fisico);
+			$("#row_"+material).find('td:eq(2)').text(sum);
+			$("#row_"+material).find('td:eq(5)').text(operacion);
+		}
+		$( "#btnCerrar" ).click(function() {
+			var htmlcontent = '<div class="col-md-12 table-responsive"><table class="table table-hover"><thead><tr><th class="text-center" colspan="6">Los saldos iniciales para el siguiente periodo son:</th></tr></thead><tbody>';
+
+			swal({
+
+				  title: "¿Está seguro que los ajustes realizados en este inventario son correctos?",
+				  text: "No se podrá modificar el registro posteriormente",
+				  type: "warning",
+				  showCancelButton: true,
+				  closeOnConfirm: true,
+				  showLoaderOnConfirm: true
+				},
+				function(){
+					var array = [];
+					$(".trrow").each(function(index, element) {
+						var nombre = limpiaValor($(this).find('td:eq(1)').text());
+						var material = $(this).data("material");
+						var id = limpiaValor($(this).find('td:eq(0)').text());
+						var existencia = limpiaValor($(this).find('td:eq(2)').text());
+						var fisico = limpiaValor($(this).find('td:eq(4)').text());
+						var diferencia = limpiaValor($(this).find('td:eq(5)').text());
+						var cantidadEntrada = $("#inputS_"+material).val();
+						var observacionEntrada = $("#textS_"+material).val();
+						var cantidadSalida = $("#inputF_"+material).val();
+						var observacionSalida = $("#textF_"+material).val();
+						array.push({"id": id,"existencia": existencia,"fisico": fisico,"diferencia": diferencia,"cantidadEntrada": cantidadEntrada,"observacionEntrada": observacionEntrada,"cantidadSalida": cantidadSalida,"observacionSalida": observacionSalida,"material": material});
+						htmlcontent+='<tr><td>'+nombre+'</td><td class="milesLimpio">'+existencia+'</td></tr>'
+					});
+					var json = JSON.stringify(array);
+					console.log(json);
+					$.post( "{% url 'inventarioFisicoCierreSave' %}",{
+						json: json
+					})
+					.done(function(data, status) {
+			            setTimeout(function () {
+			            	htmlcontent+='</tbody></table></div>';
+					    	swal({
+			            	title: "Se creo el folio de ajuste: "+data.folio,
+			            	text : htmlcontent,
+			            	html :true
+			            		});
+							
+						}, 2000);
+			            $("#btnCerrar").hide();
+			        })
+			       	.error(function(data,status){
+			            setTimeout(function () {
+					    	swal("Error!", "Error en la petición al Guardar el Cierre de Inventario.", "error");
+						}, 1000);
+					})
+					
+				});
+		});
+	  	mostrarFolio = function(){
+			var modulo = 5;
+			$.post( "{% url 'foliosMostrar' %}",{
+				modulo: modulo
+			},
+			function(data, status) {
+		            try {
+						$("#folio").html(data.folio);
+						//$("#fechaRemision").html(data.date);
+		            } catch (e) {
+		                swal("Error!","Error al cargar el Folio:" + e,"error");
+		            }
+			})
+			.fail(function() {
+				swal("Error!", "Error en la petición del Folio","error" );
+			});
+		}
+		$(function () {
+	    	mostrarFolio();
+	    });
+	</script>
+{% endblock %}

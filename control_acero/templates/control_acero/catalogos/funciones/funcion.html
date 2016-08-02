@@ -7,18 +7,19 @@
 		<table class="table table-hover">
 			<thead>
 				<tr>
-					<th class="text-center">Tipo</th>
 					<th class="text-center">Proveedor</th>
-					<th class="text-center">Tonelaje Maximo</th>
+					<th class="text-center">Tipo</th>
+					<!-- <th class="text-center">Tonelaje Maximo</th> -->
 					<th class="text-center">Acciones</th>
 				</tr>
 			</thead>
 			<tbody>
 			{% for funcion in funciones %}
 				<tr>
-			    	<td>{{funcion.tipo}}</td>
+			    	
 			    	<td>{{funcion.proveedor}}</td>
-			    	<td>{{funcion.tonelajeMaximo}}</td>
+			    	<td>{{funcion.get_tipo_display}}</td>
+			    	<!-- <td>{{funcion.tonelajeMaximo}}</td> -->
 			    	<td><a href="/control_acero/catalogos/funciones/{{funcion.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catalogos/funciones/delete/{{funcion.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
 			   	</tr>
 			{% endfor %}
