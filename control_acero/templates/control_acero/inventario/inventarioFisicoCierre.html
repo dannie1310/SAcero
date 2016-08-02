@@ -417,7 +417,7 @@
 			$("#divCantidades").hide("slide");
 			$("#btnAgregaVarilla").hide("slide");
 			$("#btn2").hide("slide");
-			backToTop();
+			
 		}
 		$( "#btnAgregaVarilla" ).click(function() {
 			$("#divPesoTotal").empty();
@@ -472,6 +472,7 @@
 							+'</tr>';
 					$("#count"+idMaterial).val(0);
 					$("#txt"+idMaterial).val(0);
+					$("#observacionVarilla_"+idMaterial).val('');
 					pesoTotalReal = 0;
 
 				} 

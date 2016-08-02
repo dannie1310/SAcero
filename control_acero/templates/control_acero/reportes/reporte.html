@@ -261,7 +261,10 @@
 			},
 			function(data, status) {
 	            try {
-
+	            	
+	            	if (data.data.length==0){
+	            		tabla='<tr><th class="text-center" colspan="5">No se encuentran registros con esos datos de busqueda. </th></tr>'
+	            	}
 	                $.each(data.data, function (count, object) {
 	                	//console.log(data);
 	                	//console.log("Fabricante", tipo);

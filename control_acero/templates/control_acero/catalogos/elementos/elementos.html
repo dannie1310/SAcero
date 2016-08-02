@@ -8,7 +8,7 @@
 			<thead>
 				<tr>
 					<th class="text-center">Nombre</th>
-					<th class="text-center">Peso (Kg)</th>
+					<!-- <th class="text-center">Peso (Kg)</th> -->
 					<th class="text-center">Acciones</th>
 				</tr>
 			</thead>
@@ -16,7 +16,7 @@
 			{% for elemento in elementos %}
 				<tr>
 			    	<td>{{elemento.nombre}}</td>
-			    	<td>{{elemento.peso}}</td>
+			    	<!-- <td>{{elemento.peso}}</td> -->
 			    	<td><a href="/control_acero/catalogos/elementos/{{elemento.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catalogos/elementos/delete/{{elemento.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
 			   	</tr>
 			{% endfor %}

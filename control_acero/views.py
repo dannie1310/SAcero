@@ -476,7 +476,12 @@ def funcionesEditView(request, pk):
 	return render(request, 'control_acero/catalogos/funciones/funcion_edit.html', {'form': form})
 
 def talleresView(request):
-	talleres_list = Taller.objects.filter(estatus=1)
+	talleres_list = Taller.objects.values(
+						"id",
+						"nombre",
+						"ubicacion",
+						"funcion__proveedor")\
+					.filter(estatus=1)
 	paginator = Paginator(talleres_list, 10)
 	page = request.GET.get('page')
 	try:
@@ -3512,7 +3517,10 @@ def reporteConsulta(request):
 		
 		#excelReportes(request,array)
 		return JsonResponse(array)
-	
+	else:
+		mensaje = {"estatus":"error", "mensaje":"Consulta invalida."}
+		array = mensaje
+		return JsonResponse(array)
 
 
 def inventarioFisicoView(request):
@@ -4144,7 +4152,7 @@ def mailHtml(request, folio):
 	body += tablaDetalle
 	body += """
 			<br />
-			<h4>Peso Total por Folio:  %d </h4>
+			<h4>Peso Total por Folio:  %d Kg </h4>
 			""" %\
 			(
 				pesoTotal

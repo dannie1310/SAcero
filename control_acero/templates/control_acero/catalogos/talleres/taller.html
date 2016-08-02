@@ -10,7 +10,6 @@
 					<th class="text-center">Nombre</th>
 					<th class="text-center">Proveedor</th>
 					<th class="text-center">Ubicacion</th>
-					<th class="text-center">Responsable</th>
 					<th class="text-center">Acciones</th>
 				</tr>
 			</thead>
@@ -18,9 +17,8 @@
 			{% for taller in talleres %}
 				<tr>
 			    	<td>{{taller.nombre}}</td>
-			    	<td>{{taller.proveedor}}</td>
+			    	<td>{{taller.funcion__proveedor}}</td>
 			    	<td>{{taller.ubicacion}}</td>
-			    	<td>{{taller.responsable}}</td>
 			    	<td><a href="/control_acero/catalogos/talleres/{{taller.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catalogos/talleres/delete/{{taller.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
 			   	</tr>
 			{% endfor %}

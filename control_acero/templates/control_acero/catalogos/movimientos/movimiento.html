@@ -73,7 +73,7 @@
 	<script type="text/javascript">
 	$( "#buscar" ).click(function() {
 		var fecha = $("#fechaBusca").val();
-		console.log(fecha);
+		//console.log(fecha);
 		$("#tabla1 tbody").empty();
 		var tabla='';
 		$.post( "{% url 'movimientosFecha' %}",{
@@ -81,7 +81,12 @@
 			},
 			function(data, status) {
 	            try {
+	            if (data.data.length==0){
+	            	tabla='<tr><th class="text-center" colspan="5">No se encuentran registros con la fecha: ' +fecha+' </th></tr>'
+	            }
+
 	            	$.each(data.data, function (count, object) {
+	            		
                     	console.log(object);
                     	tabla+='<tr><td class="text-center">'+object.nombre+'</td>'
 					+'<td class="text-center">'+object.apellidos+'</td>'

@@ -8,7 +8,7 @@
 			
 			{% if request.session.nombreTaller > 0 %}
 				<div class="form-group col-md-6 text-center alert-info">
-					<h3> Taller Asignado: {{ request.session.nombreTaller }}</h3>
+					<h3> Taller Asignado: {{ request.session.nombreTaller }} </h3>
 				</div>
 			{% else %}
 				<div class="form-group col-md-6 text-center alert-info">
@@ -305,25 +305,25 @@
 				$("#tablaApoyoElemento").append(tabla);
 				$('.pesoTotal').each(function(i, obj) {
 					pesoTd += parseFloat($(this).text());
-					console.log("peso ",pesoTd);
+					////console.log("peso ",pesoTd);
 				});
 				$('.piezasT').each(function(i,obj){
 					limpia=limpiaValor($(this).text());
 					piezas +=parseInt(limpia);
-					console.log("pis",piezas);
+					//console.log("pis",piezas);
 				})
 				if(pesoTotal >= 1000){
 					ton = pesoTd / 1000;
 					ton = ton.toFixed(2);;
 					tonHtml += parseFloat(ton);
-					console.log("ton",tonHtml);
+					//console.log("ton",tonHtml);
 				}
 				$("#txtPesoTotal").append(pesoTd);
 				$("#divDetalle").show("slide");
 				$("#divDetalleSolicita").show("slide");
 			    $("#divDetalleCancelar").show("slide");
-			    console.log("piezas",piezas);
-			    console.log(pesoTd);
+			    //console.log("piezas",piezas);
+			    //console.log(pesoTd);
 			    tablaTotales='<tr>'
 			    			+'<td class="text-center">Peso Total</td>' 
 			    			+'<td class="milesLimpio text-center">'+piezas+'</td>'
