@@ -98,7 +98,7 @@ def fecha(request):
 
 	today = datetime.now()
 	dateFormat = today.strftime("%d/%m/%Y")
-	print dateFormat
+	#print dateFormat
 	#mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
 	mensaje = {"date":dateFormat}
 	array = mensaje
@@ -168,9 +168,9 @@ def usuariosEditView(request, pk):
 	usuario = get_object_or_404(User, pk=pk)
 	if request.method == "POST":
 		# for key in request.POST:
-		#     print(key)
+		#     #print(key)
 		#     value = request.POST[key]
-		#     print(value)
+		#     #print(value)
 		form = UserForm(request.POST, instance=usuario)
 		if(form.is_valid()):
 			user = form.save(commit=False)
@@ -280,7 +280,7 @@ def apoyosLogicalDelete(request, pk):
 		if(form.is_valid()):
 			apoyo = form.save(commit=False)
 			apoyo.save()
-			print estatus
+			#print estatus
 			#return render(request, 'control_acero/catalogos/apoyos/apoyo.html', {'form': form})
 	else:
 		form = ApoyoForm(instance=apoyo)
@@ -452,7 +452,7 @@ def funcionesView(request):
 def funcionesNewView(request):
 	if request.method == "POST":
 		form = FuncionForm(request.POST)
-		print form
+		#print form
 		if(form.is_valid()):
 			funcion = form.save(commit=False)
 			funcion.save()
@@ -647,7 +647,7 @@ def movimientosDetalleView(request, pk):
 	
 	modulo = detalle[0]["modulo__id"]
 	idAfectado = detalle[0]["id_afectado"]
-	print idAfectado
+	#print idAfectado
 	if modulo == 1 :
 		datos = Remision.objects.values("id",
 									    "idOrden",
@@ -756,11 +756,11 @@ def inventarioFisicoCierreView(request):
 	return render(request, template, {"totales": totales})
 def inventarioFisicoCierreAjusteView(request):
 	inr = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro=0).order_by("-numConteo").order_by("-id")[:1]
-	#print "AQUI"
-	#print inr.query
+	##print "AQUI"
+	##print inr.query
 	template = 'control_acero/inventario/inventarioFisicoCierreAjuste.html'
 	idI = inr[0].id
-	#print idI
+	##print idI
 	inventario = get_object_or_404(InventarioFisico, pk=idI)
 	inventarioDetalle = InventarioFisicoDetalle.objects.values("id",
 														"pesoExistencia",
@@ -929,7 +929,7 @@ def recepcionMaterialSave(request):
 	ident= request.session["proveedorTaller"]
 	numFolio = "RMH-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
-	print numFolio
+	#print numFolio
 	for data in json_object:
 		datos = data["data"]
 		splitData = datos.split("|")
@@ -968,7 +968,7 @@ def recepcionMaterialSave(request):
 	mensaje = {"estatus":"ok", "mensaje":"Recepción del Material Exitoso. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	mailHtml(request, numFolioInt)
-	print array
+	#print array
 	return JsonResponse(array)
 
 def elementoMaterial(request):
@@ -1000,7 +1000,7 @@ def elementoMaterial(request):
 										'factor__pva',
 										'factor__factorPulgada',
 										'factor__pi').filter().order_by("numero")
-	#print elemento.query
+	##print elemento.query
 	for e in elemento:
 		diametro = e['diametro']
 		pva = e['factor__pva']
@@ -1008,9 +1008,9 @@ def elementoMaterial(request):
 		pi = e['factor__pi']
 		diametroMetro = diametro / 1000
 		factorCalculado = ((pi * diametroMetro * diametroMetro) / 4) * pva
-		print diametroMetro
+		#print diametroMetro
 		factorCalculadoDecimal = "%.3f" % factorCalculado
-		print factorCalculadoDecimal 
+		#print factorCalculadoDecimal 
 		resultado = {
 						"idMaterial":e['id'],
 						"nombreMaterial":e['nombre'],
@@ -1040,7 +1040,7 @@ def salidaHabilitadoMaterial(request):
 						.annotate(cantidadMaterial = Sum('cantidad'))\
 						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"])\
 						.order_by('material_id')
-	#print remisionDetalles.query
+	##print remisionDetalles.query
 	for remisionDetalle in remisionDetalles:
 		resultado = {
 						"id":remisionDetalle["material_id"],
@@ -1309,7 +1309,7 @@ def entradaArmadoSave(request):
 								WHERE numFolio = %s\
 								AND material_id = %s", [folioSalida,materialF]);
 		finally:
-			print "Se actualizo"
+			#print "Se actualizo"
 
 		if bandera == 1:
 			entradaDetalle = EntradaDetalle.objects\
@@ -1410,7 +1410,7 @@ def inventarioFisicoSave(request):
 	flag=0;
 
 	for real in json_reales:
-		print real
+		#print real
 		flag=0
 		idR = real["id"]
 		pesoR = real["pesosistema"]
@@ -1470,8 +1470,8 @@ def inventarioFisicoSave(request):
 						}
 			data.append(resultado)
 		
-	print "***++"
-	print conteo
+	#print "***++"
+	#print conteo
 	margen = 0
 	error = 0
 	idIF = 0
@@ -1491,27 +1491,27 @@ def inventarioFisicoSave(request):
 
 
 					
-		#print detalle		
+		##print detalle		
 		for d in detalle:
-			print d["inventarioFisico_id"]
-			print d["pesoExistencia"]
-			print d["pesoFisico"]
+			#print d["inventarioFisico_id"]
+			#print d["pesoExistencia"]
+			#print d["pesoFisico"]
 			idIF=d["inventarioFisico_id"]
 			fisico = int(d["pesoFisico"])
 			margen = int(d["pesoExistencia"]) * 0.03
-			print margen
+			#print margen
 			margenNeg = int(d["pesoExistencia"]) - margen
 			
 			margenPos = int(d["pesoExistencia"]) + margen
-			print margenPos
-			print margenNeg
+			#print margenPos
+			#print margenNeg
 			if  margenNeg <= fisico and fisico <= margenPos:
-				print "si entra en el margen "
+				#print "si entra en el margen "
 			else: 
-				print "NO entra en el margen "
+				#print "NO entra en el margen "
 				error = 1
 		if error == 0 :
-			print "cierre automatico"
+			#print "cierre automatico"
 			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
 			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
 			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
@@ -1520,7 +1520,7 @@ def inventarioFisicoSave(request):
 			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
 			estatusCierre = 1
 		else:
-			print "3er inventario"
+			#print "3er inventario"
 
 
 	if conteo == 3:
@@ -1538,27 +1538,27 @@ def inventarioFisicoSave(request):
 
 
 					
-		#print detalle		
+		##print detalle		
 		for d in detalle:
-			print d["inventarioFisico_id"]
-			print d["pesoExistencia"]
-			print d["pesoFisico"]
+			#print d["inventarioFisico_id"]
+			#print d["pesoExistencia"]
+			#print d["pesoFisico"]
 			idIF=d["inventarioFisico_id"]
 			fisico = int(d["pesoFisico"])
 			margen = int(d["pesoExistencia"]) * 0.03
-			print margen
+			#print margen
 			margenNeg = int(d["pesoExistencia"]) - margen
 			
 			margenPos = int(d["pesoExistencia"]) + margen
-			print margenPos
-			print margenNeg
+			#print margenPos
+			#print margenNeg
 			if  margenNeg <= fisico and fisico <= margenPos:
-				print "si entra en el margen "
+				#print "si entra en el margen "
 			else: 
-				print "NO entra en el margen "
+				#print "NO entra en el margen "
 				error = 1
 		if error == 0 :
-			print "cierre automatico"
+			#print "cierre automatico"
 			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
 			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
 			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
@@ -1567,7 +1567,7 @@ def inventarioFisicoSave(request):
 			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
 			estatusCierre = 1
 		else:
-			print "3er inventario"
+			#print "3er inventario"
 			idInvF=inventarioFisico.pk
 
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio, "estatusCierre": estatusCierre, "inventarioAjuste": idInvF}
@@ -1593,8 +1593,8 @@ def foliosMostrar(request):
 		numFolioInt = int(numFolio)+1
 		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "RMH-"+p+"-"+numFolio
-		print request.session["proveedorTaller"]
-		print request.session['idfuncion']
+		#print request.session["proveedorTaller"]
+		#print request.session['idfuncion']
 	if int(modulo) == 2:
 		folio = Salida.objects.all().filter(estatusEtapa = 1, tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 		p = request.session["proveedorTaller"]
@@ -1618,26 +1618,26 @@ def foliosMostrar(request):
 		numFolioInt = 1
 		folio = InventarioFisico.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio").order_by("-id")[:1]
 		p = request.session["proveedorTaller"]	
-		#print folio.query
+		##print folio.query
 		if folio.exists():
 			numFolio = folio[0].numFolio
 			conteo = folio[0].numConteo
 			estatus = folio[0].estatusRegistro
-			print conteo
+			#print conteo
 
 		if estatus == 0 and conteo <=2:
 			conteo = int(conteo) + 1
 			numFolioInt = int(numFolio)
-			print "aqui"
+			#print "aqui"
 		else:
 			conteo = 1
 			numFolioInt = int(numFolio)+1
 		conteoInt = str(conteo)
-		print conteo
+		#print conteo
 		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "LIF-"+p+"-"+numFolio+"-"+conteoInt
 	if int(modulo) == 5:
-		print modulo
+		#print modulo
 		folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 		p = request.session["proveedorTaller"]
 		if folio.exists():
@@ -1648,7 +1648,7 @@ def foliosMostrar(request):
 
 	mensaje = {"estatus":"ok", "folio":numFolio, "date":dateFormat}
 	#mensaje = {"estatus":"ok", "folio":numFolio}
-	print mensaje
+	#print mensaje
 	array = mensaje
 	return JsonResponse(array)
 
@@ -2028,7 +2028,7 @@ def habilitadoRecepcionHabilitado(request):
 									funcion_id=idFuncion,
 									estatusEtapa=1,
 									tipoRecepcion=1)
-	#print etapa.query
+	##print etapa.query
 	for e in etapa:
 		idOrdenTrabajo = e["idOrdenTrabajo"]
 		if e["idOrdenTrabajo"] is None:
@@ -2136,7 +2136,7 @@ def habilitadoAsignarElemento(request):
 										.filter(id=elemento,
 												estatus=1)\
 										.order_by("despiece__material__id");
-	#print elementoRelacion.query
+	##print elementoRelacion.query
 	for e in elementoRelacion:
 		despiecePeso = Decimal(e["despiece__peso"])*Decimal(cantidad);
 		resultadoDespiece = {"id":e["id"], 
@@ -2338,7 +2338,7 @@ def armadoAsignacionComboElemento(request):
 	etapa = Etapa.objects.filter(estatusEtapa=4,
 									funcion_id=idFuncion,
 									programaSuministro_id=idPrograma).values_list('EtapaDespiece__elemento__id', flat=True).distinct()
-	#print etapa.query
+	##print etapa.query
 	for e in etapa:
 		elemento = Elemento.objects.filter(id=e)
 		for e in elemento:
@@ -2446,7 +2446,7 @@ def colocadoRecepcionComboApoyo(request):
 	etapa = Etapa.objects.values("apoyo__id",
 											"apoyo__numero"
 											).filter(estatusEtapa=5, funcion_id=idFuncion, idOrdenTrabajo=orden).values_list('apoyo_id', flat=True).distinct()
-	print etapa
+	#print etapa
 	for e in etapa:
 		apoyo = Apoyo.objects.filter(id=e)
 		for a in apoyo:
@@ -2560,7 +2560,7 @@ def comboTaller(request):
 										estatus = 1
 										)\
 								.order_by("funcion_id")
-	#print talleres.query
+	##print talleres.query
 	for taller in talleres:
 		resultado = {
 						"id":taller.id,
@@ -2580,7 +2580,7 @@ def comboTallerG(request):
 										estatus = 1
 										)\
 								.order_by("funcion_id")
-	#print talleres.query
+	##print talleres.query
 	for taller in talleres:
 		resultado = {
 						"id":taller.id,
@@ -2611,7 +2611,7 @@ def reporteConsulta(request):
 	fechaFinalFormat = datetime.strptime(fechaFinal+" 23:59:59", '%d/%m/%Y %H:%M:%S')
 
 	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='2' and inventario=='1':
-		print "Inventario Fisico"
+		#print "Inventario Fisico"
 		datos= InventarioFisico.objects.values(
 												'id',
 												'folio',
@@ -2646,7 +2646,7 @@ def reporteConsulta(request):
 			data.append(resultado)
 		array["data"]=data
 		if int(excel) == 1:
-			print "Inventario Excel"
+			#print "Inventario Excel"
 			filename = excelReportesEntrada(request,array)
 			return JsonResponse({"filename": filename})
 
@@ -2655,7 +2655,7 @@ def reporteConsulta(request):
 
 	if idFuncion!='0' and idTaller=='0' and idFrente=='0' and tipo=='1' and inventario=='0':
 
-		print "Fabricante"
+		#print "Fabricante"
 
 		total = RemisionDetalle.objects.values(	'material__id',
 												'material__nombre'		
@@ -2666,7 +2666,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['material__id'],
@@ -2693,7 +2693,7 @@ def reporteConsulta(request):
 																			fechaRegistro__lte=fechaFinalFormat,
 																			funcion_id= idFuncion,
 																			estatus=1).order_by("tallerAsignado__id")
-		#print datos.query
+		##print datos.query
 		for e in datos:
 			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
 			fechaA = e['fechaActualizacion'].strftime("%d/%m/%Y")
@@ -2720,7 +2720,7 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totales"]=totales
 		if int(excel) == 1:
-			print "1"
+			#print "1"
 			filename = excelReportesEntrada(request,array)
 			return JsonResponse({"filename": filename})
 
@@ -2728,7 +2728,7 @@ def reporteConsulta(request):
 
 	if idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='1' and inventario=='0':
 
-		print "Fabricante y Taller de Habilitado"
+		#print "Fabricante y Taller de Habilitado"
 		
 		total = RemisionDetalle.objects.values(	'material__id',
 												'material__nombre'		
@@ -2740,7 +2740,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("material__id")
 
-		print total.query
+		#print total.query
 		for x in total:
 			resultado = {
 					"id":x['material__id'],
@@ -2768,7 +2768,7 @@ def reporteConsulta(request):
 																			funcion_id= idFuncion,
 																			tallerAsignado__id=idTaller,
 																			estatus=1).order_by("tallerAsignado__id")
-		#print datos.query
+		##print datos.query
 		for e in datos:
 			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
 			fechaA = e['fechaActualizacion'].strftime("%d/%m/%Y")	
@@ -2794,14 +2794,14 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totales"]=totales
 		if int(excel) == 1:
-			print "2"
+			#print "2"
 			filename = excelReportesEntrada(request,array)
 			return JsonResponse({"filename": filename})
 
 		return JsonResponse(array)
 
 	elif idFrente=='0' and idTaller=='0' and idFuncion!='0' and tipo=='3' and inventario=='0':
-		print "elif Armador"
+		#print "elif Armador"
 		total = Entrada.objects.values(			
 												'material__id',
 												'material__nombre',
@@ -2816,7 +2816,7 @@ def reporteConsulta(request):
 
 
 
-		#print total.query
+		##print total.query
 		for x in total:
 			
 			resultado = {
@@ -2853,7 +2853,7 @@ def reporteConsulta(request):
 																fechaRegistro__gte=fechaInicialFormat,
 																fechaRegistro__lte=fechaFinalFormat,
 																estatus=1).order_by("folio")
-		#print armador.query
+		##print armador.query
 		for e in armador:
 			fecha = e['fechaRegistro'].strftime("%d/%m/%Y")
 			resultado = {	"value": 2,
@@ -2883,14 +2883,14 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totales"]=totales
 		if int(excel) == 1:
-			print "Armador"
+			#print "Armador"
 			filename = excelReportesEntrada(request,array)
 			return JsonResponse({"filename": filename})
-		#print array
+		##print array
 		return JsonResponse(array)
 
 	elif idFrente!='0' and idTaller=='0' and idFuncion=='0' and inventario=='0' :
-		print "elif Frente de Trabajo"
+		#print "elif Frente de Trabajo"
 
 		total = Entrada.objects.values(			
 												'material__id',
@@ -2905,7 +2905,7 @@ def reporteConsulta(request):
 												.order_by("material__id")
 
 
-		#print total.query
+		##print total.query
 		for x in total:
 			
 			resultado = {
@@ -2942,7 +2942,7 @@ def reporteConsulta(request):
 																fechaRegistro__gte=fechaInicialFormat,
 																fechaRegistro__lte=fechaFinalFormat,
 																estatus=1).order_by("folio")
-		#print armador.query
+		##print armador.query
 		for e in armador:
 			fecha = e['fechaRegistro'].strftime("%d/%m/%Y")
 			resultado = {	"value": 2,
@@ -2973,13 +2973,13 @@ def reporteConsulta(request):
 		array["totales"]=totales
 		#excelReportes(request,array)
 		if int(excel) == 1:
-			print "Frente de Trabajo"
+			#print "Frente de Trabajo"
 			filename = excelReportesEntrada(request,array)
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idFrente!='0' and idTaller=='0' and idFuncion!='0' and tipo=='3' and inventario=='0':
-		print "Frente de Trabajo y Armador"
+		#print "Frente de Trabajo y Armador"
 
 		total = Entrada.objects.values(			
 												'material__id',
@@ -2995,7 +2995,7 @@ def reporteConsulta(request):
 												.order_by("material__id")
 
 
-		#print total.query
+		##print total.query
 		for x in total:
 			
 			resultado = {
@@ -3032,7 +3032,7 @@ def reporteConsulta(request):
 																fechaRegistro__gte=fechaInicialFormat,
 																fechaRegistro__lte=fechaFinalFormat,
 																estatus=1).order_by("folio")
-		#print armador.query
+		##print armador.query
 		for e in armador:
 			fecha = e['fechaRegistro'].strftime("%d/%m/%Y")
 			resultado = {	"value": 2,
@@ -3062,13 +3062,13 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totales"]=totales
 		if int(excel) == 1:
-			print "Frente de Trabajo y Armado"
+			#print "Frente de Trabajo y Armado"
 			filename = excelReportesEntrada(request,array)
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idTaller!='0' and idFrente=='0' and idFuncion=='0' and inventario=='0':
-		print "Taller del Habilitador"
+		#print "Taller del Habilitador"
 		total = Remision.objects.values(	'remisiondetalle__material__id',
 												'remisiondetalle__material__nombre'		
 												).annotate(pesoMaterial = Sum('remisiondetalle__peso'))\
@@ -3078,7 +3078,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("remisiondetalle__material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['remisiondetalle__material__id'],
@@ -3138,7 +3138,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['material__id'],
@@ -3190,13 +3190,13 @@ def reporteConsulta(request):
 		array["totalesS"]=totalesS
 		
 		if int(excel) == 1:
-			print "5"
+			#print "5"
 			filename = excelReportes(request,array)
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idFuncion!='0' and idFrente=='0' and tipo=='2' and idTaller=='0' and inventario=='0':
-		print "Proveedor Habilitado"
+		#print "Proveedor Habilitado"
 
 		total = Remision.objects.values(	'remisiondetalle__material__id',
 												'remisiondetalle__material__nombre'		
@@ -3207,7 +3207,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("remisiondetalle__material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['remisiondetalle__material__id'],
@@ -3266,7 +3266,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['material__id'],
@@ -3317,13 +3317,13 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totalesS"]=totalesS
 		if int(excel) == 1:
-			print "6"
+			#print "6"
 			filename = excelReportes(request,array)
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idFuncion!='0' and idTaller!='0' and idFrente=='0' and tipo=='2' and inventario=='0':
-		print "Proveedor Habilitado y Taller"
+		#print "Proveedor Habilitado y Taller"
 
 		total = Remision.objects.values(	'remisiondetalle__material__id',
 												'remisiondetalle__material__nombre'		
@@ -3335,7 +3335,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("remisiondetalle__material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['remisiondetalle__material__id'],
@@ -3396,7 +3396,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['material__id'],
@@ -3448,13 +3448,13 @@ def reporteConsulta(request):
 		array["data"]=data
 		array["totalesS"]=totalesS
 		if int(excel) == 1:
-			print "6"
+			#print "6"
 			filename = excelReportes(request,array)
 			return JsonResponse({"filename": filename})
 		return JsonResponse(array)
 
 	elif idTaller!='0' and idFrente!='0' and idFuncion=='0' and inventario=='0':
-		print "Taller de habilitado y frente de trabajo"
+		#print "Taller de habilitado y frente de trabajo"
 		
 		total = Salida.objects.values(	'material__id',
 										'material__nombre'		
@@ -3466,7 +3466,7 @@ def reporteConsulta(request):
 														estatus=1)\
 												.order_by("material__id")
 
-		#print total.query
+		##print total.query
 		for x in total:
 			resultado = {
 					"id":x['material__id'],
@@ -3583,7 +3583,7 @@ def materialBusquedaView(request):
 	d = Material.objects.values("id",
 								"nombre",
 								"imagen").filter(id=idMaterial)
-	#print d.query
+	##print d.query
 	for f in d:
 			resultado = {"id":f["id"],
 						"nombre": f["nombre"],
@@ -3678,7 +3678,7 @@ def inventarioFisicoCierreSave(request):
 	
 	for data in json_object:
 
-		print data
+		#print data
 		idCierre = data["id"]
 		material = data["material"]
 		existencia = data["existencia"]
@@ -3687,7 +3687,7 @@ def inventarioFisicoCierreSave(request):
 
 		ifd = InventarioFisicoDetalle.objects.get(pk=idCierre)
 		idInventario = ifd.inventarioFisico_id
-		print diferencia
+		#print diferencia
 		cantidadEntrada = data["cantidadEntrada"]
 		if cantidadEntrada:
 			cantidadEntrada
@@ -3722,7 +3722,7 @@ def inventarioFisicoCierreSave(request):
 			cantidadEntrada = 0
 		observacionEntrada = data["observacionEntrada"]
 		cantidadSalida = data["cantidadSalida"]
-		print cantidadSalida
+		#print cantidadSalida
 		if cantidadSalida:
 			cantidadReal = InventarioRemisionDetalle.objects\
 						.values(
@@ -3735,9 +3735,9 @@ def inventarioFisicoCierreSave(request):
 						.order_by('material_id')
 
 			cantidad = cantidadReal[0]['pesoMaterial']
-			print "------"
-			print material
-			print cantidadReal[0]['pesoMaterial']
+			#print "------"
+			#print material
+			#print cantidadReal[0]['pesoMaterial']
 			cantidadAsignada = cantidadSalida
 			totalAsignado = cantidadAsignada
 			remisionDetallesTotales = InventarioRemisionDetalle.objects\
@@ -3769,9 +3769,9 @@ def inventarioFisicoCierreSave(request):
 							if cantidadRestar >= 0:
 								totalAsignado = 0;
 							InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=cantidadRestar)
-			print"**********"
-			print material
-			print cantidadAsignada
+			#print"**********"
+			#print material
+			#print cantidadAsignada
 
 			salida = Salida.objects\
 							.create(
@@ -3942,8 +3942,8 @@ def inventarioRemision(request):
 	# 							"fisicoActual":fisicoActual,
 	# 							}
 	# 				dataRemisionInventarioSum.append(resultado)
-	# 				print "ok1"
-	# 			#print arrayVal1
+	# 				#print "ok1"
+	# 			##print arrayVal1
 	# 			arrayVal3 = (list(set(arrayVal1).difference(arrayVal2)))
 
 	# 	if len(arrayVal3) > 0:
@@ -3958,7 +3958,7 @@ def inventarioRemision(request):
 	# 								"fisicoActual":inventarioFisico["inventariofisicodetallecierre__pesoExistencia"],
 	# 								}
 	# 					dataRemisionInventarioSum.append(resultado)
-	# 					print "ok2"
+	# 					#print "ok2"
 	# else:
 	for remisionInventarioSum in remisionesInventarioSum:
 			resultado = {
@@ -3968,9 +3968,9 @@ def inventarioRemision(request):
 						"fisicoActual":0
 					}
 			dataRemisionInventarioSum.append(resultado)
-			print "ok3"
+			#print "ok3"
 
-	print dataRemisionInventarioSum
+	#print dataRemisionInventarioSum
 	array["remisiones"]=dataRemision
 	array["remisionesInventario"]=dataRemisionInventario
 	array["remisionesInventarioSum"]=dataRemisionInventarioSum
@@ -3989,7 +3989,7 @@ def apoyoBusquedaView(request):
 								"elemento__nombre",
 								"elemento__id",
 								"elemento__imagen").filter(id=idApoyo)
-	#print d.query
+	##print d.query
 
 
 	for f in d:
@@ -4008,7 +4008,7 @@ def apoyoBusquedaView(request):
 
 
 def mailHtmlHeader(request):
-	#print logo
+	##print logo
 	# <img src="%s" alt="Logo" />
 	html = """\
 			<html>
@@ -4436,11 +4436,11 @@ def mailHtmlEA(request, folio):
 								)
 
 
-	print "***********"
-	print res
-	print cantReal
+	#print "***********"
+	#print res
+	#print cantReal
 	cantReal=cantReal-res
-	print cantReal
+	#print cantReal
 
 	tabla += """\
 					<tr>
@@ -4529,8 +4529,8 @@ def mailHtmlEA(request, folio):
 
 def mailHtmlIF(request, folio):
 	# Mail Inventariofisico
-	print "IF****"
-	print folio
+	#print "IF****"
+	#print folio
 	cierre = ''
 	idfolio= int(folio)
 	inventario = InventarioFisico.objects.values(
@@ -4640,8 +4640,8 @@ def mailHtmlIF(request, folio):
 
 def mailHtmlIFA(request, folio):
 	# Mail InventariofisicoAjuste
-	print "IFA****"
-	print folio
+	#print "IFA****"
+	#print folio
 	idfolio= int(folio)
 	inventario = InventarioFisico.objects.values(
 											"folio",
@@ -4777,7 +4777,7 @@ def excelReportes(request, array):
 		worksheet.merge_range('A1:J1', 'Tren InterUrbano Mexico Toluca', titulo_format)
 		worksheet.merge_range('A2:J2', array["data"][0]["proveedor"], merge_format)
 		worksheet.merge_range('A3:J3', 'Registros de Entrada de Fabricantes de Acero', merge_format)
-		#print array["entrada"][0]["proveedor"]
+		##print array["entrada"][0]["proveedor"]
 		worksheet.write('A4', 'Folio', bold14)
 		worksheet.write('B4', 'Fabricante de Acero', bold14)
 		worksheet.write('C4', 'Taller de Habilitado', bold14)
@@ -4866,7 +4866,7 @@ def excelReportes(request, array):
 		
 		worksheet.merge_range('A1:J1', 'Tren InterUrbano Mexico Toluca', titulo_format)
 		worksheet.merge_range('A2:J2', array["data"][0]["taller"], merge_format)
-		#print array["entrada"][0]["proveedor"]
+		##print array["entrada"][0]["proveedor"]
 		worksheet.merge_range('A3:J3', 'Registros de Entrada de Fabricantes de Acero', merge_format)
 		worksheet.write('A4', 'Folio', bold14)
 		worksheet.write('B4', 'Fabricante de Acero', bold14)
@@ -4982,7 +4982,7 @@ def excelReportesEntrada(request,array):
 	    'fg_color': 'green'})
 
 	if array["data"][0]["excel"] == 0: #Inventario Fisico
-		print "reporte inventario"
+		#print "reporte inventario"
 		worksheet.merge_range('A1:G1', 'Tren InterUrbano Mexico Toluca', titulo_format)
 		worksheet.merge_range('A2:G2', array["data"][0]["proveedor"], merge_format)
 		worksheet.merge_range('A3:G3', 'Inventarios Fisicos', merge_format)
@@ -5028,7 +5028,7 @@ def excelReportesEntrada(request,array):
 		col = 0
 
 		for res in array["data"]:
-			#print res
+			##print res
 			#worksheet.write('A1', res["proveedor"], bold14)
 			worksheet.write(row, col, res["folio"])
 			worksheet.write(row, col + 1, res["taller"])
@@ -5169,8 +5169,8 @@ def excelReportesEntrada(request,array):
 				worksheet.write(row, col + 7, int(res["cantidad"]))
 				
 				fal= fal + int(res["cantidad"])
-				print "*******"
-				print flag
+				#print "*******"
+				#print flag
 				#worksheet.write(row, col + 9, int(res["cantidadReal"]))
 				if flag == res["cantidadReal"]:
 					if i==0:
@@ -5195,8 +5195,8 @@ def excelReportesEntrada(request,array):
 		row += 1
 		worksheet.write('A'+str(row), 'Peso Recibido en Kg', bold14)
 		worksheet.write('B'+str(row), 'Peso Faltante en Kg', bold14)
-		print "****"
-		print real
+		#print "****"
+		#print real
 
 		real=cant + (real-fal)
 		worksheet.write(row, col, real)

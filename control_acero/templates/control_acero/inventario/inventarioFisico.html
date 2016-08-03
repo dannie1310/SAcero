@@ -187,17 +187,17 @@
 			$.post( "{% url 'inventarioRemision' %}",{
 						},
 			function(data, status) {
-				///console.log(data)
+				/////console.log(data)
 	            try {
                     $.each(data.inventario, function (count, object) {
-                    	///console.log(object);
+                    	/////console.log(object);
                     });
                     $.each(data.remisionesInventarioSum, function (count, object) {
                     	valDefault = Math.floor(object.peso);
                     	valDefault = -Math.abs(valDefault);
                     	//existenciaSistema = Math.floor(object.peso) + Math.floor(object.fisicoActual);
                     	existenciaSistema = Math.floor(object.peso);
-                    	/////console.log(object.peso, " juhdiuf ", object.fisicoActual);
+                    	///////console.log(object.peso, " juhdiuf ", object.fisicoActual);
                     	existenciaEntradas += Math.floor(object.peso);
                     	tablaRemisionReal += '<tr class="real row_'+object.materialId+'">';
                     		tablaRemisionReal += '<td style="display:none;">'+object.materialId+'</td>';
@@ -286,7 +286,7 @@
 						observacion = $(this).data("observacion");
 						tipo = $("#tipoVarilla_"+material).val();
 						tipoText = $("#tipoVarilla_"+material+" option:selected").text();
-						console.log("tabla datos ", material, peso,longitud, tipoText);
+						//console.log("tabla datos ", material, peso,longitud, tipoText);
 
 						array.push({"id":parseInt(material),"longitud":longitud, "peso":peso, "piezas":piezas, "observacion":observacion, "tipo": parseInt(tipo)});
 						
@@ -294,7 +294,7 @@
 					var i=0;
 					var aux= array;
 					var flag=0;
-					console.log("copia ",aux)
+					//console.log("copia ",aux)
 					var id =0;
 					var pesoSistema = 0;	
 					$.each(aux, function (count, object) {
@@ -319,7 +319,7 @@
 						
 					});
 					guardaInventario(array, pesos);
-					/////console.log(array);
+					///////console.log(array);
 				
 			});
 		});
@@ -345,7 +345,7 @@
 				folioSalida = $(this).data("foliosalida");
 				pesoSalida = $(this).data("pesosalida");
 				totalexistencia = $(this).data("totalexistencia");
-				///console.log(folioEntrada, pesoEntrada, folioSalida, pesoSalida, totalexistencia);
+				/////console.log(folioEntrada, pesoEntrada, folioSalida, pesoSalida, totalexistencia);
 			});
 			// $('.real').each(function () {
 			// 	materialId = $(this).find('td:eq(0)').text();
@@ -369,13 +369,13 @@
 			// var jsonRemisionesInventario = JSON.stringify(arrayRemisionesInventario);
 			// var jsonSalidas = JSON.stringify(arraySalidas);
 			// var jsonSalidasInventario = JSON.stringify(arraySalidasInventario);
-			// console.log(json);
-			console.log(jsonObservaciones);
-			console.log(jsonReal);
-			// console.log(jsonRemisiones);
-			// console.log(jsonRemisionesInventario);
-			// console.log(jsonSalidas);
-			// console.log(jsonSalidasInventario);
+			// //console.log(json);
+			//console.log(jsonObservaciones);
+			//console.log(jsonReal);
+			// //console.log(jsonRemisiones);
+			// //console.log(jsonRemisionesInventario);
+			// //console.log(jsonSalidas);
+			// //console.log(jsonSalidasInventario);
 			$.post( "{% url 'inventarioFisicoSave' %}",{
 				folioEntrada: folioEntrada,
 				pesoEntrada: pesoEntrada,
@@ -388,7 +388,7 @@
 			function(data, status) {
 	            try {
 	            	$.each(data.data, function (count, object) {
-	            		console.log(object);
+	            		//console.log(object);
 	            		tabla+='<tr>'
 	            				+'<td class="text-center">'+object.nombre+'</td>'
 	            				+'<td class="text-center milesLimpio">'+Math.floor(object.existencia)+'</td>'

@@ -262,7 +262,7 @@
 			function(data, status) {
 	            try {
 	            	
-	            	if (data.data.length==0){
+	            	if (data.data.length==0 && data.entrada.length==0){
 	            		tabla='<tr><th class="text-center" colspan="5">No se encuentran registros con esos datos de busqueda. </th></tr>'
 	            	}
 	                $.each(data.data, function (count, object) {
@@ -484,7 +484,7 @@
 
 	                        	tabla += '<tr>';
 	                        	if(object.folio == null){
-	                        		tabla +='<td>Ajuste de Entrada</td>';
+	                        		tabla +='<td>Ajuste de Salida</td>';
 	                        		tabla +='<td>'+object.taller+'</td>';
 		                        	tabla +='<td>'+object.fechaR+'</td>';
 		                        	tabla +='<td>Ajuste</td>';
@@ -527,7 +527,7 @@
 								+'</tr>';
 								tabla += '<tr>';
 								if(object.folio == null){
-	                        		tabla +='<td>Ajuste de Entrada</td>';
+	                        		tabla +='<td>Ajuste de Salida</td>';
 	                        		tabla +='<td>'+object.taller+'</td>';
 		                        	tabla +='<td>'+object.fechaR+'</td>';
 		                        	tabla +='<td>Ajuste</td>';
@@ -649,9 +649,9 @@
 	                    });
 	                    if(real!= 0 && sumaFaltante!=0){
 	                    	sum=real-sumaFaltante;
-	                    	console.log("Real : "+real,"Diferencia : "+sum, "faltante: "+ sumaFaltante);
+	                    	//console.log("Real : "+real,"Diferencia : "+sum, "faltante: "+ sumaFaltante);
 	                    }
-						console.log("entrada: ",array);
+						//console.log("entrada: ",array);
 	                    $.each(data.totalesS, function (count, object) {
 	                    		 
 	                    		 	ht='<tr>'
@@ -717,7 +717,7 @@
 			tobody+='</tr>';
 			headTT+='</tr>';
 
-			console.log("Total : ",sum, sumSalida);
+			//console.log("Total : ",sum, sumSalida);
 			$('#tablaSolicita thead').append(head);
 		    $("#tablaSolicita tbody").append(tabla);
 		    $("#tablaDiferencia tbody").append(dif);
@@ -775,7 +775,7 @@
 			.fail(function() {
 				swal("Error!", "Error en la petición del reporte","error");
 			});
-			console.log("test");
+			
 		});
 		generarExcel = function(filename){
 			 $("body").append("<iframe src='/control_acero/descarga/excel/"+filename+"' style='display:none;' ></iframe>");
