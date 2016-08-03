@@ -1519,8 +1519,12 @@ def inventarioFisicoSave(request):
 
 			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
 			estatusCierre = 1
+<<<<<<< HEAD
 	
 
+=======
+		
+>>>>>>> 688de25bef0e7be46c46f81f04e7d34e422bb8b1
 	if conteo == 3:
 		detalle = InventarioFisicoDetalle.objects.values(
 														"id",
