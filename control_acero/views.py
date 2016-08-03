@@ -1309,7 +1309,7 @@ def entradaArmadoSave(request):
 								WHERE numFolio = %s\
 								AND material_id = %s", [folioSalida,materialF]);
 		finally:
-			#print "Se actualizo"
+			print "Se actualizo"
 
 		if bandera == 1:
 			entradaDetalle = EntradaDetalle.objects\
@@ -1506,9 +1506,9 @@ def inventarioFisicoSave(request):
 			#print margenPos
 			#print margenNeg
 			if  margenNeg <= fisico and fisico <= margenPos:
-				#print "si entra en el margen "
+				print "si entra en el margen "
 			else: 
-				#print "NO entra en el margen "
+				print "NO entra en el margen "
 				error = 1
 		if error == 0 :
 			#print "cierre automatico"
@@ -1519,9 +1519,7 @@ def inventarioFisicoSave(request):
 
 			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
 			estatusCierre = 1
-		else:
-			#print "3er inventario"
-
+	
 
 	if conteo == 3:
 		detalle = InventarioFisicoDetalle.objects.values(
@@ -1553,9 +1551,9 @@ def inventarioFisicoSave(request):
 			#print margenPos
 			#print margenNeg
 			if  margenNeg <= fisico and fisico <= margenPos:
-				#print "si entra en el margen "
+				print "si entra en el margen "
 			else: 
-				#print "NO entra en el margen "
+				print "NO entra en el margen "
 				error = 1
 		if error == 0 :
 			#print "cierre automatico"
