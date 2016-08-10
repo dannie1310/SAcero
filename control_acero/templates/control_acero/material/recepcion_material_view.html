@@ -44,7 +44,7 @@
 			</div> -->	
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="cmbOrden">Digitar de Orden de Compra ó Contrato ó Cliente:</label>
-				<input type="text" data-toggle="tooltip" data-placement="bottom" title="Digitar Orden de Compra ó Contrato ó Cliente" class="form-control" name="cmbOrden" id="cmbOrden"></input>
+				<input type="text" style="text-transform: uppercase;"  data-toggle="tooltip" data-placement="bottom" title="Digitar Orden de Compra ó Contrato ó Cliente" class="form-control" onblur="upperCase()" name="cmbOrden" id="cmbOrden"></input>
 			</div>		
 			
 		</div>
@@ -104,6 +104,10 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		function upperCase() {
+   				var x=document.getElementById("cmbOrden").value
+  				document.getElementById("cmbOrden").value=x.toUpperCase()
+		}
 		mostrarFolio = function(){
 			var modulo = 1;
 			$.post( "{% url 'foliosMostrar' %}",{

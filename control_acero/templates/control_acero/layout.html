@@ -348,6 +348,15 @@
                                                 </ul>
                                             </div>
                                             {% endif %}
+                                            {% if perms.control_acero.delete_folios %}
+                                            <div class="col-sm-3">
+                                                <h5>ELIMINAR FOLIO</h5>
+                                                <ul>
+                                                    <li><a href="{% url 'eliminarView' %}">Eliminar Folio</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <!-- /.yamm-content -->

@@ -546,6 +546,7 @@
 					var elemento = $("#txtElemento").val();
 					var htmlMail = $("#tablaMaterialDetalle").html();
 					var htmlMailFaltante = $("#tablaMaterialFaltante").html();
+					var folioText = $("#cmbFolio").find(':selected').data('folio')
 					$("input.datos[type=hidden]").each(function(index, element) {
 						var material = $(this).data("datosidmaterial");
 						var cantidadReal = $(this).data("datoscantidadreal");
@@ -594,6 +595,7 @@
 							funcion: funcion,
 							folio: folio,
 							apoyo: apoyo,
+							folioText:folioText,
 							elemento: elemento,
 							htmlMail: htmlMail,
 							htmlMailFaltante: htmlMailFaltante,

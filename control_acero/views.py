@@ -575,7 +575,7 @@ def movimientosView(request):
 										)\
 								.order_by("id")
 
-	paginator = Paginator(movimientos_list, 10)
+	paginator = Paginator(movimientos_list, 20)
 	page = request.GET.get('page')
 	try:
 		movimientos = paginator.page(page)
@@ -648,7 +648,7 @@ def movimientosDetalleView(request, pk):
 	modulo = detalle[0]["modulo__id"]
 	idAfectado = detalle[0]["id_afectado"]
 	#print idAfectado
-	if modulo == 1 :
+	if modulo == 1 or modulo == 6 :
 		datos = Remision.objects.values("id",
 									    "idOrden",
 									    "remision",
@@ -660,7 +660,7 @@ def movimientosDetalleView(request, pk):
 									    "pesoNeto",
 									    "tallerAsignado__nombre")\
 				.filter(id=idAfectado)
-	if modulo == 2 :
+	if modulo == 2 or modulo == 7:
 		folios = Salida.objects.values(
 										"fechaRegistro",
 										"apoyo__numero",
@@ -674,7 +674,7 @@ def movimientosDetalleView(request, pk):
 										"material__nombre",
 										"cantidadAsignada")\
 				.filter(folio=folio)
-	if modulo== 3 :
+	if modulo== 3 or modulo==8:
 		folios = Entrada.objects.values("folio",
 										"elemento__nombre",
 										"remision",
@@ -1038,7 +1038,7 @@ def salidaHabilitadoMaterial(request):
 								)\
 						.annotate(pesoMaterial = Sum('peso'))\
 						.annotate(cantidadMaterial = Sum('cantidad'))\
-						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"])\
+						.filter(peso__gt = 0, remision__tallerAsignado_id = request.session["idTaller"], estatus=1)\
 						.order_by('material_id')
 	##print remisionDetalles.query
 	for remisionDetalle in remisionDetalles:
@@ -1093,27 +1093,47 @@ def salidaHabilitadoSave(request):
 									)\
 							.annotate(pesoMaterial = Sum('peso'))\
 							.annotate(cantidadMaterial = Sum('cantidad'))\
-							.filter(material_id = material, remision__tallerAsignado_id = request.session["idTaller"])
+							.filter(material_id = material, remision__tallerAsignado_id = request.session["idTaller"],estatus=1).order_by("material_id")
 		for remisionDetallesTotal in remisionDetallesTotales:
 			if Decimal(remisionDetallesTotal["pesoMaterial"]) >= Decimal(totalAsignado):
 				inventarioRemisionDetalles = InventarioRemisionDetalle.objects.all()\
 												.filter(
 														material_id = material,
 														estatusTotalizado = 1,
+														estatus=1,
 														remision__tallerAsignado_id = request.session["idTaller"])\
-												.order_by("id")
+												.order_by("id").order_by("material_id")
 				for inventarioRemisionDetalle in inventarioRemisionDetalles:
 					inventarioId = inventarioRemisionDetalle.id
 					irdpeso = inventarioRemisionDetalle.peso
+					peso=Decimal(totalAsignado)
 					if Decimal(irdpeso) <= Decimal(totalAsignado):
+						
 						totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
+						descuento = DescuentoSalida.objects\
+												.create(
+														pesoSalida = peso,
+														pesoRemision = irdpeso,
+														resta = totalAsignado,
+														inventarioRemisionDetalle_id =inventarioId
+														)
+						
+						
 						InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=0, estatusTotalizado = 0)
 						continue
 
 					if Decimal(irdpeso) > Decimal(totalAsignado) and Decimal(totalAsignado) != 0:
 						cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
+						descuento = DescuentoSalida.objects\
+												.create(
+														pesoSalida = totalAsignado,
+														pesoRemision = irdpeso,
+														resta = cantidadRestar,
+														inventarioRemisionDetalle_id =inventarioId
+														)
 						if cantidadRestar >= 0:
 							totalAsignado = 0;
+												
 						InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=cantidadRestar)
 			else:
 				mensaje = {"estatus":"ok", "mensaje":"No puede exceder el peso existente"}
@@ -1133,6 +1153,7 @@ def salidaHabilitadoSave(request):
 								tallerAsignado_id = request.session["idTaller"]
 								)
 		bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=salida.pk, observacion="El id guardado es de la salida", estatus=1, modulo_id=2, user_id=request.user.id)
+		DescuentoSalida.objects.filter(estatusSalida=0).update(salida_id=salida.pk, estatusSalida=1)
 		inventarioSalida = InventarioSalida.objects\
 						.create(
 								apoyo_id = apoyo,
@@ -1146,6 +1167,8 @@ def salidaHabilitadoSave(request):
 								numFolio = numFolioInt,
 								tallerAsignado_id = request.session["idTaller"]
 								)
+
+
 	mensaje = {"estatus":"ok", "mensaje":"Salida de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
 	mailHtmlSH(request, numFolioInt)
@@ -1201,7 +1224,7 @@ def entradaArmadoMaterial(request):
 								'elemento__nombre'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
-						.filter(numFolio = folio, frente_id = request.session["idFrente"], cantidadAsignada__gt=0) \
+						.filter(numFolio = folio, frente_id = request.session["idFrente"], cantidadAsignada__gt=0, estatus=1) \
 						.order_by('material_id')
 	for salida in salidas:
 		resultado = {
@@ -1225,6 +1248,7 @@ def entradaArmadoSave(request):
 	elemento = request.POST.get('elemento', 0)
 	funcion = request.POST.get('funcion', 0)
 	folioSalida = request.POST.get('folio', 0)
+	folioText= request.POST.get('folioText', 0)
 	htmlMail = request.POST.get('htmlMail', 0)
 	htmlMailFaltante = request.POST.get('htmlMailFaltante', 0)
 	respuesta = request.POST.get('json')
@@ -1252,19 +1276,19 @@ def entradaArmadoSave(request):
 		bandera = jsonData["bandera"]
 		totalAsignado = cantidadAsignada
 		inventarioSalidas = InventarioSalida.objects.all()\
-										.filter(material_id = material, estatusTotalizado = 1, frente_id = request.session["idFrente"])
+										.filter(material_id = material, estatusTotalizado = 1, frente_id = request.session["idFrente"], estatus=1)
 		for inventarioSalida in inventarioSalidas:
 			inventarioId = inventarioSalida.id
 			irdpeso = inventarioSalida.cantidadAsignada
 
 			if Decimal(irdpeso) <= Decimal(totalAsignado):
 				totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
-				InventarioSalida.objects.filter(id=inventarioId).update(cantidadAsignada=0, estatusTotalizado = 0)
+				InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=0, estatusTotalizado = 0)
 				continue
 
 			if Decimal(irdpeso) > Decimal(totalAsignado):
 				cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
-				InventarioSalida.objects.filter(id=inventarioId).update(cantidadAsignada=cantidadRestar)
+				InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=cantidadRestar)
 
 		entrada = Entrada.objects\
 						.create(
@@ -1273,6 +1297,7 @@ def entradaArmadoSave(request):
 								apoyo_id = apoyo,
 								material_id = material,
 								funcion_id = funcion,
+								folioSalida= folioText,
 								cantidadReal = cantidadReal,
 								cantidadAsignada = cantidadAsignada,
 								folio = numFolio,
@@ -1296,6 +1321,7 @@ def entradaArmadoSave(request):
 								apoyo_id = apoyo,
 								material_id = materialF,
 								funcion_id = funcion,
+								folioSalida =folioText,
 								cantidadReal = cantidadRealF,
 								cantidadAsignada = cantidadAsignadaF,
 								folio = numFolio,
@@ -3659,10 +3685,10 @@ def inventarioFisicoCierreSave(request):
 	for data in json_object:
 		idC= data["id"]
 		
-	RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
-	InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
-	Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
-	InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idC)
+	RemisionDetalle.objects.filter(estatusInventario=0,estatus=1).update(estatusInventario=1,folioInventario=idC)
+	InventarioRemisionDetalle.objects.filter(estatusInventario=0, estatus=1).update(estatusInventario=1,folioInventario=idC)
+	Salida.objects.filter(estatusInventario=0, estatus=1).update(estatusInventario=1,folioInventario=idC)
+	InventarioSalida.objects.filter(estatusInventario=0, estatus=1).update(estatusInventario=1,folioInventario=idC)
 	numFolio=0
 	folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
@@ -3837,7 +3863,7 @@ def inventarioRemision(request):
 										"remisiondetalle__longitud",
 										"remisiondetalle__numFolio"
 										)\
-					.filter(remisiondetalle__estatusInventario = 0, tallerAsignado_id = request.session['idTaller']).distinct()
+					.filter(remisiondetalle__estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus=1).distinct()
 	for remision in remisiones:
 			resultado = {
 							"id":remision["remisiondetalle__id"],
@@ -3853,7 +3879,7 @@ def inventarioRemision(request):
 										"inventarioremisiondetalle__peso",
 										"inventarioremisiondetalle__longitud"
 										)\
-					.filter(inventarioremisiondetalle__estatusInventario = 0, tallerAsignado_id = request.session['idTaller']).distinct()
+					.filter(inventarioremisiondetalle__estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus=1).distinct()
 	for remisionInventario in remisionesInventario:
 			resultado = {
 							"id":remisionInventario["inventarioremisiondetalle__id"],
@@ -3869,6 +3895,8 @@ def inventarioRemision(request):
 													LEFT OUTER JOIN control_acero_material ON ( control_acero_inventarioremisiondetalle.material_id = control_acero_material.id )\
 													WHERE control_acero_remision.tallerAsignado_id = %s\
 													AND control_acero_inventarioremisiondetalle.estatusTotalizado = 1\
+													AND control_acero_inventarioremisiondetalle.estatus = 1\
+													AND control_acero_remision.estatus = 1\
 													GROUP BY control_acero_inventarioremisiondetalle.material_id, control_acero_material.nombre\
 													ORDER BY control_acero_inventarioremisiondetalle.material_id ASC", [request.session['idTaller']]);
 		remisionesInventarioSum = cursor.fetchall()
@@ -3880,7 +3908,7 @@ def inventarioRemision(request):
 										"cantidadAsignada",
 										"numFolio"
 										)\
-					.filter(estatusInventario = 0, tallerAsignado_id = request.session['idTaller'])
+					.filter(estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus =1)
 	for salida in salidas:
 			resultado = {
 						"id":salida["id"],
@@ -3894,7 +3922,7 @@ def inventarioRemision(request):
 										"cantidadReal",
 										"cantidadAsignada"
 										)\
-					.filter(estatusInventario = 0, tallerAsignado_id = request.session['idTaller'])
+					.filter(estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus =1)
 	for salidaInventario in salidasInventario:
 			resultado = {
 						"id":salidaInventario["id"],
@@ -5302,3 +5330,180 @@ def descargaExcel(request, filename):
 	response['Content-Disposition'] = 'attachment; filename=%s.xlsx' % filename
 	return response
  
+def eliminarView(request):
+	template = 'control_acero/eliminar/eliminacionFolio.html'
+	return render(request, template)
+
+def buscarFolio(request):
+	array = {}
+	mensaje = {}
+	data = []
+	folio = request.POST.get('folio', 0)
+	e = request.POST.get('estatus', 0)
+	e = int(e)
+	print folio
+	cad=folio[:3]
+	print cad
+	print e
+	if cad == 'RMH':
+		print "recepcion de material"
+		r = RemisionDetalle.objects.values("id", 
+								   			"remision_id",
+											"folio", 
+											"remision__idOrden",
+											"remision__remision",
+											"remision__pesoNeto",
+											"remision__tallerAsignado__nombre",
+											"remision__funcion__proveedor",
+											"material__nombre",
+											"peso",
+											"cantidad",
+											"longitud",
+											"remision__inventarioremisiondetalle__descuentosalida__id",
+											"remision__inventarioremisiondetalle__descuentosalida__salida_id")\
+											.filter(folio=folio, estatus=1).distinct()
+
+		idDesc=r[0]["remision__inventarioremisiondetalle__descuentosalida__id"]
+		idSal=r[0]["remision__inventarioremisiondetalle__descuentosalida__salida_id"]
+		
+		
+		if  idDesc is not None:
+			mensaje = {"mensaje":"No se puede eliminar este folio, el material de este folio ya fué habilitado"}
+			array["mensaje"] = mensaje
+			array["data"]=data
+			return JsonResponse(array)
+			
+		else:
+
+			for f in r:
+				resultado = {
+						"modulo":1,
+						"id":f["id"],
+						"folio":f["folio"],
+						"remid": f["remision_id"],
+						"idOrden":f["remision__idOrden"],
+						"remision":f["remision__remision"],
+						"pesoNeto":f["remision__pesoNeto"],
+						"funcion":f["remision__funcion__proveedor"],
+						"material":f["material__nombre"],
+						"peso":f["peso"],
+						"cantidad":f["cantidad"],
+						"longitud":f["longitud"],
+						"descuentosalida__id":f["remision__inventarioremisiondetalle__descuentosalida__id"],
+						"taller":f["remision__tallerAsignado__nombre"],
+						}
+				data.append(resultado)	
+
+			print e
+			if e == 1:
+				print "elimina"
+				Remision.objects.filter( id = r[0]["remision_id"]).update(estatus=0)
+				RemisionDetalle.objects.filter(folio = r[0]["folio"]).update(estatus=0)
+				InventarioRemisionDetalle.objects.filter(folio=folio).update(estatus=0)
+				bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepcion Taller", id_afectado=r[0]["remision_id"], observacion="Cambio de estatus en folio remision", estatus=1, modulo_id=6, user_id=request.user.id)
+	
+	if cad == 'SMH':
+		print "Salida de material"
+
+		salida=Salida.objects.values("id",
+										"cantidadAsignada",
+										"folio",
+										"apoyo__numero",
+										"frente__nombre",
+										"material__nombre",
+										"elemento__nombre",
+										"tallerAsignado__nombre"
+										)\
+								.filter(folio=folio,
+										estatus=1).distinct()
+		for s in salida:
+			resultado={
+					"modulo":2,
+					"id":s["id"],
+					"cantidadAsignada":s["cantidadAsignada"],
+					"folio":s["folio"],
+					"apoyo":s["apoyo__numero"],
+					"frente":s["frente__nombre"],
+					"material":s["material__nombre"],
+					"elemento":s["elemento__nombre"],
+					"taller":s["tallerAsignado__nombre"]
+			}
+			data.append(resultado)
+
+		if e == 1:
+			print "elimina"
+			for s in salida:
+				descuente=DescuentoSalida.objects.values(
+															"id",
+															"inventarioRemisionDetalle_id",
+															"salida_id",
+															"pesoSalida",
+															"pesoRemision",
+															"inventarioRemisionDetalle__material__nombre",
+															"inventarioRemisionDetalle__peso"
+														)\
+														.filter(estatus=1, salida_id=s["id"])
+
+				for des in descuente:
+					print des
+					pesoReal=int(des["inventarioRemisionDetalle__peso"])+int(des["pesoSalida"])
+					InventarioRemisionDetalle.objects.filter(id=des["inventarioRemisionDetalle_id"]).update(peso=pesoReal, estatusTotalizado = 1)
+					DescuentoSalida.objects.filter(id=des["id"]).update(estatus=0)
+					Salida.objects.filter(id=des["salida_id"]).update(estatus=0)
+					InventarioSalida.objects.filter(folio=folio).update(estatus=0)
+					bitacora = Bitacora.objects.create(accion="Eliminación de Folio Salida Taller", id_afectado=des["salida_id"], observacion="Cambio de estatus en folio salida", estatus=1, modulo_id=7, user_id=request.user.id)											
+	
+	if cad == 'EMA':
+		print "Recepcion en Frente de trabajo"
+
+		entrada=Entrada.objects.values( 
+										"id",
+										"folio",
+										"folioSalida",
+										"material__id",
+										"material__nombre",
+										"funcion__proveedor",
+										"frente__nombre",
+										"elemento__nombre",
+										"apoyo__numero",
+										"remision",
+										"cantidadReal"
+										)\
+										.filter(folio=folio, estatus=1)\
+										.annotate(cantidadAsignada = Sum('cantidadAsignada'))\
+										.order_by("material__id")\
+										.distinct()
+
+		for ent in entrada:
+			resultado={
+				"modulo":3,
+				"id":ent["id"],
+				"folio":ent["folio"],
+				"folioSalida":ent["folioSalida"],
+				"material":ent["material__nombre"],
+				"proveedor":ent["funcion__proveedor"],
+				"frente":ent["frente__nombre"],
+				"elemento":ent["elemento__nombre"],
+				"apoyo":ent["apoyo__numero"],
+				"remision":ent["remision"],
+				"cantidad":ent["cantidadAsignada"],
+				"cantidadR":ent["cantidadReal"]
+			}
+			data.append(resultado)
+
+		print e
+		if e == 1:
+			print "elimina"
+			Entrada.objects.filter(folio=folio).update(estatus=0)
+			EntradaDetalle.objects.filter(entrada__folio =folio).update(estatus=0)
+			for ex in entrada:
+				print "cambio de recepcion pendiente"
+				InventarioSalida.objects.filter(folio=ex["folioSalida"],material_id=ex["material__id"]).update(estatusTotalizado=1, cantidadAsignada=ex["cantidadReal"])
+			bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepción en Frente", id_afectado=entrada[0]["id"], observacion="Cambio de estatus en folio entrada", estatus=1, modulo_id=8, user_id=request.user.id)
+	
+	else:
+		mensaje = {"mensaje":"Folio Incorrecto"}
+		
+	array["mensaje"] = mensaje
+	array["data"]=data
+	return JsonResponse(array)

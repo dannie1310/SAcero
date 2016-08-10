@@ -1,0 +1,260 @@
+{% extends 'control_acero/layout.html' %}
+{% block title_module %}
+	MÓDULO DE ELIMINACIÓN DE FOLIO
+{% endblock %}
+{% block content %}
+	<div class="col-xs-12">
+		<div class="col-md-12">
+			
+			<!-- {% if request.session.nombreTaller > 0 %}
+				<div class="form-group col-md-6 text-center alert-info">
+					<h3> Taller Asignado: {{ request.session.nombreTaller }} </h3>
+				</div>
+			{% else %}
+				<div class="form-group col-md-6 text-center alert-info">
+					<h3> No cuentas con Taller Asignado</h3>
+				</div>
+			{% endif %} -->
+			
+			
+			<div class="form-group col-md-12">
+				<label  class="control-label" for="folio">Ingresa Folio a Eliminar:</label>
+				<input style="text-transform: uppercase;" type="text" data-toggle="tooltip" data-placement="bottom" title="Ingresa un folio" class="form-control" onblur="upperCase()" name="folio" id="folio"></input>
+			</div>
+		<!-- 	<div>
+					<input type="file" id="files" name="files[]" multiple />
+					<output id="list"></output>
+			</div> -->
+			
+		</div>
+		<div class="col-md-12">
+			<button type="button" class="btn btn-success" name="buscarFolio" id="buscarFolio">Buscar Folio</button>
+		</div>
+		
+		<div style="display:none;" id="divDetalle" class="col-md-12 table-responsive">
+			<table id="tablaDetalle" class="table table-hover">
+				<thead>
+					
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+		<div style="display:none;" id="divDetalleM" class="col-md-12 table-responsive">
+			<table id="tablaDetalleM" class="table table-hover">
+				<thead>
+					
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+		
+		<div style="display:none;" id="divDetalleSolicita" class="col-md-6 text-center">
+			<button type="button" class="btn btn-success" name="btnSolicitar" id="btnSolicitar">Eliminar Folio</button>
+		</div>
+		<div style="display:none;" id="divDetalleCancelar" class="col-md-6 text-center">
+			<button type="button" class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		
+		function upperCase() {
+   				var x=document.getElementById("folio").value
+  				document.getElementById("folio").value=x.toUpperCase()
+		}
+		$( "#buscarFolio" ).click(function() {
+			var folio= $("#folio").val();
+			$("#tablaDetalleM tbody").empty();
+			$("#tablaDetalle tbody").empty();
+			$("#tablaDetalleM thead").empty();
+			$("#tablaDetalle thead").empty();
+			var tabla='';
+			var tabla1='';
+			var head1='';
+			var head='';
+			var estatus=0;
+			console.log(folio);
+
+			if(folio == 0){
+				swal("Error!", "Debes ingresar un folio.", "error");
+				return false;
+			}
+
+	 		$.post( "{% url 'buscarFolio' %}",{
+	 			folio:folio,
+	 			estatus: estatus
+			},
+			function(data, status) {
+	            try {
+	            	
+	            	if (data.data.length==0){
+	            		 $.each(data.mensaje, function (count, object) {
+	            		 swal("Error!", object, "error");
+	            		})
+	            	}
+	                $.each(data.data, function (count, object) {
+	                	console.log("datos::", object)
+	                	if (object.modulo==1){
+	                		head1='<tr>'
+								+'<th class="text-center">Folio</th>'
+								+'<th class="text-center">Orden</th>'
+								+'<th class="text-center">Remision</th>'
+								+'<th class="text-center">Fabricante de Acero</th>'
+								+'<th class="text-center">Taller</th>'
+								+'</tr>';
+					
+		                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
+		                			+'<th class="text-center">'+object.idOrden+'</th>'
+		                			+'<th class="text-center">'+object.remision+'</th>'
+		                			+'<th class="text-center">'+object.funcion+'</th>'
+		                			+'<th class="text-center">'+object.taller+'</th></tr>';
+
+		                	head='<tr>'
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Longitud</th>'
+								+'<th class="text-center">Peso</th>'
+								+'<th class="text-center">Piezas</th>'
+								+'</tr>';
+		                	tabla+='<tr>'
+		                	    +'<td>'+object.material+'</td>'
+		                		+'<td>'+object.longitud+'</td>'
+		                		+'<td class="milesLimpio">'+Math.floor(object.peso)+'</td>'
+		                		+'<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>'
+		                		+'</tr>';
+		                }
+		                if (object.modulo==2){
+		                	head1='<tr>'
+								+'<th class="text-center">Folio</th>'
+								+'<th class="text-center">Frente de Trabajo</th>'
+								+'<th class="text-center">Apoyo</th>'
+								+'<th class="text-center">Elemento</th>'
+								+'<th class="text-center">Taller</th>'
+								+'</tr>';
+		                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
+		                			+'<th class="text-center">'+object.frente+'</th>'
+		                			+'<th class="text-center">'+object.apoyo+'</th>'
+		                			+'<th class="text-center">'+object.elemento+'</th>'
+		                			+'<th class="text-center">'+object.taller+'</th>'
+		                			+'</tr>';
+		                	head='<tr>'
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Peso</th>'
+								+'</tr>';
+		                	tabla+='<tr>'
+		                	    +'<td>'+object.material+'</td>'
+		                		+'<td class="milesLimpio">'+Math.floor(object.cantidadAsignada)+'</td>'
+		                		+'</tr>';
+		                }
+	                	if (object.modulo==3){
+	                		head1='<tr>'
+								+'<th class="text-center">Folio</th>'
+								+'<th class="text-center">Frente de Trabajo</th>'
+								+'<th class="text-center">Apoyo</th>'
+								+'<th class="text-center">Elemento</th>'
+								+'<th class="text-center">Armador</th>'
+								+'<th class="text-center">Remisión</th>'
+								+'</tr>';
+		                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
+		                			+'<th class="text-center">'+object.frente+'</th>'
+		                			+'<th class="text-center">'+object.apoyo+'</th>'
+		                			+'<th class="text-center">'+object.elemento+'</th>'
+		                			+'<th class="text-center">'+object.proveedor+'</th>'
+		                			+'<th class="text-center">'+object.remision+'</th>'
+		                			+'</tr>';
+		                	head='<tr>'
+								+'<th class="text-center">Varilla</th>'
+								+'<th class="text-center">Peso Recibido</th>'
+								+'</tr>';
+		                	tabla+='<tr>'
+		                	    +'<td>'+object.material+'</td>'
+		                		+'<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>'
+		                		+'</tr>';
+
+	                	}	
+	                		$("#divDetalle").show("slide");
+				 			$("#divDetalleM").show("slide");
+				 			$("#divDetalleSolicita").show("slide");
+				 			$("#divDetalleCancelar").show("slide");
+	                })
+	                 
+				 			
+	            } catch(e){
+	            	 swal("Error!", "Error al cargar  : "+e, "error");
+	            }
+	           $("#tablaDetalle tbody").append(tabla1);
+				$("#tablaDetalleM tbody").append(tabla);
+				$("#tablaDetalle thead").append(head1);
+				$("#tablaDetalleM thead").append(head);
+		})
+
+	 	});
+
+		$( "#btnSolicitar" ).click(function() {
+			
+			var folio= $("#folio").val();
+			var estatus=1;
+			console.log(folio);
+
+			swal({
+
+				  title: "¿Está seguro que la información capturada es la correcta?",
+				  text: "No se podrá modificar el registro posteriormente",
+				  type: "warning",
+				  showCancelButton: true,
+				  closeOnConfirm: true,
+				  showLoaderOnConfirm: true
+			},
+			function(){
+				$.post( "{% url 'buscarFolio' %}",{
+	 			folio:folio,
+	 			estatus: estatus
+				})
+				.done(function(data, status) {
+					setTimeout(function () {
+					    swal("Se Elimino Correctamente el folio "+folio);
+					}, 2000);
+					
+					$("#btnSolicitar").hide("slide");
+					$("#btnCancelar").hide("slide");
+					$("#folio").val(' ');
+					$("#divDetalle").hide("slide");
+					$("#divDetalleM").hide("slide");
+					backToTop();
+			    })
+	            .error(function(data, status){
+					setTimeout(function () {
+					    swal("Error!", "Error en la petición de eliminación de folio", "error");
+					}, 1000);
+	                //mensajeWarning( "Error en la petición al Guardar Recepción de Material de Fabricante" );
+	           	});
+			});
+		});
+					
+		$( "#btnCancelar" ).click(function() {
+			
+			$("#folio").val(' ');
+			$("#divDetalle").hide('slide');
+		    $("#divDetalleM").hide("slide");
+		    $("#divDetalleSolicita").hide();
+		    $("#divDetalleCancelar").hide();
+		});
+
+	   //  function handleFileSelect(evt) {
+		  //   var files = evt.target.files; // FileList object
+
+		  //   // files is a FileList of File objects. List some properties.
+		  //   var output = [];
+		  //   for (var i = 0, f; f = files[i]; i++) {
+		  //     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+		  //                 f.size, ' bytes, last modified: ',
+		  //                 f.lastModifiedDate.toLocaleDateString(), '</li>');
+		  //   }
+		  //   document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+		  // }
+
+		  // document.getElementById('files').addEventListener('change', handleFileSelect, false);
+	</script>
+{% endblock %}

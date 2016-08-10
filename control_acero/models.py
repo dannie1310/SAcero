@@ -216,6 +216,7 @@ class Entrada(models.Model):
 	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	folioSalida = models.CharField(max_length=20,null=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
@@ -404,7 +405,8 @@ class Remision(models.Model):
 	        ("view_inventario_fisico", "Puede Visualizar el Inventario Fisico"),
 	        ("view_reportes", "Puede Visualizar Reportes"),
 	        ("view_movimientos", "Puede Visualizar los Movimientos Realizados"),
-	        ("closing_inventarios", "Puede Ajustar un Inventario Fisico")
+	        ("closing_inventarios", "Puede Ajustar un Inventario Fisico"),
+	        ("delete_folios", "Puede Borrar Folios"),
 	    )
 
 class RemisionDetalle(models.Model):
@@ -582,6 +584,27 @@ class Bitacora(models.Model):
 	accion = models.CharField(max_length=100)
 	id_afectado = models.IntegerField()
 	observacion = models.CharField(max_length=200)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class DescuentoSalida(models.Model):
+	salida = models.ForeignKey(Salida, null=True)
+	inventarioRemisionDetalle = models.ForeignKey(InventarioRemisionDetalle, null=True)
+	pesoSalida = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	pesoRemision = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	resta = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	ESTATUSSALIDA = (
+	    (0, 'Pendiente'),
+	    (1, 'Guardado'),
+	)
+	estatusSalida = models.IntegerField(choices=ESTATUSSALIDA, default=0)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
