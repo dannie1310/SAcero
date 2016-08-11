@@ -72,6 +72,7 @@
 						<th class="text-center">Piezas</th>
 						<th class="text-center">Peso Total Kg</th>
 						<th class="text-center">Longitud Mts</th>
+						<th class="text-center">Tipo</th>
 						<th class="text-center eliminar">¿Corregir?</th>
 					</tr>
 				</thead>
@@ -88,6 +89,9 @@
 						<th class="text-center">Piezas</th>
 						<th class="text-center">Peso Total en Kg</th>
 						<th class="text-center">Peso Total en TON</th>
+						<th class="text-center">Peso Neto</th>
+						<th class="text-center">Peso Tara</th>
+						<th class="text-center">Observacion</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -334,6 +338,9 @@
 			    			+'<td class="milesLimpio text-center">'+piezas+'</td>'
 			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
 			    			+'<td class="text-center">'+tonHtml+'</td>'
+			    			+'<td><input type="text"  class="form milesLimpio" name="pesoNeto" id="pesoNeto" value=""></input></td>'
+			    			+'<td><input type="text" class="form milesLimpio" name="pesoTara" id="pesoTara" value=""></input></td>'
+			    			+'<td><textarea rows="2" cols="15" class="form" name="observacion" id="observacion" placeholder="Ingresa Observación"></textarea></td>'
 			    			+'</tr>';
 						
 			    $("#tablatotales").append(tablaTotales);
@@ -344,16 +351,21 @@
 		$( "#btnSolicitar" ).click(function() {
 			var orden = $("#cmbOrden").val();
 			var remision = $("#remision").val();
+			var pesoNeto = $("#pesoNeto").val();
+			var pesoTara = $("#pesoTara").val();
+			var observacion =$("#observacion").val();
 			var htmlMail = $("#tablaApoyoElemento").html();
 			var funcion = $("#cmbFuncion").val();
 			var funcionHabilitado = $("#cmbFuncionHabilitado").val();
 			var fechaRemision = $("#fechaRemision").val();
-			var pesoTara = $("#txtTara").val();
-			var pesoBruto = $("#txtPesoBruto").val();
 			var pesoTotal = 0;
 			var tablaTotales='';
-			
-				
+			console.log(pesoNeto, pesoTara, observacion)
+			var pesoBruto=0;
+			pesoNeto=limpiaValor(pesoNeto);
+			pesoTara=limpiaValor(pesoTara);
+			pesoBruto= parseFloat(pesoNeto)+parseFloat(pesoTara);	
+			console.log(pesoBruto);
 			$('.pesoTo').each(function(i,obj){
 					pesoTotal = limpiaValor($(this).text());
 			})
@@ -394,6 +406,7 @@
 				        		pesoTara: pesoTara,
 				        		pesoBruto: pesoBruto,
 				        		pesoTotal: pesoTotal,
+				        		observacion:observacion,
 				        		htmlMail: htmlMail,
 				        		json: json
 							})

@@ -194,7 +194,10 @@
 			var valDefault = 0;
 			var existenciaSistema = 0;
 			var existenciaEntradas = 0;
+			var estatus=1
+			console.log(estatus);
 			$.post( "{% url 'inventarioRemision' %}",{
+							estatus:estatus
 						},
 			function(data, status) {
 				/////console.log(data)

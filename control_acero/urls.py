@@ -120,4 +120,5 @@ urlpatterns = [
 
     url(r'^eliminacion/folio/$', views.eliminarView, name='eliminarView'),
     url(r'^eliminar/buscar/folio/$', views.buscarFolio, name='buscarFolio'),
+   # url(r'^leer/datos/$', views.leerArchivo, name='leerArchivo'),
 ]

@@ -18,6 +18,9 @@
 		<div class="form-group col-md-6 text-center alert-info">
 			<h3> Folio: <span id="folio"></span></h3>
 		</div>
+		<div class="form-group" style="display:none">
+			<input type="text" readonly disabled class="form-control" name="estatus" id="estatus" value="{{ inventarioFisicoAnterior.count }}"></input>
+		</div>
 		<div class="col-md-12 table-responsive">
 			<table id="tablaRemisiones" class="table table-hover">
 				<thead>
@@ -184,15 +187,17 @@
 			var valDefault = 0;
 			var existenciaSistema = 0;
 			var existenciaEntradas = 0;
+			var estatus=$("#estatus").val();
+			console.log(estatus);
 			$.post( "{% url 'inventarioRemision' %}",{
+							estatus:estatus
 						},
 			function(data, status) {
 				/////console.log(data)
 	            try {
-                    $.each(data.inventario, function (count, object) {
-                    	/////console.log(object);
-                    });
+                    
                     $.each(data.remisionesInventarioSum, function (count, object) {
+                    	console.log(object);
                     	valDefault = Math.floor(object.peso);
                     	valDefault = -Math.abs(valDefault);
                     	//existenciaSistema = Math.floor(object.peso) + Math.floor(object.fisicoActual);
@@ -338,7 +343,8 @@
 			var pesoSalida = 0;
 			var totalexistencia = 0;
 			var tabla='';
-
+			var estatus=$("#estatus").val();
+			console.log(estatus);
 			$(":input[class=detallePeso]").each(function(index, element) {
 				folioEntrada = $(this).data("folioentrada");
 				pesoEntrada = $(this).data("pesoentrada");
@@ -382,6 +388,7 @@
 				folioSalida: folioSalida,
 				pesoSalida: pesoSalida,
 				totalexistencia: totalexistencia,
+				estatus:estatus,
 				jsonObservaciones: jsonObservaciones,
 				jsonReal:jsonReal
 			},

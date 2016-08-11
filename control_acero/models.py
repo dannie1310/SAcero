@@ -126,7 +126,7 @@ class Funcion(models.Model):
 class Taller(models.Model):
 	nombre = models.CharField(max_length=100)
 	responsable = models.CharField(max_length=100, null=True)
-	proveedor = models.CharField(max_length=20, null=True)
+	identificacionFolio = models.CharField(max_length=20, null=True)
 	ubicacion = models.CharField(max_length=100)
 	funcion = models.ForeignKey(Funcion, null=True)
 	ESTATUSTABLE = (
@@ -360,6 +360,7 @@ class Remision(models.Model):
 	pesoTara = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoBruto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoNeto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	observacion = models.CharField(max_length=100,null=True)
 	frente = models.ForeignKey(Frente, null=True)
 	ajuste= models.ForeignKey(InventarioFisico, null=True, related_name='ajusteEntrada')
 	fechaRemision = models.DateField()
@@ -426,7 +427,8 @@ class RemisionDetalle(models.Model):
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
 	ESTATUSINVENTARIO = (
 	    (0, 'No'),
-	    (1, 'Si'),
+	    (1, 'En Proceso'),
+	    (2, 'Si'),
 	)
 	estatusInventario = models.IntegerField(choices=ESTATUSINVENTARIO, default=0)
 	folioInventario = models.IntegerField(null=True)
@@ -459,7 +461,8 @@ class InventarioRemisionDetalle(models.Model):
 	estatusTotalizado = models.IntegerField(default=1)
 	ESTATUSINVENTARIO = (
 	    (0, 'No'),
-	    (1, 'Si'),
+	    (1, 'En Proceso'),
+	    (2, 'Si'),
 	)
 	estatusInventario = models.IntegerField(choices=ESTATUSINVENTARIO, default=0)
 	folioInventario = models.IntegerField(null=True)
@@ -508,7 +511,8 @@ class Salida(models.Model):
 	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
 	ESTATUSINVENTARIO = (
 	    (0, 'No'),
-	    (1, 'Si'),
+	    (1, 'En Proceso'),
+	    (2, 'Si'),
 	)
 	estatusInventario = models.IntegerField(choices=ESTATUSINVENTARIO, default=0)
 	folioInventario = models.IntegerField(null=True)
@@ -557,7 +561,8 @@ class InventarioSalida(models.Model):
 	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
 	ESTATUSINVENTARIO = (
 	    (0, 'No'),
-	    (1, 'Si'),
+	    (1, 'En Proceso'),
+	    (2, 'Si'),
 	)
 	estatusInventario = models.IntegerField(choices=ESTATUSINVENTARIO, default=0)
 	folioInventario = models.IntegerField(null=True)

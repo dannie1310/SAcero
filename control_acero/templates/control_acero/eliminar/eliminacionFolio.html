@@ -21,11 +21,11 @@
 				<label  class="control-label" for="folio">Ingresa Folio a Eliminar:</label>
 				<input style="text-transform: uppercase;" type="text" data-toggle="tooltip" data-placement="bottom" title="Ingresa un folio" class="form-control" onblur="upperCase()" name="folio" id="folio"></input>
 			</div>
-		<!-- 	<div>
-					<input type="file" id="files" name="files[]" multiple />
+			<!-- <div>
+					<input type="file" id="files" name="files" />
 					<output id="list"></output>
-			</div> -->
-			
+			</div> 
+			 -->
 		</div>
 		<div class="col-md-12">
 			<button type="button" class="btn btn-success" name="buscarFolio" id="buscarFolio">Buscar Folio</button>
@@ -92,8 +92,10 @@
 	            	
 	            	if (data.data.length==0){
 	            		 $.each(data.mensaje, function (count, object) {
-	            		 swal("Error!", object, "error");
+	            		 	swal("Error!", object, "warning");
 	            		})
+	            		$("#divDetalleSolicita").hide("slide");
+				 		$("#divDetalleCancelar").hide("slide");
 	            	}
 	                $.each(data.data, function (count, object) {
 	                	console.log("datos::", object)
@@ -242,19 +244,53 @@
 		    $("#divDetalleCancelar").hide();
 		});
 
-	   //  function handleFileSelect(evt) {
-		  //   var files = evt.target.files; // FileList object
+// 	    function handleFileSelect(evt) {
+// 		    var files = evt.target.files; // FileList object
 
-		  //   // files is a FileList of File objects. List some properties.
-		  //   var output = [];
-		  //   for (var i = 0, f; f = files[i]; i++) {
-		  //     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-		  //                 f.size, ' bytes, last modified: ',
-		  //                 f.lastModifiedDate.toLocaleDateString(), '</li>');
-		  //   }
-		  //   document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-		  // }
+// 		    // files is a FileList of File objects. List some properties.
+// 		    var output = [];
+// 		    for (var i = 0, f; f = files[i]; i++) {
+// 		      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+// 		                  f.size, ' bytes, last modified: ',
+// 		                  f.lastModifiedDate.toLocaleDateString(), '</li>');
+// 		    }
+// 		    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+// 		  }
 
-		  // document.getElementById('files').addEventListener('change', handleFileSelect, false);
+// 		  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+// 		 $(document).ready(function() {
+// 		    $.ajax({
+// 		        type: "POST",
+// 		        url: "Usuario/Desktop/prueba.csv",
+// 		        dataType: "text",
+		        
+// 		        success: function(url) {
+// 		            processData(url);
+// 		        }
+// 		    });
+// 		});
+
+// 		function processData(allText) {
+// 		    var allTextLines = allText.split(/\r\n|\n/);
+// 		    var headers = allTextLines[0].split(',');
+// 		    var lines = [];
+
+// 		    for (var i=1; i<allTextLines.length; i++) {
+// 		        var data = allTextLines[i].split(',');
+// 		        if (data.length == headers.length) {
+
+// 		            var tarr = [];
+// 		            for (var j=0; j<headers.length; j++) {
+// 		                tarr.push(headers[j]+":"+data[j]);
+// 		            }
+// 		            lines.push(tarr);
+// 		        }
+// 		    }
+// 	console.log(lines);
+// }
+
+
+		  
 	</script>
 {% endblock %}
