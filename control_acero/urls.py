@@ -118,7 +118,7 @@ urlpatterns = [
     url(r'^inventario/fisico/cierre/save/$', views.inventarioFisicoCierreSave, name='inventarioFisicoCierreSave'),
     url(r'^inventario/fisico/cierre/ajuste/$', views.inventarioFisicoCierreAjusteView, name='inventarioFisicoCierreAjusteView'),
 
-    url(r'^eliminacion/folio/$', views.eliminarView, name='eliminarView'),
+    url(r'^eliminar/folio/$', views.eliminarView, name='eliminarView'),
     url(r'^eliminar/buscar/folio/$', views.buscarFolio, name='buscarFolio'),
    # url(r'^leer/datos/$', views.leerArchivo, name='leerArchivo'),
 ]

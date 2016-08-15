@@ -154,6 +154,7 @@ def logout_view(request):
 ######################################################
 ################VISTA DE LOS CATALOGOS################
 ######################################################
+@login_required(login_url='/control_acero/usuario/login/')
 def usuariosNewView(request):
 	if request.method == "POST":
 		form = UserForm(request.POST)
@@ -165,6 +166,7 @@ def usuariosNewView(request):
 		form = UserForm()
 	return render(request, 'control_acero/catalogos/usuarios/usuario_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def usuariosEditView(request, pk):
 	usuario = get_object_or_404(User, pk=pk)
 	if request.method == "POST":
@@ -186,6 +188,7 @@ def usuariosEditView(request, pk):
 
 	return render(request, 'control_acero/catalogos/usuarios/usuario_edit.html', {'user': usuario,'grupos': grupos,'user_grupos': user_grupos,'permisos': permisos,'user_permisos': user_permisos})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def usuariosUpdateView(request, pk):
 	usuario = get_object_or_404(User, pk=pk)
 	permisos = request.POST.getlist('permisos[]')
@@ -223,6 +226,7 @@ def gruposNewView(request):
 		form = GroupForm()
 	return render(request, 'control_acero/catalogos/grupos/grupo_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def apoyosView(request):
 	apoyo_list = Apoyo.objects.filter(estatus=1)
 	paginator = Paginator(apoyo_list, 10)
@@ -235,6 +239,7 @@ def apoyosView(request):
 		apoyos = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/apoyos/apoyo.html', {"apoyos": apoyos})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def usuariosView(request):
 	usuario_list = User.objects.all()
 	paginator = Paginator(usuario_list, 10)
@@ -247,6 +252,7 @@ def usuariosView(request):
 		usuarios = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/usuarios/usuario.html', {"usuarios": usuarios})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def apoyosNewView(request):
 	if request.method == "POST":
 		form = ApoyoForm(request.POST)
@@ -259,6 +265,7 @@ def apoyosNewView(request):
 		
 	return render(request, 'control_acero/catalogos/apoyos/apoyo_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def apoyosEditView(request, pk):
 	apoyo = get_object_or_404(Apoyo, pk=pk)
 	if request.method == "POST":
@@ -287,7 +294,8 @@ def apoyosLogicalDelete(request, pk):
 		form = ApoyoForm(instance=apoyo)
 		
 	return render(request, 'control_acero/catalogos/apoyos/apoyo_delete.html', {'form': form})
-	
+
+@login_required(login_url='/control_acero/usuario/login/')	
 def elementosView(request):
 	elemento_list = Elemento.objects.filter(estatus=1)
 	paginator = Paginator(elemento_list, 10)
@@ -300,6 +308,7 @@ def elementosView(request):
 		elementos = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/elementos/elementos.html', {"elementos": elementos})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def elementosNewView(request):
 	if request.method == "POST":
 		form = ElementoForm(request.POST)
@@ -312,6 +321,7 @@ def elementosNewView(request):
 		
 	return render(request, 'control_acero/catalogos/elementos/elementos_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def elementosEditView(request, pk):
 	elemento = get_object_or_404(Elemento, pk=pk)
 	if request.method == "POST":
@@ -325,6 +335,7 @@ def elementosEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/elementos/elementos_edit.html', {'form': form})
 	
+@login_required(login_url='/control_acero/usuario/login/')
 def despiecesView(request):
 	despiece_list = Despiece.objects.filter(estatus=1)
 	paginator = Paginator(despiece_list, 10)
@@ -337,6 +348,7 @@ def despiecesView(request):
 		despieces = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/despieces/despiece.html', {"despieces": despieces})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def despiecesNewView(request):
 	if request.method == "POST":
 		form = DespieceForm(request.POST, request.FILES)
@@ -349,6 +361,7 @@ def despiecesNewView(request):
 		
 	return render(request, 'control_acero/catalogos/despieces/despiece_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def despiecesEditView(request, pk):
 	despiece = get_object_or_404(Despiece, pk=pk)
 	if request.method == "POST":
@@ -362,6 +375,7 @@ def despiecesEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/despieces/despiece_edit.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def materialesView(request):
 	material_list = Material.objects.filter(estatus=1).order_by("numero");
 	paginator = Paginator(material_list, 12)
@@ -374,6 +388,7 @@ def materialesView(request):
 		materiales = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/materiales/material.html', {"materiales": materiales})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def materialesNewView(request):
 	if request.method == "POST":
 		form = MaterialForm(request.POST, request.FILES)
@@ -386,6 +401,7 @@ def materialesNewView(request):
 		
 	return render(request, 'control_acero/catalogos/materiales/material_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def materialesEditView(request, pk):
 	material = get_object_or_404(Material, pk=pk)
 	if request.method == "POST":
@@ -399,6 +415,7 @@ def materialesEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/materiales/material_edit.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def frentesView(request):
 	frente_list = Frente.objects.filter(estatus=1)
 	paginator = Paginator(frente_list, 10)
@@ -411,6 +428,7 @@ def frentesView(request):
 		frentes = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/frentes/frente.html', {"frentes": frentes})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def frentesNewView(request):
 	if request.method == "POST":
 		form = FrenteForm(request.POST)
@@ -424,6 +442,7 @@ def frentesNewView(request):
 		
 	return render(request, 'control_acero/catalogos/frentes/frente_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def frentesEditView(request, pk):
 	frente = get_object_or_404(Frente, pk=pk)
 	if request.method == "POST":
@@ -438,6 +457,7 @@ def frentesEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/frentes/frente_edit.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def funcionesView(request):
 	funciones_list = Funcion.objects.filter(estatus=1)
 	paginator = Paginator(funciones_list, 10)
@@ -450,6 +470,7 @@ def funcionesView(request):
 		funciones = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/funciones/funcion.html', {"funciones": funciones})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def funcionesNewView(request):
 	if request.method == "POST":
 		form = FuncionForm(request.POST)
@@ -463,6 +484,7 @@ def funcionesNewView(request):
 		
 	return render(request, 'control_acero/catalogos/funciones/funcion_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def funcionesEditView(request, pk):
 	funcion = get_object_or_404(Funcion, pk=pk)
 	if request.method == "POST":
@@ -476,6 +498,7 @@ def funcionesEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/funciones/funcion_edit.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def talleresView(request):
 	talleres_list = Taller.objects.values(
 						"id",
@@ -494,6 +517,7 @@ def talleresView(request):
 		talleres = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/catalogos/talleres/taller.html', {"talleres": talleres})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def talleresNewView(request):
 	if request.method == "POST":
 		form = TallerForm(request.POST)
@@ -507,6 +531,7 @@ def talleresNewView(request):
 		
 	return render(request, 'control_acero/catalogos/talleres/taller_new.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def talleresEditView(request, pk):
 	taller = get_object_or_404(Taller, pk=pk)
 	if request.method == "POST":
@@ -558,6 +583,7 @@ def transportesEditView(request, pk):
 		
 	return render(request, 'control_acero/catalogos/transportes/transporte_edit.html', {'form': form})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def movimientosView(request):
 
 	movimientos_list = Bitacora.objects.values("id",
@@ -630,7 +656,7 @@ def movimientosFecha(request):
 
 	return JsonResponse(array)
 
-
+@login_required(login_url='/control_acero/usuario/login/')
 def movimientosDetalleView(request, pk):
 	folios=0
 	movimiento = get_object_or_404(Bitacora, pk=pk)
@@ -725,6 +751,7 @@ def movimientosDetalleView(request, pk):
 	
 	return render(request, template, {"movimiento": movimiento, "detalles": detalle, "afectado" : datos, "modulo": modulo, "datos": folios})
 
+@login_required(login_url='/control_acero/usuario/login/') 
 def inventario(request):
 	i = 0
 	inventario_list = InventarioFisico.objects.filter(tallerAsignado_id=request.session["idTaller"], estatus=1)
@@ -741,6 +768,7 @@ def inventario(request):
 		inventario = paginator.page(paginator.num_pages)
 	return render(request,'control_acero/inventario/inventario.html', {"inventario": inventario, "ajuste" : i})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def inventarioFisicoEditView(request, pk):
 	inventario = get_object_or_404(InventarioFisico, pk=pk)
 	inventarioDetalle = InventarioFisicoDetalle.objects.filter(inventarioFisico_id=inventario.id);
@@ -749,6 +777,7 @@ def inventarioFisicoEditView(request, pk):
 	#inventario = InventarioFisico.objects.filter(id=pk, estatus=1)
 	return render(request, template, {"inventario": inventario, "detalles": inventarioDetalle, "cierres": inventarioDetalleCierre})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def inventarioFisicoCierreView(request):
 	inventario = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],estatusRegistro=0).distinct()
 	template = 'control_acero/inventario/inventarioFisicoCierre.html'
@@ -756,6 +785,7 @@ def inventarioFisicoCierreView(request):
 	totales = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"],id=idI);
 	return render(request, template, {"totales": totales})
 
+@login_required(login_url='/control_acero/usuario/login/')
 def inventarioFisicoCierreAjusteView(request):
 	inr = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro=0).order_by("-numConteo").order_by("-id")[:1]
 	##print "AQUI"
@@ -907,6 +937,7 @@ def recepcionMaterialSave(request):
 	remision = request.POST.get('remision', 0)
 	pesoBruto = request.POST.get('pesoBruto', 0)
 	pesoTara = request.POST.get('pesoTara', 0)
+	pesoNeto = request.POST.get('pesoNeto', 0)
 	pesoTotal = request.POST.get('pesoTotal', 0)
 	observacion = request.POST.get('observacion',' ')
 	respuesta = request.POST.get('json')
@@ -918,7 +949,8 @@ def recepcionMaterialSave(request):
 						funcion_id=funcion,
 						pesoBruto=pesoBruto,
 						pesoTara=pesoTara,
-						pesoNeto=pesoTotal,
+						pesoNeto=pesoNeto,
+						pesoTotal=pesoTotal,
 						observacion=observacion,
 						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
 						estatus=1,
@@ -1741,15 +1773,15 @@ def principalView(request):
 	template = 'control_acero/principal.html'
 	return render(request, template)
 
-#@permission_required('control_acero.add_apoyo')
+@login_required(login_url='/control_acero/usuario/login/')
 def recepcionMaterialView(request):
 	template = 'control_acero/material/recepcion_material_view.html'
 	return render(request, template)
-
+@login_required(login_url='/control_acero/usuario/login/')
 def salidaHabilitadoView(request):
 	template = 'control_acero/material/salida_habilitado_view.html'
 	return render(request, template)
-
+@login_required(login_url='/control_acero/usuario/login/')
 def entradaArmadoView(request):
 	template = 'control_acero/armado/entrada_armado_view.html'
 	return render(request, template)
@@ -2554,9 +2586,6 @@ class HomeView(generic.ListView):
 	#producto = get_object_or_404(Producto, pk=producto_id)
 	#return render(request, template_name)
 
-def reporteView(request):
-	template = 'control_acero/reportes/reporte.html'
-	return render(request, template)
 
 def comboFuncionGeneral(request):
 	array = {}
@@ -2620,7 +2649,12 @@ def comboTallerG(request):
 					}
 		data.append(resultado)
 	array["data"]=data
-	return JsonResponse(array)		
+	return JsonResponse(array)	
+
+@login_required(login_url='/control_acero/usuario/login/')	
+def reporteView(request):
+	template = 'control_acero/reportes/reporte.html'
+	return render(request, template)
 
 def reporteConsulta(request):
 	array = {}
@@ -3557,7 +3591,7 @@ def reporteConsulta(request):
 	# 	array = mensaje
 	# 	return JsonResponse(array)
 
-
+@login_required(login_url='/control_acero/usuario/login/')
 def inventarioFisicoView(request):
 	i=1
 	inventarioFisicoAnterior = InventarioFisico.objects.all().filter(tallerAsignado_id=request.session["idTaller"], estatusRegistro = 0)
@@ -3628,7 +3662,7 @@ def materialBusquedaView(request):
 	return JsonResponse(array)
 
 
-
+@login_required(login_url='/control_acero/usuario/login/')
 def frenteComboBusquedaViews(request):
 	array = {}
 	mensaje = {}
@@ -4015,7 +4049,8 @@ def inventarioRemision(request):
 	array["salidas"]=dataSalida
 	array["salidasInventario"]=dataSalidaInventario
 	return JsonResponse(array)
-	
+
+@login_required(login_url='/control_acero/usuario/login/')	
 def apoyoBusquedaView(request):
 	array = {}
 	mensaje = {}
@@ -4097,6 +4132,10 @@ def mailHtml(request, folio):
 											"funcion_id",
 											"funcion__proveedor",
 											"pesoNeto",
+											"pesoTotal",
+											"pesoBruto",
+											"pesoTara",
+											"observacion",
 											"remisiondetalle__material__nombre",
 											"remisiondetalle__peso",
 											"remisiondetalle__longitud",
@@ -4151,9 +4190,14 @@ def mailHtml(request, folio):
 	remision = remisiones[0]["remision"]
 	fechaRemision = remisiones[0]["fechaRemision"]
 	fechaRegistro = remisiones[0]["fechaRegistro"]
-	pesoTotal= remisiones[0]["pesoNeto"]
+	pesoNeto= remisiones[0]["pesoNeto"]
+	pesoTotal= remisiones[0]["pesoTotal"]
+	pesoBruto= remisiones[0]["pesoBruto"]
+	pesoTara= remisiones[0]["pesoTara"]
+	observacion=remisiones[0]["observacion"]
+
 	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
-	header = "RECEPCION DEL MATERIAL"
+	header = "RECEPCIÓN DEL MATERIAL"
 	body = ""
 	body += mailHtmlHeader(request)
 	body += """
@@ -4164,9 +4208,9 @@ def mailHtml(request, folio):
 						<th><strong> Folio </strong></th>
 						<th><strong> Fabricante </strong></th>
 						<th><strong> Orden </strong></th>
-						<th><strong> Remision </strong></th>
-						<th><strong> Fecha Remision </strong></th>
-						<th><strong> Fecha Creacion </strong></th>
+						<th><strong> Remisi&oacute;n </strong></th>
+						<th><strong> Fecha Remisi&oacute;n </strong></th>
+						<th><strong> Fecha Creaci&oacute;n </strong></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -4194,9 +4238,15 @@ def mailHtml(request, folio):
 	body += """
 			<br />
 			<h4>Peso Total por Folio:  %d Kg </h4>
+			<h4>Peso Neto: %d  Kg </h4>
+			<h4>Peso Tara: %d  Kg </h4>
+			<h4>Peso Bruto: %d  Kg </h4>
 			""" %\
 			(
-				pesoTotal
+				pesoTotal,
+				pesoNeto,
+				pesoTara,
+				pesoBruto
 				)
 	body += mailHtmlFooter()
 
@@ -4234,7 +4284,7 @@ def mailHtmlSH(request, folio):
 							<tr style='background: #66cc00;'>
 								<th>Material</th>
 								<th>Peso de Salida de Habilitado en Kg</th>
-								<th>Peso Restante en Almacen Kg</th>
+								<th>Peso Restante en Almac&eacute;n Kg</th>
 							</tr>
 						</thead>
 						<tbody>\
@@ -4325,7 +4375,7 @@ def mailHtmlSH(request, folio):
 						<th><strong> Frente Enviado</strong></th>
 						<th><strong> Apoyo </strong></th>
 						<th><strong> Elemento </strong></th>
-						<th><strong> Fecha Creacion </strong></th>
+						<th><strong> Fecha Creaci&oacute;n </strong></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -4525,12 +4575,12 @@ def mailHtmlEA(request, folio):
 				<thead>
 					<tr style='background: #66cc00;'>
 						<th><strong> Folio </strong></th>
-						<th><strong> Remision </strong></th>
-						<th><strong> Recepcion en el Frente </strong></th>
+						<th><strong> Remisi&oacute;n </strong></th>
+						<th><strong> Recepci&oacute;n en el Frente </strong></th>
 						<th><strong> Armador Asignado </strong></th>
 						<th><strong> Apoyo </strong></th>
 						<th><strong> Elemento </strong></th>
-						<th><strong> Fecha Creacion </strong></th>
+						<th><strong> Fecha Creaci&oacute;n </strong></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -4595,7 +4645,7 @@ def mailHtmlIF(request, folio):
 							<tr style='background: #66cc00;'>
 								<th>Material</th>
 								<th>Peso existencia en el sistema</th>
-								<th>Peso existencias fisicas</th>
+								<th>Peso existencias f&iacute;sicas</th>
 								<th>Diferencia</th>
 							</tr>
 						</thead>
@@ -4642,7 +4692,7 @@ def mailHtmlIF(request, folio):
 					<tr style='background:#66cc00;'>
 						<th><strong> Folio </strong></th>
 						<th><strong> Taller de Habilitado </strong></th>
-						<th><strong> Fecha Creacion </strong></th>
+						<th><strong> Fecha Creaci&oacute;n </strong></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -4704,7 +4754,7 @@ def mailHtmlIFA(request, folio):
 							<tr style='background: #66cc00;'>
 								<th>Material</th>
 								<th>Peso existencia en el sistema</th>
-								<th>Peso existencias fisicas</th>
+								<th>Peso existencias f&iacute;sicas</th>
 								<th>Diferencia</th>
 							</tr>
 						</thead>
@@ -4748,7 +4798,7 @@ def mailHtmlIFA(request, folio):
 					<tr style='background:#66cc00;'>
 						<th><strong> Folio </strong></th>
 						<th><strong> Taller de Habilitado </strong></th>
-						<th><strong> Fecha Creacion </strong></th>
+						<th><strong> Fecha Creaci&oacute;n </strong></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -5342,7 +5392,8 @@ def descargaExcel(request, filename):
 	response = HttpResponse(out_content,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 	response['Content-Disposition'] = 'attachment; filename=%s.xlsx' % filename
 	return response
- 
+
+@login_required(login_url='/control_acero/usuario/login/') 
 def eliminarView(request):
 	template = 'control_acero/eliminar/eliminacionFolio.html'
 	return render(request, template)
@@ -5396,16 +5447,15 @@ def buscarFolio(request):
 			#print d.query
 			
 
-			if len(d) != 0:
+			if len(d) != 0 and d[0]["estatus"] == 1:
 				estado=d[0]["estatus"]
 				idDesc=d[0]["id"]
-				print idDesc
 				idSal=d[0]["salida_id"]
-				if estado == 1:
-					mensaje = {"mensaje":"No se puede eliminar este folio, el material de este folio ya fué habilitado"}
-					array["mensaje"] = mensaje
-					array["data"]=data
-					return JsonResponse(array)
+				
+				mensaje = {"mensaje":"No se puede eliminar este folio, el material de este folio ya fué habilitado"}
+				array["mensaje"] = mensaje
+				array["data"]=data
+				return JsonResponse(array)
 				
 			else:
 				
