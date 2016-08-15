@@ -2922,7 +2922,7 @@ def reporteConsulta(request):
 		return JsonResponse(array)
 
 	elif idFrente!='0' and idTaller=='0' and idFuncion=='0' and inventario=='0' :
-		#print "elif Frente de Trabajo"
+		print "elif Frente de Trabajo"
 
 		total = Entrada.objects.values(			
 												'material__id',
@@ -3552,10 +3552,10 @@ def reporteConsulta(request):
 		
 		#excelReportes(request,array)
 		return JsonResponse(array)
-	else:
-		mensaje = {"estatus":"error", "mensaje":"Consulta invalida."}
-		array = mensaje
-		return JsonResponse(array)
+	# else:
+	# 	mensaje = {"estatus":"error", "mensaje":"Consulta invalida."}
+	# 	array = mensaje
+	# 	return JsonResponse(array)
 
 
 def inventarioFisicoView(request):
@@ -5357,8 +5357,13 @@ def buscarFolio(request):
 	cad=folio[:3]
 	idDesc=0
 	idSal=0
+	estado=0
+	taller=request.session['idTaller']
+	frente=request.session['idFrente']
+	print taller
+	print frente
 
-	if cad == 'RMH':
+	if taller!=0 and cad == 'RMH':
 		print "recepcion de material"
 		r = RemisionDetalle.objects.values("id", 
 								   			"remision_id",
@@ -5371,29 +5376,40 @@ def buscarFolio(request):
 											"material__nombre",
 											"peso",
 											"cantidad",
-											"longitud",
-											"remision__inventarioremisiondetalle__descuentosalida__id",
-											"remision__inventarioremisiondetalle__descuentosalida__salida_id")\
-											.filter(folio=folio, estatus=1, estatusInventario=0).distinct()
+											"longitud")\
+											.filter(folio=folio, estatus=1, estatusInventario=0, remision__tallerAsignado_id = request.session['idTaller'] ).distinct()
+
+		
 		print "****"
+		
 		print len(r)
 		if len(r) == 0:
-			mensaje = {"mensaje":"No se encontro el folio buscado o no se puede eliminar."}
+			mensaje = {"mensaje":"No se encontro el folio buscado o ya fué eliminado."}
 			array["mensaje"] = mensaje
 			array["data"]=data
 			return JsonResponse(array)
-		else:						
-			idDesc=r[0]["remision__inventarioremisiondetalle__descuentosalida__id"]
-			idSal=r[0]["remision__inventarioremisiondetalle__descuentosalida__salida_id"]
+		else:	
+			d = DescuentoSalida.objects.values("id",
+											"salida_id",
+											"estatus").filter(inventarioRemisionDetalle__remision__id = r[0]["remision_id"])					
+			
+			#print d.query
+			
 
-			if  idDesc is not None:
-				mensaje = {"mensaje":"No se puede eliminar este folio, el material de este folio ya fué habilitado"}
-				array["mensaje"] = mensaje
-				array["data"]=data
-				return JsonResponse(array)
+			if len(d) != 0:
+				estado=d[0]["estatus"]
+				idDesc=d[0]["id"]
+				print idDesc
+				idSal=d[0]["salida_id"]
+				if estado == 1:
+					mensaje = {"mensaje":"No se puede eliminar este folio, el material de este folio ya fué habilitado"}
+					array["mensaje"] = mensaje
+					array["data"]=data
+					return JsonResponse(array)
 				
 			else:
-
+				
+				
 				for f in r:
 					resultado = {
 							"modulo":1,
@@ -5408,7 +5424,6 @@ def buscarFolio(request):
 							"peso":f["peso"],
 							"cantidad":f["cantidad"],
 							"longitud":f["longitud"],
-							"descuentosalida__id":f["remision__inventarioremisiondetalle__descuentosalida__id"],
 							"taller":f["remision__tallerAsignado__nombre"],
 							}
 					data.append(resultado)	
@@ -5421,7 +5436,7 @@ def buscarFolio(request):
 					InventarioRemisionDetalle.objects.filter(folio=folio).update(estatus=0)
 					bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepcion Taller", id_afectado=r[0]["remision_id"], observacion="Cambio de estatus en folio remision", estatus=1, modulo_id=6, user_id=request.user.id)
 	
-	if cad == 'SMH':
+	if taller!= 0 and cad == 'SMH':
 		print "Salida de material"
 
 		salida=Salida.objects.values("id",
@@ -5434,7 +5449,7 @@ def buscarFolio(request):
 										"tallerAsignado__nombre"
 										)\
 								.filter(folio=folio,
-										estatus=1, estatusInventario=0).distinct()
+										estatus=1, estatusInventario=0, tallerAsignado_id = request.session['idTaller']).distinct()
 		for s in salida:
 			resultado={
 					"modulo":2,
@@ -5472,7 +5487,7 @@ def buscarFolio(request):
 					InventarioSalida.objects.filter(folio=folio).update(estatus=0)
 					bitacora = Bitacora.objects.create(accion="Eliminación de Folio Salida Taller", id_afectado=des["salida_id"], observacion="Cambio de estatus en folio salida", estatus=1, modulo_id=7, user_id=request.user.id)											
 	
-	if cad == 'EMA':
+	if frente!=0 and cad == 'EMA':
 		print "Recepcion en Frente de trabajo"
 
 		entrada=Entrada.objects.values( 
@@ -5488,7 +5503,7 @@ def buscarFolio(request):
 										"remision",
 										"cantidadReal"
 										)\
-										.filter(folio=folio, estatus=1)\
+										.filter(folio=folio, estatus=1, frente_id = request.session['idFrente'])\
 										.annotate(cantidadAsignada = Sum('cantidadAsignada'))\
 										.order_by("material__id")\
 										.distinct()
@@ -5526,74 +5541,3 @@ def buscarFolio(request):
 	array["mensaje"] = mensaje
 	array["data"]=data
 	return JsonResponse(array)
-
-
-# def leerArchivo(request):
-# 	array={}
-# 	p=''
-# 	folio=0
-# 	index=0
-# 	reader = csv.reader(open('C:/Users/Usuario/Desktop/prueba.csv', 'rb'))
-# 	if folio.exists():
-# 			numFolio = folio[0].numFolio
-# 	numFolioInt = int(numFolio)+1
-# 	numFolio = "%03d" % (numFolioInt,)
-# 	ident= request.session["proveedorTaller"]
-# 	numFolio = "RMH-"+ident+"-"+numFolio
-# 	numFolio = numFolio.encode('utf-8')
-# 	i=9
-# 	for index,row in enumerate(reader):
-# 	    print 'Persona: ' + str(index + 1)
-# 	    print '------------'
-# 	    fecha=datetime.strptime(row[6], '%d/%m/%Y')
-# 	    folio=RemisionDetalle.objects.all().filter(remision__tallerAsignado_id=request.session["idTaller"]).order_by("-numFolio")[:1]
-		
-# 	    p=Remision.objects.create(
-# 						idOrden=row[0],
-# 						remision=row[1],
-# 						funcion_id=row[2],
-# 						pesoBruto=row[3],
-# 						pesoTara=row[4],
-# 						pesoNeto=row[5],
-# 						fechaRemision=fecha,
-# 						estatus=1,
-# 						tallerAsignado_id=request.session['idTaller']
-# 						);
-
-# 			# if i<=index :
-# 			# 	apoyo = row[7]
-# 			# 	elemento = row[8]
-# 			# 	idMaterial = row[i]
-# 			# 	tipo =row[i+1]
-# 			# 	longitud = row[i+2]
-# 			# 	cantidadMaterial= row[i+3]
-# 			# 	pesoMaterial = row[i+4]
-				
-# 			# 	pd = RemisionDetalle.objects\
-# 			# 							.create(
-# 			# 									remision_id=p.pk,
-# 			# 									material_id=idMaterial,
-# 			# 									apoyo_id=apoyo,
-# 			# 									elemento_id=elemento,
-# 			# 									peso=pesoMaterial,
-# 			# 									cantidad=cantidadMaterial,
-# 			# 									longitud=longitud,
-# 			# 									folio = numFolio,
-# 			# 									numFolio = numFolioInt,
-# 			# 									estatusTipo =tipo
-# 			# 									)
-# 			# 		ird = InventarioRemisionDetalle.objects\
-# 			# 							.create(
-# 			# 									remision_id=p.pk,
-# 			# 									material_id=idMaterial,
-# 			# 									apoyo_id=apoyo,
-# 			# 									elemento_id=elemento,
-# 			# 									peso=pesoMaterial,
-# 			# 									cantidad=cantidadMaterial,
-# 			# 									longitud=longitud,
-# 			# 									folio = numFolio,
-# 			# 									numFolio = numFolioInt
-# 			# 									)
-# 			# 	i=i+4;
-		
-# 	return JsonResponse(array)

@@ -308,7 +308,7 @@ class InventarioFisicoDetalleCompleto(models.Model):
 	    (3, 'Habilitada'),
 	)
 	estatusTipoV = models.IntegerField(choices=ESTATUSTIPOV, default=0)
-	referencia = models.CharField(max_length=25, null=True)
+	referencia = models.CharField(max_length=50, null=True)
 	ESTATUSPENDIENTE = (
 	    (0, 'Pendiente'),
 	    (1, 'Activo'),

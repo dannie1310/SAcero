@@ -29,7 +29,7 @@
 				<label  class="control-label" for="fechaFinal">Fecha Final:</label>
 				<input type="text" class="calendario form-control" name="fechaFinal" id="fechaFinal" value="{% now "d/m/Y" %}"></input>
 			</div>
-			<div class="col-md-3" id="radios" value="0">
+			<div class="col-md-3 checkbox checkbox-primary" id="radios" value="0">
 					<input type="checkbox" name="criterio" value="1"> Inventario Fisico</input>
 			</div>
 		</div>
@@ -266,7 +266,7 @@
 	            		tabla='<tr><th class="text-center" colspan="5">No se encuentran registros con esos datos de busqueda. </th></tr>'
 	            	}
 	                $.each(data.data, function (count, object) {
-	                	//console.log(data);
+	                	console.log(data);
 	                	//console.log("Fabricante", tipo);
 	                	if(object.value==0){
 	                		//Inventario Fisico 
@@ -557,7 +557,7 @@
 		                 	
 		                });
 						$.each(data.entrada, function (count, object) {
-									//console.log(object);
+									console.log(object);
 									h ='<tr>'
 											+'<th class="text-center">Folio</th>'
 											+'<th class="text-center">Fabricante</th>'
