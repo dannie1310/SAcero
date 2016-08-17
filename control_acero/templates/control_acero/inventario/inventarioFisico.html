@@ -190,7 +190,7 @@
 			var estatus=$("#estatus").val();
 			console.log(estatus);
 			$.post( "{% url 'inventarioRemision' %}",{
-							estatus:estatus
+
 						},
 			function(data, status) {
 				/////console.log(data)
@@ -388,7 +388,6 @@
 				folioSalida: folioSalida,
 				pesoSalida: pesoSalida,
 				totalexistencia: totalexistencia,
-				estatus:estatus,
 				jsonObservaciones: jsonObservaciones,
 				jsonReal:jsonReal
 			},

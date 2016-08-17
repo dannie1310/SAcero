@@ -9,7 +9,7 @@
 				<tr>
 					<th class="text-center">Proveedor</th>
 					<th class="text-center">Tipo</th>
-					<!-- <th class="text-center">Tonelaje Maximo</th> -->
+					<th class="text-center">Porcentaje Maximo</th>
 					<th class="text-center">Acciones</th>
 				</tr>
 			</thead>
@@ -19,7 +19,7 @@
 			    	
 			    	<td>{{funcion.proveedor}}</td>
 			    	<td>{{funcion.get_tipo_display}}</td>
-			    	<!-- <td>{{funcion.tonelajeMaximo}}</td> -->
+			    	<td>{{funcion.porcentajeMaximo}}</td> 
 			    	<td><a href="/control_acero/catalogos/funciones/{{funcion.id}}/edit/"><span style="cursor: pointer;" class="glyphicon glyphicon-pencil"></span></a> | <a href="/control_acero/catalogos/funciones/delete/{{funcion.id}}"><span style="cursor: pointer;" class="glyphicon glyphicon-remove"></span></a></td>
 			   	</tr>
 			{% endfor %}

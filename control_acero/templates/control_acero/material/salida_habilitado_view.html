@@ -27,9 +27,17 @@
 			<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
 			</select>
 		</div>
-		<div class="form-group col-md-offset-3 col-md-6">
+		<div class="form-group col-md-6">
 			<label  class="control-label" for="cmbElemento">Selecciona Elemento:</label>
 			<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+			</select>
+		</div>
+		
+		<div class="form-group col-md-6">
+			<label class="control-label" for="reposicion">Reposición de algun otro folio</label>
+			<select class="form-control" name="reposicion" id="reposicion">
+					<option value="2">NO</option>
+					<option value="1">SI</option>
 			</select>
 		</div>
 		<div class="col-md-12 table-responsive">
@@ -226,6 +234,8 @@
 					var elemento = $("#cmbElemento").val();
 					var frente = $("#cmbFrente").val();
 					var htmlMail = $("#tablaMaterialDetalle").html();
+					var reposicion = $("#reposicion").val();
+					console.log(reposicion);
 
 					if(frente == 0){
 						swal("Error!","Debes elegir una Frente.","error");
@@ -271,6 +281,7 @@
 							elemento: elemento,
 							frente: frente,
 							htmlMail: htmlMail,
+							reposicion:reposicion,
 							json: json
 						})
 						.done(function(data, status) {

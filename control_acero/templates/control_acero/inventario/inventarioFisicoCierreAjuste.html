@@ -235,7 +235,7 @@
 						var cantidadSalida = $("#inputF_"+material).val();
 						var observacionSalida = $("#textF_"+material).val();
 						array.push({"id": id,"existencia": existencia,"fisico": fisico,"diferencia": diferencia,"cantidadEntrada": cantidadEntrada,"observacionEntrada": observacionEntrada,"cantidadSalida": cantidadSalida,"observacionSalida": observacionSalida,"material": material});
-						htmlcontent+='<tr><td>'+nombre+'</td><td class="milesLimpio">'+existencia+'</td></tr>'
+						htmlcontent+='<tr><td>'+nombre+'</td><td class="milesLimpio">'+fisico+'</td></tr>'
 					});
 					var json = JSON.stringify(array);
 					//console.log(json);

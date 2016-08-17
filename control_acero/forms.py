@@ -55,7 +55,7 @@ class FrenteForm(forms.ModelForm):
 class FuncionForm(forms.ModelForm):
 	class Meta:
 		model = Funcion
-		fields = ['tipo', 'proveedor', 'tonelajeMaximo','estatus']
+		fields = ['tipo', 'proveedor', 'porcentajeMaximo','estatus']
 		exclude = ['estatus']
 
 class TallerForm(forms.ModelForm):

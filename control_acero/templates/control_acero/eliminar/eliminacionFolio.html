@@ -98,7 +98,7 @@
 	            	
 	            	if (data.data.length==0){
 	            		 $.each(data.mensaje, function (count, object) {
-	            		 	swal("Error!", object, "warning");
+	            		 	swal("Error!", object, "error");
 	            		})
 	            		$("#divDetalleSolicita").hide("slide");
 				 		$("#divDetalleCancelar").hide("slide");
@@ -208,8 +208,8 @@
 
 			swal({
 
-				  title: "¿Está seguro que la información capturada es la correcta?",
-				  text: "No se podrá modificar el registro posteriormente",
+				  title: "¿Está seguro desea eliminar el folio "+folio+ " ?",
+				  text: "No se podrá recuperar el registro posteriormente",
 				  type: "warning",
 				  showCancelButton: true,
 				  closeOnConfirm: true,

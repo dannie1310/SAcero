@@ -27,9 +27,10 @@
 			<tbody>
 			{% if inventario %}
 				{% for inv in inventario %}
-					{% if inv.estatusRegistro == 1%}
-						{% if inv.numConteo < 3%}
+					{% if inv.estatusRegistro == 1 %}
+						{% if inv.numConteo < 3 and inv.estatusCierre == 0 %}
 							<tr style="display:none;">
+
 						{% else %}
 							<tr>
 						{% endif %}

@@ -771,7 +771,13 @@ def inventario(request):
 @login_required(login_url='/control_acero/usuario/login/')
 def inventarioFisicoEditView(request, pk):
 	inventario = get_object_or_404(InventarioFisico, pk=pk)
-	inventarioDetalle = InventarioFisicoDetalle.objects.filter(inventarioFisico_id=inventario.id);
+	inventarioDetalle = InventarioFisicoDetalle.objects.values("id",
+														"pesoExistencia",
+														"pesoFisico",
+														"diferencia",
+														"inventarioFisico_id",
+														"material_id",
+														"material__nombre").filter(inventarioFisico_id=inventario.id);
 	inventarioDetalleCierre = InventarioFisicoDetalleCierre.objects.filter(inventarioFisico_id=inventario.id);
 	template = 'control_acero/inventario/inventarioFisicoEdit.html'
 	#inventario = InventarioFisico.objects.filter(id=pk, estatus=1)
@@ -1094,6 +1100,7 @@ def salidaHabilitadoSave(request):
 	elemento = request.POST.get('elemento', 0)
 	frente = request.POST.get('frente', 0)
 	htmlMail = request.POST.get('htmlMail', 0)
+	reposicion = request.POST.get('reposicion', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
 	numFolio = 0
@@ -1181,6 +1188,7 @@ def salidaHabilitadoSave(request):
 								elemento_id = elemento,
 								material_id = material,
 								frente_id = frente,
+								estatusReposicion=reposicion,
 								cantidadReal = cantidadReal,
 								cantidadAsignada = cantidadAsignada,
 								estatusEtapa = 1,
@@ -1539,10 +1547,15 @@ def inventarioFisicoSave(request):
 	error = 0
 	idIF = 0
 	estatusCierre = 0
-	if conteo == 1: 
-		RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
-		InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
-		Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+	porcentaje= Taller.objects.values(
+											"id",
+											"funcion__porcentajeMaximo")\
+											.filter(id=request.session["idTaller"])
+
+	porcentajeMaximo= porcentaje[0]["funcion__porcentajeMaximo"]	
+	print porcentajeMaximo		
+
+
 	if conteo == 2:
 		detalle = InventarioFisicoDetalle.objects.values(
 														"id",
@@ -1551,13 +1564,12 @@ def inventarioFisicoSave(request):
 														"diferencia",
 														"inventarioFisico_id",
 														"material_id",
-														"material__nombre"
+														"material__nombre",
 													)\
 												.filter(inventarioFisico__estatusRegistro=0)\
 												.order_by("inventarioFisico_id")
 
-
-					
+		
 		##print detalle		
 		for d in detalle:
 			#print d["inventarioFisico_id"]
@@ -1565,13 +1577,13 @@ def inventarioFisicoSave(request):
 			#print d["pesoFisico"]
 			idIF=d["inventarioFisico_id"]
 			fisico = int(d["pesoFisico"])
-			margen = int(d["pesoExistencia"]) * 0.03
+			margen = int(d["pesoExistencia"]) * porcentajeMaximo
 			#print margen
 			margenNeg = int(d["pesoExistencia"]) - margen
 			
 			margenPos = int(d["pesoExistencia"]) + margen
-			#print margenPos
-			#print margenNeg
+			print margenPos
+			print margenNeg
 			if  margenNeg <= fisico and fisico <= margenPos:
 				print "si entra en el margen "
 			else: 
@@ -1579,12 +1591,12 @@ def inventarioFisicoSave(request):
 				error = 1
 		if error == 0 :
 			#print "cierre automatico"
-			RemisionDetalle.objects.filter(estatusInventario=estatus).update(estatusInventario=1, folioInventario=idIF)
-			InventarioRemisionDetalle.objects.filter(estatusInventario=estatus).update(estatusInventario=1,folioInventario=idIF)
-			Salida.objects.filter(estatusInventario=estatus).update(estatusInventario=1,folioInventario=idIF)
-			InventarioSalida.objects.filter(estatusInventario=estatus).update(estatusInventario=1,folioInventario=idIF)
+			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
+			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
 
-			InventarioFisico.objects.filter(estatusRegistro=estatus).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
+			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1, estatusCierre=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
 			estatusCierre = 1
 
 	if conteo == 3:
@@ -1609,13 +1621,13 @@ def inventarioFisicoSave(request):
 			#print d["pesoFisico"]
 			idIF=d["inventarioFisico_id"]
 			fisico = int(d["pesoFisico"])
-			margen = int(d["pesoExistencia"]) * 0.03
-			#print margen
+			margen = int(d["pesoExistencia"]) * porcentajeMaximo
+			print margen
 			margenNeg = int(d["pesoExistencia"]) - margen
 			
 			margenPos = int(d["pesoExistencia"]) + margen
-			#print margenPos
-			#print margenNeg
+			print margenPos
+			print margenNeg
 			if  margenNeg <= fisico and fisico <= margenPos:
 				print "si entra en el margen "
 			else: 
@@ -1623,12 +1635,12 @@ def inventarioFisicoSave(request):
 				error = 1
 		if error == 0 :
 			#print "cierre automatico"
-			RemisionDetalle.objects.filter(estatusInventario=1).update(estatusInventario=2, folioInventario=idIF)
-			InventarioRemisionDetalle.objects.filter(estatusInventario=1).update(estatusInventario=2,folioInventario=idIF)
-			Salida.objects.filter(estatusInventario=1).update(estatusInventario=2,folioInventario=idIF)
-			InventarioSalida.objects.filter(estatusInventario=1).update(estatusInventario=2,folioInventario=idIF)
+			RemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1, folioInventario=idIF)
+			InventarioRemisionDetalle.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			Salida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
+			InventarioSalida.objects.filter(estatusInventario=0).update(estatusInventario=1,folioInventario=idIF)
 
-			InventarioFisico.objects.filter(estatusRegistro=1).update(estatusRegistro=2)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
+			InventarioFisico.objects.filter(estatusRegistro=0).update(estatusRegistro=1)#COLOCAR--- PARA GUARDAR REGISTRO DE MOVIMIENTO POR Inventario
 			estatusCierre = 1
 		else:
 			#print "3er inventario"
@@ -1777,6 +1789,7 @@ def principalView(request):
 def recepcionMaterialView(request):
 	template = 'control_acero/material/recepcion_material_view.html'
 	return render(request, template)
+
 @login_required(login_url='/control_acero/usuario/login/')
 def salidaHabilitadoView(request):
 	template = 'control_acero/material/salida_habilitado_view.html'
@@ -3728,10 +3741,10 @@ def inventarioFisicoCierreSave(request):
 	for data in json_object:
 		idC= data["id"]
 		
-	RemisionDetalle.objects.filter(estatusInventario=1,estatus=1).update(estatusInventario=2,folioInventario=idC)
-	InventarioRemisionDetalle.objects.filter(estatusInventario=1, estatus=1).update(estatusInventario=2,folioInventario=idC)
-	Salida.objects.filter(estatusInventario=1, estatus=1).update(estatusInventario=2,folioInventario=idC)
-	InventarioSalida.objects.filter(estatusInventario=1, estatus=1).update(estatusInventario=2,folioInventario=idC)
+	RemisionDetalle.objects.filter(estatusInventario=0,estatus=1).update(estatusInventario=1,folioInventario=idC)
+	InventarioRemisionDetalle.objects.filter(estatusInventario=0, estatus=1).update(estatusInventario=1,folioInventario=idC)
+	Salida.objects.filter(estatusInventario=0, estatus=1).update(estatusInventario=1,folioInventario=idC)
+	InventarioSalida.objects.filter(estatusInventario=0, estatus=1).update(estatusInventario=1,folioInventario=idC)
 	numFolio=0
 	folio = InventarioFisicoDetalleCierre.objects.all().filter(tallerAsignado_id = request.session["idTaller"]).order_by("-numFolio")[:1]
 	if folio.exists():
@@ -3750,15 +3763,16 @@ def inventarioFisicoCierreSave(request):
 		existencia = data["existencia"]
 		fisico = data["fisico"]
 		diferencia = data["diferencia"]
-
+		print diferencia
 		ifd = InventarioFisicoDetalle.objects.get(pk=idCierre)
 		idInventario = ifd.inventarioFisico_id
 		#print diferencia
 		cantidadEntrada = data["cantidadEntrada"]
 		if cantidadEntrada:
 			cantidadEntrada
+			auxEntrada = int(cantidadEntrada) + int(diferencia)
 			p = Remision.objects\
-				.create(pesoNeto=cantidadEntrada,
+				.create(pesoNeto=auxEntrada,
 						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
 						estatus=1,
 						ajuste_id=idInventario,
@@ -3771,7 +3785,7 @@ def inventarioFisicoCierreSave(request):
 									apoyo_id=1,
 									elemento_id=1,
 									numFolio=0,
-									peso=cantidadEntrada,
+									peso=auxEntrada,
 									longitud=12
 									)
 			ird = InventarioRemisionDetalle.objects\
@@ -3781,7 +3795,7 @@ def inventarioFisicoCierreSave(request):
 									elemento_id=1,
 									numFolio=0,
 									material_id=material,
-									peso=cantidadEntrada,
+									peso=auxEntrada,
 									longitud=12
 									)
 		else:
@@ -3804,8 +3818,9 @@ def inventarioFisicoCierreSave(request):
 			#print "------"
 			#print material
 			#print cantidadReal[0]['pesoMaterial']
-			cantidadAsignada = cantidadSalida
+			cantidadAsignada = int(cantidadSalida)+ int(diferencia)
 			totalAsignado = cantidadAsignada
+			print totalAsignado
 			remisionDetallesTotales = InventarioRemisionDetalle.objects\
 							.values(
 									'material_id',
@@ -3825,13 +3840,28 @@ def inventarioFisicoCierreSave(request):
 					for inventarioRemisionDetalle in inventarioRemisionDetalles:
 						inventarioId = inventarioRemisionDetalle.id
 						irdpeso = inventarioRemisionDetalle.peso
+						peso=Decimal(totalAsignado)
 						if Decimal(irdpeso) <= Decimal(totalAsignado):
 							totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
+							descuento = DescuentoSalida.objects\
+												.create(
+														pesoSalida = peso,
+														pesoRemision = irdpeso,
+														resta = totalAsignado,
+														inventarioRemisionDetalle_id =inventarioId
+														)
 							InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=0, estatusTotalizado = 0)
 							continue
 
 						if Decimal(irdpeso) > Decimal(totalAsignado) and Decimal(totalAsignado) != 0:
 							cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
+							descuento = DescuentoSalida.objects\
+												.create(
+														pesoSalida = totalAsignado,
+														pesoRemision = irdpeso,
+														resta = cantidadRestar,
+														inventarioRemisionDetalle_id =inventarioId
+														)
 							if cantidadRestar >= 0:
 								totalAsignado = 0;
 							InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=cantidadRestar)
@@ -3850,6 +3880,7 @@ def inventarioFisicoCierreSave(request):
 									numFolio=0,
 									tallerAsignado_id = request.session["idTaller"]
 									)
+			DescuentoSalida.objects.filter(estatusSalida=0).update(salida_id=salida.pk, estatusSalida=1)
 			inventarioSalida = InventarioSalida.objects\
 							.create(
 									material_id = material,
@@ -3899,8 +3930,6 @@ def inventarioRemision(request):
 	dataSalida = []
 	dataSalidaInventario = []
 	dataInventario = []
-	estatus= request.POST.get('estatus')
-	print estatus
 	remisiones = Remision.objects.values(
 										"remisiondetalle__id",
 										"remisiondetalle__material__nombre",
@@ -3908,8 +3937,7 @@ def inventarioRemision(request):
 										"remisiondetalle__longitud",
 										"remisiondetalle__numFolio"
 										)\
-					.filter(remisiondetalle__estatusInventario = estatus, tallerAsignado_id = request.session['idTaller'],estatus=1).distinct()
-	
+					.filter(remisiondetalle__estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus=1).distinct()
 	for remision in remisiones:
 			resultado = {
 							"id":remision["remisiondetalle__id"],
@@ -3925,7 +3953,7 @@ def inventarioRemision(request):
 										"inventarioremisiondetalle__peso",
 										"inventarioremisiondetalle__longitud"
 										)\
-					.filter(inventarioremisiondetalle__estatusInventario = estatus, tallerAsignado_id = request.session['idTaller'],estatus=1).distinct()
+					.filter(inventarioremisiondetalle__estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus=1).distinct()
 	for remisionInventario in remisionesInventario:
 			resultado = {
 							"id":remisionInventario["inventarioremisiondetalle__id"],
@@ -3943,9 +3971,8 @@ def inventarioRemision(request):
 													AND control_acero_inventarioremisiondetalle.estatusTotalizado = 1\
 													AND control_acero_inventarioremisiondetalle.estatus = 1\
 													AND control_acero_remision.estatus = 1\
-													AND control_acero_inventarioremisiondetalle.estatusInventario=%s\
 													GROUP BY control_acero_inventarioremisiondetalle.material_id, control_acero_material.nombre\
-													ORDER BY control_acero_inventarioremisiondetalle.material_id ASC", [request.session['idTaller'],estatus]);
+													ORDER BY control_acero_inventarioremisiondetalle.material_id ASC", [request.session['idTaller']]);
 		remisionesInventarioSum = cursor.fetchall()
 	finally:
 		cursor.close()
@@ -3955,7 +3982,7 @@ def inventarioRemision(request):
 										"cantidadAsignada",
 										"numFolio"
 										)\
-					.filter(estatusInventario = estatus, tallerAsignado_id = request.session['idTaller'],estatus =1)
+					.filter(estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus =1)
 	for salida in salidas:
 			resultado = {
 						"id":salida["id"],
@@ -3969,7 +3996,7 @@ def inventarioRemision(request):
 										"cantidadReal",
 										"cantidadAsignada"
 										)\
-					.filter(estatusInventario = estatus, tallerAsignado_id = request.session['idTaller'],estatus =1)
+					.filter(estatusInventario = 0, tallerAsignado_id = request.session['idTaller'],estatus =1)
 	for salidaInventario in salidasInventario:
 			resultado = {
 						"id":salidaInventario["id"],
@@ -4259,6 +4286,7 @@ def mailHtmlSH(request, folio):
 	# Mail Salida Habilitado
 	#salidaHabilitadoSave
 	res=0;
+	auxF='';
 	salida = Salida.objects.values(			"folio",
 											"cantidadAsignada",
 											"fechaRegistro",
@@ -4268,7 +4296,8 @@ def mailHtmlSH(request, folio):
 											"material__nombre",
 											"elemento__nombre",
 											"tallerAsignado__nombre",
-											"cantidadReal"
+											"cantidadReal",
+											"estatusReposicion"
 										)\
 										.filter(
 											numFolio = folio,
@@ -4349,7 +4378,15 @@ def mailHtmlSH(request, folio):
 	apoyo = salida[0]["apoyo__numero"]
 	elemento = salida[0]["elemento__nombre"] 
 	fechaRegistro = salida[0]["fechaRegistro"]
-
+	reposicion = salida[0]["estatusReposicion"]
+	reposicion = int(reposicion)
+	if reposicion == 1:
+		auxF='SI'
+	if reposicion == 2:
+		auxF='NO'
+	print "**"
+	print reposicion
+	print auxF
 	talleresEmail = User.objects.all().filter(taller__id = request.session['idTaller'])
 
 	frentesEmail = User.objects.all().filter(frente__id = salida[0]["frente__id"])
@@ -4376,11 +4413,13 @@ def mailHtmlSH(request, folio):
 						<th><strong> Apoyo </strong></th>
 						<th><strong> Elemento </strong></th>
 						<th><strong> Fecha Creaci&oacute;n </strong></th>
+						<th><strong> Reposici&oacute;n de Material Faltante</strong> </th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<td><strong>%s</strong></td>
+						<td>%s</td>
 						<td>%s</td>
 						<td>%s</td>
 						<td>%s</td>
@@ -4397,7 +4436,8 @@ def mailHtmlSH(request, folio):
 				frente,
 				apoyo,
 				elemento,
-				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
+				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S"),
+				auxF
 			)
 	body2 += mailHtmlHeader(request)
 	body2 += """

@@ -112,8 +112,8 @@ class Funcion(models.Model):
 	    (4, 'Colocador'),
 	)
 	tipo = models.IntegerField(choices=TIPOFUNCION, default=1)
-	proveedor = models.CharField(default=0, max_length=20)
-	tonelajeMaximo = models.FloatField(default=0)
+	proveedor = models.CharField(max_length=20)
+	porcentajeMaximo = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
@@ -269,6 +269,11 @@ class InventarioFisico(models.Model):
 	    (1, 'Cerrado'),
 	)
 	estatusRegistro = models.IntegerField(choices=ESTATUSREGISTRO, default=0)
+	ESTATUSCIERRE = (
+	    (0, 'Abierto'),
+	    (1, 'Cerrado'),
+	)
+	estatusCierre = models.IntegerField(choices=ESTATUSCIERRE, default=0)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
@@ -519,6 +524,11 @@ class Salida(models.Model):
 	folioInventario = models.IntegerField(null=True)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	ESTATUSREPOSICION = (
+	    (2, 'No'),
+	    (1, 'Si'),
+	)
+	estatusReposicion = models.IntegerField(choices=ESTATUSREPOSICION, default=0)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
