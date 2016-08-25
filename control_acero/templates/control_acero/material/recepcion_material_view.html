@@ -33,7 +33,7 @@
 			</div> -->
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="remision">Agregar Remisión:</label>
-				<input type="number" data-toggle="tooltip" data-placement="bottom" title="Agrega Remisión" class="form-control" name="remision" id="remision"></input>
+				<input type="text" data-toggle="tooltip" data-placement="bottom" title="Agrega Remisión" style="text-transform: uppercase;" onblur="upperCase()" class="form-control" name="remision" id="remision"></input>
 			</div>
 			<div class="form-group col-md-6">
 				<label  class="control-label" for="fechaRemision">Fecha Remision:</label>
@@ -112,6 +112,8 @@
 		function upperCase() {
    				var x=document.getElementById("cmbOrden").value
   				document.getElementById("cmbOrden").value=x.toUpperCase()
+  				var y=document.getElementById("remision").value
+  				document.getElementById("remision").value=y.toUpperCase()
 		}
 		mostrarFolio = function(){
 			var modulo = 1;

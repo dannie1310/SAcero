@@ -3310,7 +3310,7 @@ def reporteConsulta(request):
 												'remisiondetalle__material__nombre').filter(fechaRegistro__gte=fechaInicialFormat,
 																			fechaRegistro__lte=fechaFinalFormat,
 																			tallerAsignado__funcion__id= idFuncion,
-																			estatus=1).order_by("tallerAsignado__id")											
+																			estatus=1).order_by("remisiondetalle__numFolio")											
 		
 		for e in entrada:
 			fechaR = e['fechaRemision'].strftime("%d/%m/%Y")
