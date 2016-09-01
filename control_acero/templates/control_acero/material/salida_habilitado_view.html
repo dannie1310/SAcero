@@ -151,7 +151,7 @@
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
 	                		tabla +='<td class="info milesLimpio">'+Math.floor(object.peso)+'</td>';
-	                		tabla +='<td><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Ingresa Peso de Salida" class="form-control milesLimpio" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="" /></td>';
+	                		tabla +='<td><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Ingresa Peso de Salida" class="dataInfo form-control milesLimpio" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="" /></td>';
 	                		//tabla +='<td><input type="text" class="form-control miles" value="0" /></td>';
 	                		tabla +='<td><button type="button" class="btn btn-info" name="btnAceptar" id="btnAceptar" onClick="agregaDetalle('+count+');">Aceptar Salida</button></td>';
 	                    tabla +='</tr>';
@@ -303,13 +303,104 @@
 				});
 			});
 		});
-			
+		function guardarExcel(){
+			//console.log(array);
+			var aux=[];
+			var apoyo=0;
+			var elemento=0;
+			var frente=0;
+			var reposicion=0;
+			var htmlMail=0;
+			$.ajax({
+			    url: "/static/datos.csv",
+			    async: false,
+			    success: function (csvd) {//guardar por remision
+			    	var mat=2;
+					
+			        var items = $.csv.toObjects(csvd);
+			        var jsonobject = JSON.stringify(items);
+			        //console.log(jsonobject);
+			        var obj = $.parseJSON(jsonobject);
+			         //console.log(obj);
+			        for(var x = 0; x < obj.length; x++){
+			        	//console.log("sdasd",obj[x]);
+			        	$.each(obj[x], function(c, value){
+			        		//console.log(c, value);
+			        		if(isNaN(c)){
+			        			if(c=="apoyo"){
+			        					apoyo=value;
+			        					
+			        			}
+			        			if(c=="elemento"){
+			        					elemento=value;
+			        			}
+			        			if(c=="frente"){
+			        					frente=value;
+			        			}
+			        			if(c=="reposicion"){
+			        					reposicion=value;
+			        			}
+			        		}
+			        		if(producto(c) && value!=''){
+			        			aux.push({"material": c, "cantidadReal": producto(c), "cantidadAsignada": value});
+			        		}
+			        	});
+			        	console.log("---")
+			        	console.log(apoyo,elemento,frente,reposicion);
+			        	console.log(aux);
+			        	var json = JSON.stringify(aux);
+			        	$.post( "{% url 'salidaHabilitadoSave' %}",{
+			        		apoyo: apoyo,
+							elemento: elemento,
+							frente: frente,
+							htmlMail: htmlMail,
+							reposicion:reposicion,
+							json: json
+						},
+						function(data, status) {
+							$.each(data.data, function (count, object) {
+	                        	console.log(object);
+	                    	});
+			        	
+						});
+			        	aux=[];
+				    }
+
+				
+			    },
+			    dataType: "text",
+			    complete: function () {
+			        // call a function on complete 
+			    }
+			});	
+		}
+
+		function producto(id){
+			var array=[];
+			$("input.dataInfo[type=text]").each(function(index, element) {
+						var material = $(this).data("idmaterial");
+						var cantidadReal = $(this).data("cantidadreal");
+						var nombrematerial = $(this).data("nombrematerial");
+						array[material] = cantidadReal;	
+			});
+			if(array[id]>0){
+				return array[id];
+			}
+			else{
+				return false;
+			}
+
+		} 
+
 	    $(function () {
+	    	var array = [];
 	    	mostrarFolio();
 	    	comboApoyo();
 	    	comboElemento();
 	    	comboFrente();
 	    	materialRecepcionado();
+	    	
+			guardarExcel(array);
 	    });
 	</script>
 {% endblock %}

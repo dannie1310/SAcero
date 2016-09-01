@@ -84,11 +84,11 @@ WSGI_APPLICATION = 'proyectos_django.wsgi.application'
 
 DATABASES = {
      'default': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'dev_control_acero',                 
-        'USER': 'dev_ctrl_acero',                    
-        'PASSWORD': 'AyqsMrSxcFTe',                
-        'HOST': '172.20.74.7',                     
+         'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'control_acero',                 
+        'USER': 'root',                    
+        'PASSWORD': 'root',                
+        'HOST': '127.0.0.1',                     
         'PORT': '3306',
         'OPTIONS': {
            'init_command': 'SET default_storage_engine=INNODB',
