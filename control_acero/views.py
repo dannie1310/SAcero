@@ -1094,6 +1094,7 @@ def salidaHabilitadoMaterial(request):
 	return JsonResponse(array)
 
 def salidaHabilitadoSave(request):
+	print "salidaHabilitadoSave"
 	apoyo = request.POST.get('apoyo', 0)
 	elemento = request.POST.get('elemento', 0)
 	frente = request.POST.get('frente', 0)
@@ -1151,6 +1152,11 @@ def salidaHabilitadoSave(request):
 					if Decimal(irdpeso) <= Decimal(totalAsignado):
 						
 						totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
+						print "DescuentoSalida"
+						print peso
+						print irdpeso
+						print totalAsignado
+						print inventarioId
 						descuento = DescuentoSalida.objects\
 												.create(
 														pesoSalida = peso,
@@ -1158,13 +1164,18 @@ def salidaHabilitadoSave(request):
 														resta = totalAsignado,
 														inventarioRemisionDetalle_id =inventarioId
 														)
-						
+						print descuento
 						
 						InventarioRemisionDetalle.objects.filter(id=inventarioId).update(peso=0, estatusTotalizado = 0)
 						continue
 
 					if Decimal(irdpeso) > Decimal(totalAsignado) and Decimal(totalAsignado) != 0:
 						cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
+						print "DescuentoSalida-2"
+						print irdpeso
+						print totalAsignado
+						print inventarioId
+						print cantidadRestar
 						descuento = DescuentoSalida.objects\
 												.create(
 														pesoSalida = totalAsignado,
@@ -1172,6 +1183,7 @@ def salidaHabilitadoSave(request):
 														resta = cantidadRestar,
 														inventarioRemisionDetalle_id =inventarioId
 														)
+						print descuento
 						if cantidadRestar >= 0:
 							totalAsignado = 0;
 												
