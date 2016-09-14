@@ -944,6 +944,7 @@ def recepcionMaterialSave(request):
 	pesoBruto = request.POST.get('pesoBruto', 0)
 	pesoTara = request.POST.get('pesoTara', 0)
 	pesoNeto = request.POST.get('pesoNeto', 0)
+	pesoRemision = request.POST.get("pesoRemision", 0)
 	observacion = request.POST.get('observacion',' ')
 	respuesta = request.POST.get('json')
 	json_object = json.loads(respuesta)
@@ -955,6 +956,7 @@ def recepcionMaterialSave(request):
 						pesoBruto=pesoBruto,
 						pesoTara=pesoTara,
 						pesoNeto=pesoNeto,
+						pesoRemision=pesoRemision,
 						observacion=observacion,
 						fechaRemision=datetime.strptime(fechaRemision, '%d/%m/%Y'),
 						estatus=1,
@@ -4171,6 +4173,7 @@ def mailHtml(request, folio):
 											"pesoNeto",
 											"pesoBruto",
 											"pesoTara",
+											"pesoRemision",
 											"observacion",
 											"remisiondetalle__material__nombre",
 											"remisiondetalle__peso",
@@ -4230,6 +4233,7 @@ def mailHtml(request, folio):
 	pesoBruto= remisiones[0]["pesoBruto"]
 	pesoTara= remisiones[0]["pesoTara"]
 	observacion=remisiones[0]["observacion"]
+	pesoRemision=remisiones[0]["pesoRemision"]
 
 	envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
 	header = "RECEPCIÓN DEL MATERIAL"
@@ -4272,11 +4276,13 @@ def mailHtml(request, folio):
 	body += tablaDetalle
 	body += """
 			<br />
+			<h4>Peso Remisi&oacute;n: %d Kg </h4>
 			<h4>Peso Neto: %d  Kg </h4>
 			<h4>Peso Tara: %d  Kg </h4>
 			<h4>Peso Bruto: %d  Kg </h4>
 			""" %\
 			(
+				pesoRemision,
 				pesoNeto,
 				pesoTara,
 				pesoBruto

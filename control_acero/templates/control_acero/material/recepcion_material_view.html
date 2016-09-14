@@ -92,6 +92,7 @@
 						<th class="text-center">Peso Total en TON</th>
 						<th class="text-center">Peso Tara en Kg</th>
 						<th class="text-center">Peso Bruto en Kg</th>
+						<th class="text-center">Peso Neto en Kg</th>
 						<th class="text-center">Observacion</th>
 					</tr>
 				</thead>
@@ -343,7 +344,8 @@
 			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
 			    			+'<td class="text-center">'+tonHtml+'</td>'
 			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoTara" id="pesoTara" value=""></input></td>'
-			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoBruto" id="pesoBruto" value=""></input></td>'
+			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoBruto" id="pesoBruto" value=""></input></td>'
+			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoNeto" id="pesoNeto" value=""></input></td>'
 			    			+'<td><textarea rows="2" cols="15" class="form"  name="observacion" id="observacion" placeholder="Ingresa Observación"></textarea></td>'
 			    			+'<td style="display:none;"><input type="text" class="form-control" name="neto" id="neto" value="'+pesoTd+'" /></td>'
 			    			+'</tr>';
@@ -358,6 +360,7 @@
 			var remision = $("#remision").val();
 			var pesoBruto = $("#pesoBruto").val();
 			var pesoTara = $("#pesoTara").val();
+			var pesoNeto = $("#pesoNeto").val();
 			var observacion =$("#observacion").val();
 			var htmlMail = $("#tablaApoyoElemento").html();
 			var funcion = $("#cmbFuncion").val();
@@ -366,8 +369,8 @@
 			var pesoTotal = 0;
 			var tablaTotales='';
 			pesoTara=limpiaValor(pesoTara);
-				
-			console.log(pesoBruto);
+			pesoBruto=limpiaValor(pesoBruto);
+			//console.log(pesoNeto);
 			$('.pesoTo').each(function(i,obj){
 					pesoTotal = limpiaValor($(this).text());
 			})
@@ -406,7 +409,8 @@
 				        		fechaRemision: fechaRemision,
 				        		pesoTara: pesoTara,
 				        		pesoBruto: pesoBruto,
-				        		pesoNeto:pesoTotal,
+				        		pesoNeto: pesoNeto,
+				        		pesoRemision: pesoTotal,
 				        		observacion:observacion,
 				        		htmlMail: htmlMail,
 				        		json: json
@@ -486,11 +490,12 @@
 
 		function cantidadPesoBruto(){
 			var tara=$("#pesoTara").val();
-			var neto=$("#neto").val();
-			neto= parseInt(limpiaValor(neto));
+			var bruto=$("#pesoBruto").val();
+			var neto;
+			bruto= parseInt(limpiaValor(bruto));
 			tara=parseInt(limpiaValor(tara));
-			var bruto= parseInt(tara)+parseInt(neto);
-			$("#pesoBruto").val(bruto);
+			var neto= parseInt(bruto)-parseInt(tara);
+			$("#pesoNeto").val(neto);
 		}
 
 		function eliminar (a){
@@ -525,7 +530,8 @@
 			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
 			    			+'<td class="text-center">'+tonHtml+'</td>'
 			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoTara" id="pesoTara" value=""></input></td>'
-			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoBruto" id="pesoBruto" value=""></input></td>'
+			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoBruto" id="pesoBruto" value=""></input></td>'
+			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoNeto" id="pesoNeto" value=""></input></td>'
 			    			+'<td><textarea rows="2" cols="15" class="form"  name="observacion" id="observacion" placeholder="Ingresa Observación"></textarea></td>'
 			    			+'<td style="display:none;"><input type="text" class="form-control" name="neto" id="neto" value="'+pesoTd+'" /></td>'
 			    			+'</tr>';

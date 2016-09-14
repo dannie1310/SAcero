@@ -365,6 +365,7 @@ class Remision(models.Model):
 	pesoTara = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoBruto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	pesoNeto = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	pesoRemision = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	observacion = models.CharField(max_length=100,null=True)
 	frente = models.ForeignKey(Frente, null=True)
 	ajuste= models.ForeignKey(InventarioFisico, null=True, related_name='ajusteEntrada')
