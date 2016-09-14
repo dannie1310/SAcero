@@ -97,9 +97,9 @@ DATABASES = {
     'auth_db': {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'igh',                 
-        'USER': 'develop',                    
-        'PASSWORD': 'develop',                
-        'HOST': '172.20.74.229',                     
+        'USER': 'appweb_auth',                    
+        'PASSWORD': '-WeBAutH14%',                
+        'HOST': '172.20.74.92',                     
         'PORT': '3306',
         'OPTIONS': {
            'init_command': 'SET default_storage_engine=INNODB',
