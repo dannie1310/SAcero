@@ -204,7 +204,7 @@
 	                	html +=	'<div style="display:none;" id="divVarilla_'+object.idMaterial+'" class="form-group col-md-6">'
 									+ '<br /><label class="control-label" for="txt'+object.idMaterial+'">'+object.nombreMaterial+'</label>'
 									+ '<div class="input-group">'
-										+ '<input type="text"  data-toggle="toolinfo" data-placement="bottom" title="Ingresa el Peso" class="form-control milesLimpio text-uppercase" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onkeyup="cantidadMaterial('+object.idMaterial+');" />'
+										+ '<input type="text"  data-toggle="toolinfo" data-placement="bottom" title="Ingresa el Peso" class="form-control miles text-uppercase" name="count'+object.idMaterial+'" id="count'+object.idMaterial+'" type="text" value="0" title="Elige una Cantidad" onkeyup="cantidadMaterial('+object.idMaterial+');" />'
 										+ '<div class="input-group-addon">Kg</div>'
 									+ '</div>'
 									+ '<label class="control-label" for="txt'+object.idMaterial+'Volumetrico">Peso Volumétrico</label>'
@@ -289,10 +289,11 @@
 				pesoTotal += parseFloat(cantidadMaterial);
 				pesoTotalReal = parseFloat(cantidadMaterial);
 				material = $(this).attr("attrMaterial");
+				
 				if(cantidadMaterial != 0){
 					tabla += '<tr  class="'+color+'">'
 								+'<td class="text-center">'+material+'</td>'
-								+'<td class="text-center milesLimpio piezasT">'+parseInt(pesoMaterial)+'</td>'
+								+'<td class="text-center miles piezasT">'+parseFloat(pesoMaterial).toFixed(2)+'</td>'
 								+'<td class="text-center">'+cantidadMaterialReal+'</td>'
 								+'<td class="text-center">'+longitud+'</td>'
 								+'<td class="text-center">'+tipoText+'</td>'
@@ -318,18 +319,16 @@
 				$("#tablaApoyoElemento").append(tabla);
 				$('.pesoTotal').each(function(i, obj) {
 					pesoTd += parseFloat($(this).text());
-					////console.log("peso ",pesoTd);
 				});
 				$('.piezasT').each(function(i,obj){
-					limpia=limpiaValor($(this).text());
-					piezas +=parseInt(limpia);
-					//console.log("pis",piezas);
+					limpia = limpiaValor($(this).text());
+					piezas += parseFloat(limpia);					
 				})
 				if(pesoTotal >= 1000){
 					ton = pesoTd / 1000;
 					ton = ton.toFixed(2);
 					tonHtml += parseFloat(ton);
-					//console.log("ton",tonHtml);
+					
 				}
 				$("#txtPesoTotal").append(pesoTd);
 				$("#divDetalle").show("slide");
@@ -340,12 +339,12 @@
 
 			    tablaTotales='<tr>'
 			    			+'<td class="text-center">Peso Total</td>' 
-			    			+'<td class="milesLimpio text-center">'+piezas+'</td>'
-			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
+			    			+'<td class="miles text-center">'+parseFloat(piezas).toFixed(2)+'</td>'
+			    			+'<td class="miles text-center pesoTo">'+parseFloat(pesoTd).toFixed(2)+'</td>'
 			    			+'<td class="text-center">'+tonHtml+'</td>'
-			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoTara" id="pesoTara" value=""></input></td>'
-			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoBruto" id="pesoBruto" value=""></input></td>'
-			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoNeto" id="pesoNeto" value=""></input></td>'
+			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoTara" id="pesoTara" value="0"></input></td>'
+			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoBruto" id="pesoBruto" value="0"></input></td>'
+			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoNeto" id="pesoNeto" value="0"></input></td>'
 			    			+'<td><textarea rows="2" cols="15" class="form"  name="observacion" id="observacion" placeholder="Ingresa Observación"></textarea></td>'
 			    			+'<td style="display:none;"><input type="text" class="form-control" name="neto" id="neto" value="'+pesoTd+'" /></td>'
 			    			+'</tr>';
@@ -500,7 +499,6 @@
 
 		function eliminar (a){
 		
-			
 			$(a).closest("tr").remove();
 			$("#tablatotales tbody").empty();
 			var pesoTd=0;
@@ -508,30 +506,30 @@
 			var tonHtml=0;
 			var limpia=0;
 			var tablaTotales = '';
-			$('.pesoTotal').each(function(i, obj) {
-				pesoTd += parseFloat($(this).text());
+
+				$('.pesoTotal').each(function(i, obj) {
+					pesoTd += parseFloat($(this).text());
 				});
 				$('.piezasT').each(function(i,obj){
 					limpia=limpiaValor($(this).text());
-					piezas +=parseInt(limpia);
+					piezas +=parseFloat(limpia);
 				})
 				if(pesoTd >= 1000){
 					ton = pesoTd / 1000;
-				
-					ton = ton.toFixed(2);;
+					ton = ton.toFixed(2);
 					tonHtml += parseFloat(ton);
-				
 				}
+
 				$("#txtPesoTotal").append(pesoTd);
 				
 			    tablaTotales='<tr>'
 			    			+'<td class="text-center">Peso Total</td>' 
-			    			+'<td class="milesLimpio text-center">'+piezas+'</td>'
-			    			+'<td class="milesLimpio text-center pesoTo">'+pesoTd+'</td>'
+			    			+'<td class="miles text-center">'+parseFloat(piezas).toFixed(2)+'</td>'
+			    			+'<td class="miles text-center pesoTo">'+parseFloat(pesoTd).toFixed(2)+'</td>'
 			    			+'<td class="text-center">'+tonHtml+'</td>'
-			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoTara" id="pesoTara" value=""></input></td>'
-			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoBruto" id="pesoBruto" value=""></input></td>'
-			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoNeto" id="pesoNeto" value=""></input></td>'
+			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoTara" id="pesoTara" value="0"></input></td>'
+			    			+'<td><input type="text" class="form milesLimpio" onkeyup="cantidadPesoBruto();" name="pesoBruto" id="pesoBruto" value="0"></input></td>'
+			    			+'<td><input type="text" disabled class="form milesLimpio" name="pesoNeto" id="pesoNeto" value="0"></input></td>'
 			    			+'<td><textarea rows="2" cols="15" class="form"  name="observacion" id="observacion" placeholder="Ingresa Observación"></textarea></td>'
 			    			+'<td style="display:none;"><input type="text" class="form-control" name="neto" id="neto" value="'+pesoTd+'" /></td>'
 			    			+'</tr>';

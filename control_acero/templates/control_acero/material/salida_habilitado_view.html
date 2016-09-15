@@ -147,11 +147,12 @@
 			function(data, status) {
 	            try {
 	                $.each(data.data, function (count, object) {
+	                	
 	                    tabla += '<tr>'
 	                		tabla +='<td>'+idTabla+'</td>';
 	                		tabla +='<td>'+object.materialNombre+'</td>';
-	                		tabla +='<td class="info milesLimpio">'+Math.floor(object.peso)+'</td>';
-	                		tabla +='<td><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Ingresa Peso de Salida" class="dataInfo form-control milesLimpio" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="" /></td>';
+	                		tabla +='<td class="info miles">'+object.peso+'</td>';
+	                		tabla +='<td><input type="text" data-toggle="toolinfo" data-placement="bottom" title="Ingresa Peso de Salida" class="dataInfo form-control miles" name="txtAsignado_'+count+'" id="txtAsignado_'+count+'" data-idmaterial="'+object.id+'" data-nombrematerial="'+object.materialNombre+'" data-cantidadreal="'+object.peso+'" value="" /></td>';
 	                		//tabla +='<td><input type="text" class="form-control miles" value="0" /></td>';
 	                		tabla +='<td><button type="button" class="btn btn-info" name="btnAceptar" id="btnAceptar" onClick="agregaDetalle('+count+');">Aceptar Salida</button></td>';
 	                    tabla +='</tr>';
@@ -174,7 +175,7 @@
 			var peso = $("#txtAsignado_"+posicion).data("cantidadreal");
 			var idmaterial = $("#txtAsignado_"+posicion).data("idmaterial");
 			var posicionTabla = parseInt(posicion+1);
-			var pesoRestante =parseFloat(limpiaValor(peso)) - parseFloat(limpiaValor(asignado));
+			var pesoRestante =parseFloat(peso) - parseFloat(limpiaValor(asignado));
 			asignado= limpiaValor(asignado);
 			
 			
@@ -192,9 +193,9 @@
 				tabla += '<tr id="limpia_'+idmaterial+'">';
 					tabla += '<td>'+posicionTabla+'</td>';
 					tabla += '<td>'+nombre+'</td>';
-					tabla += '<td class="milesLimpio info">'+Math.floor(peso)+'</td>';
-					tabla += '<td class="milesLimpio success">'+asignado+'</td>';
-					tabla += '<td class="warning milesLimpio">'+Math.floor(pesoRestante)+'</td>';
+					tabla += '<td class="miles info">'+peso+'</td>';
+					tabla += '<td class="miles success">'+asignado+'</td>';
+					tabla += '<td class="warning miles">'+parseFloat(pesoRestante).toFixed(2)+'</td>';
 					tabla +='<td style="display:none;"><input type="text" class="form-control miles dataAsignacion" data-idmaterial="'+idmaterial+'" data-nombrematerial="'+nombre+'" data-cantidadreal="'+peso+'" data-cantidad="'+asignado+'" value="'+asignado+'" /></td>';
 					tabla += '<td class="text-center eliminar"><span style="cursor: pointer;" class="glyphicon glyphicon-remove" onClick="eliminar(this);"></span></td>';
 				tabla += '</tr>';
