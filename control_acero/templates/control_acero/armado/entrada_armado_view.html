@@ -392,7 +392,18 @@
 								swal("Error!", "El Material Faltante agregado es mayor a la Cantidad del Material","error");
 								return false;
 							}
-							
+							if(nomenclatura==0){
+								swal("Error!", "Debes elegir una Nomenclatura.","error");
+								return false;
+							}
+							if(longitud==0){
+								swal("Error!", "Debes elegir una Longitud Diferente a Cero.","error");
+								return false;
+							}
+							if(piezas==0){
+								swal("Error!", "Debes elegir un Número de Piezas Diferente a Cero.","error");
+								return false;
+							}
 							//console.log(piezas, cantidadAsignada, cantidadReal);
 							tabla += '<tr class="danger">';
 								tabla += '<td>'+materialNombre+'</td>';
