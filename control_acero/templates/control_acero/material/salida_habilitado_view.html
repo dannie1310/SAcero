@@ -335,8 +335,10 @@
 					            		
 						            	materialRecepcionado();
 						            	$("#folio").html(data.folio);
-						            	$("#btnGuardar").hide('slide');
-						            	$(".eliminar").hide("slide");
+						           		$("#tablaMaterialDetalle tbody").empty();
+						            	comboElemento();
+	    								comboFrente();
+	    								$('.cmbApoyo').empty();
 					            	
 					            	
 					            })

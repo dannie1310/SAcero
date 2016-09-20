@@ -1223,6 +1223,7 @@ def salidaHabilitadoSave(request):
 								cantidadAsignada = cantidadAsignada,
 								estatusEtapa = 1,
 								folio = numFolio,
+								estatusApoyo = aux,
 								numFolio = numFolioInt,
 								tallerAsignado_id = request.session["idTaller"]
 								)
@@ -1272,6 +1273,7 @@ def entradaArmadoMaterial(request):
 	dataDetalle = []
 	folio = request.POST.get('folio', 1)
 	cantidadReal = 0
+	apoyos=''
 	salidas = InventarioSalida.objects \
 						.values(
 								'material_id',
@@ -1280,12 +1282,20 @@ def entradaArmadoMaterial(request):
 								'apoyo__id',
 								'apoyo__numero',
 								'elemento__id',
-								'elemento__nombre'
+								'elemento__nombre',
+								'estatusApoyo'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
 						.filter(numFolio = folio, frente_id = request.session["idFrente"], cantidadAsignada__gt=0, estatus=1) \
 						.order_by('material_id')
+
 	for salida in salidas:
+		if salida["estatusApoyo"]!=0:
+			numeros= Apoyo.objects.values("id","numero").filter(id=salida["estatusApoyo"])
+			apoyos=salida["apoyo__numero"] +" y  "+numeros[0]["numero"] +"  "
+		else:
+			apoyos=salida["apoyo__numero"]
+
 		resultado = {
 						"id":salida["material_id"],
 						"materialNombre":salida["material__nombre"],
@@ -1293,6 +1303,7 @@ def entradaArmadoMaterial(request):
 						"cantidadAsignada":salida["cantidadAsignada"],
 						"apoyoId":salida["apoyo__id"],
 						"apoyoNumero":salida["apoyo__numero"],
+						"apoyoNombre":apoyos,
 						"elementoId":salida["elemento__id"],
 						"elementoNombre":salida["elemento__nombre"]
 					}
@@ -1747,15 +1758,25 @@ def foliosSalidaHabilitado(request):
 	array = {}
 	mensaje = {}
 	data = []
-	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre').distinct().filter(frente_id=request.session['idFrente'])
+	apoyos = ''
+	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre','estatusApoyo').distinct().filter(frente_id=request.session['idFrente'])
+	
 	for salidaFolio in salidaFolios:
+		
 		validacionAsignado = InventarioSalida.objects.filter(numFolio=salidaFolio["numFolio"]).aggregate(Sum('cantidadAsignada'))
 		validacionAsign = validacionAsignado["cantidadAsignada__sum"]
+		
+		if salidaFolio["estatusApoyo"] != 0:
+			numeros= Apoyo.objects.values("id","numero").filter(id=salidaFolio["estatusApoyo"])
+			apoyos=salidaFolio["apoyo__numero"] +" y  "+numeros[0]["numero"] +"  "
+		else:
+			apoyos=salidaFolio["apoyo__numero"]
+		
 		if Decimal(validacionAsign) > 0:
 			resultado = {
 							"numFolio":salidaFolio["numFolio"],
 							"folio":salidaFolio["folio"],
-							"apoyo":salidaFolio["apoyo__numero"],
+							"apoyo":apoyos,
 							"elemento":salidaFolio["elemento__nombre"]
 						}
 			data.append(resultado)
@@ -4490,6 +4511,7 @@ def mailHtmlEA(request, folio):
 	# Mail entradaArmadoSave
 	res=0
 	flag=0
+	apoyos=''
 	entrada = Entrada.objects.values(	   "folio",
 											"cantidadAsignada",
 											"remision",
@@ -4505,7 +4527,8 @@ def mailHtmlEA(request, folio):
 											"entradadetalle__nomenclatura",
 											"entradadetalle__longitud",
 											"entradadetalle__piezas",
-											"entradadetalle__calculado"
+											"entradadetalle__calculado",
+											"folioSalida",
 										)\
 										.filter(
 											numFolio = folio,
@@ -4556,15 +4579,15 @@ def mailHtmlEA(request, folio):
 											<td>%s</td>
 											<td>%s</td>
 											<td>%d</td>
-											<td>%d</td>
+											<td>%f</td>
 											<td>%d</td>
 										</tr>
 									"""%\
 									(
 										rem["material__nombre"],
 										rem["entradadetalle__nomenclatura"],
-										rem["entradadetalle__longitud"],
 										rem["entradadetalle__piezas"],
+										rem["entradadetalle__longitud"],
 										rem["cantidadAsignada"]
 										
 									)
@@ -4625,6 +4648,21 @@ def mailHtmlEA(request, folio):
 	elemento = entrada[0]["elemento__nombre"] 
 	fechaRegistro = entrada[0]["fechaRegistro"]
 
+	folioSalida=entrada[0]["folioSalida"]
+	salida = Salida.objects.values("id", "estatusApoyo", "apoyo__numero").filter(folio=folioSalida)
+	
+
+	if salida[0]["estatusApoyo"] != 0 :
+	 	
+	 	numeros = Apoyo.objects.values("id","numero").filter(id=salida[0]["estatusApoyo"])
+	 	
+		apoyos=" "+salida[0]["apoyo__numero"] +" y  "+numeros[0]["numero"] +"  "
+		
+	else:
+	 	apoyos=" "+salida[0]["apoyo__numero"]+" "
+		
+
+
 	frenteEmail = User.objects.all().filter(frente__id = request.session['idFrente'])
 
 	
@@ -4665,7 +4703,7 @@ def mailHtmlEA(request, folio):
 				remision,
 				frente,
 				proveedor,				
-				apoyo,
+				apoyos,
 				elemento,
 				fechaRegistro.strftime("%d/%m/%Y %H:%M:%S")
 			)

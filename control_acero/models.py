@@ -585,6 +585,7 @@ class InventarioSalida(models.Model):
 	folioInventario = models.IntegerField(null=True)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
+	estatusApoyo = models.IntegerField(default=0)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
