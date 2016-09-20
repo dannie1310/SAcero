@@ -18,6 +18,11 @@
 			<h3> Folio: <span id="folio"></span></h3>
 		</div>
 		<div class="form-group col-md-6">
+			<label  class="control-label dataElemento"  for="cmbElemento">Selecciona Elemento:</label>
+			<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
+			</select>
+		</div>
+		<div class="form-group col-md-6">
 			<label  class="control-label" for="cmbFrente">Selecciona un Frente:</label>
 			<select name="cmbFrente" id="cmbFrente" class="cmbFrente form-control">
 			</select>
@@ -25,11 +30,6 @@
 		<div class="form-group col-md-6">
 			<label  class="control-label" for="cmbApoyo">Selecciona un Apoyo:</label>
 			<select name="cmbApoyo" id="cmbApoyo" class="cmbApoyo form-control">
-			</select>
-		</div>
-		<div class="form-group col-md-6">
-			<label  class="control-label" for="cmbElemento">Selecciona Elemento:</label>
-			<select name="cmbElemento" id="cmbElemento" class="cmbElemento form-control">
 			</select>
 		</div>
 		
@@ -82,6 +82,7 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		var aux=0;
 		mostrarFolio = function(){
 			var modulo = 2;
 			$.post( "{% url 'foliosMostrar' %}",{
@@ -98,10 +99,40 @@
 				swal("Error!", "Error en la petición del Fabricante","error");
 			});
 		}
-
 		
+		comboFrente = function(value){
+			$.post( "{% url 'comboFrente' %}",{
+			},
+			function(data, status) {
+		            try {
+
+		                $('.cmbFrente').empty();
+		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
+	                    $.each(data.data, function (count, object) {
+	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
+	                    });
+		            } catch (e) {
+		                swal("Error!","Error al cargar Combo del Frente:" + e,"error");
+		            }
+			})
+			.fail(function() {
+				swal("Error!", "Error en la petición del Frente","warning" );
+			});
+		}
+		$( "#cmbFrente" ).change(function() {
+			var value = this.value;
+			comboApoyo(value,"error");
+		});
+
 		comboApoyo = function(value){
 			var frente =value;
+			//console.log(frente);
+			var elemento = $("#cmbElemento").val();
+			if(elemento == 0){
+						comboFrente();
+						swal("Error!","Debes elegir un Elemento.","error");
+						return false;
+			}
 			$.post( "{% url 'comboApoyo' %}",{
 				frente:frente
 			},
@@ -109,9 +140,23 @@
 		            try {
 		                $('.cmbApoyo').empty();
 		                $('.cmbApoyo').append('<option value="0">Selecciona un Apoyo</option>');
+		               //console.log("1. ",data.data);
+		               if(aux==1){
+			                for (var i=0; i<=data.data.length; i++){
+			                	
+			                	aux1= data.data[i]
+			                	if(i+1 < data.data.length){
+			                		aux2= data.data[i+1]
+			                	    $('.cmbApoyo').append('<option value="' + aux1["id"] + '">' + aux1["numero"] +"   y  "+ aux2["numero"] +  '</option>');
+			                		$('.cmbApoyo').append('<input type="hidden" name="txtApoyo_'+aux1["id"]+'" id="txtApoyo_'+aux1["id"]+'" value="'+aux2["id"]+'" />');
+			                	} 
+			                }
+		                }
+		                else{
 	                    $.each(data.data, function (count, object) {
 	                        $('.cmbApoyo').append('<option value="' + object.id + '">' + object.numero + '</option>');
 	                    });
+	                	}
 		            } catch (e) {
 		                swal("Error!","Error al cargar Combo del Apoyo:" + e,"error");
 		            }
@@ -120,6 +165,16 @@
 				swal("Error!","Error en la petición del Apoyo","error");
 			});
 		}
+		$( "#cmbElemento").change(function(){
+			var value = this.value; 
+			var frente = $("#cmbFrente").val();
+			var tipo = $("#txtElemento_"+value).val();
+			console.log(tipo)
+			$('.cmbApoyo').empty();
+			aux=tipo;
+	        comboApoyo(frente); 
+	        //console.log(aux)
+		});
 		comboElemento = function(){
 			$.post( "{% url 'comboElemento' %}",{
 			},
@@ -128,8 +183,10 @@
 		                $('.cmbElemento').empty();
 		                $('.cmbElemento').append('<option value="0">Selecciona un Elemento</option>');
 	                    $.each(data.data, function (count, object) {
-	                        $('.cmbElemento').append('<option value="' + object.id + '">' + object.nombre + '</option>');
+	                        $('.cmbElemento').append('<option value="' + object.id + '">'+object.nombre + '</option>');
+	                    	$('.cmbElemento').append('<input type="hidden" name="txtElemento_'+object.id+'" id="txtElemento_'+object.id+'" value="'+object.tipo+'" />');
 	                    });
+	                    	
 		            } catch (e) {
 		                swal("Error!","Error al cargar Combo del Elemento:" + e,"error");
 		            }
@@ -138,6 +195,7 @@
 				swal("Error!","Error en la petición del Elemento","error");
 			});
 		}
+
 		materialRecepcionado = function(){
 			$("#tablaMaterial tbody").empty();
 			var tabla = '';
@@ -202,28 +260,7 @@
 			$("#tablaMaterialDetalle").append(tabla);
 			$("#txtAsignado_"+posicion).val('');
 		}
-		comboFrente = function(){
-			$.post( "{% url 'comboFrente' %}",{
-			},
-			function(data, status) {
-		            try {
-		                $('.cmbFrente').empty();
-		                $('.cmbFrente').append('<option value="0">Selecciona un Frente</option>');
-	                    $.each(data.data, function (count, object) {
-	                        $('.cmbFrente').append('<option value="' + object.id + '">' + object.nombre + '</option>');
-	                    });
-		            } catch (e) {
-		                swal("Error!","Error al cargar Combo del Frente:" + e,"error");
-		            }
-			})
-			.fail(function() {
-				swal("Error!", "Error en la petición del Frente","warning" );
-			});
-		}
-		$( "#cmbFrente" ).change(function() {
-			var value = this.value;
-			comboApoyo(value,"error");
-		});
+		
 
 		function eliminar (a){
 			$(a).closest("tr").remove();
@@ -238,6 +275,11 @@
 					var reposicion = $("#reposicion").val();
 					console.log(reposicion);
 
+					if (aux == 1){
+						aux= $("#txtApoyo_"+apoyo).val();
+						console.log(aux);
+					}
+					console.log(aux);
 					if(frente == 0){
 						swal("Error!","Debes elegir una Frente.","error");
 						return false;
@@ -283,6 +325,7 @@
 							frente: frente,
 							htmlMail: htmlMail,
 							reposicion:reposicion,
+							aux: aux,
 							json: json
 						})
 						.done(function(data, status) {
@@ -395,7 +438,7 @@
 
 	    $(function () {
 	    	mostrarFolio();
-	    	comboApoyo();
+	    	//comboApoyo();
 	    	comboElemento();
 	    	comboFrente();
 	    	materialRecepcionado();

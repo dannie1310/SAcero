@@ -85,7 +85,7 @@
 			console.log(folio);
 
 			if(folio == 0){
-				swal("Error!", "Debes ingresar un folio.", "error");
+				swal("", "Debes ingresar un folio.", "error");
 				return false;
 			}
 
@@ -95,101 +95,99 @@
 			},
 			function(data, status) {
 	            try {
-	            	
 	            	if (data.data.length==0){
-	            		 $.each(data.mensaje, function (count, object) {
-	            		 	swal("Error!", object, "error");
-	            		})
-	            		$("#divDetalleSolicita").hide("slide");
-				 		$("#divDetalleCancelar").hide("slide");
+	            		swal("", "No se encuentra el folio: "+folio, "warning");
 	            	}
-	                $.each(data.data, function (count, object) {
-	                	console.log("datos::", object)
-	                	if (object.modulo==1){
-	                		head1='<tr>'
-								+'<th class="text-center">Folio</th>'
-								+'<th class="text-center">Orden</th>'
-								+'<th class="text-center">Remision</th>'
-								+'<th class="text-center">Fabricante de Acero</th>'
-								+'<th class="text-center">Taller</th>'
-								+'</tr>';
-					
-		                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
-		                			+'<th class="text-center">'+object.idOrden+'</th>'
-		                			+'<th class="text-center">'+object.remision+'</th>'
-		                			+'<th class="text-center">'+object.funcion+'</th>'
-		                			+'<th class="text-center">'+object.taller+'</th></tr>';
+	            	else{
+		                $.each(data.data, function (count, object) {
+		                	$("#divDetalleSolicita").show("slide");
+							$("#divDetalleCancelar").show("slide");
+		                	console.log("datos::", object);
+		                	if (object.modulo==1){
+		                		head1='<tr>'
+									+'<th class="text-center">Folio</th>'
+									+'<th class="text-center">Orden</th>'
+									+'<th class="text-center">Remision</th>'
+									+'<th class="text-center">Fabricante de Acero</th>'
+									+'<th class="text-center">Taller</th>'
+									+'</tr>';
+						
+			                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
+			                			+'<th class="text-center">'+object.idOrden+'</th>'
+			                			+'<th class="text-center">'+object.remision+'</th>'
+			                			+'<th class="text-center">'+object.funcion+'</th>'
+			                			+'<th class="text-center">'+object.taller+'</th></tr>';
 
-		                	head='<tr>'
-								+'<th class="text-center">Varilla</th>'
-								+'<th class="text-center">Longitud</th>'
-								+'<th class="text-center">Peso</th>'
-								+'<th class="text-center">Piezas</th>'
-								+'</tr>';
-		                	tabla+='<tr>'
-		                	    +'<td>'+object.material+'</td>'
-		                		+'<td>'+object.longitud+'</td>'
-		                		+'<td class="milesLimpio">'+Math.floor(object.peso)+'</td>'
-		                		+'<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>'
-		                		+'</tr>';
-		                }
-		                if (object.modulo==2){
-		                	head1='<tr>'
-								+'<th class="text-center">Folio</th>'
-								+'<th class="text-center">Frente de Trabajo</th>'
-								+'<th class="text-center">Apoyo</th>'
-								+'<th class="text-center">Elemento</th>'
-								+'<th class="text-center">Taller</th>'
-								+'</tr>';
-		                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
-		                			+'<th class="text-center">'+object.frente+'</th>'
-		                			+'<th class="text-center">'+object.apoyo+'</th>'
-		                			+'<th class="text-center">'+object.elemento+'</th>'
-		                			+'<th class="text-center">'+object.taller+'</th>'
-		                			+'</tr>';
-		                	head='<tr>'
-								+'<th class="text-center">Varilla</th>'
-								+'<th class="text-center">Peso</th>'
-								+'</tr>';
-		                	tabla+='<tr>'
-		                	    +'<td>'+object.material+'</td>'
-		                		+'<td class="milesLimpio">'+Math.floor(object.cantidadAsignada)+'</td>'
-		                		+'</tr>';
-		                }
-	                	if (object.modulo==3){
-	                		head1='<tr>'
-								+'<th class="text-center">Folio</th>'
-								+'<th class="text-center">Frente de Trabajo</th>'
-								+'<th class="text-center">Apoyo</th>'
-								+'<th class="text-center">Elemento</th>'
-								+'<th class="text-center">Armador</th>'
-								+'<th class="text-center">Remisión</th>'
-								+'</tr>';
-		                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
-		                			+'<th class="text-center">'+object.frente+'</th>'
-		                			+'<th class="text-center">'+object.apoyo+'</th>'
-		                			+'<th class="text-center">'+object.elemento+'</th>'
-		                			+'<th class="text-center">'+object.proveedor+'</th>'
-		                			+'<th class="text-center">'+object.remision+'</th>'
-		                			+'</tr>';
-		                	head='<tr>'
-								+'<th class="text-center">Varilla</th>'
-								+'<th class="text-center">Peso Recibido</th>'
-								+'</tr>';
-		                	tabla+='<tr>'
-		                	    +'<td>'+object.material+'</td>'
-		                		+'<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>'
-		                		+'</tr>';
+			                	head='<tr>'
+									+'<th class="text-center">Varilla</th>'
+									+'<th class="text-center">Longitud</th>'
+									+'<th class="text-center">Peso</th>'
+									+'<th class="text-center">Piezas</th>'
+									+'</tr>';
+			                	tabla+='<tr>'
+			                	    +'<td>'+object.material+'</td>'
+			                		+'<td>'+object.longitud+'</td>'
+			                		+'<td class="milesLimpio">'+Math.floor(object.peso)+'</td>'
+			                		+'<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>'
+			                		+'</tr>';
+			                }
+			                if (object.modulo==2){
+			                	head1='<tr>'
+									+'<th class="text-center">Folio</th>'
+									+'<th class="text-center">Frente de Trabajo</th>'
+									+'<th class="text-center">Apoyo</th>'
+									+'<th class="text-center">Elemento</th>'
+									+'<th class="text-center">Taller</th>'
+									+'</tr>';
+			                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
+			                			+'<th class="text-center">'+object.frente+'</th>'
+			                			+'<th class="text-center">'+object.apoyo+'</th>'
+			                			+'<th class="text-center">'+object.elemento+'</th>'
+			                			+'<th class="text-center">'+object.taller+'</th>'
+			                			+'</tr>';
+			                	head='<tr>'
+									+'<th class="text-center">Varilla</th>'
+									+'<th class="text-center">Peso</th>'
+									+'</tr>';
+			                	tabla+='<tr>'
+			                	    +'<td>'+object.material+'</td>'
+			                		+'<td class="milesLimpio">'+Math.floor(object.cantidadAsignada)+'</td>'
+			                		+'</tr>';
+			                }
+		                	if (object.modulo==3){
+		                		head1='<tr>'
+									+'<th class="text-center">Folio</th>'
+									+'<th class="text-center">Frente de Trabajo</th>'
+									+'<th class="text-center">Apoyo</th>'
+									+'<th class="text-center">Elemento</th>'
+									+'<th class="text-center">Armador</th>'
+									+'<th class="text-center">Remisión</th>'
+									+'</tr>';
+			                	tabla1='<tr><th class="text-center">'+object.folio+'</th>'
+			                			+'<th class="text-center">'+object.frente+'</th>'
+			                			+'<th class="text-center">'+object.apoyo+'</th>'
+			                			+'<th class="text-center">'+object.elemento+'</th>'
+			                			+'<th class="text-center">'+object.proveedor+'</th>'
+			                			+'<th class="text-center">'+object.remision+'</th>'
+			                			+'</tr>';
+			                	head='<tr>'
+									+'<th class="text-center">Varilla</th>'
+									+'<th class="text-center">Peso Recibido</th>'
+									+'</tr>';
+			                	tabla+='<tr>'
+			                	    +'<td>'+object.material+'</td>'
+			                		+'<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>'
+			                		+'</tr>';
 
-	                	}	
-	                		$("#divDetalle").show("slide");
-				 			$("#divDetalleM").show("slide");
-				 			$("#divDetalleSolicita").show("slide");
-				 			$("#divDetalleCancelar").show("slide");
-	                })
-	                 
+		                	}	
+		                		$("#divDetalle").show("slide");
+					 			$("#divDetalleM").show("slide");
+						 		
+		                });
+		                
+	                }	
 				 			
-	            } catch(e){
+	            }catch(e){
 	            	 swal("Error!", "Error al cargar  : "+e, "error");
 	            }
 	           $("#tablaDetalle tbody").append(tabla1);
@@ -225,8 +223,8 @@
 					    swal("Se Elimino Correctamente el folio "+folio);
 					}, 2000);
 					
-					$("#btnSolicitar").hide("slide");
-					$("#btnCancelar").hide("slide");
+					$("#divDetalleSolicita").hide("slide");
+					$("#divDetalleCancelar").hide("slide");
 					$("#folio").val(' ');
 					$("#divDetalle").hide("slide");
 					$("#divDetalleM").hide("slide");
@@ -249,54 +247,6 @@
 		    $("#divDetalleSolicita").hide();
 		    $("#divDetalleCancelar").hide();
 		});
-
-// 	    function handleFileSelect(evt) {
-// 		    var files = evt.target.files; // FileList object
-
-// 		    // files is a FileList of File objects. List some properties.
-// 		    var output = [];
-// 		    for (var i = 0, f; f = files[i]; i++) {
-// 		      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-// 		                  f.size, ' bytes, last modified: ',
-// 		                  f.lastModifiedDate.toLocaleDateString(), '</li>');
-// 		    }
-// 		    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-// 		  }
-
-// 		  document.getElementById('files').addEventListener('change', handleFileSelect, false);
-
-// 		 $(document).ready(function() {
-// 		    $.ajax({
-// 		        type: "POST",
-// 		        url: "Usuario/Desktop/prueba.csv",
-// 		        dataType: "text",
-		        
-// 		        success: function(url) {
-// 		            processData(url);
-// 		        }
-// 		    });
-// 		});
-
-// 		function processData(allText) {
-// 		    var allTextLines = allText.split(/\r\n|\n/);
-// 		    var headers = allTextLines[0].split(',');
-// 		    var lines = [];
-
-// 		    for (var i=1; i<allTextLines.length; i++) {
-// 		        var data = allTextLines[i].split(',');
-// 		        if (data.length == headers.length) {
-
-// 		            var tarr = [];
-// 		            for (var j=0; j<headers.length; j++) {
-// 		                tarr.push(headers[j]+":"+data[j]);
-// 		            }
-// 		            lines.push(tarr);
-// 		        }
-// 		    }
-// 	console.log(lines);
-// }
-
-
-		  
+   	  
 	</script>
 {% endblock %}

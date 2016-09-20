@@ -66,7 +66,11 @@ class Despiece(models.Model):
 
 class Elemento(models.Model):
 	nombre = models.CharField(max_length=100)
-	tipo = models.CharField(max_length=10)
+	ESTATUSTIPO = (
+	    (0, 'Un apoyo'),
+	    (1, 'Entre apoyos'),
+	)
+	tipo = models.IntegerField(choices=ESTATUSTIPO, default=0)
 	peso = models.FloatField(default=0)
 	imagen = models.FileField(upload_to='imagen', null=True)
 	material = models.ManyToManyField(
@@ -192,6 +196,7 @@ class Entrada(models.Model):
 	idEtapaPertenece = models.IntegerField(null=True)
 	idOrdenTrabajo = models.IntegerField(null=True)
 	remision = models.CharField(max_length=20,null=True)
+	armador = models.CharField(max_length=100,null=True)
 	frente = models.ForeignKey(Frente, null=True)
 	estatusEtapa = models.IntegerField(default=1)
 	numFolio = models.IntegerField(null=True)
@@ -529,6 +534,7 @@ class Salida(models.Model):
 	    (1, 'Si'),
 	)
 	estatusReposicion = models.IntegerField(choices=ESTATUSREPOSICION, default=0)
+	estatusApoyo = models.IntegerField(default=0)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 

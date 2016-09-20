@@ -15,13 +15,13 @@ class GroupForm(forms.ModelForm):
 class ApoyoForm(forms.ModelForm):
 	class Meta:
 		model = Apoyo
-		fields = ['numero', 'estatus', 'elemento', 'frente']
+		fields = ['numero', 'estatus', 'frente']
 		exclude = ['estatus']
 
 class ElementoForm(forms.ModelForm):
 	class Meta:
 		model = Elemento
-		fields = ['nombre', 'tipo','estatus', 'peso','despiece','material']
+		fields = ['nombre', 'tipo','estatus', 'peso']
 		exclude = ['estatus']
 
 class DespieceForm(forms.ModelForm):

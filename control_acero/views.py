@@ -708,7 +708,7 @@ def movimientosDetalleView(request, pk):
 										"fechaRegistro",
 										"apoyo__numero",
 										"frente__nombre",
-										"funcion__proveedor").filter(id=idAfectado)
+										"armador").filter(id=idAfectado)
 		folio = folios[0]["folio"]
 		datos = Entrada.objects.values("cantidadAsignada",
 										"material__nombre",
@@ -923,11 +923,12 @@ def comboElemento(request):
 								.filter(
 										estatus = 1
 										)\
-								.order_by("nombre")
+								.order_by("id")
 	for elemento in elementos:
 		resultado = {
 						"id":elemento.id,
-						"nombre":elemento.nombre
+						"nombre":elemento.nombre,
+						"tipo":elemento.tipo,
 					}
 		data.append(resultado)
 	array["data"]=data
@@ -1102,6 +1103,7 @@ def salidaHabilitadoSave(request):
 	frente = request.POST.get('frente', 0)
 	htmlMail = request.POST.get('htmlMail', 0)
 	reposicion = request.POST.get('reposicion', 0)
+	aux = request.POST.get('aux', 0)
 	respuesta = request.POST.get('json')
 	jsonDataInfo = json.loads(respuesta)
 	numFolio = 0
@@ -1206,6 +1208,7 @@ def salidaHabilitadoSave(request):
 								estatusEtapa = 1,
 								folio = numFolio,
 								numFolio = numFolioInt,
+								estatusApoyo = aux,
 								tallerAsignado_id = request.session["idTaller"]
 								)
 		bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=salida.pk, observacion="El id guardado es de la salida", estatus=1, modulo_id=2, user_id=request.user.id)
@@ -1302,7 +1305,7 @@ def entradaArmadoSave(request):
 	remision = request.POST.get('remision', 0)
 	apoyo = request.POST.get('apoyo', 0)
 	elemento = request.POST.get('elemento', 0)
-	funcion = request.POST.get('funcion', 0)
+	armado = request.POST.get('funcion')
 	folioSalida = request.POST.get('folio', 0)
 	folioText= request.POST.get('folioText', 0)
 	htmlMail = request.POST.get('htmlMail', 0)
@@ -1345,14 +1348,13 @@ def entradaArmadoSave(request):
 			if Decimal(irdpeso) > Decimal(totalAsignado):
 				cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
 				InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=cantidadRestar)
-
 		entrada = Entrada.objects\
 						.create(
 								remision = remision,
 								elemento_id = elemento,
 								apoyo_id = apoyo,
 								material_id = material,
-								funcion_id = funcion,
+								armador = armado,
 								folioSalida= folioText,
 								cantidadReal = cantidadReal,
 								cantidadAsignada = cantidadAsignada,
@@ -1360,6 +1362,7 @@ def entradaArmadoSave(request):
 								numFolio = numFolioInt,
 								frente_id = request.session["idFrente"]
 								)
+		
 		bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=entrada.pk, observacion="El id guardado es de la entrada en frente de trabajo", estatus=1, modulo_id=3, user_id=request.user.id)
 	for jsonDataFaltante in jsonDataInfoFaltante:
 		materialF = jsonDataFaltante["material"]
@@ -1376,7 +1379,7 @@ def entradaArmadoSave(request):
 								elemento_id = elemento,
 								apoyo_id = apoyo,
 								material_id = materialF,
-								funcion_id = funcion,
+								armador = armado,
 								folioSalida =folioText,
 								cantidadReal = cantidadRealF,
 								cantidadAsignada = cantidadAsignadaF,
@@ -2924,7 +2927,7 @@ def reporteConsulta(request):
 		armador = Entrada.objects.values(
 											'id',
 											'cantidadAsignada',
-											'funcion__proveedor',
+											'armador',
 											'material__nombre',
 											'apoyo__numero',
 											'cantidadReal',
@@ -2940,7 +2943,7 @@ def reporteConsulta(request):
 											'entradadetalle__piezas',
 											'entradadetalle__entrada_id',
 											'entradadetalle__calculado',
-											'remision').filter( funcion__id =idFuncion,
+											'remision').filter( 
 																fechaRegistro__gte=fechaInicialFormat,
 																fechaRegistro__lte=fechaFinalFormat,
 																estatus=1).order_by("folio")
@@ -2951,7 +2954,7 @@ def reporteConsulta(request):
 							"excel":3,
 							"id":e['id'],
 							"cantidad":e['cantidadAsignada'],
-							"proveedor":e['funcion__proveedor'],
+							"proveedor":e['armador'],
 							"apoyo":e['apoyo__numero'],
 							"folio":e['folio'],
 							"fechaR":fecha,
@@ -3012,7 +3015,7 @@ def reporteConsulta(request):
 		armador = Entrada.objects.values(
 											'id',
 											'cantidadAsignada',
-											'funcion__proveedor',
+											'armador',
 											'material__nombre',
 											'apoyo__numero',
 											'cantidadReal',
@@ -3040,7 +3043,7 @@ def reporteConsulta(request):
 							"excel":4,
 							"id":e['id'],
 							"cantidad":e['cantidadAsignada'],
-							"proveedor":e['funcion__proveedor'],
+							"proveedor":e['armador'],
 							"apoyo":e['apoyo__numero'],
 							"fechaR":fecha,
 							"folio":e['folio'],
@@ -3102,7 +3105,7 @@ def reporteConsulta(request):
 		armador = Entrada.objects.values(
 											'id',
 											'cantidadAsignada',
-											'funcion__proveedor',
+											'armador',
 											'material__nombre',
 											'apoyo__numero',
 											'cantidadReal',
@@ -3130,7 +3133,7 @@ def reporteConsulta(request):
 							"excel":3,
 							"id":e['id'],
 							"cantidad":e['cantidadAsignada'],
-							"proveedor":e['funcion__proveedor'],
+							"proveedor":e['armador'],
 							"apoyo":e['apoyo__numero'],
 							"fechaR":fecha,
 							"folio":e['folio'],
@@ -4303,13 +4306,15 @@ def mailHtmlSH(request, folio):
 											"cantidadAsignada",
 											"fechaRegistro",
 											"apoyo__numero",
+											"apoyo__id",
 											"frente__id",
 											"frente__nombre",
 											"material__nombre",
 											"elemento__nombre",
 											"tallerAsignado__nombre",
 											"cantidadReal",
-											"estatusReposicion"
+											"estatusReposicion",
+											"estatusApoyo"
 										)\
 										.filter(
 											numFolio = folio,
@@ -4317,6 +4322,7 @@ def mailHtmlSH(request, folio):
 										)\
 										.distinct()\
 										.order_by("material__id")
+	
 	tablaDetalle = ''
 	tablaDetalle += """\
 					
@@ -4408,6 +4414,11 @@ def mailHtmlSH(request, folio):
 	body2 = ""
 	aux = "" 
 	
+	estatusApoyo = salida[0]["estatusApoyo"]
+	if estatusApoyo != 0 :
+		apoyoComplemento=Apoyo.objects.values("id", "numero"). filter(id = estatusApoyo)
+		apoyo = apoyo + " y " + apoyoComplemento[0]["numero"]
+
 	body += mailHtmlHeader(request)
 	body += """
 			<h4>Reporte a Habilitadores</h4>
@@ -4482,7 +4493,7 @@ def mailHtmlEA(request, folio):
 	entrada = Entrada.objects.values(	   "folio",
 											"cantidadAsignada",
 											"remision",
-											"funcion__proveedor",
+											"armador",
 											"fechaRegistro",
 											"apoyo__numero",
 											"frente__id",
@@ -4607,7 +4618,7 @@ def mailHtmlEA(request, folio):
 
 	
 	folioStr = entrada[0]["folio"]
-	proveedor = entrada[0]["funcion__proveedor"]
+	proveedor = entrada[0]["armador"]
 	remision = entrada[0]["remision"]
 	frente = entrada[0]["frente__nombre"]
 	apoyo = entrada[0]["apoyo__numero"]
@@ -5598,7 +5609,7 @@ def buscarFolio(request):
 										"folioSalida",
 										"material__id",
 										"material__nombre",
-										"funcion__proveedor",
+										"armador",
 										"frente__nombre",
 										"elemento__nombre",
 										"apoyo__numero",
@@ -5617,7 +5628,7 @@ def buscarFolio(request):
 				"folio":ent["folio"],
 				"folioSalida":ent["folioSalida"],
 				"material":ent["material__nombre"],
-				"proveedor":ent["funcion__proveedor"],
+				"proveedor":ent["armador"],
 				"frente":ent["frente__nombre"],
 				"elemento":ent["elemento__nombre"],
 				"apoyo":ent["apoyo__numero"],
