@@ -1283,7 +1283,8 @@ def entradaArmadoMaterial(request):
 								'apoyo__numero',
 								'elemento__id',
 								'elemento__nombre',
-								'estatusApoyo'
+								'estatusApoyo',
+								'tallerAsignado_id'
 								)\
 						.annotate(cantidadAsignada = Sum('cantidadAsignada')) \
 						.filter(numFolio = folio, frente_id = request.session["idFrente"], cantidadAsignada__gt=0, estatus=1) \
@@ -1305,7 +1306,8 @@ def entradaArmadoMaterial(request):
 						"apoyoNumero":salida["apoyo__numero"],
 						"apoyoNombre":apoyos,
 						"elementoId":salida["elemento__id"],
-						"elementoNombre":salida["elemento__nombre"]
+						"elementoNombre":salida["elemento__nombre"],
+						"taller":salida["tallerAsignado_id"]
 					}
 		data.append(resultado)
 
@@ -1318,19 +1320,20 @@ def entradaArmadoSave(request):
 	elemento = request.POST.get('elemento', 0)
 	armado = request.POST.get('funcion')
 	folioSalida = request.POST.get('folio', 0)
+	taller = request.POST.get('taller', 0)
 	folioText= request.POST.get('folioText', 0)
+	total = request.POST.get('total', 0)
 	htmlMail = request.POST.get('htmlMail', 0)
 	htmlMailFaltante = request.POST.get('htmlMailFaltante', 0)
 	respuesta = request.POST.get('json')
-	jsonDataInfo = json.loads(respuesta)
+	jsonDataInfo = json.loads(respuesta) #arrayTotales
 	respuestaFaltante = request.POST.get('jsonFaltante')
 	jsonDataInfoFaltante = json.loads(respuestaFaltante)
 	numFolio = 0
 	array = {}
 	mensaje = {}
 	data = []
-	cursor = connection.cursor()
-	folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
+	folio = Entrada.objects.all().filter(frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
 	if folio.exists():
 		numFolio = folio[0].numFolio
 	numFolioInt = int(numFolio)+1
@@ -1339,83 +1342,61 @@ def entradaArmadoSave(request):
 	numFolio = "EMA-"+ident+"-"+numFolio
 	numFolio = numFolio.encode('utf-8')
 	
-	for jsonData in jsonDataInfo:
-		material = jsonData["material"]
-		cantidadReal = jsonData["cantidadReal"]
-		cantidadAsignada = jsonData["cantidadAsignada"]
-		bandera = jsonData["bandera"]
-		totalAsignado = cantidadAsignada
-		inventarioSalidas = InventarioSalida.objects.all()\
-										.filter(material_id = material, estatusTotalizado = 1, frente_id = request.session["idFrente"], estatus=1)
-		for inventarioSalida in inventarioSalidas:
-			inventarioId = inventarioSalida.id
-			irdpeso = inventarioSalida.cantidadAsignada
-
-			if Decimal(irdpeso) <= Decimal(totalAsignado):
-				totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
-				#InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=0, estatusTotalizado = 0)
-				continue
-
-			if Decimal(irdpeso) > Decimal(totalAsignado):
-				cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
-				#InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=cantidadRestar)
-		entrada = Entrada.objects\
-						.create(
-								remision = remision,
+	
+	entrada = Entrada.objects\
+						.create(remision = remision,
 								elemento_id = elemento,
 								apoyo_id = apoyo,
-								material_id = material,
 								armador = armado,
 								folioSalida= folioText,
-								cantidadReal = cantidadReal,
-								cantidadAsignada = cantidadAsignada,
 								folio = numFolio,
 								numFolio = numFolioInt,
-								frente_id = request.session["idFrente"]
-								)
-		
-		bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=entrada.pk, observacion="El id guardado es de la entrada en frente de trabajo", estatus=1, modulo_id=3, user_id=request.user.id)
-	for jsonDataFaltante in jsonDataInfoFaltante:
-		materialF = jsonDataFaltante["material"]
-		cantidadRealF = jsonDataFaltante["cantidadReal"]
-		cantidadAsignadaF = jsonDataFaltante["cantidadAsignada"]
-		nomenclatura = jsonDataFaltante["nomenclatura"]
-		longitud = jsonDataFaltante["longitud"]
-		piezas = jsonDataFaltante["piezas"]
-		calculado = jsonDataFaltante["calculadoReal"]
-		bandera = jsonDataFaltante["bandera"]
-		entradaFaltante = Entrada.objects\
-						.create(
-								remision = remision,
-								elemento_id = elemento,
-								apoyo_id = apoyo,
-								material_id = materialF,
-								armador = armado,
-								folioSalida =folioText,
-								cantidadReal = cantidadRealF,
-								cantidadAsignada = cantidadAsignadaF,
-								folio = numFolio,
-								numFolio = numFolioInt,
-								frente_id = request.session["idFrente"]
-								)
-		try:
-			cursor.execute("UPDATE control_acero_inventariosalida\
-								SET cantidadAsignada = 0,\
-									estatusTotalizado = 0\
-								WHERE numFolio = %s\
-								AND material_id = %s", [folioSalida,materialF]);
-		finally:
-			print "Se actualizo"
+								taller_id = taller,
+								total = total,
+								frente_id = request.session["idFrente"])
 
-		if bandera == 1:
-			entradaDetalle = EntradaDetalle.objects\
+	entradaId = entrada.pk;
+	
+	
+	for jsonData in jsonDataInfo:
+		material = jsonData["material"]
+		pesoReal = jsonData["pesoReal"]
+		pesoRemision = jsonData["pesoRemision"]
+		bandera = jsonData["bandera"]
+
+		resumen = EntradaResumen.objects\
 							.create(
-									nomenclatura = nomenclatura,
-									longitud = longitud,
-									piezas = piezas,
-									calculado = calculado,
-									entrada_id = entradaFaltante.id
-									)
+									pesoRemision= pesoRemision,
+									pesoReal = pesoReal,
+									tipoRecepcion = bandera,
+									entrada_id = entradaId,
+									material_id = material
+									)  
+
+		resumenId = resumen.pk
+
+	
+		if bandera == 1 :
+			for faltante in jsonDataInfoFaltante:
+				materialF = faltante["material"]
+				
+				if material == materialF: 
+					nomenclatura = faltante["nomenclatura"]
+					longitud = faltante["longitud"]
+					piezas = faltante["piezas"]
+					calculado = faltante["cantidadAsignada"]
+					
+					detalle = EntradaDetalle.objects\
+								.create(
+										nomenclatura=nomenclatura,
+										longitud=longitud,
+										piezas = piezas,
+										calculado = calculado,
+										entradaResumen_id = resumenId
+										)
+
+	InventarioSalida.objects.filter(folio=folioText, estatus=1).update(estatusTotalizado = 0)
+	bitacora = Bitacora.objects.create(accion="Inserción", id_afectado=entrada.pk, observacion="El id guardado es de la entrada en frente de trabajo", estatus=1, modulo_id=3, user_id=request.user.id)
 
 	mensaje = {"estatus":"ok", "mensaje":"Entrada de Material Exitosa. Folio: "+numFolio, "folio":numFolio}
 	array = mensaje
@@ -1706,7 +1687,7 @@ def foliosMostrar(request):
 		numFolio = "%03d" % (numFolioInt,)
 		numFolio = "SMH-"+p+"-"+numFolio
 	if int(modulo) == 3:
-		folio = Entrada.objects.all().filter(estatusEtapa = 1, frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
+		folio = Entrada.objects.all().filter(frente_id = request.session["idFrente"]).order_by("-numFolio")[:1]
 		p=request.session["ideF"]
 		if folio.exists():
 			numFolio = folio[0].numFolio
@@ -1759,12 +1740,10 @@ def foliosSalidaHabilitado(request):
 	mensaje = {}
 	data = []
 	apoyos = ''
-	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre','estatusApoyo').distinct().filter(frente_id=request.session['idFrente'])
+	salidaFolios = InventarioSalida.objects.values('folio', 'numFolio', 'apoyo__numero', 'elemento__nombre','estatusApoyo').distinct().filter(frente_id=request.session['idFrente'], estatusTotalizado=1)
 	
 	for salidaFolio in salidaFolios:
 		
-		validacionAsignado = InventarioSalida.objects.filter(numFolio=salidaFolio["numFolio"]).aggregate(Sum('cantidadAsignada'))
-		validacionAsign = validacionAsignado["cantidadAsignada__sum"]
 		
 		if salidaFolio["estatusApoyo"] != 0:
 			numeros= Apoyo.objects.values("id","numero").filter(id=salidaFolio["estatusApoyo"])
@@ -1772,14 +1751,13 @@ def foliosSalidaHabilitado(request):
 		else:
 			apoyos=salidaFolio["apoyo__numero"]
 		
-		if Decimal(validacionAsign) > 0:
-			resultado = {
+		resultado = {
 							"numFolio":salidaFolio["numFolio"],
 							"folio":salidaFolio["folio"],
 							"apoyo":apoyos,
 							"elemento":salidaFolio["elemento__nombre"]
 						}
-			data.append(resultado)
+		data.append(resultado)
 	array["data"]=data
 	return JsonResponse(array)
 
@@ -4510,33 +4488,40 @@ def mailHtmlSH(request, folio):
 def mailHtmlEA(request, folio):
 	# Mail entradaArmadoSave
 	res=0
-	flag=0
+	flag = 0
+	aux = 0
 	apoyos=''
 	entrada = Entrada.objects.values(	   
 											"id",
 											"folio",
-											"cantidadAsignada",
+											"total",
 											"remision",
 											"armador",
 											"fechaRegistro",
 											"apoyo__numero",
 											"frente__id",
 											"frente__nombre",
-											"material__nombre",
+											"folio",
 											"elemento__nombre",
-											"cantidadReal",
+											"taller__nombre",
 											"folioSalida",
+											"entradaresumen__id",
+											"entradaresumen__pesoRemision",
+											"entradaresumen__pesoReal",
+											"entradaresumen__tipoRecepcion",
+											"entradaresumen__material__id",
+											"entradaresumen__material__nombre",
 										)\
 										.filter(
 											numFolio = folio,
 											frente_id = request.session['idFrente']
-										)\
-										.distinct()\
-										.order_by("material__id")
+										).order_by("entradaresumen__material__id")
+
 
 	tablaDetalle = ''
 	tabla = ''
 	tablaDetalleFaltante =''
+
 	tablaDetalle += """\
 					
 					<table rules="all" style="border-color: #666;" cellpadding="10">
@@ -4549,8 +4534,33 @@ def mailHtmlEA(request, folio):
 						<tbody>\
 						"""
 	
+	for rem in entrada:
+		print rem
+		
+		tablaDetalle += """\
+									<tr>
+										<td>%s</td>
+										<td>%s</td>
+									</tr>
+								"""%\
+								(
+									rem["entradaresumen__material__nombre"],
+									rem["entradaresumen__pesoReal"]
+									
+								)
 
-	tablaDetalleFaltante += """\
+		if rem["entradaresumen__tipoRecepcion"] == 1: # faltante
+			aux += 1
+
+			detalle = EntradaDetalle.objects.values("id",
+															"nomenclatura",
+															"longitud",
+															"piezas",
+															"calculado")\
+														.filter(entradaResumen_id=rem["entradaresumen__id"])
+			if aux == 1:
+
+				tablaDetalleFaltante += """\
 					<br />
 					<table rules="all" style="border-color: #666;" cellpadding="10">
 						<thead>
@@ -4564,74 +4574,29 @@ def mailHtmlEA(request, folio):
 						</thead>
 						<tbody>\
 						"""
-
-	for rem in entrada:
-
-		entradaDetalle = EntradaDetalle.objects.values("entrada_id",
-													"nomenclatura",
-													"longitud",
-													"piezas",
-													"calculado").filter(entrada_id= rem["id"])
-		if entradaDetalle.exists():
-			print "aqui"
-		cantReal= rem["cantidadReal"]
-		cantReal= rem["cantidadReal"]
-		nombre = rem["material__nombre"]
-	# 	if rem["entradadetalle__nomenclatura"]!=None:
-	# 		res= res + rem["cantidadAsignada"]
-	# 		tablaDetalleFaltante += """\
-	# 									<tr>
-	# 										<td>%s</td>
-	# 										<td>%s</td>
-	# 										<td>%d</td>
-	# 										<td>%f</td>
-	# 										<td>%d</td>
-	# 									</tr>
-	# 								"""%\
-	# 								(
-	# 									rem["material__nombre"],
-	# 									rem["entradadetalle__nomenclatura"],
-	# 									rem["entradadetalle__piezas"],
-	# 									rem["entradadetalle__longitud"],
-	# 									rem["cantidadAsignada"]
-										
-	# 								)
-
-
-	# 	else:
-	# 		#res= res + rem["cantidadAsignada"]
 			
 
-	# 		tablaDetalle += """\
-	# 								<tr>
-	# 									<td>%s</td>
-	# 									<td>%d</td>
-	# 								</tr>
-	# 							"""%\
-	# 							(
-	# 								rem["material__nombre"],
-	# 								rem["cantidadAsignada"]
-									
-	# 							)
+			for d in detalle:
+
+				tablaDetalleFaltante += """\
+													<tr>
+														<td>%s</td>
+														<td>%s</td>
+														<td>%d</td>
+														<td>%s</td>
+														<td>%s</td>
+													</tr>
+												"""%\
+												(
+													rem["entradaresumen__material__nombre"],
+													d["nomenclatura"],
+													d["piezas"],
+													d["longitud"],
+													d["calculado"]
+													
+												)
 
 
-	# #print "***********"
-	# #print res
-	# #print cantReal
-	# cantReal=cantReal-res
-	# #print cantReal
-
-	# tabla += """\
-	# 				<tr>
-	# 					<td>%s</td>
-	# 					<td>%d</td>
-	# 				</tr>
-	# 		"""%\
-	# 		(
-	# 			nombre,
-	# 			cantReal
-	# 			)
-	tablaDetalle += tabla
 
 	tablaDetalle += """\
 						</tbody>
@@ -4652,6 +4617,7 @@ def mailHtmlEA(request, folio):
 	apoyo = entrada[0]["apoyo__numero"]
 	elemento = entrada[0]["elemento__nombre"] 
 	fechaRegistro = entrada[0]["fechaRegistro"]
+	taller =entrada[0]["taller__nombre"]
 
 	folioSalida=entrada[0]["folioSalida"]
 	salida = Salida.objects.values("id", "estatusApoyo", "apoyo__numero").filter(folio=folioSalida)
@@ -4683,6 +4649,7 @@ def mailHtmlEA(request, folio):
 						<th><strong> Folio </strong></th>
 						<th><strong> Remisi&oacute;n </strong></th>
 						<th><strong> Recepci&oacute;n en el Frente </strong></th>
+						<th><strong> Habilitador </strong></th>
 						<th><strong> Armador Asignado </strong></th>
 						<th><strong> Apoyo </strong></th>
 						<th><strong> Elemento </strong></th>
@@ -4698,6 +4665,7 @@ def mailHtmlEA(request, folio):
 						<td>%s</td>
 						<td>%s</td>
 						<td>%s</td>
+						<td>%s</td>
 					</tr>
 				</tbody>
 			</table>
@@ -4707,6 +4675,7 @@ def mailHtmlEA(request, folio):
 				folioStr,
 				remision,
 				frente,
+				taller,
 				proveedor,				
 				apoyos,
 				elemento,

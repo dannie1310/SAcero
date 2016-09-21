@@ -182,46 +182,45 @@ class Apoyo(models.Model):
 		return unicode(self.estatus)
 
 class Entrada(models.Model):
-	peso = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	cantidad = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	tiempoEntrega = models.IntegerField(null=True)
-	funcion = models.ForeignKey(Funcion, null=True)
 	taller = models.ForeignKey(Taller, null=True)
-	material = models.ForeignKey(Material, null=True)
-	transporte = models.ForeignKey(Transporte, null=True)
 	apoyo = models.ForeignKey(Apoyo, null=True)
 	elemento = models.ForeignKey(Elemento, null=True)
-	cantidadReal = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	cantidadAsignada = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	idEtapaPertenece = models.IntegerField(null=True)
-	idOrdenTrabajo = models.IntegerField(null=True)
+	funcion = models.ForeignKey(Funcion, null=True)
+	total = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	folioSalida = models.CharField(max_length=20,null=True)
 	remision = models.CharField(max_length=20,null=True)
 	armador = models.CharField(max_length=100,null=True)
 	frente = models.ForeignKey(Frente, null=True)
-	estatusEtapa = models.IntegerField(default=1)
 	numFolio = models.IntegerField(null=True)
 	folio = models.CharField(max_length=20,null=True)
-	tallerAsignado = models.ForeignKey(Taller, null=True, related_name='tallerAsignadoEntrada')
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),
 	)
 	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
-	TIPOESTATUS = (
-	    (1, 'En proceso'),
-	    (2, 'Recepcionado'),
-	    (3, 'Enviado'),
-	    (4, 'Rechazado'),
-	)
-	tipoEstatus = models.IntegerField(choices=TIPOESTATUS, default=1)
-	TIPORECEPCION = (
-	    (0, 'Parcial'),
-	    (1, 'Total'),
-	)
-	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
 	fechaActualizacion = models.DateTimeField(auto_now=True)
 	fechaRegistro = models.DateTimeField(auto_now_add=True)
-	folioSalida = models.CharField(max_length=20,null=True)
+	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
+		return unicode(self.estatus)
+
+class EntradaResumen(models.Model):
+	material = models.ForeignKey(Material, null=True)
+	pesoRemision = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	pesoReal = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	TIPORECEPCION = (
+	    (0, 'Completo'),
+	    (1, 'Faltante'),
+	    (2, 'Sobrante'),
+	)
+	tipoRecepcion = models.IntegerField(choices=TIPORECEPCION, default=1)
+	entrada = models.ForeignKey(Entrada, null=True)
+	ESTATUSTABLE = (
+	    (0, 'Inactivo'),
+	    (1, 'Activo'),
+	)
+	estatus = models.IntegerField(choices=ESTATUSTABLE, default=1)
+	fechaActualizacion = models.DateTimeField(auto_now=True)
+	fechaRegistro = models.DateTimeField(auto_now_add=True)
 	def __str__(self):              # __unicode__ on Python 2 REGRESA EL NOMBRE DE LA DESCRIPCION EN EL LISTADO DE ADMINISTRACION
 		return unicode(self.estatus)
 
@@ -229,8 +228,8 @@ class EntradaDetalle(models.Model):
 	nomenclatura = models.CharField(max_length=20,null=True)
 	longitud = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
 	piezas = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
-	entrada = models.ForeignKey(Entrada, null=True)
 	calculado = models.DecimalField(max_digits=20,decimal_places=2,default=Decimal('0.00'), null=True)
+	entradaResumen = models.ForeignKey(EntradaResumen, null=True)
 	ESTATUSTABLE = (
 	    (0, 'Inactivo'),
 	    (1, 'Activo'),

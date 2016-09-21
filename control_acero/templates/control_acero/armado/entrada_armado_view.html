@@ -51,6 +51,7 @@
 			<input type="text" data-toggle="tooltip" data-placement="bottom" title="Agrega Armador" class="form-control" name="armador" id="armador"></input>
 			<input type="hidden" name="txtApoyo" id="txtApoyo" />
 			<input type="hidden" name="txtElemento" id="txtElemento" />
+			<input type="hidden" name="txtTaller" id="txtTaller" />
 			
 		</div>
 		<div class="form-group col-md-12">
@@ -194,6 +195,7 @@
    				var x=document.getElementById("remision").value
   				document.getElementById("remision").value=x.toUpperCase()
 		}
+
 		foliosSalidaHabilitado = function(){
 			$.post( "{% url 'foliosSalidaHabilitado' %}",{
 			},
@@ -293,6 +295,7 @@
 	                	$("#txtApoyo").val(object.apoyoId);
 	                	$("#divElemento").html(object.elementoNombre);
 	                	$("#txtElemento").val(object.elementoId);
+	                	$("#txtTaller").val(object.taller);
 	                });
 	            } catch (e) {
 	                swal("Error!", "Error al cargar el Material Recepcionado:" + e,"error");
@@ -358,7 +361,7 @@
 					var sumaTotalCalculado = parseFloat(cantidadAsignada);
 					
 					var tabla = '';
-						if(bandera == 0){
+						if(bandera == 0){ //Material Completo tipoRecepcion = 0
 							swal({
 
 								  title: "¿Está seguro que el material se encuentra completo?",
@@ -372,8 +375,8 @@
 									tabla += '<tr>';
 										tabla += '<td>'+materialNombre+'</td>';
 										tabla += '<td class="success milesLimpio">'+Math.floor(cantidadReal)+'</td>';
-										
-										tabla += '<td style="display:none;"><input type="hidden" class="datos" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" /></td>';
+									tabla += '<td style="display:none;"><input type="hidden" class="datosTotales" data-idmaterial="'+idMaterial+'" data-nombre= "'+materialNombre+'" data-pesoReal="'+cantidadReal+'" data-pesoRemision="'+cantidadReal+'" data-bandera="'+bandera+'" /></td>';
+
 									tabla += '</tr>';
 									
 									$("#tablaMaterialDetalle").append(tabla);
@@ -384,7 +387,7 @@
 								$( "#addDiferencia_"+posicion ).prop( "disabled", true );
 							
 							});
-						}else{
+						}else{ //Material Incompleto tipoRecepcion = 1
 							$( "#add_"+posicion ).prop( "disabled", false );
 							$( "#addDiferencia_"+posicion ).prop( "disabled", false );
 							$(":input[class=real_"+idMaterial+"]").each(function(index, element) {
@@ -407,26 +410,28 @@
 								swal("Error!", "Debes elegir un Número de Piezas Diferente a Cero.","error");
 								return false;
 							}
+
 							//console.log(piezas, cantidadAsignada, cantidadReal);
 							tabla += '<tr class="danger">';
 								tabla += '<td>'+materialNombre+'</td>';
 								tabla += '<td>'+nomenclatura+'</td>';
 								tabla += '<td>'+longitud+'</td>';
-								tabla += '<td class="milesLimpio">'+Math.floor(piezas)+'</td>';
-								tabla += '<td class="milesLimpio">'+Math.floor(cantidadReal)+'</td>';
-								tabla += '<td class="milesLimpio">' +Math.floor(cantidadAsignada)+ '</td>';
+								tabla += '<td>'+piezas+'</td>';
+								tabla += '<td class="miles">'+parseFloat(cantidadReal).toFixed(2)+'</td>';
+								tabla += '<td class="miles">' +parseFloat(cantidadAsignada).toFixed(2)+ '</td>';
 								tabla += '<td style="display:none;"><input type="hidden" class="datosFaltante" data-datosidmaterial="'+idMaterial+'" data-datoscantidadreal="'+cantidadReal+'" data-datoscantidadasignada="'+cantidadAsignada+'" data-datosnomenclatura="'+nomenclatura+'" data-datoslongitud="'+longitud+'" data-datospiezas="'+piezas+'" data-datosbandera="'+bandera+'" data-pesoreal="'+pesoRealCalculado+'" /></td>';
-								tabla += '<td class="milesLimpio">'+Math.floor(pesoRealCalculado)+'</td>';
+								tabla += '<td class="miles">'+parseFloat(pesoRealCalculado).toFixed(2)+'</td>';
 								tabla += '<td style="display:none;"><input type="text" class="real_'+idMaterial+'" value="'+cantidadAsignada+'" /></td>';
 								tabla += '<td style="display:none;"><input type="text" class="realRecibido_'+idMaterial+'" data-idVarilla="'+idMaterial+'" data-nombreVarilla="'+materialNombre+'" data-pesoR="'+pesoRealCalculado+'" value="" /></td>';
 
 							tablaIncompleto +='<tr id="falta_'+idMaterial+'" class="danger">'
 													 			+ '<td>'+materialNombre+'</td>'
-																+ '<td class="milesLimpio">'+Math.floor(pesoRealCalculado)+'</td></tr>';
+																+ '<td class="miles">'+parseFloat(pesoRealCalculado).toFixed(2)+'</td>'
+							tablaIncompleto += '<td style="display:none;"><input type="hidden" class="datosTotales" data-idmaterial="'+idMaterial+'" data-nombre= "'+materialNombre+'" data-pesoReal="'+pesoRealCalculado+'" data-pesoRemision="'+cantidadReal+'" data-bandera="'+bandera+'" /></td></tr>';
 
 							tablaFaltante += '<tr id="suma_'+idMaterial+'" class="danger">'
 													 			+ '<td>'+materialNombre+'</td>'
-																+ '<td class="milesLimpio">'+Math.floor(sumaTotalCalculado)+'</td></tr>';
+																+ '<td class="miles">'+parseFloat(sumaTotalCalculado).toFixed(2)+'</td></tr>';
 
 
 							$("#tablaMaterialFaltante").append(tabla);
@@ -506,7 +511,7 @@
 			var remision = $("#remision").val();
 			var folio = $("#cmbFolio").val();
 			var proveedor =$("#armador").val();
-			var folioText = $("#cmbFolio").find(':selected').data('folio')
+			var folioText = $("#cmbFolio").find(':selected').data('folio');
 			//var proveedor = $("#cmbFuncion").val();
 
 			if(remision==0){
@@ -526,7 +531,7 @@
 					tabla +='<td>'+remision+'</td>';
 					tabla +='<td>'+folioText+'</td>';
 					tabla +='<td><div id="divApoyo"></div></td>';
-					tabla +='<td><div id="divElemento"></div></td>';
+					tabla +='<td><div id="divElemento"></div></td>';					
 				tabla +='</tr>';
 			$("#tablaHabilitado tbody").append(tabla);
 			materialRecepcionado(folio);
@@ -561,6 +566,8 @@
 
 					var array = [];
 					var arrayFaltante = [];
+					var arrayTotales = [];
+					var total = 0;
 					var remision = $("#remision").val();
 					var funcion =$("#armador").val();
 					//var funcion = $("#cmbFuncion").val();
@@ -570,37 +577,38 @@
 					var htmlMail = $("#tablaMaterialDetalle").html();
 					var htmlMailFaltante = $("#tablaMaterialFaltante").html();
 					var folioText = $("#cmbFolio").find(':selected').data('folio')
-					$("input.datos[type=hidden]").each(function(index, element) {
-						var material = $(this).data("datosidmaterial");
-						var cantidadReal = $(this).data("datoscantidadreal");
-						var cantidadAsignada = $(this).data("datoscantidadasignada");
-						var bandera = $(this).data("datosbandera");
-						array.push({"material": material,
-									"cantidadReal": cantidadReal,
-									"cantidadAsignada": cantidadReal,
-									"bandera": bandera
-								});
-					});
+					var taller = $("#txtTaller").val();
+
+					
 					$("input.datosFaltante[type=hidden]").each(function(index, element) {
 						var materialFaltante = $(this).data("datosidmaterial");
-						var cantidadRealFaltante = $(this).data("datoscantidadreal");
 						var cantidadAsignadaFaltante = $(this).data("datoscantidadasignada");
 						var nomenclaturaFaltante = $(this).data("datosnomenclatura");
 						var longitudFaltante = $(this).data("datoslongitud");
 						var piezasFaltante = $(this).data("datospiezas");
-						var calculadoReal = $(this).data("pesoreal");
 						var banderaFaltante = $(this).data("datosbandera");
 						arrayFaltante.push({"material": materialFaltante,
-									"cantidadReal": cantidadRealFaltante,
 									"cantidadAsignada": cantidadAsignadaFaltante,
 									"nomenclatura": nomenclaturaFaltante,
 									"longitud": longitudFaltante,
 									"piezas": piezasFaltante,
-									"calculadoReal": calculadoReal,
 									"bandera": banderaFaltante
 								});
 					});
-					var json = JSON.stringify(array);
+					$("input.datosTotales[type=hidden]").each(function(index, element) {
+						var material = $(this).data("idmaterial");
+						var pesoReal = $(this).data("pesoreal");
+						var pesoRemision = $(this).data("pesoremision");
+						var bandera = $(this).data("bandera");
+						total= total + parseFloat(pesoReal);
+						arrayTotales.push({"material": material,
+									"pesoReal": pesoReal,
+									"pesoRemision": pesoRemision,
+									"bandera": bandera
+								});
+					});
+					
+					var json = JSON.stringify(arrayTotales);
 					var jsonFaltante = JSON.stringify(arrayFaltante);
 					swal({
 
@@ -618,6 +626,8 @@
 							funcion: funcion,
 							folio: folio,
 							apoyo: apoyo,
+							total:total,
+							taller:taller,
 							folioText:folioText,
 							elemento: elemento,
 							htmlMail: htmlMail,
@@ -638,7 +648,7 @@
 					});
 					
 					$("#botones").hide("slide");
-					$("#detalleMaterial").hide("slide");
+					 $("#detalleMaterial").hide("slide");
 			});
 		});
 	    $(function () {
