@@ -57,12 +57,19 @@
 				</tbody>
 			</table>
 		</div>
-		
-		<div style="display:none;" id="divDetalleSolicita" class="col-md-6 text-center">
-			<button type="button" class="btn btn-success" name="btnSolicitar" id="btnSolicitar">Eliminar Folio</button>
+		<div style="display:none;" id="divObservacion"  class="col-md-8 col-md-offset-2 ">
+				<label  class="control-label" for="observacion">Justificación :</label>
+				<textarea rows="3" cols="15" class="form-control observacion" name="observacion" id="observacion" placeholder="Ingresa Justificación"></textarea>
+
 		</div>
-		<div style="display:none;" id="divDetalleCancelar" class="col-md-6 text-center">
-			<button type="button" class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
+		<div class="col-md-12 form-group">
+		<br />
+			<div style="display:none;" id="divDetalleSolicita" class="form-group col-md-6 text-center">
+				<button type="button" class="btn btn-success" name="btnSolicitar" id="btnSolicitar">Eliminar Folio</button>
+			</div>
+			<div style="display:none;" id="divDetalleCancelar" class="form-group col-md-6 text-center">
+				<button type="button" class="btn btn-warning" name="btnCancelar" id="btnCancelar">Cancelar</button>
+			</div>
 		</div>
 	</div>
 	<script type="text/javascript">
@@ -102,6 +109,7 @@
 		                $.each(data.data, function (count, object) {
 		                	$("#divDetalleSolicita").show("slide");
 							$("#divDetalleCancelar").show("slide");
+							$("#divObservacion").show("slide");
 		                	console.log("datos::", object);
 		                	if (object.modulo==1){
 		                		head1='<tr>'
@@ -201,8 +209,10 @@
 		$( "#btnSolicitar" ).click(function() {
 			
 			var folio= $("#folio").val();
+			var observacion = $("#observacion").val();
 			var estatus=1;
 			console.log(folio);
+			console.log(observacion);
 
 			swal({
 
@@ -216,7 +226,8 @@
 			function(){
 				$.post( "{% url 'buscarFolio' %}",{
 	 			folio:folio,
-	 			estatus: estatus
+	 			estatus: estatus,
+	 			observacion:observacion
 				})
 				.done(function(data, status) {
 					setTimeout(function () {
@@ -228,6 +239,7 @@
 					$("#folio").val(' ');
 					$("#divDetalle").hide("slide");
 					$("#divDetalleM").hide("slide");
+					$("#divObservacion").hide("slide");
 					backToTop();
 			    })
 	            .error(function(data, status){
@@ -246,6 +258,7 @@
 		    $("#divDetalleM").hide("slide");
 		    $("#divDetalleSolicita").hide();
 		    $("#divDetalleCancelar").hide();
+		    $("#divObservacion").hide("slide");
 		});
    	  
 	</script>

@@ -370,9 +370,9 @@
 												tabla +='<td>'+object.apoyo+'</td>';
 				                    			tabla +='<td>'+object.elemento+'</td>';
 				                    			tabla +='<td>'+object.material+'</td>';
-		                    					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
-					                    		tabla +='<td class="milesLimpio">0</td>';
-					                    		tabla +='<td class="milesLimpio">'+Math.floor(object.cantidad)+'</td>';
+		                    					tabla +='<td class="miles">'+parseFloat(object.cantidadReal).toFixed(2)+'</td>';
+					                    		tabla +='<td class="miles">0</td>';
+					                    		tabla +='<td class="miles">'+parseFloat(object.cantidad).toFixed(2)+'</td>';
 					                    		tabla += '</tr>';
 		                    		}
 		                        	
@@ -380,7 +380,7 @@
 
 		                    			if(nFolio==object.nFolio && idFrente==object.idFrente && idMaterial==object.idMaterial){
 											
-											faltante=faltante+parseInt(object.cantidad);
+											faltante= parseFloat(faltante) + parseFloat(object.cantidad);
 												tabla +='<tr>';
 				                        		tabla +='<td>'+object.folio+'</td>';
 				                        		tabla +='<td>'+object.remision+'</td>';
@@ -389,9 +389,9 @@
 												tabla +='<td>'+object.apoyo+'</td>';
 				                    			tabla +='<td>'+object.elemento+'</td>';
 				                    			tabla +='<td>'+object.material+'</td>';
-		                    					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
-					                    		tabla +='<td class="alert-warning milesLimpio">'+faltante+'</td>';
-					                    		tabla +='<td class="milesLimpio">'+Math.floor(object.calculado)+'</td>';
+		                    					tabla +='<td class="miles">'+parseFloat(object.cantidadReal).toFixed(2)+'</td>';
+					                    		tabla +='<td class="alert-warning miles">'+parseFloat(faltante).toFixed(2)+'</td>';
+					                    		tabla +='<td class="miles">'+parseFloat(object.calculado).toFixed(2)+'</td>';
 					                    		tabla += '</tr>';
 					                    		faltante=0;
 					                    		nFolio=0;
@@ -403,7 +403,7 @@
 										}   
 										if( nFolio==object.nFolio && idFrente==object.idFrente && idMaterial!=object.idMateria) {
 												
-												faltante=faltante+parseInt(object.cantidad);
+												faltante=parseFloat(faltante)+parseFloat(object.cantidad);
 
 												tabla +='<tr>';
 				                        		tabla +='<td>'+object.folio+'</td>';
@@ -413,9 +413,9 @@
 												tabla +='<td>'+object.apoyo+'</td>';
 				                    			tabla +='<td>'+object.elemento+'</td>';
 				                    			tabla +='<td>'+object.material+'</td>';
-		                    					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
-					                    		tabla +='<td class="alert-warning milesLimpio">'+faltante+'</td>';
-					                    		tabla +='<td class="milesLimpio">'+Math.floor(object.calculado)+'</td>';
+		                    					tabla +='<td class="miles">'+parseFloat(object.cantidadReal).toFixed(2)+'</td>';
+					                    		tabla +='<td class="alert-warning miles">'+parseFloat(faltante).toFixed(2)+'</td>';
+					                    		tabla +='<td class="miles">'+parseFloat(object.calculado).toFixed(2)+'</td>';
 					                    		tabla += '</tr>';
 
 					                    		//console.log(object.cantidadReal, object.cantidad, faltante,object.calculado);
@@ -616,10 +616,13 @@
 			                    	else{
 			                    			if(aux!=object.real){
 			                    				real = real+Math.floor(object.real);
+			                    				console.log(real);
 			                    			}
 			                    			sumaFaltante= sumaFaltante+Math.floor(object.cantidad);
+			                    			console.log(sumaFaltante);
 			                    		}
-			                    	aux=Math.floor(object.real);	
+			                    	aux=Math.floor(object.real);
+			                    	
 			                    	}
 				                 
 				                 else{

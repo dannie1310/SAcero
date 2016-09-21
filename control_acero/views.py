@@ -1353,12 +1353,12 @@ def entradaArmadoSave(request):
 
 			if Decimal(irdpeso) <= Decimal(totalAsignado):
 				totalAsignado = Decimal(totalAsignado) - Decimal(irdpeso)
-				InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=0, estatusTotalizado = 0)
+				#InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=0, estatusTotalizado = 0)
 				continue
 
 			if Decimal(irdpeso) > Decimal(totalAsignado):
 				cantidadRestar = Decimal(irdpeso) - Decimal(totalAsignado)
-				InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=cantidadRestar)
+				#InventarioSalida.objects.filter(id=inventarioId, estatus=1).update(cantidadAsignada=cantidadRestar)
 		entrada = Entrada.objects\
 						.create(
 								remision = remision,
@@ -4512,7 +4512,9 @@ def mailHtmlEA(request, folio):
 	res=0
 	flag=0
 	apoyos=''
-	entrada = Entrada.objects.values(	   "folio",
+	entrada = Entrada.objects.values(	   
+											"id",
+											"folio",
 											"cantidadAsignada",
 											"remision",
 											"armador",
@@ -4523,11 +4525,6 @@ def mailHtmlEA(request, folio):
 											"material__nombre",
 											"elemento__nombre",
 											"cantidadReal",
-											"entradadetalle__entrada_id",
-											"entradadetalle__nomenclatura",
-											"entradadetalle__longitud",
-											"entradadetalle__piezas",
-											"entradadetalle__calculado",
 											"folioSalida",
 										)\
 										.filter(
@@ -4536,7 +4533,7 @@ def mailHtmlEA(request, folio):
 										)\
 										.distinct()\
 										.order_by("material__id")
-	
+
 	tablaDetalle = ''
 	tabla = ''
 	tablaDetalleFaltante =''
@@ -4569,63 +4566,71 @@ def mailHtmlEA(request, folio):
 						"""
 
 	for rem in entrada:
+
+		entradaDetalle = EntradaDetalle.objects.values("entrada_id",
+													"nomenclatura",
+													"longitud",
+													"piezas",
+													"calculado").filter(entrada_id= rem["id"])
+		if entradaDetalle.exists():
+			print "aqui"
 		cantReal= rem["cantidadReal"]
 		cantReal= rem["cantidadReal"]
 		nombre = rem["material__nombre"]
-		if rem["entradadetalle__nomenclatura"]!=None:
-			res= res + rem["cantidadAsignada"]
-			tablaDetalleFaltante += """\
-										<tr>
-											<td>%s</td>
-											<td>%s</td>
-											<td>%d</td>
-											<td>%f</td>
-											<td>%d</td>
-										</tr>
-									"""%\
-									(
-										rem["material__nombre"],
-										rem["entradadetalle__nomenclatura"],
-										rem["entradadetalle__piezas"],
-										rem["entradadetalle__longitud"],
-										rem["cantidadAsignada"]
+	# 	if rem["entradadetalle__nomenclatura"]!=None:
+	# 		res= res + rem["cantidadAsignada"]
+	# 		tablaDetalleFaltante += """\
+	# 									<tr>
+	# 										<td>%s</td>
+	# 										<td>%s</td>
+	# 										<td>%d</td>
+	# 										<td>%f</td>
+	# 										<td>%d</td>
+	# 									</tr>
+	# 								"""%\
+	# 								(
+	# 									rem["material__nombre"],
+	# 									rem["entradadetalle__nomenclatura"],
+	# 									rem["entradadetalle__piezas"],
+	# 									rem["entradadetalle__longitud"],
+	# 									rem["cantidadAsignada"]
 										
-									)
+	# 								)
 
 
-		else:
-			#res= res + rem["cantidadAsignada"]
+	# 	else:
+	# 		#res= res + rem["cantidadAsignada"]
 			
 
-			tablaDetalle += """\
-									<tr>
-										<td>%s</td>
-										<td>%d</td>
-									</tr>
-								"""%\
-								(
-									rem["material__nombre"],
-									rem["cantidadAsignada"]
+	# 		tablaDetalle += """\
+	# 								<tr>
+	# 									<td>%s</td>
+	# 									<td>%d</td>
+	# 								</tr>
+	# 							"""%\
+	# 							(
+	# 								rem["material__nombre"],
+	# 								rem["cantidadAsignada"]
 									
-								)
+	# 							)
 
 
-	#print "***********"
-	#print res
-	#print cantReal
-	cantReal=cantReal-res
-	#print cantReal
+	# #print "***********"
+	# #print res
+	# #print cantReal
+	# cantReal=cantReal-res
+	# #print cantReal
 
-	tabla += """\
-					<tr>
-						<td>%s</td>
-						<td>%d</td>
-					</tr>
-			"""%\
-			(
-				nombre,
-				cantReal
-				)
+	# tabla += """\
+	# 				<tr>
+	# 					<td>%s</td>
+	# 					<td>%d</td>
+	# 				</tr>
+	# 		"""%\
+	# 		(
+	# 			nombre,
+	# 			cantReal
+	# 			)
 	tablaDetalle += tabla
 
 	tablaDetalle += """\
@@ -5505,6 +5510,8 @@ def buscarFolio(request):
 	data = []
 	folio = request.POST.get('folio', 0)
 	e = request.POST.get('estatus', 0)
+	observacion= request.POST.get('observacion', 0)
+	print observacion
 	e = int(e)
 	cad=folio[:3]
 	idDesc=0
@@ -5585,8 +5592,8 @@ def buscarFolio(request):
 					Remision.objects.filter( id = r[0]["remision_id"]).update(estatus=0)
 					RemisionDetalle.objects.filter(folio = r[0]["folio"]).update(estatus=0)
 					InventarioRemisionDetalle.objects.filter(folio=folio).update(estatus=0)
-					bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepcion Taller", id_afectado=r[0]["remision_id"], observacion="Cambio de estatus en folio remision", estatus=1, modulo_id=6, user_id=request.user.id)
-	
+					bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepcion Taller", id_afectado=r[0]["remision_id"], observacion="Cambio de estatus en folio remision", estatus=1, modulo_id=6, user_id=request.user.id, justificacion=observacion)
+					mailHtmlEliminarFolio(request,folio,observacion)
 	if taller!= 0 and cad == 'SMH':
 		print "Salida de material"
 
@@ -5636,8 +5643,9 @@ def buscarFolio(request):
 					DescuentoSalida.objects.filter(id=des["id"]).update(estatus=0)
 					Salida.objects.filter(id=des["salida_id"]).update(estatus=0)
 					InventarioSalida.objects.filter(folio=folio).update(estatus=0)
-					bitacora = Bitacora.objects.create(accion="Eliminación de Folio Salida Taller", id_afectado=des["salida_id"], observacion="Cambio de estatus en folio salida", estatus=1, modulo_id=7, user_id=request.user.id)											
-	
+					bitacora = Bitacora.objects.create(accion="Eliminación de Folio Salida Taller", id_afectado=des["salida_id"], observacion="Cambio de estatus en folio salida", estatus=1, modulo_id=7, user_id=request.user.id, justificacion=observacion)											
+					mailHtmlEliminarFolio(request,folio, observacion)
+
 	if frente!=0 and cad == 'EMA':
 		print "Recepcion en Frente de trabajo"
 
@@ -5684,11 +5692,64 @@ def buscarFolio(request):
 			for ex in entrada:
 				print "cambio de recepcion pendiente"
 				InventarioSalida.objects.filter(folio=ex["folioSalida"],material_id=ex["material__id"]).update(estatusTotalizado=1, cantidadAsignada=ex["cantidadReal"])
-			bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepción en Frente", id_afectado=entrada[0]["id"], observacion="Cambio de estatus en folio entrada", estatus=1, modulo_id=8, user_id=request.user.id)
-	
+			bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepción en Frente", id_afectado=entrada[0]["id"], observacion="Cambio de estatus en folio entrada", estatus=1, modulo_id=8, user_id=request.user.id, justificacion=observacion)
+			mailHtmlEliminarFolio(request,folio, observacion)
+
 	else:
 		mensaje = {"mensaje":"Folio Incorrecto"}
 		
 	array["mensaje"] = mensaje
 	array["data"]=data
 	return JsonResponse(array)
+
+def mailHtmlEliminarFolio(request, folio, observacion):
+	# Mail Eliminar Folio
+	envioEmails=''
+	tablaDetalle = ''
+	nombre = ''
+	if request.session['idFrente'] != 0 :
+		print "frente"
+		envioEmails = User.objects.all().filter(frente__id = request.session['idFrente'])
+		nombre= request.session['nombreFrente']
+
+	if request.session['idTaller'] != 0 :	
+		print "taller"
+		envioEmails = User.objects.all().filter(taller__id = request.session['idTaller'])
+		nombre= request.session['nombreTaller']
+
+	header = "ELIMINACIÓN DE FOLIO"
+	body = ""
+	body += mailHtmlHeader(request)
+	body += """
+			<br />
+			<table rules="all" style="border-color: #666;" cellpadding="10">
+				<thead>
+					<tr style='background:#66cc00;'>
+						<th><strong> Folio </strong></th>
+						<th><strong> Nombre </strong></th>
+						<th><strong> Motivo </strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>
+				</tbody>
+			</table>
+			<br />
+			""" %\
+			(
+				folio,
+				nombre,
+				observacion				
+			)
+	body += tablaDetalle
+	
+	body += mailHtmlFooter()
+
+	for envioEmail in envioEmails:
+		mail(header, body, envioEmail.email)
+
+	return True

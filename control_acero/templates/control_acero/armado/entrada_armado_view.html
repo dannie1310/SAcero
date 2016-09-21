@@ -22,7 +22,7 @@
 		</div>
 		<div class="form-group col-md-6">
 			<label  class="control-label" for="remision">Agregar Remisión:</label>
-			<input type="text" data-toggle="tooltip" data-placement="bottom" title="Agrega Remisión" class="form-control" name="remision" id="remision"></input>
+			<input style="text-transform: uppercase;" type="text" data-toggle="tooltip" data-placement="bottom" title="Agrega Remisión" class="form-control" name="remision" onblur="upperCase()" id="remision"></input>
 		</div>
 		<div class="form-group col-md-6">
 			<label  class="control-label" for="cmbFolio">Folio:</label>
@@ -190,7 +190,10 @@
 		
 	</div>
 	<script type="text/javascript">
-		
+		function upperCase() {
+   				var x=document.getElementById("remision").value
+  				document.getElementById("remision").value=x.toUpperCase()
+		}
 		foliosSalidaHabilitado = function(){
 			$.post( "{% url 'foliosSalidaHabilitado' %}",{
 			},
