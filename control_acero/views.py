@@ -5620,20 +5620,21 @@ def buscarFolio(request):
 
 		entrada=Entrada.objects.values( 
 										"id",
+										"total",
 										"folio",
 										"folioSalida",
-										"material__id",
-										"material__nombre",
 										"armador",
 										"frente__nombre",
 										"elemento__nombre",
 										"apoyo__numero",
 										"remision",
-										"cantidadReal"
+										"entradaresumen__material__id",
+										"entradaresumen__material__nombre",
+										"entradaresumen__pesoReal",
+										"entradaresumen__id",
 										)\
 										.filter(folio=folio, estatus=1, frente_id = request.session['idFrente'])\
-										.annotate(cantidadAsignada = Sum('cantidadAsignada'))\
-										.order_by("material__id")\
+										.order_by("entradaresumen__material__id")\
 										.distinct()
 
 		for ent in entrada:
@@ -5642,14 +5643,14 @@ def buscarFolio(request):
 				"id":ent["id"],
 				"folio":ent["folio"],
 				"folioSalida":ent["folioSalida"],
-				"material":ent["material__nombre"],
+				"material":ent["entradaresumen__material__nombre"],
 				"proveedor":ent["armador"],
 				"frente":ent["frente__nombre"],
 				"elemento":ent["elemento__nombre"],
 				"apoyo":ent["apoyo__numero"],
 				"remision":ent["remision"],
-				"cantidad":ent["cantidadAsignada"],
-				"cantidadR":ent["cantidadReal"]
+				"cantidad":ent["total"],
+				"cantidadR":ent["entradaresumen__pesoReal"]
 			}
 			data.append(resultado)
 
@@ -5657,10 +5658,11 @@ def buscarFolio(request):
 		if e == 1:
 			print "elimina"
 			Entrada.objects.filter(folio=folio).update(estatus=0)
-			EntradaDetalle.objects.filter(entrada__folio =folio).update(estatus=0)
+			EntradaResumen.objects.filter(entrada__folio =folio).update(estatus=0)
+			EntradaDetalle.objects.filter(entradaResumen__entrada__folio = folio).update(estatus=0)
 			for ex in entrada:
 				print "cambio de recepcion pendiente"
-				InventarioSalida.objects.filter(folio=ex["folioSalida"],material_id=ex["material__id"]).update(estatusTotalizado=1, cantidadAsignada=ex["cantidadReal"])
+				InventarioSalida.objects.filter(folio=ex["folioSalida"],material_id=ex["entradaresumen__material__id"]).update(estatusTotalizado=1)
 			bitacora = Bitacora.objects.create(accion="Eliminación de Folio Recepción en Frente", id_afectado=entrada[0]["id"], observacion="Cambio de estatus en folio entrada", estatus=1, modulo_id=8, user_id=request.user.id, justificacion=observacion)
 			mailHtmlEliminarFolio(request,folio, observacion)
 
