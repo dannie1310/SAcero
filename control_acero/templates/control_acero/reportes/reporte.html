@@ -260,13 +260,14 @@
 		        		fechaf:fechaf
 			},
 			function(data, status) {
+				
 	            try {
 	            	
 	            	if (data.data.length==0 && data.entrada.length==0){
 	            		tabla='<tr><th class="text-center" colspan="5">No se encuentran registros con esos datos de busqueda. </th></tr>'
 	            	}
 	                $.each(data.data, function (count, object) {
-	                	console.log(data);
+	                	//console.log(data);
 	                	//console.log("Fabricante", tipo);
 	                	if(object.value==0){
 	                		//Inventario Fisico 
@@ -344,10 +345,12 @@
 		                 if(object.value==2){
 		                 	//Armador
 		                 	//console.log(object);
-		                 	
+		                 		
 		                 		head ='<tr>'
 		                 		+'<th class="text-center">Folio</th>'
 		                 		+'<th class="text-center">Remisión</th>'
+		                 		+'<th class="text-center">Habilitador</th>'
+		                 		+'<th class="text-center">Fecha de Recepción</th>'
 		                 		+'<th class="text-center">Frente</th>'
 		                 		+'<th class="text-center">Armador</th>'
 		                 		+'<th class="text-center">Apoyo</th>'
@@ -361,104 +364,42 @@
 
 								
 									
-									if(object.cantidadReal== object.cantidad){
+									if(object.pesoRemision == object.pesoReal){
 		                    				tabla +='<tr>';
 				                        		tabla +='<td>'+object.folio+'</td>';
 				                        		tabla +='<td>'+object.remision+'</td>';
+				                        		tabla +='<td>'+object.taller+'</td>';
+				                        		tabla +='<td>'+object.fechaR+'</td>';
 				                        		tabla +='<td>'+object.frente+'</td>';
 												tabla +='<td>'+object.proveedor+'</td>';
 												tabla +='<td>'+object.apoyo+'</td>';
 				                    			tabla +='<td>'+object.elemento+'</td>';
 				                    			tabla +='<td>'+object.material+'</td>';
-		                    					tabla +='<td class="miles">'+parseFloat(object.cantidadReal).toFixed(2)+'</td>';
+		                    					tabla +='<td class="miles">'+parseFloat(object.pesoRemision).toFixed(2)+'</td>';
 					                    		tabla +='<td class="miles">0</td>';
-					                    		tabla +='<td class="miles">'+parseFloat(object.cantidad).toFixed(2)+'</td>';
+					                    		tabla +='<td class="miles">'+parseFloat(object.pesoReal).toFixed(2)+'</td>';
 					                    		tabla += '</tr>';
 		                    		}
 		                        	
-		                    		if(object.id==object.idED){
+		                    		else{
 
-		                    			if(nFolio==object.nFolio && idFrente==object.idFrente && idMaterial==object.idMaterial){
-											
-											faltante= parseFloat(faltante) + parseFloat(object.cantidad);
+										faltante= parseFloat(object.pesoRemision) - parseFloat(object.pesoReal);
 												tabla +='<tr>';
 				                        		tabla +='<td>'+object.folio+'</td>';
 				                        		tabla +='<td>'+object.remision+'</td>';
+				                        		tabla +='<td>'+object.taller+'</td>';
+				                        		tabla +='<td>'+object.fechaR+'</td>';
 				                        		tabla +='<td>'+object.frente+'</td>';
 												tabla +='<td>'+object.proveedor+'</td>';
 												tabla +='<td>'+object.apoyo+'</td>';
 				                    			tabla +='<td>'+object.elemento+'</td>';
 				                    			tabla +='<td>'+object.material+'</td>';
-		                    					tabla +='<td class="miles">'+parseFloat(object.cantidadReal).toFixed(2)+'</td>';
+		                    					tabla +='<td class="miles">'+parseFloat(object.pesoRemision).toFixed(2)+'</td>';
 					                    		tabla +='<td class="alert-warning miles">'+parseFloat(faltante).toFixed(2)+'</td>';
-					                    		tabla +='<td class="miles">'+parseFloat(object.calculado).toFixed(2)+'</td>';
+					                    		tabla +='<td class="miles">'+parseFloat(object.pesoReal).toFixed(2)+'</td>';
 					                    		tabla += '</tr>';
-					                    		faltante=0;
-					                    		nFolio=0;
-												idFrente=0;
-												idMaterial=0;
-										// suma= suma + Math.floor(object.cantidad);
-										// sumaFaltante= sumaFaltante + Math.floor(object.calculado);
-	
-										}   
-										if( nFolio==object.nFolio && idFrente==object.idFrente && idMaterial!=object.idMateria) {
-												
-												faltante=parseFloat(faltante)+parseFloat(object.cantidad);
-
-												tabla +='<tr>';
-				                        		tabla +='<td>'+object.folio+'</td>';
-				                        		tabla +='<td>'+object.remision+'</td>';
-				                        		tabla +='<td>'+object.frente+'</td>';
-												tabla +='<td>'+object.proveedor+'</td>';
-												tabla +='<td>'+object.apoyo+'</td>';
-				                    			tabla +='<td>'+object.elemento+'</td>';
-				                    			tabla +='<td>'+object.material+'</td>';
-		                    					tabla +='<td class="miles">'+parseFloat(object.cantidadReal).toFixed(2)+'</td>';
-					                    		tabla +='<td class="alert-warning miles">'+parseFloat(faltante).toFixed(2)+'</td>';
-					                    		tabla +='<td class="miles">'+parseFloat(object.calculado).toFixed(2)+'</td>';
-					                    		tabla += '</tr>';
-
-					                    		//console.log(object.cantidadReal, object.cantidad, faltante,object.calculado);
-										} //falta un dato....
-
-										// if( nFolio!=object.nFolio && idFrente==object.idFrente && idMaterial!=object.idMateria) {
-												
-										// 		//faltante=faltante+parseInt(object.cantidad);
-
-										// 		tabla +='<tr>';
-				      //                   		tabla +='<td>'+object.folio+'</td>';
-				      //                   		tabla +='<td>'+object.remision+'</td>';
-				      //                   		tabla +='<td>'+object.frente+'</td>';
-										// 		tabla +='<td>'+object.proveedor+'</td>';
-										// 		tabla +='<td>'+object.apoyo+'</td>';
-				      //               			tabla +='<td>'+object.elemento+'</td>';
-				      //               			tabla +='<td>'+object.material+'</td>';
-		        //             					tabla +='<td class="milesLimpio">'+Math.floor(object.cantidadReal)+'</td>';
-					     //                		tabla +='<td class="alert-warning milesLimpio">'+Math.floor(object.cantidad)+'</td>';
-					     //                		tabla +='<td class="milesLimpio">'+Math.floor(object.calculado)+'</td>';
-					     //                		tabla += '</tr>';
-
-					     //                		//console.log(object.cantidadReal, object.cantidad, faltante,object.calculado);
-										// } 
-										else{
-
-											//console.log("aq");
-											//console.log("faltante "+faltante, nFolio, idFrente, idMaterial);
-												nFolio= parseInt(object.nFolio);
-												idFrente = parseInt(object.idFrente);
-												idMaterial = parseInt(object.idMaterial);
-												
-												faltante= faltante + parseInt(object.cantidad);
-												
-											
+					                    		
 										}
-									}
-									
-								
-								//console.log(suma,"sumaf ", sumaFaltante);
-								
-								//$("#falta_"+object.nFolio+"_"+object.idFrente+"_"+object.idMaterial).remove();
-								//$("#tablaSolicita tbody").append(tabla);
 								$("#tituloE").hide('slide');
 								$("#tituloS").hide('slide');
 								$("#divTotales").show('slide');
@@ -557,7 +498,7 @@
 		                 	
 		                });
 						$.each(data.entrada, function (count, object) {
-									console.log(object);
+									//console.log(object);
 									h ='<tr>'
 											+'<th class="text-center">Folio</th>'
 											+'<th class="text-center">Fabricante</th>'
@@ -606,26 +547,14 @@
 								});
 						$.each(data.totales, function (count, object) {
 
-	                    		 if(object.value==1){
+	                    		 
+								if(object.value==1){
 	                    		 	$("#divTotales").hide('slide');
 	                    		 	
-			                    	if(object.faltante==null){
-			                    		real = real+Math.floor(object.real);
-			                    		
-			                    	}
-			                    	else{
-			                    			if(aux!=object.real){
-			                    				real = real+Math.floor(object.real);
-			                    				console.log(real);
-			                    			}
-			                    			sumaFaltante= sumaFaltante+Math.floor(object.cantidad);
-			                    			console.log(sumaFaltante);
-			                    		}
-			                    	aux=Math.floor(object.real);
-			                    	
-			                    	}
-				                 
-				                 else{
+	                    		 	real = parseFloat(real) + parseFloat(object.pesoReal);
+	                    		}
+	                    		
+				                else{
 				                 	hT='<tr>'
 										+'<th class="text-center">Varilla</th>'
 										+'<th class="text-center">Peso Total en Kg</th>'
@@ -651,10 +580,13 @@
 
 	                    });
 	                    if(real!= 0 && sumaFaltante!=0){
-	                    	sum=real-sumaFaltante;
-	                    	//console.log("Real : "+real,"Diferencia : "+sum, "faltante: "+ sumaFaltante);
+	                     	sum=real-sumaFaltante;
+	                     }
+	                    if(real!= 0 && sumaFaltante==0){
+	                    	sum= real;
 	                    }
-						//console.log("entrada: ",array);
+	                    console.log(sum);
+	                    //console.log("entrada: ",array);
 	                    $.each(data.totalesS, function (count, object) {
 	                    		 
 	                    		 	ht='<tr>'
@@ -711,12 +643,19 @@
 			if(sumSalida!=0){
 				headTT+='<th class="text-center">Peso Total de Salida de Habilitado en Kg</th>';
 				tobody +='<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>';
-				sumSalida= sum-sumSalida;
-				headTT+='<th class="text-center">Diferencia</th>';
-				tobody +='<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>';
+				if(sum!=0){
+					sumSalida= sum-sumSalida;
+					headTT+='<th class="text-center">Diferencia</th>';
+					tobody +='<td class="alert-success milesLimpio">'+Math.floor(sumSalida)+'</td>';
+				}
+				
+
 			}
 			
-			
+			if(sumSalida!=0 && sum==0){
+				$("#divDiferencia").hide('slide');
+
+			}
 			tobody+='</tr>';
 			headTT+='</tr>';
 

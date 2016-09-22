@@ -48,7 +48,7 @@
 		</div> -->
 		<div class="form-group col-md-12">
 			<label  class="control-label" for="armador">Agrega Proveedor de Armado:</label>
-			<input type="text" data-toggle="tooltip" data-placement="bottom" title="Agrega Armador" class="form-control" name="armador" id="armador"></input>
+			<input type="text" data-toggle="tooltip" style="text-transform: uppercase;" data-placement="bottom" onblur="upperCase()" title="Agrega Armador" class="form-control" name="armador" id="armador"></input>
 			<input type="hidden" name="txtApoyo" id="txtApoyo" />
 			<input type="hidden" name="txtElemento" id="txtElemento" />
 			<input type="hidden" name="txtTaller" id="txtTaller" />
@@ -194,7 +194,9 @@
 		function upperCase() {
    				var x=document.getElementById("remision").value
   				document.getElementById("remision").value=x.toUpperCase()
-		}
+  				var r=document.getElementById("armador").value
+  				document.getElementById("armador").value=r.toUpperCase()
+  		}
 
 		foliosSalidaHabilitado = function(){
 			$.post( "{% url 'foliosSalidaHabilitado' %}",{
