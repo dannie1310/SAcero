@@ -145,7 +145,9 @@
 		                $('.cmbFuncion').append('<option value="0">Selecciona Proveedor de Acero (Fabricante)</option>');
 	                    $.each(data.data, function (count, object) {
 	                        $('.cmbFuncion').append('<option value="' + object.id + '">' + object.proveedor + '</option>');
+	                        $('.cmbFuncion').append('<input type="hidden" class="dataInfo" name="'+object.proveedor+'" data-id="'+object.id+'" data-proveedor="'+object.proveedor+'" id="'+object.proveedor+'" value=" " />');
 	                    });
+
 	                        
 	                    
 		            } catch (e) {
@@ -390,6 +392,7 @@
 			var json = JSON.stringify(datos);
 
 			}
+			console.log("aqui json: ",datos);
 			swal({
 
 				  title: "¿Está seguro que la información capturada es la correcta?",
@@ -538,11 +541,131 @@
 				$("#divTotales").show("slide");
 		}
 		
+		function guardarExcel(){
+			//console.log(array);
+			var aux=[];
+			var remision=0;
+			var orden=0;
+			var funcion="";
+			var fechaRemision=0;
+			var pesoNeto =0;
+			var pesoBruto=0;
+			var pesoTara=0;
+			var pesoTotal=0;
+			var observacion=0;
+			var material = 2;
+			var htmlMail=0;
+			$.ajax({
+			    url: "/static/datos-entrada.csv",
+			    async: false,
+			    success: function (csvd) {//guardar por remision
+			    	var mat=2;
+					
+			        var items = $.csv.toObjects(csvd);
+			        var jsonobject = JSON.stringify(items);
+			        //console.log(jsonobject);
+			        var obj = $.parseJSON(jsonobject);
+			        console.log(obj);
+			        for(var x = 0; x < obj.length; x++){
+			        //	console.log("sdasd",obj[x]);
+			        	$.each(obj[x], function(c, value){
+			        		//console.log(c, value);
+			        		if(isNaN(c)){
+			        			if(c=="remision"){
+			        					remision=value;	        					
+			        			}
+			        			if(c=="orden"){
+			        					orden=value;
+			        			}
+			        			if(c=="funcion"){
+			        					funcion=value;
+			        					$.post("{% url 'buscarFuncion' %}",{
+			        						nombre : funcion,
+			        					},
+										function(data, status) {
+											$.each(data.data, function (count, object) {
+					                        	console.log("valor: ",object.id);
+					                        	funcion = object.id;
+					                    		});
+			        	
+										});
+			        			}
+			        			if(c=="fechaRemision"){
+			        					fechaRemision=value;
+			        			}
+			        			if(c=="pesoTara"){
+			        					pesoTara=value;
+			        			}
+			        			if(c=="pesoBruto"){
+			        					pesoBruto=value;
+			        			}
+			        			if(c=="pesoNeto"){
+			        					pesoNeto=value;
+			        			}
+			        			if(c=="pesoRemision"){
+			        					pesoTotal=value;
+			        			}
+			        			if(c=="observacion"){
+			        					observacion=value;
+			        			}
+			        		}
+			        		if(material< 13){
+			        		//console.log("material",material);
+			        			if(c==material.toString() && value!=''){
+			           				var s="1|1|"+c+"|0|"+value+"|12|1";
+			           				aux.push({"data": s});
+
+			        			}
+			        			material+=1;
+			        			
+			        		}
+			        		else{
+			        			material=2;
+			        		}
+			        		
+			        	});
+			        	console.log("Material")
+			        	console.log(remision,orden, funcion,fechaRemision,pesoTara, pesoBruto,pesoNeto);
+			        	console.log(aux);
+			        	var json = JSON.stringify(aux);
+			        	console.log(json);
+			        	$.post( "{% url 'recepcionMaterialSave' %}",{
+				        		remision: remision,
+				        		idOrden: orden,
+				        		funcion: funcion,
+				        		fechaRemision: fechaRemision,
+				        		pesoTara: pesoTara,
+				        		pesoBruto: pesoBruto,
+				        		pesoNeto: pesoNeto,
+				        		pesoRemision: pesoTotal,
+				        		observacion:observacion,
+				        		htmlMail: htmlMail,
+				        		json: json
+							},
+						function(data, status) {
+							$.each(data.data, function (count, object) {
+								console.log("material: 1");
+	                        	console.log(object.mensaje);
+	                    		});
+			        	
+						});
+			        	aux=[];
+			        	material=2;
+				    }
+			    },
+			    dataType: "text",
+			    complete: function () {
+			        // call a function on complete 
+			    }
+			});	
+		}
+		
 
 	    $(function () {
 	    	mostrarFolio();
 	    	comboFuncion();
 	    	//comboFrente();
+	    	//guardarExcel();
 	    });
 	</script>
 {% endblock %}

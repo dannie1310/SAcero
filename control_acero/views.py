@@ -4347,7 +4347,7 @@ def mailHtmlSH(request, folio):
 						(
 							rem["material__nombre"],
 							rem["cantidadAsignada"],
-							res
+							rem["cantidadReal"]
 						)
 
 	tablaDetalle += """\
@@ -4473,7 +4473,7 @@ def mailHtmlSH(request, folio):
 
 	body2 +=tablaDetalleF
 	body2 +=mailHtmlFooter()
-
+	
 	
 	for envio in frentesEmail:
 		mail(header, body2, envio.email)
@@ -5717,3 +5717,101 @@ def mailHtmlEliminarFolio(request, folio, observacion):
 		mail(header, body, envioEmail.email)
 
 	return True
+
+def buscarFuncion(request):
+	array = {}
+	mensaje = {}
+	data = []
+	nombre = request.POST.get('nombre', 'DEACERO')
+	print nombre
+	funciones = Funcion.objects.all()\
+								.filter(
+										proveedor=nombre,
+										estatus = 1
+										)
+	for funcion in funciones:
+		resultado = {
+						"id":funcion.id,
+						"proveedor":funcion.proveedor
+					}
+		data.append(resultado)
+	array["data"]=data;
+	print "aquilds";
+	print data;
+	return JsonResponse(array)
+
+def buscarElemento(request):
+	array = {}
+	mensaje = {}
+	data = []
+	nombre = request.POST.get('nombre', 'Pila')
+	print nombre
+	funciones = Elemento.objects.all()\
+								.filter(
+										nombre=nombre,
+										estatus = 1
+										)
+	for funcion in funciones:
+		resultado = {
+						"id":funcion.id,
+						"nombre":funcion.nombre
+					}
+		data.append(resultado)
+	array["data"]=data;
+	print "aquilds1";
+	print data;
+	return JsonResponse(array)
+
+def buscarFrente(request):
+	array = {}
+	mensaje = {}
+	data = []
+	nombre = request.POST.get('nombre', 'Viaducto 1C')
+	print nombre
+	
+	if nombre == "METEPEC" or nombre == "LERMA":
+		aux="Estacion "+nombre
+		print "aqui"
+	else:
+		aux = "Viaducto "+nombre
+
+	print aux
+	funciones = Frente.objects.all()\
+								.filter(
+										nombre=aux,
+										estatus = 1
+										)
+	for funcion in funciones:
+		resultado = {
+						"id":funcion.id,
+						"frente":funcion.nombre
+					}
+		data.append(resultado)
+	array["data"]=data;
+	print "aquilds2";
+	print data;
+	return JsonResponse(array)
+
+def buscarApoyo(request):
+	array = {}
+	mensaje = {}
+	data = []
+	nombre = request.POST.get('nombre', '1D-12')
+	print nombre
+	funciones = Apoyo.objects.all()\
+								.filter(
+										numero=nombre,
+										estatus = 1
+										)
+	for funcion in funciones:
+		resultado = {
+						"id":funcion.id,
+						"numero":funcion.numero
+					}
+		data.append(resultado)
+	array["data"]=data;
+	print "aquilds3";
+	print data;
+	return JsonResponse(array)
+
+

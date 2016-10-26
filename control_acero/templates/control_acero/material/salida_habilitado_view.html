@@ -353,10 +353,15 @@
 			//console.log(array);
 			var aux=[];
 			var apoyo=0;
-			var elemento=0;
-			var frente=0;
+			var apoyo2=0;
+			var elemento="";
+			var fecha="";
+			var frente="";
 			var reposicion=0;
 			var htmlMail=0;
+			var auxFrente="";
+			var auxApoyo="";
+			var cont=1;
 			$.ajax({
 			    url: "/static/datos.csv",
 			    async: false,
@@ -365,7 +370,7 @@
 					
 			        var items = $.csv.toObjects(csvd);
 			        var jsonobject = JSON.stringify(items);
-			        //console.log(jsonobject);
+			       // console.log(jsonobject);
 			        var obj = $.parseJSON(jsonobject);
 			         //console.log(obj);
 			        for(var x = 0; x < obj.length; x++){
@@ -373,42 +378,97 @@
 			        	$.each(obj[x], function(c, value){
 			        		//console.log(c, value);
 			        		if(isNaN(c)){
-			        			if(c=="apoyo"){
-			        					apoyo=value;
-			        					
-			        			}
 			        			if(c=="elemento"){
 			        					elemento=value;
+			        					$.post("{% url 'buscarElemento' %}",{
+			        						nombre : elemento,
+			        					},
+										function(data, status) {
+											$.each(data.data, function (count, object) {
+					                        	//onsole.log("valor: ",object.id);
+					                        	elemento = object.id;
+					                    		});
+			        	
+										});
 			        			}
-			        			if(c=="frente"){
+			        			if(c=="viaducto"){
 			        					frente=value;
+			        					auxFrente=value;
+			        					$.post("{% url 'buscarFrente' %}",{
+			        						nombre : frente,
+			        					},
+										function(data, status) {
+											$.each(data.data, function (count, object) {
+					                        	//console.log("valor: ",object.id);
+					                        	frente = object.id;
+					                    		});
+			        	
+										});
 			        			}
+			        			if(c=="apoyo1"){
+			        					auxApoyo=value;  
+			        					auxApoyo=auxFrente+"-" + auxApoyo; 
+			        					//console.log(auxApoyo);
+			        					$.post("{% url 'buscarApoyo' %}",{
+			        						nombre : auxApoyo,
+			        					},
+										function(data, status) {
+											$.each(data.data, function (count, object) {
+					                        	console.log("valor: ",object.id);
+					                        	apoyo = object.id;
+					                    		});
+			        	
+										}); 
+										auxApoyo="";    					
+			        			}
+			        			if(c=="apoyo2" && value!=''){
+			        				auxApoyo=value;
+			        				auxApoyo=auxFrente+"-"+ auxApoyo; 
+			        				//console.log(auxApoyo);
+			        					$.post("{% url 'buscarApoyo' %}",{
+			        						nombre : auxApoyo,
+			        					},
+										function(data, status) {
+											$.each(data.data, function (count, object) {
+					                        	//console.log("valor: ",object.id);
+					                        	apoyo2 = object.id;
+					                    		});
+			        	
+										}); 
+										auxApoyo="";
+			        			}
+			        			if(c=="fecha"){
+			        				fecha=value;
+			        			}    			
 			        			if(c=="reposicion"){
 			        					reposicion=value;
 			        			}
 			        		}
-			        		if(producto(c) && value!=''){
+			        		if(producto(c) && value!='' && value!=0){
 			        			aux.push({"material": c, "cantidadReal": producto(c), "cantidadAsignada": value});
 			        		}
 			        	});
 			        	console.log("---")
-			        	console.log(apoyo,elemento,frente,reposicion);
+			        	console.log(apoyo, apoyo2, elemento,frente,fecha,reposicion);
 			        	console.log(aux);
 			        	var json = JSON.stringify(aux);
 			        	$.post( "{% url 'salidaHabilitadoSave' %}",{
 			        		apoyo: apoyo,
 							elemento: elemento,
 							frente: frente,
+							aux: apoyo2,
 							htmlMail: htmlMail,
 							reposicion:reposicion,
 							json: json
 						},
 						function(data, status) {
 							$.each(data.data, function (count, object) {
-	                        	console.log(object);
+	                        	console.log(object.mensaje);
+	                        	cont++;
 	                    	});
 			        	
 						});
+						console.log("# "+cont);
 			        	aux=[];
 				    }
 
